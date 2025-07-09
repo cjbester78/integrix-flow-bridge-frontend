@@ -3,10 +3,22 @@ import { useAuth } from '@/contexts/AuthContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  requiredRoles?: string[];
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth();
+const roleRouteAccess = {
+  '/dashboard': ['admin', 'integrator', 'viewer'],
+  '/create-flow': ['admin', 'integrator'],
+  '/data-structures': ['admin', 'integrator'],
+  '/create-communication-adapter': ['admin', 'integrator'],
+  '/messages': ['admin', 'integrator', 'viewer'],
+  '/channels': ['admin', 'integrator', 'viewer'],
+  '/admin': ['admin'],
+  '/settings': ['admin']
+};
+
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRoles }) => {
+  const { isAuthenticated, isLoading, user } = useAuth();
   const location = useLocation();
 
   if (isLoading) {
@@ -22,6 +34,16 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  // Check role-based access
+  if (user) {
+    const allowedRoles = requiredRoles || roleRouteAccess[location.pathname as keyof typeof roleRouteAccess];
+    
+    if (allowedRoles && !allowedRoles.includes(user.role)) {
+      // Redirect to dashboard if user doesn't have access to the current route
+      return <Navigate to="/dashboard" replace />;
+    }
   }
 
   return <>{children}</>;

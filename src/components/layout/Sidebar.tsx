@@ -14,20 +14,67 @@ import { NavLink } from 'react-router-dom';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Create Flow', href: '/create-flow', icon: Plus },
-  { name: 'Create Data Structures', href: '/data-structures', icon: Layers },
-  { name: 'Create Communication Adapter', href: '/create-communication-adapter', icon: Send },
-  { name: 'Message Monitor', href: '/messages', icon: MessageSquare },
-  { name: 'Channel Monitor', href: '/channels', icon: Activity },
-  { name: 'Admin Panel', href: '/admin', icon: Users },
-  { name: 'Settings', href: '/settings', icon: Settings },
+  { 
+    name: 'Dashboard', 
+    href: '/dashboard', 
+    icon: LayoutDashboard, 
+    roles: ['admin', 'integrator', 'viewer'] 
+  },
+  { 
+    name: 'Create Flow', 
+    href: '/create-flow', 
+    icon: Plus, 
+    roles: ['admin', 'integrator'] 
+  },
+  { 
+    name: 'Create Data Structures', 
+    href: '/data-structures', 
+    icon: Layers, 
+    roles: ['admin', 'integrator'] 
+  },
+  { 
+    name: 'Create Communication Adapter', 
+    href: '/create-communication-adapter', 
+    icon: Send, 
+    roles: ['admin', 'integrator'] 
+  },
+  { 
+    name: 'Message Monitor', 
+    href: '/messages', 
+    icon: MessageSquare, 
+    roles: ['admin', 'integrator', 'viewer'] 
+  },
+  { 
+    name: 'Channel Monitor', 
+    href: '/channels', 
+    icon: Activity, 
+    roles: ['admin', 'integrator', 'viewer'] 
+  },
+  { 
+    name: 'Admin Panel', 
+    href: '/admin', 
+    icon: Users, 
+    roles: ['admin'] 
+  },
+  { 
+    name: 'Settings', 
+    href: '/settings', 
+    icon: Settings, 
+    roles: ['admin'] 
+  },
 ];
 
 export const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const { user } = useAuth();
+
+  // Filter navigation items based on user role
+  const filteredNavigation = navigation.filter(item => 
+    user && item.roles.includes(user.role)
+  );
 
   return (
     <div className={cn(
@@ -51,7 +98,7 @@ export const Sidebar = () => {
         </div>
 
         <nav className="flex-1 p-4 space-y-2">
-          {navigation.map((item) => (
+          {filteredNavigation.map((item) => (
             <NavLink
               key={item.name}
               to={item.href}
