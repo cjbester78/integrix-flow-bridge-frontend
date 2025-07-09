@@ -72,7 +72,8 @@ const communicationAdapters = [
       { name: 'apiSecret', label: 'API Secret', type: 'password', required: true, placeholder: 'Your API Secret' },
       { name: 'endpoint', label: 'API Endpoint', type: 'text', required: true, placeholder: 'https://api.twilio.com/2010-04-01' },
       { name: 'fromNumber', label: 'From Number', type: 'text', required: true, placeholder: '+1234567890' },
-      { name: 'region', label: 'Region', type: 'select', required: false, options: ['US', 'EU', 'APAC'] }
+      { name: 'region', label: 'Region', type: 'select', required: false, options: ['US', 'EU', 'APAC'] },
+      { name: 'authType', label: 'Authentication', type: 'select', required: false, options: ['None', 'Basic Auth', 'Bearer Token', 'API Key', 'OAuth', 'OAuth 2.0', 'SSL Certificate'] }
     ]
   },
   {
@@ -100,7 +101,8 @@ const communicationAdapters = [
       { name: 'username', label: 'Username', type: 'text', required: true, placeholder: 'ftpuser' },
       { name: 'password', label: 'Password', type: 'password', required: true, placeholder: 'FTP Password' },
       { name: 'passiveMode', label: 'Passive Mode', type: 'select', required: false, options: ['true', 'false'] },
-      { name: 'transferMode', label: 'Transfer Mode', type: 'select', required: false, options: ['binary', 'ascii'] }
+      { name: 'transferMode', label: 'Transfer Mode', type: 'select', required: false, options: ['binary', 'ascii'] },
+      { name: 'authType', label: 'Authentication', type: 'select', required: false, options: ['None', 'Basic Auth', 'Bearer Token', 'API Key', 'OAuth', 'OAuth 2.0', 'SSL Certificate'] }
     ]
   },
   {
@@ -115,7 +117,8 @@ const communicationAdapters = [
       { name: 'username', label: 'Username', type: 'text', required: true, placeholder: 'sftpuser' },
       { name: 'password', label: 'Password', type: 'password', required: false, placeholder: 'SFTP Password' },
       { name: 'privateKey', label: 'Private Key Path', type: 'text', required: false, placeholder: '/path/to/private/key' },
-      { name: 'keyPassphrase', label: 'Key Passphrase', type: 'password', required: false, placeholder: 'Key passphrase' }
+      { name: 'keyPassphrase', label: 'Key Passphrase', type: 'password', required: false, placeholder: 'Key passphrase' },
+      { name: 'authType', label: 'Authentication', type: 'select', required: false, options: ['None', 'Basic Auth', 'Bearer Token', 'API Key', 'OAuth', 'OAuth 2.0', 'SSL Certificate'] }
     ]
   },
   {
@@ -129,7 +132,7 @@ const communicationAdapters = [
       { name: 'url', label: 'URL', type: 'text', required: true, placeholder: 'https://api.example.com/endpoint' },
       { name: 'method', label: 'HTTP Method', type: 'select', required: true, options: ['POST', 'PUT', 'PATCH', 'GET'] },
       { name: 'contentType', label: 'Content Type', type: 'select', required: true, options: ['application/json', 'application/xml', 'application/x-www-form-urlencoded'] },
-      { name: 'authType', label: 'Authentication', type: 'select', required: false, options: ['None', 'Basic Auth', 'Bearer Token', 'API Key', 'OAuth', 'OAuth 2.0'] },
+      { name: 'authType', label: 'Authentication', type: 'select', required: false, options: ['None', 'Basic Auth', 'Bearer Token', 'API Key', 'OAuth', 'OAuth 2.0', 'SSL Certificate'] },
       { name: 'authValue', label: 'Auth Value', type: 'password', required: false, placeholder: 'Token or credentials' },
       { name: 'timeout', label: 'Timeout (ms)', type: 'number', required: false, placeholder: '30000' }
     ]
@@ -144,7 +147,7 @@ const communicationAdapters = [
       { name: 'url', label: 'REST API URL', type: 'text', required: true, placeholder: 'https://api.example.com/v1/endpoint' },
       { name: 'method', label: 'HTTP Method', type: 'select', required: true, options: ['POST', 'PUT', 'PATCH', 'GET'] },
       { name: 'contentType', label: 'Content Type', type: 'select', required: true, options: ['application/json', 'application/xml', 'application/x-www-form-urlencoded'] },
-      { name: 'authType', label: 'Authentication', type: 'select', required: false, options: ['None', 'Basic Auth', 'Bearer Token', 'API Key', 'OAuth', 'OAuth 2.0'] },
+      { name: 'authType', label: 'Authentication', type: 'select', required: false, options: ['None', 'Basic Auth', 'Bearer Token', 'API Key', 'OAuth', 'OAuth 2.0', 'SSL Certificate'] },
       { name: 'authValue', label: 'Auth Value', type: 'password', required: false, placeholder: 'Token or credentials' },
       { name: 'timeout', label: 'Timeout (ms)', type: 'number', required: false, placeholder: '30000' }
     ]
@@ -163,7 +166,7 @@ const communicationAdapters = [
       
       // For Receiver Mode
       { name: 'targetUrl', label: 'Target URL', type: 'text', required: true, placeholder: 'https://api.example.com/soap/endpoint', conditionalField: 'receiver' },
-      { name: 'authType', label: 'Authentication', type: 'select', required: false, options: ['None', 'Basic Auth', 'Bearer Token', 'API Key', 'OAuth', 'OAuth 2.0'], conditionalField: 'receiver' },
+      { name: 'authType', label: 'Authentication', type: 'select', required: false, options: ['None', 'Basic Auth', 'Bearer Token', 'API Key', 'OAuth', 'OAuth 2.0', 'SSL Certificate'], conditionalField: 'receiver' },
       { name: 'authValue', label: 'Auth Value', type: 'password', required: false, placeholder: 'Token or credentials', conditionalField: 'receiver' },
       { name: 'soapOperationReceiver', label: 'SOAP Action/Operation', type: 'select', required: true, options: ['ProcessOrder', 'GetCustomer', 'CreateInvoice'], conditionalField: 'receiver' }
     ]
@@ -180,7 +183,8 @@ const communicationAdapters = [
       { name: 'topicName', label: 'Topic Name', type: 'text', required: false, placeholder: 'mytopic' },
       { name: 'username', label: 'Username', type: 'text', required: false, placeholder: 'JMS Username' },
       { name: 'password', label: 'Password', type: 'password', required: false, placeholder: 'JMS Password' },
-      { name: 'connectionFactory', label: 'Connection Factory', type: 'text', required: false, placeholder: 'ConnectionFactory' }
+      { name: 'connectionFactory', label: 'Connection Factory', type: 'text', required: false, placeholder: 'ConnectionFactory' },
+      { name: 'authType', label: 'Authentication', type: 'select', required: false, options: ['None', 'Basic Auth', 'Bearer Token', 'API Key', 'OAuth', 'OAuth 2.0', 'SSL Certificate'] }
     ]
   },
   {
@@ -192,7 +196,7 @@ const communicationAdapters = [
     fields: [
       { name: 'serviceUrl', label: 'Service URL', type: 'text', required: true, placeholder: 'https://services.odata.org/V4/service' },
       { name: 'version', label: 'OData Version', type: 'select', required: true, options: ['V4', 'V3', 'V2'] },
-      { name: 'authType', label: 'Authentication', type: 'select', required: false, options: ['None', 'Basic Auth', 'Bearer Token', 'OAuth 2.0'] },
+      { name: 'authType', label: 'Authentication', type: 'select', required: false, options: ['None', 'Basic Auth', 'Bearer Token', 'SSL Certificate'] },
       { name: 'authValue', label: 'Auth Value', type: 'password', required: false, placeholder: 'Token or credentials' },
       { name: 'maxPageSize', label: 'Max Page Size', type: 'number', required: false, placeholder: '1000' }
     ]
@@ -210,7 +214,8 @@ const communicationAdapters = [
       { name: 'username', label: 'Username', type: 'text', required: true, placeholder: 'SAP Username' },
       { name: 'password', label: 'Password', type: 'password', required: true, placeholder: 'SAP Password' },
       { name: 'language', label: 'Language', type: 'text', required: false, placeholder: 'EN' },
-      { name: 'idocType', label: 'IDOC Type', type: 'text', required: false, placeholder: 'ORDERS05' }
+      { name: 'idocType', label: 'IDOC Type', type: 'text', required: false, placeholder: 'ORDERS05' },
+      { name: 'authType', label: 'Authentication', type: 'select', required: false, options: ['None', 'Basic Auth', 'Bearer Token', 'API Key', 'OAuth', 'OAuth 2.0', 'SSL Certificate'] }
     ]
   },
   {
@@ -240,7 +245,8 @@ const communicationAdapters = [
       { name: 'as2To', label: 'AS2 To', type: 'text', required: true, placeholder: 'PartnerCompany' },
       { name: 'certificate', label: 'Certificate Path', type: 'text', required: true, placeholder: '/path/to/certificate.p12' },
       { name: 'certificatePassword', label: 'Certificate Password', type: 'password', required: true, placeholder: 'Certificate Password' },
-      { name: 'encryptionAlgorithm', label: 'Encryption Algorithm', type: 'select', required: false, options: ['3DES', 'AES128', 'AES192', 'AES256'] }
+      { name: 'encryptionAlgorithm', label: 'Encryption Algorithm', type: 'select', required: false, options: ['3DES', 'AES128', 'AES192', 'AES256'] },
+      { name: 'authType', label: 'Authentication', type: 'select', required: false, options: ['None', 'Basic Auth', 'Bearer Token', 'API Key', 'OAuth', 'OAuth 2.0', 'SSL Certificate'] }
     ]
   },
   {
@@ -256,7 +262,8 @@ const communicationAdapters = [
       { name: 'securityProtocol', label: 'Security Protocol', type: 'select', required: false, options: ['PLAINTEXT', 'SSL', 'SASL_PLAINTEXT', 'SASL_SSL'] },
       { name: 'saslMechanism', label: 'SASL Mechanism', type: 'select', required: false, options: ['PLAIN', 'SCRAM-SHA-256', 'SCRAM-SHA-512'] },
       { name: 'username', label: 'Username', type: 'text', required: false, placeholder: 'Kafka Username' },
-      { name: 'password', label: 'Password', type: 'password', required: false, placeholder: 'Kafka Password' }
+      { name: 'password', label: 'Password', type: 'password', required: false, placeholder: 'Kafka Password' },
+      { name: 'authType', label: 'Authentication', type: 'select', required: false, options: ['None', 'Basic Auth', 'Bearer Token', 'API Key', 'OAuth', 'OAuth 2.0', 'SSL Certificate'] }
     ]
   },
   {
@@ -272,7 +279,8 @@ const communicationAdapters = [
       { name: 'username', label: 'Username', type: 'text', required: true, placeholder: 'SAP Username' },
       { name: 'password', label: 'Password', type: 'password', required: true, placeholder: 'SAP Password' },
       { name: 'language', label: 'Language', type: 'text', required: false, placeholder: 'EN' },
-      { name: 'poolSize', label: 'Connection Pool Size', type: 'number', required: false, placeholder: '5' }
+      { name: 'poolSize', label: 'Connection Pool Size', type: 'number', required: false, placeholder: '5' },
+      { name: 'authType', label: 'Authentication', type: 'select', required: false, options: ['None', 'Basic Auth', 'Bearer Token', 'API Key', 'OAuth', 'OAuth 2.0', 'SSL Certificate'] }
     ]
   }
 ];
@@ -323,6 +331,14 @@ export const CreateCommunicationAdapter = () => {
           { name: 'oauth2TokenUrl', label: 'Token URL', type: 'text', required: true, placeholder: 'https://auth.example.com/oauth2/token' },
           { name: 'oauth2GrantType', label: 'Grant Type', type: 'select', required: true, options: ['authorization_code', 'client_credentials', 'password', 'refresh_token'] },
           { name: 'oauth2Scope', label: 'Scope', type: 'text', required: false, placeholder: 'read write' }
+        ];
+      case 'SSL Certificate':
+        return [
+          { name: 'sslCertPath', label: 'Certificate Path', type: 'text', required: true, placeholder: '/path/to/certificate.pem' },
+          { name: 'sslKeyPath', label: 'Private Key Path', type: 'text', required: true, placeholder: '/path/to/private-key.pem' },
+          { name: 'sslKeyPassword', label: 'Key Password', type: 'password', required: false, placeholder: 'Private key password (if encrypted)' },
+          { name: 'sslCaPath', label: 'CA Certificate Path', type: 'text', required: false, placeholder: '/path/to/ca-certificate.pem' },
+          { name: 'sslVerifyPeer', label: 'Verify Peer', type: 'select', required: false, options: ['true', 'false'] }
         ];
       default:
         return [];
