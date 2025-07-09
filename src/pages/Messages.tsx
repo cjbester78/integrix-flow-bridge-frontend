@@ -117,7 +117,7 @@ export const Messages = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedMessage, setExpandedMessage] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
-  const [dateTimeFilter, setDateTimeFilter] = useState<string>('all');
+  const [dateTimeFilter, setDateTimeFilter] = useState<string>('today-all');
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -263,8 +263,6 @@ export const Messages = () => {
             <SelectValue placeholder="Filter by date/time" />
           </SelectTrigger>
           <SelectContent className="bg-card border-border shadow-lg">
-            <SelectItem value="all">All Messages</SelectItem>
-            
             {/* Today's options (hourly) */}
             <SelectItem value="today-all">Today (All Hours)</SelectItem>
             {Array.from({ length: 24 }, (_, i) => (
@@ -277,6 +275,8 @@ export const Messages = () => {
             <SelectItem value="yesterday">Yesterday</SelectItem>
             <SelectItem value="last-7-days">Last 7 Days</SelectItem>
             <SelectItem value="last-30-days">Last 30 Days</SelectItem>
+            
+            <SelectItem value="all">All Messages</SelectItem>
           </SelectContent>
         </Select>
       </div>
