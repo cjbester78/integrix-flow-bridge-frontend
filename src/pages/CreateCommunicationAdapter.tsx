@@ -76,56 +76,6 @@ const communicationAdapters = [
     ]
   },
   {
-    id: 'webhook',
-    name: 'Webhook',
-    icon: Webhook,
-    description: 'Send HTTP requests to external endpoints',
-    category: 'HTTP',
-    fields: [
-      { name: 'url', label: 'Webhook URL', type: 'text', required: true, placeholder: 'https://api.example.com/webhook' },
-      { name: 'method', label: 'HTTP Method', type: 'select', required: true, options: ['POST', 'PUT', 'PATCH', 'GET'] },
-      { name: 'contentType', label: 'Content Type', type: 'select', required: true, options: ['application/json', 'application/xml', 'application/x-www-form-urlencoded'] },
-      { name: 'authType', label: 'Authentication', type: 'select', required: false, options: ['None', 'Basic Auth', 'Bearer Token', 'API Key'] },
-      { name: 'authValue', label: 'Auth Value', type: 'password', required: false, placeholder: 'Token or credentials' },
-      { name: 'timeout', label: 'Timeout (ms)', type: 'number', required: false, placeholder: '30000' }
-    ]
-  },
-  {
-    id: 'slack',
-    name: 'Slack',
-    icon: MessageCircle,
-    description: 'Send messages to Slack channels',
-    category: 'Messaging',
-    fields: [
-      { name: 'webhookUrl', label: 'Slack Webhook URL', type: 'text', required: true, placeholder: 'https://hooks.slack.com/services/...' },
-      { name: 'channel', label: 'Default Channel', type: 'text', required: false, placeholder: '#general' },
-      { name: 'username', label: 'Bot Username', type: 'text', required: false, placeholder: 'IntegrixLab Bot' },
-      { name: 'iconEmoji', label: 'Bot Icon', type: 'text', required: false, placeholder: ':robot_face:' }
-    ]
-  },
-  {
-    id: 'teams',
-    name: 'Microsoft Teams',
-    icon: MessageCircle,
-    description: 'Send messages to Teams channels',
-    category: 'Messaging',
-    fields: [
-      { name: 'webhookUrl', label: 'Teams Webhook URL', type: 'text', required: true, placeholder: 'https://outlook.office.com/webhook/...' },
-      { name: 'title', label: 'Default Title', type: 'text', required: false, placeholder: 'Integration Alert' }
-    ]
-  },
-  {
-    id: 'zapier',
-    name: 'Zapier Webhook',
-    icon: Zap,
-    description: 'Trigger Zapier workflows',
-    category: 'Automation',
-    fields: [
-      { name: 'webhookUrl', label: 'Zapier Webhook URL', type: 'text', required: true, placeholder: 'https://hooks.zapier.com/hooks/catch/...' },
-      { name: 'zapName', label: 'Zap Name', type: 'text', required: false, placeholder: 'Integration Workflow' }
-    ]
-  },
-  {
     id: 'file',
     name: 'FILE',
     icon: FileText,
@@ -172,27 +122,16 @@ const communicationAdapters = [
     id: 'http',
     name: 'HTTP',
     icon: Network,
-    description: 'HTTP protocol connections',
+    description: 'HTTP/HTTPS protocol connections',
     category: 'HTTP',
     fields: [
-      { name: 'baseUrl', label: 'Base URL', type: 'text', required: true, placeholder: 'http://api.example.com' },
-      { name: 'timeout', label: 'Timeout (ms)', type: 'number', required: false, placeholder: '30000' },
-      { name: 'userAgent', label: 'User Agent', type: 'text', required: false, placeholder: 'IntegrixLab HTTP Client' },
-      { name: 'headers', label: 'Default Headers', type: 'text', required: false, placeholder: 'Accept: application/json' }
-    ]
-  },
-  {
-    id: 'https',
-    name: 'HTTPS',
-    icon: ShieldCheck,
-    description: 'Secure HTTP protocol connections',
-    category: 'HTTP',
-    fields: [
-      { name: 'baseUrl', label: 'Base URL', type: 'text', required: true, placeholder: 'https://api.example.com' },
-      { name: 'timeout', label: 'Timeout (ms)', type: 'number', required: false, placeholder: '30000' },
-      { name: 'sslVerify', label: 'SSL Verification', type: 'select', required: false, options: ['true', 'false'] },
-      { name: 'clientCert', label: 'Client Certificate', type: 'text', required: false, placeholder: '/path/to/cert.pem' },
-      { name: 'clientKey', label: 'Client Key', type: 'text', required: false, placeholder: '/path/to/key.pem' }
+      { name: 'protocol', label: 'Protocol', type: 'select', required: true, options: ['HTTP', 'HTTPS'] },
+      { name: 'url', label: 'URL', type: 'text', required: true, placeholder: 'https://api.example.com/endpoint' },
+      { name: 'method', label: 'HTTP Method', type: 'select', required: true, options: ['POST', 'PUT', 'PATCH', 'GET'] },
+      { name: 'contentType', label: 'Content Type', type: 'select', required: true, options: ['application/json', 'application/xml', 'application/x-www-form-urlencoded'] },
+      { name: 'authType', label: 'Authentication', type: 'select', required: false, options: ['None', 'Basic Auth', 'Bearer Token', 'API Key'] },
+      { name: 'authValue', label: 'Auth Value', type: 'password', required: false, placeholder: 'Token or credentials' },
+      { name: 'timeout', label: 'Timeout (ms)', type: 'number', required: false, placeholder: '30000' }
     ]
   },
   {
@@ -202,10 +141,11 @@ const communicationAdapters = [
     description: 'REST API integrations',
     category: 'API',
     fields: [
-      { name: 'baseUrl', label: 'Base URL', type: 'text', required: true, placeholder: 'https://api.example.com/v1' },
-      { name: 'authType', label: 'Authentication', type: 'select', required: false, options: ['None', 'Basic Auth', 'Bearer Token', 'API Key', 'OAuth 2.0'] },
+      { name: 'url', label: 'REST API URL', type: 'text', required: true, placeholder: 'https://api.example.com/v1/endpoint' },
+      { name: 'method', label: 'HTTP Method', type: 'select', required: true, options: ['POST', 'PUT', 'PATCH', 'GET'] },
+      { name: 'contentType', label: 'Content Type', type: 'select', required: true, options: ['application/json', 'application/xml', 'application/x-www-form-urlencoded'] },
+      { name: 'authType', label: 'Authentication', type: 'select', required: false, options: ['None', 'Basic Auth', 'Bearer Token', 'API Key'] },
       { name: 'authValue', label: 'Auth Value', type: 'password', required: false, placeholder: 'Token or credentials' },
-      { name: 'contentType', label: 'Content Type', type: 'select', required: false, options: ['application/json', 'application/xml', 'application/x-www-form-urlencoded'] },
       { name: 'timeout', label: 'Timeout (ms)', type: 'number', required: false, placeholder: '30000' }
     ]
   },
@@ -434,58 +374,6 @@ export const CreateCommunicationAdapter = () => {
     setConnectionStatus('idle');
   };
 
-  const renderTestZapierWebhook = () => {
-    if (selectedAdapter !== 'zapier' || !configuration.webhookUrl) return null;
-
-    const handleTriggerZap = async () => {
-      setIsTestingConnection(true);
-      
-      try {
-        const response = await fetch(configuration.webhookUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          mode: "no-cors",
-          body: JSON.stringify({
-            timestamp: new Date().toISOString(),
-            triggered_from: "IntegrixLab Communication Adapter",
-            adapter_name: adapterName || "Test Adapter",
-            test_data: {
-              message: "Test message from IntegrixLab",
-              status: "active"
-            }
-          }),
-        });
-
-        toast({
-          title: "Zapier Webhook Triggered",
-          description: "The webhook was triggered successfully. Check your Zap history to confirm.",
-        });
-      } catch (error) {
-        console.error("Error triggering webhook:", error);
-        toast({
-          title: "Webhook Error",
-          description: "Failed to trigger the Zapier webhook. Please check the URL.",
-          variant: "destructive",
-        });
-      } finally {
-        setIsTestingConnection(false);
-      }
-    };
-
-    return (
-      <Button 
-        onClick={handleTriggerZap}
-        disabled={isTestingConnection}
-        className="w-full bg-gradient-accent hover:opacity-90"
-        variant="outline"
-      >
-        <Zap className="h-4 w-4 mr-2" />
-        {isTestingConnection ? 'Triggering...' : 'Test Zapier Webhook'}
-      </Button>
-    );
-  };
 
   return (
     <div className="p-6 space-y-6 animate-fade-in">
@@ -644,7 +532,7 @@ export const CreateCommunicationAdapter = () => {
                 )}
               </Button>
 
-              {renderTestZapierWebhook()}
+              
 
               {connectionStatus !== 'idle' && (
                 <div className={`flex items-center gap-2 p-3 rounded-lg ${
