@@ -18,8 +18,8 @@ import { cn } from '@/lib/utils';
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Create Flow', href: '/create-flow', icon: Plus },
-  { name: 'Data Structures', href: '/data-structures', icon: Layers },
-  { name: 'Communication Adapters', href: '/create-communication-adapter', icon: Send },
+  { name: 'Create Data Structures', href: '/data-structures', icon: Layers },
+  { name: 'Create Communication Adapter', href: '/create-communication-adapter', icon: Send },
   { name: 'Message Monitor', href: '/messages', icon: MessageSquare },
   { name: 'Channel Monitor', href: '/channels', icon: Activity },
   { name: 'Admin Panel', href: '/admin', icon: Users },
