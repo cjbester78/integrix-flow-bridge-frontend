@@ -8,26 +8,22 @@ const buildJsonStructure = (fields: Field[]): any => {
       const isArray = field.type === 'array' || 
                   (typeof field.maxOccurs === 'number' && field.maxOccurs > 1) || 
                   field.maxOccurs === 'unbounded';
+      const isComplexType = field.isComplexType || (field.children && field.children.length > 0);
       
-      if (field.children && field.children.length > 0) {
+      if (isComplexType) {
         if (isArray) {
-          // For arrays, create an array with sample object
-          result[field.name] = [buildJsonStructure(field.children)];
+          // For arrays with children, create array with sample object
+          result[field.name] = [buildJsonStructure(field.children!)];
         } else {
-          // For objects, build nested structure
-          result[field.name] = buildJsonStructure(field.children);
+          // For complex types, build nested structure (no type property)
+          result[field.name] = buildJsonStructure(field.children!);
         }
       } else {
-        if (isArray) {
-          // Simple array of primitives
-          result[field.name] = [];
-        } else {
-          // Simple primitive field - show type info
-          result[field.name] = {
-            type: field.type === 'number' || field.type === 'integer' ? 'number' :
-                  field.type === 'boolean' ? 'boolean' : 'string'
-          };
-        }
+        // Simple primitive field - show type info only for non-complex types
+        result[field.name] = {
+          type: field.type === 'number' || field.type === 'integer' ? 'number' :
+                field.type === 'boolean' ? 'boolean' : 'string'
+        };
       }
     }
   });
@@ -38,7 +34,16 @@ const buildJsonStructure = (fields: Field[]): any => {
 export const generateJsonSchema = (fields: Field[]): string => {
   if (fields.length === 0) return '{}';
   
-  // Create the structure with a root wrapper
+  // Use the first field as the root container
+  if (fields.length === 1 && (fields[0].isComplexType || fields[0].children)) {
+    const rootField = fields[0];
+    const structure = {
+      [rootField.name]: buildJsonStructure(rootField.children || [])
+    };
+    return JSON.stringify(structure, null, 2);
+  }
+  
+  // Fallback: wrap all fields in a root container
   const structure = {
     root: buildJsonStructure(fields)
   };
