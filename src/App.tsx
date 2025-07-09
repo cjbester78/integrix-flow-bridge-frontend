@@ -8,9 +8,11 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Layout } from "@/components/layout/Layout";
 import { Login } from "@/pages/Login";
 import { Dashboard } from "@/pages/Dashboard";
+import { CreateFlow } from "@/pages/CreateFlow";
 import { Messages } from "@/pages/Messages";
 import { Channels } from "@/pages/Channels";
 import { Admin } from "@/pages/Admin";
+import { Settings } from "@/pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,9 +29,11 @@ const App = () => (
             <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
               <Route index element={<Navigate to="/dashboard" replace />} />
               <Route path="dashboard" element={<Dashboard />} />
+              <Route path="create-flow" element={<CreateFlow />} />
               <Route path="messages" element={<Messages />} />
               <Route path="channels" element={<Channels />} />
               <Route path="admin" element={<Admin />} />
+              <Route path="settings" element={<Settings />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

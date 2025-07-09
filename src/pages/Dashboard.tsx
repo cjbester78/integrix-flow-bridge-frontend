@@ -101,7 +101,7 @@ export const Dashboard = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             {recentMessages.map((message) => (
-              <div key={message.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+              <div key={message.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 transition-all duration-300 hover:bg-muted/70 group">
                 <div className="flex items-center space-x-3">
                   <div className="flex items-center space-x-2">
                     {message.status === 'success' && <CheckCircle className="h-4 w-4 text-success" />}
