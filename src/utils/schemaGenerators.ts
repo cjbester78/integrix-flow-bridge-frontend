@@ -37,15 +37,64 @@ export const generateJsonSchema = (fields: Field[]): string => {
       }
       
       if (field.children && field.children.length > 0) {
-        schema.properties[field.name].properties = {};
-        field.children.forEach(child => {
-          if (child.name) {
-            schema.properties[field.name].properties[child.name] = {
-              type: child.type,
-              ...(child.description && { description: child.description })
-            };
-          }
-        });
+        if (isArray) {
+          schema.properties[field.name].items = {
+            type: 'object',
+            properties: {}
+          };
+          field.children.forEach(child => {
+            if (child.name) {
+              schema.properties[field.name].items.properties[child.name] = {
+                type: child.type === 'array' ? 'array' : 
+                     child.type === 'string' ? 'string' : 
+                     child.type === 'number' || child.type === 'integer' ? 'number' :
+                     child.type === 'boolean' ? 'boolean' :
+                     child.type === 'object' || child.isComplexType ? 'object' : 'string',
+                ...(child.description && { description: child.description })
+              };
+              
+              // Handle nested children recursively
+              if (child.children && child.children.length > 0) {
+                schema.properties[field.name].items.properties[child.name].properties = {};
+                child.children.forEach(grandchild => {
+                  if (grandchild.name) {
+                    schema.properties[field.name].items.properties[child.name].properties[grandchild.name] = {
+                      type: grandchild.type,
+                      ...(grandchild.description && { description: grandchild.description })
+                    };
+                  }
+                });
+              }
+            }
+          });
+        } else {
+          schema.properties[field.name].properties = {};
+          field.children.forEach(child => {
+            if (child.name) {
+              schema.properties[field.name].properties[child.name] = {
+                type: child.type === 'array' ? 'array' : 
+                     child.type === 'string' ? 'string' : 
+                     child.type === 'number' || child.type === 'integer' ? 'number' :
+                     child.type === 'boolean' ? 'boolean' :
+                     child.type === 'object' || child.isComplexType ? 'object' : 'string',
+                ...(child.description && { description: child.description })
+              };
+              
+              // Handle nested children recursively  
+              if (child.children && child.children.length > 0) {
+                schema.properties[field.name].properties[child.name].properties = {};
+                child.children.forEach(grandchild => {
+                  if (grandchild.name) {
+                    schema.properties[field.name].properties[child.name].properties[grandchild.name] = {
+                      type: grandchild.type,
+                      ...(grandchild.description && { description: grandchild.description })
+                    };
+                  }
+                });
+              }
+            }
+          });
+        }
       }
     }
   });
@@ -70,8 +119,35 @@ export const generateXmlSchema = (fields: Field[]): string => {
         
         field.children?.forEach(child => {
           if (child.name) {
-            xsd += `
-              <xs:element name="${child.name}" type="xs:${child.type}" ${child.required ? '' : 'minOccurs="0"'}/>`;
+            const childMinOccurs = child.minOccurs || (child.required ? 1 : 0);
+            const childMaxOccurs = child.maxOccurs === 'unbounded' ? 'unbounded' : (child.maxOccurs || 1);
+            const childOccursAttr = `minOccurs="${childMinOccurs}" maxOccurs="${childMaxOccurs}"`;
+            
+            if (child.isComplexType || (child.children && child.children.length > 0)) {
+              xsd += `
+              <xs:element name="${child.name}">
+                <xs:complexType>
+                  <xs:sequence>`;
+              
+              child.children?.forEach(grandchild => {
+                if (grandchild.name) {
+                  const grandchildMinOccurs = grandchild.minOccurs || (grandchild.required ? 1 : 0);
+                  const grandchildMaxOccurs = grandchild.maxOccurs === 'unbounded' ? 'unbounded' : (grandchild.maxOccurs || 1);
+                  const grandchildOccursAttr = `minOccurs="${grandchildMinOccurs}" maxOccurs="${grandchildMaxOccurs}"`;
+                  
+                  xsd += `
+                    <xs:element name="${grandchild.name}" type="xs:${grandchild.type === 'array' ? 'string' : grandchild.type}" ${grandchildOccursAttr}/>`;
+                }
+              });
+              
+              xsd += `
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>`;
+            } else {
+              xsd += `
+              <xs:element name="${child.name}" type="xs:${child.type === 'array' ? 'string' : child.type}" ${childOccursAttr}/>`;
+            }
           }
         });
         
