@@ -111,7 +111,7 @@ export const CreateFlow = () => {
   const [isConfiguring, setIsConfiguring] = useState(false);
   const [showStructurePreview, setShowStructurePreview] = useState<string | null>(null);
   const [showFieldMapping, setShowFieldMapping] = useState(false);
-  const [fieldMappings, setFieldMappings] = useState<{ sourceField: string; targetField: string; javaFunction?: string }[]>([]);
+  const [fieldMappings, setFieldMappings] = useState<{ sourceFields: string[]; targetField: string; javaFunction?: string }[]>([]);
   const [selectedTargetField, setSelectedTargetField] = useState<string | null>(null);
   const [javaFunction, setJavaFunction] = useState('');
   const { toast } = useToast();
@@ -150,16 +150,36 @@ export const CreateFlow = () => {
   };
 
   const handleAddMapping = () => {
-    setFieldMappings([...fieldMappings, { sourceField: '', targetField: '' }]);
+    setFieldMappings([...fieldMappings, { sourceFields: [], targetField: '' }]);
   };
 
   const handleRemoveMapping = (index: number) => {
     setFieldMappings(fieldMappings.filter((_, i) => i !== index));
   };
 
-  const handleMappingChange = (index: number, field: 'sourceField' | 'targetField', value: string) => {
+  const handleMappingChange = (index: number, field: 'targetField', value: string) => {
     const newMappings = [...fieldMappings];
     newMappings[index] = { ...newMappings[index], [field]: value };
+    setFieldMappings(newMappings);
+  };
+
+  const handleAddSourceField = (mappingIndex: number, sourceField: string) => {
+    const newMappings = [...fieldMappings];
+    if (!newMappings[mappingIndex].sourceFields.includes(sourceField)) {
+      newMappings[mappingIndex] = {
+        ...newMappings[mappingIndex],
+        sourceFields: [...newMappings[mappingIndex].sourceFields, sourceField]
+      };
+      setFieldMappings(newMappings);
+    }
+  };
+
+  const handleRemoveSourceField = (mappingIndex: number, sourceFieldIndex: number) => {
+    const newMappings = [...fieldMappings];
+    newMappings[mappingIndex] = {
+      ...newMappings[mappingIndex],
+      sourceFields: newMappings[mappingIndex].sourceFields.filter((_, i) => i !== sourceFieldIndex)
+    };
     setFieldMappings(newMappings);
   };
 
@@ -718,30 +738,16 @@ export const CreateFlow = () => {
                         <Label className="text-sm font-medium">Field Mappings</Label>
                         <div className="space-y-2 max-h-60 overflow-y-auto">
                           {fieldMappings.map((mapping, index) => (
-                            <div key={index} className="p-3 border rounded-lg bg-card space-y-2">
+                            <div key={index} className="p-3 border rounded-lg bg-card space-y-3">
+                              {/* Target Field Selection */}
                               <div className="flex items-center gap-2">
-                                <Select 
-                                  value={mapping.sourceField} 
-                                  onValueChange={(value) => handleMappingChange(index, 'sourceField', value)}
-                                >
-                                  <SelectTrigger className="h-8 text-xs">
-                                    <SelectValue placeholder="Source" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {getFieldsFromStructure(getStructureById(sourceStructure)?.structure || {}).map((field) => (
-                                      <SelectItem key={field} value={field} className="text-xs">
-                                        {field}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                <ArrowRight className="h-3 w-3 text-muted-foreground" />
+                                <Label className="text-xs font-medium min-w-[60px]">Target:</Label>
                                 <Select 
                                   value={mapping.targetField} 
                                   onValueChange={(value) => handleMappingChange(index, 'targetField', value)}
                                 >
-                                  <SelectTrigger className="h-8 text-xs">
-                                    <SelectValue placeholder="Target" />
+                                  <SelectTrigger className="h-8 text-xs flex-1">
+                                    <SelectValue placeholder="Select target field" />
                                   </SelectTrigger>
                                   <SelectContent>
                                     {getFieldsFromStructure(getStructureById(targetStructure)?.structure || {}).map((field) => (
@@ -759,22 +765,85 @@ export const CreateFlow = () => {
                                   <X className="h-3 w-3" />
                                 </Button>
                               </div>
-                              {mapping.targetField && (
+
+                              {/* Source Fields Section */}
+                              <div className="space-y-2">
                                 <div className="flex items-center gap-2">
-                                  <Button 
-                                    variant="outline" 
-                                    size="sm"
-                                    onClick={() => handleTargetFieldSelect(mapping.targetField, index)}
-                                    className="text-xs"
+                                  <Label className="text-xs font-medium">Sources:</Label>
+                                  <Select 
+                                    value="" 
+                                    onValueChange={(value) => handleAddSourceField(index, value)}
                                   >
-                                    <Code className="h-3 w-3 mr-1" />
-                                    {mapping.javaFunction ? 'Edit Function' : 'Add Function'}
-                                  </Button>
-                                  {mapping.javaFunction && (
-                                    <Badge variant="secondary" className="text-xs">
-                                      Function Added
-                                    </Badge>
-                                  )}
+                                    <SelectTrigger className="h-7 text-xs flex-1">
+                                      <SelectValue placeholder="Add source field" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {getFieldsFromStructure(getStructureById(sourceStructure)?.structure || {})
+                                        .filter(field => !mapping.sourceFields.includes(field))
+                                        .map((field) => (
+                                        <SelectItem key={field} value={field} className="text-xs">
+                                          {field}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+
+                                {/* Selected Source Fields */}
+                                {mapping.sourceFields.length > 0 && (
+                                  <div className="flex flex-wrap gap-1 p-2 bg-muted/50 rounded border-l-2 border-primary/20">
+                                    {mapping.sourceFields.map((sourceField, sourceIndex) => (
+                                      <div key={sourceIndex} className="flex items-center gap-1 bg-primary/10 px-2 py-1 rounded text-xs">
+                                        <span>{sourceField}</span>
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => handleRemoveSourceField(index, sourceIndex)}
+                                          className="h-4 w-4 p-0 hover:bg-destructive/20"
+                                        >
+                                          <X className="h-2 w-2" />
+                                        </Button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+
+                                {mapping.sourceFields.length === 0 && (
+                                  <div className="text-xs text-muted-foreground italic p-2 bg-muted/30 rounded">
+                                    No source fields selected
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Mapping Summary and Function */}
+                              {mapping.targetField && mapping.sourceFields.length > 0 && (
+                                <div className="space-y-2">
+                                  <div className="flex items-center justify-between p-2 bg-accent/30 rounded text-xs">
+                                    <span className="font-medium">
+                                      {mapping.sourceFields.length} source field{mapping.sourceFields.length !== 1 ? 's' : ''} → {mapping.targetField}
+                                    </span>
+                                    {mapping.sourceFields.length > 1 && (
+                                      <Badge variant="secondary" className="text-xs">
+                                        Multi-field mapping
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm"
+                                      onClick={() => handleTargetFieldSelect(mapping.targetField, index)}
+                                      className="text-xs"
+                                    >
+                                      <Code className="h-3 w-3 mr-1" />
+                                      {mapping.javaFunction ? 'Edit Function' : 'Add Function'}
+                                    </Button>
+                                    {mapping.javaFunction && (
+                                      <Badge variant="secondary" className="text-xs">
+                                        Function Added
+                                      </Badge>
+                                    )}
+                                  </div>
                                 </div>
                               )}
                             </div>
