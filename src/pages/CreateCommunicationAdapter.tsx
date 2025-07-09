@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { JarSelector } from '@/components/JarSelector';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Mail, 
@@ -43,7 +44,27 @@ import {
   Activity
 } from 'lucide-react';
 
-const communicationAdapters = [
+interface AdapterField {
+  name: string;
+  label: string;
+  type: string;
+  required: boolean;
+  placeholder?: string;
+  options?: string[];
+  conditionalField?: string;
+  driverTypeFilter?: string;
+}
+
+interface CommunicationAdapter {
+  id: string;
+  name: string;
+  icon: any;
+  description: string;
+  category: string;
+  fields: AdapterField[];
+}
+
+const communicationAdapters: CommunicationAdapter[] = [
   {
     id: 'email-smtp',
     name: 'Email SMTP',
@@ -178,6 +199,7 @@ const communicationAdapters = [
     description: 'Java Message Service connections',
     category: 'Messaging',
     fields: [
+      { name: 'driverJar', label: 'JMS Driver JAR', type: 'jar-selector', required: true, driverTypeFilter: 'Message Queue' },
       { name: 'brokerUrl', label: 'Broker URL', type: 'text', required: true, placeholder: 'tcp://localhost:61616' },
       { name: 'queueName', label: 'Queue Name', type: 'text', required: false, placeholder: 'myqueue' },
       { name: 'topicName', label: 'Topic Name', type: 'text', required: false, placeholder: 'mytopic' },
@@ -225,8 +247,8 @@ const communicationAdapters = [
     description: 'Java Database Connectivity',
     category: 'Database',
     fields: [
+      { name: 'driverJar', label: 'JDBC Driver JAR', type: 'jar-selector', required: true, driverTypeFilter: 'Database' },
       { name: 'jdbcUrl', label: 'JDBC URL', type: 'text', required: true, placeholder: 'jdbc:postgresql://localhost:5432/mydb' },
-      { name: 'driverClass', label: 'Driver Class', type: 'text', required: true, placeholder: 'org.postgresql.Driver' },
       { name: 'username', label: 'Username', type: 'text', required: true, placeholder: 'dbuser' },
       { name: 'password', label: 'Password', type: 'password', required: true, placeholder: 'Database Password' },
       { name: 'maxPoolSize', label: 'Max Pool Size', type: 'number', required: false, placeholder: '10' },
@@ -569,7 +591,15 @@ export const CreateCommunicationAdapter = () => {
                         {field.required && <span className="text-destructive">*</span>}
                         {field.type === 'password' && <Key className="h-3 w-3 text-muted-foreground" />}
                       </Label>
-                      {field.type === 'select' ? (
+                      {field.type === 'jar-selector' ? (
+                        <JarSelector
+                          selectedJarId={configuration[field.name] || ''}
+                          onJarSelect={(jarId) => handleConfigurationChange(field.name, jarId)}
+                          label=""
+                          placeholder={`Choose ${field.label}`}
+                          driverTypeFilter={field.driverTypeFilter || undefined}
+                        />
+                      ) : field.type === 'select' ? (
                         <Select 
                           value={configuration[field.name] || ''} 
                           onValueChange={(value) => handleConfigurationChange(field.name, value)}
@@ -577,7 +607,7 @@ export const CreateCommunicationAdapter = () => {
                           <SelectTrigger className="transition-all duration-300 hover:bg-accent/50">
                             <SelectValue placeholder={`Select ${field.label}`} />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="bg-card border-border shadow-lg z-50">
                             {field.options?.map((option) => (
                               <SelectItem key={option} value={option}>
                                 {option}
@@ -631,7 +661,7 @@ export const CreateCommunicationAdapter = () => {
                               <SelectTrigger className="transition-all duration-300 hover:bg-accent/50">
                                 <SelectValue placeholder={`Select ${authField.label}`} />
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent className="bg-card border-border shadow-lg z-50">
                                 {authField.options?.map((option) => (
                                   <SelectItem key={option} value={option}>
                                     {option}

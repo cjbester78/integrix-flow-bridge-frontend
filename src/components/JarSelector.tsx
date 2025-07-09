@@ -75,7 +75,7 @@ export const JarSelector: React.FC<JarSelectorProps> = ({
             )}
           </SelectValue>
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="bg-card border-border shadow-lg z-50 max-h-60">
           {filteredJars.map((jar) => (
             <SelectItem key={jar.id} value={jar.id}>
               <div className="flex items-center gap-2 w-full">
