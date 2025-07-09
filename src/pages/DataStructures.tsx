@@ -132,7 +132,10 @@ export const DataStructures = () => {
       name: '',
       type: 'string',
       required: false,
-      description: ''
+      description: '',
+      isComplexType: false,
+      minOccurs: 1,
+      maxOccurs: 1
     }]);
   };
 
@@ -540,58 +543,103 @@ export const DataStructures = () => {
                     </div>
                     
                     {customFields.map((field, index) => (
-                      <div key={index} className="grid grid-cols-12 gap-2 items-end">
-                        <div className="col-span-3">
-                          <Label className="text-xs">Field Name</Label>
-                          <Input
-                            placeholder="fieldName"
-                            value={field.name}
-                            onChange={(e) => updateCustomField(index, { name: e.target.value })}
-                            className="text-sm"
-                          />
-                        </div>
-                        <div className="col-span-2">
-                          <Label className="text-xs">Type</Label>
-                          <Select value={field.type} onValueChange={(value) => updateCustomField(index, { type: value })}>
-                            <SelectTrigger className="text-sm">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {fieldTypes.map((type) => (
-                                <SelectItem key={type} value={type}>{type}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="col-span-4">
-                          <Label className="text-xs">Description</Label>
-                          <Input
-                            placeholder="Field description..."
-                            value={field.description || ''}
-                            onChange={(e) => updateCustomField(index, { description: e.target.value })}
-                            className="text-sm"
-                          />
-                        </div>
-                        <div className="col-span-2 flex items-center space-x-2">
-                          <label className="flex items-center space-x-1 text-xs">
-                            <input
-                              type="checkbox"
-                              checked={field.required}
-                              onChange={(e) => updateCustomField(index, { required: e.target.checked })}
-                              className="rounded"
+                      <div key={index} className="space-y-3 p-4 border rounded-lg">
+                        <div className="grid grid-cols-12 gap-2 items-end">
+                          <div className="col-span-3">
+                            <Label className="text-xs">Field Name</Label>
+                            <Input
+                              placeholder="fieldName"
+                              value={field.name}
+                              onChange={(e) => updateCustomField(index, { name: e.target.value })}
+                              className="text-sm"
                             />
-                            <span>Required</span>
-                          </label>
+                          </div>
+                          <div className="col-span-2">
+                            <Label className="text-xs">Type</Label>
+                            <Select value={field.type} onValueChange={(value) => updateCustomField(index, { type: value })}>
+                              <SelectTrigger className="text-sm">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {fieldTypes.map((type) => (
+                                  <SelectItem key={type} value={type}>{type}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="col-span-4">
+                            <Label className="text-xs">Description</Label>
+                            <Input
+                              placeholder="Field description..."
+                              value={field.description || ''}
+                              onChange={(e) => updateCustomField(index, { description: e.target.value })}
+                              className="text-sm"
+                            />
+                          </div>
+                          <div className="col-span-2 flex items-center space-x-2">
+                            <label className="flex items-center space-x-1 text-xs">
+                              <input
+                                type="checkbox"
+                                checked={field.required}
+                                onChange={(e) => updateCustomField(index, { required: e.target.checked })}
+                                className="rounded"
+                              />
+                              <span>Required</span>
+                            </label>
+                          </div>
+                          <div className="col-span-1">
+                            <Button
+                              onClick={() => removeCustomField(index)}
+                              size="sm"
+                              variant="ghost"
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
-                        <div className="col-span-1">
-                          <Button
-                            onClick={() => removeCustomField(index)}
-                            size="sm"
-                            variant="ghost"
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                        
+                        <div className="grid grid-cols-12 gap-2 items-end">
+                          <div className="col-span-2">
+                            <label className="flex items-center space-x-1 text-xs">
+                              <input
+                                type="checkbox"
+                                checked={field.isComplexType || false}
+                                onChange={(e) => updateCustomField(index, { isComplexType: e.target.checked })}
+                                className="rounded"
+                              />
+                              <span>Complex Type</span>
+                            </label>
+                          </div>
+                          <div className="col-span-2">
+                            <Label className="text-xs">Min Occurs</Label>
+                            <Input
+                              type="number"
+                              min="0"
+                              placeholder="1"
+                              value={field.minOccurs || 1}
+                              onChange={(e) => updateCustomField(index, { minOccurs: parseInt(e.target.value) || 1 })}
+                              className="text-sm"
+                            />
+                          </div>
+                          <div className="col-span-3">
+                            <Label className="text-xs">Max Occurs</Label>
+                            <Select 
+                              value={field.maxOccurs?.toString() || '1'} 
+                              onValueChange={(value) => updateCustomField(index, { maxOccurs: value === 'unbounded' ? 'unbounded' : parseInt(value) })}
+                            >
+                              <SelectTrigger className="text-sm">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="1">1</SelectItem>
+                                <SelectItem value="2">2</SelectItem>
+                                <SelectItem value="5">5</SelectItem>
+                                <SelectItem value="10">10</SelectItem>
+                                <SelectItem value="unbounded">Unbounded</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
                         </div>
                       </div>
                     ))}

@@ -14,4 +14,7 @@ export interface Field {
   required: boolean;
   description?: string;
   children?: Field[];
+  isComplexType?: boolean;
+  minOccurs?: number;
+  maxOccurs?: number | 'unbounded';
 }
