@@ -156,12 +156,47 @@ const communicationAdapters = [
     description: 'SOAP web services integration',
     category: 'Web Services',
     fields: [
+      // Basic Configuration
       { name: 'wsdlUrl', label: 'WSDL URL', type: 'text', required: true, placeholder: 'https://example.com/service.wsdl' },
       { name: 'serviceName', label: 'Service Name', type: 'text', required: true, placeholder: 'MyWebService' },
       { name: 'portName', label: 'Port Name', type: 'text', required: true, placeholder: 'MyWebServicePort' },
-      { name: 'authType', label: 'Authentication', type: 'select', required: false, options: ['None', 'Basic Auth', 'Bearer Token', 'API Key', 'OAuth', 'OAuth 2.0'] },
-      { name: 'authValue', label: 'Auth Value', type: 'password', required: false, placeholder: 'Token or credentials' },
-      { name: 'timeout', label: 'Timeout (ms)', type: 'number', required: false, placeholder: '30000' }
+      
+      // Security Configuration (only for receiver adapters)
+      { name: 'authType', label: 'Authentication', type: 'select', required: false, options: ['None', 'Basic Auth', 'Bearer Token', 'API Key', 'OAuth', 'OAuth 2.0'], conditionalField: 'receiver' },
+      { name: 'authValue', label: 'Auth Value', type: 'password', required: false, placeholder: 'Token or credentials', conditionalField: 'receiver' },
+      { name: 'sslEnabled', label: 'SSL Enabled', type: 'select', required: false, options: ['true', 'false'], conditionalField: 'receiver' },
+      { name: 'trustStore', label: 'Trust Store Path', type: 'text', required: false, placeholder: '/path/to/truststore.jks', conditionalField: 'receiver' },
+      { name: 'keyStore', label: 'Key Store Path', type: 'text', required: false, placeholder: '/path/to/keystore.jks', conditionalField: 'receiver' },
+      { name: 'certificateValidation', label: 'Certificate Validation', type: 'select', required: false, options: ['Strict', 'Lenient', 'None'], conditionalField: 'receiver' },
+      
+      // Message Processing Configuration
+      { name: 'messageFormat', label: 'Message Format', type: 'select', required: false, options: ['SOAP 1.1', 'SOAP 1.2'] },
+      { name: 'encoding', label: 'Character Encoding', type: 'select', required: false, options: ['UTF-8', 'UTF-16', 'ISO-8859-1'] },
+      { name: 'compression', label: 'Enable Compression', type: 'select', required: false, options: ['true', 'false'] },
+      { name: 'validateInput', label: 'Validate Input Against WSDL', type: 'select', required: false, options: ['true', 'false'] },
+      { name: 'namespacePrefix', label: 'Namespace Prefix', type: 'text', required: false, placeholder: 'ns' },
+      { name: 'soapAction', label: 'SOAP Action Header', type: 'text', required: false, placeholder: 'urn:action' },
+      
+      // Processing Configuration
+      { name: 'timeout', label: 'Timeout (ms)', type: 'number', required: false, placeholder: '30000' },
+      { name: 'retryAttempts', label: 'Retry Attempts', type: 'number', required: false, placeholder: '3' },
+      { name: 'retryInterval', label: 'Retry Interval (ms)', type: 'number', required: false, placeholder: '5000' },
+      { name: 'maxMessageSize', label: 'Max Message Size (KB)', type: 'number', required: false, placeholder: '1024' },
+      { name: 'enableLogging', label: 'Enable Request/Response Logging', type: 'select', required: false, options: ['true', 'false'] },
+      { name: 'logLevel', label: 'Log Level', type: 'select', required: false, options: ['DEBUG', 'INFO', 'WARN', 'ERROR'] },
+      
+      // Error Handling
+      { name: 'errorHandling', label: 'Error Handling Strategy', type: 'select', required: false, options: ['Stop on Error', 'Continue on Error', 'Retry on Error'] },
+      { name: 'faultTolerance', label: 'Fault Tolerance', type: 'select', required: false, options: ['High', 'Medium', 'Low'] },
+      
+      // Advanced Configuration
+      { name: 'soapVersion', label: 'SOAP Version', type: 'select', required: false, options: ['1.1', '1.2'] },
+      { name: 'transferEncoding', label: 'Transfer Encoding', type: 'select', required: false, options: ['chunked', 'identity'] },
+      { name: 'connectionPooling', label: 'Enable Connection Pooling', type: 'select', required: false, options: ['true', 'false'] },
+      { name: 'poolSize', label: 'Connection Pool Size', type: 'number', required: false, placeholder: '10' },
+      { name: 'proxyHost', label: 'Proxy Host', type: 'text', required: false, placeholder: 'proxy.company.com' },
+      { name: 'proxyPort', label: 'Proxy Port', type: 'number', required: false, placeholder: '8080' },
+      { name: 'customHeaders', label: 'Custom Headers (JSON)', type: 'textarea', required: false, placeholder: '{"X-Custom-Header": "value"}' }
     ]
   },
   {
@@ -531,8 +566,16 @@ export const CreateCommunicationAdapter = () => {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {selectedAdapterConfig.fields.map((field) => (
-                    <div key={field.name} className={field.name === 'url' || field.name === 'webhookUrl' ? 'md:col-span-2' : ''}>
+                  {selectedAdapterConfig.fields
+                    .filter(field => {
+                      // Filter out auth fields for sender adapters
+                      if (field.conditionalField === 'receiver' && adapterMode === 'sender') {
+                        return false;
+                      }
+                      return true;
+                    })
+                    .map((field) => (
+                    <div key={field.name} className={field.name === 'url' || field.name === 'webhookUrl' || field.name === 'customHeaders' ? 'md:col-span-2' : ''}>
                       <Label htmlFor={field.name} className="flex items-center gap-1">
                         {field.label}
                         {field.required && <span className="text-destructive">*</span>}
@@ -554,6 +597,15 @@ export const CreateCommunicationAdapter = () => {
                             ))}
                           </SelectContent>
                         </Select>
+                      ) : field.type === 'textarea' ? (
+                        <Textarea
+                          id={field.name}
+                          placeholder={field.placeholder}
+                          value={configuration[field.name] || ''}
+                          onChange={(e) => handleConfigurationChange(field.name, e.target.value)}
+                          className="transition-all duration-300 focus:scale-[1.01]"
+                          rows={3}
+                        />
                       ) : (
                         <Input
                           id={field.name}
