@@ -276,6 +276,7 @@ const communicationAdapters = [
 export const CreateCommunicationAdapter = () => {
   const [selectedAdapter, setSelectedAdapter] = useState('');
   const [adapterName, setAdapterName] = useState('');
+  const [adapterMode, setAdapterMode] = useState('');
   const [description, setDescription] = useState('');
   const [configuration, setConfiguration] = useState<Record<string, string>>({});
   const [isTestingConnection, setIsTestingConnection] = useState(false);
@@ -339,10 +340,10 @@ export const CreateCommunicationAdapter = () => {
   };
 
   const handleSaveAdapter = () => {
-    if (!adapterName || !selectedAdapter) {
+    if (!adapterName || !selectedAdapter || !adapterMode) {
       toast({
         title: "Validation Error",
-        description: "Please provide adapter name and select a type",
+        description: "Please provide adapter name, select a type, and choose adapter mode",
         variant: "destructive",
       });
       return;
@@ -368,6 +369,7 @@ export const CreateCommunicationAdapter = () => {
 
     // Reset form
     setAdapterName('');
+    setAdapterMode('');
     setDescription('');
     setSelectedAdapter('');
     setConfiguration({});
@@ -403,6 +405,19 @@ export const CreateCommunicationAdapter = () => {
                   onChange={(e) => setAdapterName(e.target.value)}
                   className="transition-all duration-300 focus:scale-[1.01]"
                 />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="adapterMode">Adapter Mode *</Label>
+                <Select value={adapterMode} onValueChange={setAdapterMode}>
+                  <SelectTrigger className="transition-all duration-300 hover:bg-accent/50">
+                    <SelectValue placeholder="Select adapter mode" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="sender">Sender</SelectItem>
+                    <SelectItem value="receiver">Receiver</SelectItem>
+                    <SelectItem value="both">Both</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="description">Description</Label>
@@ -584,6 +599,10 @@ export const CreateCommunicationAdapter = () => {
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Type:</span>
                   <span>{selectedAdapterConfig?.name || 'Not selected'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Mode:</span>
+                  <span>{adapterMode || 'Not selected'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Category:</span>
