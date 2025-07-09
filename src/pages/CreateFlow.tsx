@@ -31,7 +31,10 @@ import {
   FileCode,
   Eye,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  Code,
+  Link,
+  X
 } from 'lucide-react';
 
 const adapters = [
@@ -46,12 +49,7 @@ const adapters = [
 ];
 
 const transformations = [
-  { id: 'json-xml', name: 'JSON to XML', description: 'Convert JSON payload to XML format' },
-  { id: 'xml-json', name: 'XML to JSON', description: 'Convert XML payload to JSON format' },
   { id: 'field-mapping', name: 'Field Mapping', description: 'Map fields between source and target' },
-  { id: 'data-filter', name: 'Data Filter', description: 'Filter data based on conditions' },
-  { id: 'enrichment', name: 'Data Enrichment', description: 'Add additional data to payload' },
-  { id: 'validation', name: 'Data Validation', description: 'Validate payload structure and content' },
 ];
 
 // Mock data structures - in a real app, this would come from your data structures API/state
@@ -112,16 +110,75 @@ export const CreateFlow = () => {
   const [selectedTransformations, setSelectedTransformations] = useState<string[]>([]);
   const [isConfiguring, setIsConfiguring] = useState(false);
   const [showStructurePreview, setShowStructurePreview] = useState<string | null>(null);
+  const [showFieldMapping, setShowFieldMapping] = useState(false);
+  const [fieldMappings, setFieldMappings] = useState<{ sourceField: string; targetField: string; javaFunction?: string }[]>([]);
+  const [selectedTargetField, setSelectedTargetField] = useState<string | null>(null);
+  const [javaFunction, setJavaFunction] = useState('');
   const { toast } = useToast();
 
   const handleAddTransformation = (transformationId: string) => {
     if (!selectedTransformations.includes(transformationId)) {
       setSelectedTransformations([...selectedTransformations, transformationId]);
+      if (transformationId === 'field-mapping') {
+        setShowFieldMapping(true);
+      }
     }
   };
 
   const handleRemoveTransformation = (transformationId: string) => {
     setSelectedTransformations(selectedTransformations.filter(id => id !== transformationId));
+    if (transformationId === 'field-mapping') {
+      setShowFieldMapping(false);
+      setFieldMappings([]);
+    }
+  };
+
+  const getFieldsFromStructure = (structure: any, prefix = ''): string[] => {
+    if (!structure) return [];
+    const fields: string[] = [];
+    
+    Object.entries(structure).forEach(([key, value]) => {
+      const fieldPath = prefix ? `${prefix}.${key}` : key;
+      fields.push(fieldPath);
+      
+      if (typeof value === 'object' && !Array.isArray(value) && typeof value !== 'string') {
+        fields.push(...getFieldsFromStructure(value, fieldPath));
+      }
+    });
+    
+    return fields;
+  };
+
+  const handleAddMapping = () => {
+    setFieldMappings([...fieldMappings, { sourceField: '', targetField: '' }]);
+  };
+
+  const handleRemoveMapping = (index: number) => {
+    setFieldMappings(fieldMappings.filter((_, i) => i !== index));
+  };
+
+  const handleMappingChange = (index: number, field: 'sourceField' | 'targetField', value: string) => {
+    const newMappings = [...fieldMappings];
+    newMappings[index] = { ...newMappings[index], [field]: value };
+    setFieldMappings(newMappings);
+  };
+
+  const handleTargetFieldSelect = (fieldPath: string, mappingIndex: number) => {
+    setSelectedTargetField(fieldPath);
+    setJavaFunction(fieldMappings[mappingIndex]?.javaFunction || '');
+  };
+
+  const handleSaveJavaFunction = () => {
+    if (selectedTargetField) {
+      const mappingIndex = fieldMappings.findIndex(m => m.targetField === selectedTargetField);
+      if (mappingIndex >= 0) {
+        const newMappings = [...fieldMappings];
+        newMappings[mappingIndex] = { ...newMappings[mappingIndex], javaFunction };
+        setFieldMappings(newMappings);
+      }
+    }
+    setSelectedTargetField(null);
+    setJavaFunction('');
   };
 
   const handleSaveFlow = () => {
@@ -588,7 +645,8 @@ export const CreateFlow = () => {
               <CardDescription>Configure how data should be transformed during the flow</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {/* Field Mapping Selection */}
+              <div className="grid grid-cols-1 gap-3">
                 {transformations.map((transformation) => (
                   <div
                     key={transformation.id}
@@ -610,34 +668,208 @@ export const CreateFlow = () => {
                 ))}
               </div>
 
-              {selectedTransformations.length > 0 && (
-                <div className="mt-6">
-                  <Label className="text-sm font-medium">Selected Transformations</Label>
-                  <div className="mt-2 space-y-2">
-                    {selectedTransformations.map((transformationId) => {
-                      const transformation = getTransformationById(transformationId);
-                      return transformation ? (
-                        <div key={transformationId} className="flex items-center justify-between p-3 bg-primary/10 rounded-lg">
-                          <div className="flex items-center gap-2">
-                            <CheckCircle className="h-4 w-4 text-success" />
-                            <span className="font-medium">{transformation.name}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="sm">
-                              <Settings className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => handleRemoveTransformation(transformationId)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ) : null;
-                    })}
+              {/* Field Mapping Interface */}
+              {showFieldMapping && sourceStructure && targetStructure && (
+                <div className="mt-6 space-y-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-success" />
+                      <span className="font-medium">Field Mapping</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={handleAddMapping}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Mapping
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handleRemoveTransformation('field-mapping')}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
+
+                  {/* Graphical Mapping Interface */}
+                  <div className="border rounded-lg p-4 bg-muted/20">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                      {/* Source Fields */}
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium">Source Fields</Label>
+                        <div className="border rounded-lg p-3 bg-card max-h-60 overflow-y-auto">
+                          {getFieldsFromStructure(getStructureById(sourceStructure)?.structure || {}).map((field) => (
+                            <div key={field} className="p-2 text-sm hover:bg-accent rounded cursor-default">
+                              <div className="flex items-center gap-2">
+                                <div className="h-2 w-2 rounded-full bg-primary" />
+                                <span>{field}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Mapping Configuration */}
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium">Field Mappings</Label>
+                        <div className="space-y-2 max-h-60 overflow-y-auto">
+                          {fieldMappings.map((mapping, index) => (
+                            <div key={index} className="p-3 border rounded-lg bg-card space-y-2">
+                              <div className="flex items-center gap-2">
+                                <Select 
+                                  value={mapping.sourceField} 
+                                  onValueChange={(value) => handleMappingChange(index, 'sourceField', value)}
+                                >
+                                  <SelectTrigger className="h-8 text-xs">
+                                    <SelectValue placeholder="Source" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {getFieldsFromStructure(getStructureById(sourceStructure)?.structure || {}).map((field) => (
+                                      <SelectItem key={field} value={field} className="text-xs">
+                                        {field}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <ArrowRight className="h-3 w-3 text-muted-foreground" />
+                                <Select 
+                                  value={mapping.targetField} 
+                                  onValueChange={(value) => handleMappingChange(index, 'targetField', value)}
+                                >
+                                  <SelectTrigger className="h-8 text-xs">
+                                    <SelectValue placeholder="Target" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {getFieldsFromStructure(getStructureById(targetStructure)?.structure || {}).map((field) => (
+                                      <SelectItem key={field} value={field} className="text-xs">
+                                        {field}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => handleRemoveMapping(index)}
+                                >
+                                  <X className="h-3 w-3" />
+                                </Button>
+                              </div>
+                              {mapping.targetField && (
+                                <div className="flex items-center gap-2">
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm"
+                                    onClick={() => handleTargetFieldSelect(mapping.targetField, index)}
+                                    className="text-xs"
+                                  >
+                                    <Code className="h-3 w-3 mr-1" />
+                                    {mapping.javaFunction ? 'Edit Function' : 'Add Function'}
+                                  </Button>
+                                  {mapping.javaFunction && (
+                                    <Badge variant="secondary" className="text-xs">
+                                      Function Added
+                                    </Badge>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                          {fieldMappings.length === 0 && (
+                            <div className="text-center py-4 text-muted-foreground text-sm">
+                              <Link className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                              <p>No mappings configured</p>
+                              <p className="text-xs">Click "Add Mapping" to start</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Target Fields */}
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium">Target Fields</Label>
+                        <div className="border rounded-lg p-3 bg-card max-h-60 overflow-y-auto">
+                          {getFieldsFromStructure(getStructureById(targetStructure)?.structure || {}).map((field) => (
+                            <div key={field} className="p-2 text-sm hover:bg-accent rounded cursor-default">
+                              <div className="flex items-center gap-2">
+                                <div className="h-2 w-2 rounded-full bg-secondary" />
+                                <span>{field}</span>
+                                {fieldMappings.some(m => m.targetField === field) && (
+                                  <Badge variant="outline" className="text-xs ml-auto">Mapped</Badge>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Java Function Editor Dialog */}
+              {selectedTargetField && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                  <div className="bg-card border rounded-lg p-6 w-full max-w-2xl mx-4 max-h-[80vh] overflow-y-auto">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h3 className="text-lg font-semibold">Custom Java Function</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Target Field: <Badge variant="outline" className="text-xs">{selectedTargetField}</Badge>
+                        </p>
+                      </div>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => setSelectedTargetField(null)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="javaFunction">Java Function Code</Label>
+                        <Textarea
+                          id="javaFunction"
+                          placeholder={`// Example: Transform source data to target field
+public Object transform(Object sourceValue) {
+    // Your custom transformation logic here
+    return sourceValue.toString().toUpperCase();
+}`}
+                          value={javaFunction}
+                          onChange={(e) => setJavaFunction(e.target.value)}
+                          className="mt-2 font-mono text-sm"
+                          rows={12}
+                        />
+                      </div>
+                      
+                      <div className="flex justify-end gap-2">
+                        <Button 
+                          variant="outline" 
+                          onClick={() => setSelectedTargetField(null)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button onClick={handleSaveJavaFunction}>
+                          <Save className="h-4 w-4 mr-2" />
+                          Save Function
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {!showFieldMapping && selectedTransformations.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Settings className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>Select Field Mapping to configure data transformations</p>
+                  <p className="text-xs mt-2">Field mapping allows you to connect source and target fields with custom logic</p>
                 </div>
               )}
             </CardContent>
