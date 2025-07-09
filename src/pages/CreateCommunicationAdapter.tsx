@@ -26,7 +26,21 @@ import {
   Zap,
   Send,
   Shield,
-  Key
+  Key,
+  FileText,
+  HardDrive,
+  Lock,
+  Network,
+  ShieldCheck,
+  Database,
+  FileCode,
+  MessageSquare,
+  Layers,
+  FileSpreadsheet,
+  Cable,
+  Cloud,
+  Server,
+  Activity
 } from 'lucide-react';
 
 const communicationAdapters = [
@@ -109,6 +123,212 @@ const communicationAdapters = [
     fields: [
       { name: 'webhookUrl', label: 'Zapier Webhook URL', type: 'text', required: true, placeholder: 'https://hooks.zapier.com/hooks/catch/...' },
       { name: 'zapName', label: 'Zap Name', type: 'text', required: false, placeholder: 'Integration Workflow' }
+    ]
+  },
+  {
+    id: 'file',
+    name: 'FILE',
+    icon: FileText,
+    description: 'File system operations and transfers',
+    category: 'File System',
+    fields: [
+      { name: 'basePath', label: 'Base Path', type: 'text', required: true, placeholder: '/data/files' },
+      { name: 'encoding', label: 'File Encoding', type: 'select', required: false, options: ['UTF-8', 'ASCII', 'ISO-8859-1', 'UTF-16'] },
+      { name: 'permissions', label: 'File Permissions', type: 'text', required: false, placeholder: '755' },
+      { name: 'createDirs', label: 'Create Directories', type: 'select', required: false, options: ['true', 'false'] }
+    ]
+  },
+  {
+    id: 'ftp',
+    name: 'FTP',
+    icon: HardDrive,
+    description: 'File Transfer Protocol connections',
+    category: 'File Transfer',
+    fields: [
+      { name: 'host', label: 'FTP Host', type: 'text', required: true, placeholder: 'ftp.example.com' },
+      { name: 'port', label: 'Port', type: 'number', required: false, placeholder: '21' },
+      { name: 'username', label: 'Username', type: 'text', required: true, placeholder: 'ftpuser' },
+      { name: 'password', label: 'Password', type: 'password', required: true, placeholder: 'FTP Password' },
+      { name: 'passiveMode', label: 'Passive Mode', type: 'select', required: false, options: ['true', 'false'] },
+      { name: 'transferMode', label: 'Transfer Mode', type: 'select', required: false, options: ['binary', 'ascii'] }
+    ]
+  },
+  {
+    id: 'sftp',
+    name: 'SFTP',
+    icon: Lock,
+    description: 'Secure File Transfer Protocol',
+    category: 'File Transfer',
+    fields: [
+      { name: 'host', label: 'SFTP Host', type: 'text', required: true, placeholder: 'sftp.example.com' },
+      { name: 'port', label: 'Port', type: 'number', required: false, placeholder: '22' },
+      { name: 'username', label: 'Username', type: 'text', required: true, placeholder: 'sftpuser' },
+      { name: 'password', label: 'Password', type: 'password', required: false, placeholder: 'SFTP Password' },
+      { name: 'privateKey', label: 'Private Key Path', type: 'text', required: false, placeholder: '/path/to/private/key' },
+      { name: 'keyPassphrase', label: 'Key Passphrase', type: 'password', required: false, placeholder: 'Key passphrase' }
+    ]
+  },
+  {
+    id: 'http',
+    name: 'HTTP',
+    icon: Network,
+    description: 'HTTP protocol connections',
+    category: 'HTTP',
+    fields: [
+      { name: 'baseUrl', label: 'Base URL', type: 'text', required: true, placeholder: 'http://api.example.com' },
+      { name: 'timeout', label: 'Timeout (ms)', type: 'number', required: false, placeholder: '30000' },
+      { name: 'userAgent', label: 'User Agent', type: 'text', required: false, placeholder: 'IntegrixLab HTTP Client' },
+      { name: 'headers', label: 'Default Headers', type: 'text', required: false, placeholder: 'Accept: application/json' }
+    ]
+  },
+  {
+    id: 'https',
+    name: 'HTTPS',
+    icon: ShieldCheck,
+    description: 'Secure HTTP protocol connections',
+    category: 'HTTP',
+    fields: [
+      { name: 'baseUrl', label: 'Base URL', type: 'text', required: true, placeholder: 'https://api.example.com' },
+      { name: 'timeout', label: 'Timeout (ms)', type: 'number', required: false, placeholder: '30000' },
+      { name: 'sslVerify', label: 'SSL Verification', type: 'select', required: false, options: ['true', 'false'] },
+      { name: 'clientCert', label: 'Client Certificate', type: 'text', required: false, placeholder: '/path/to/cert.pem' },
+      { name: 'clientKey', label: 'Client Key', type: 'text', required: false, placeholder: '/path/to/key.pem' }
+    ]
+  },
+  {
+    id: 'rest',
+    name: 'REST',
+    icon: Globe,
+    description: 'REST API integrations',
+    category: 'API',
+    fields: [
+      { name: 'baseUrl', label: 'Base URL', type: 'text', required: true, placeholder: 'https://api.example.com/v1' },
+      { name: 'authType', label: 'Authentication', type: 'select', required: false, options: ['None', 'Basic Auth', 'Bearer Token', 'API Key', 'OAuth 2.0'] },
+      { name: 'authValue', label: 'Auth Value', type: 'password', required: false, placeholder: 'Token or credentials' },
+      { name: 'contentType', label: 'Content Type', type: 'select', required: false, options: ['application/json', 'application/xml', 'application/x-www-form-urlencoded'] },
+      { name: 'timeout', label: 'Timeout (ms)', type: 'number', required: false, placeholder: '30000' }
+    ]
+  },
+  {
+    id: 'soap',
+    name: 'SOAP',
+    icon: FileCode,
+    description: 'SOAP web services integration',
+    category: 'Web Services',
+    fields: [
+      { name: 'wsdlUrl', label: 'WSDL URL', type: 'text', required: true, placeholder: 'https://example.com/service.wsdl' },
+      { name: 'serviceName', label: 'Service Name', type: 'text', required: true, placeholder: 'MyWebService' },
+      { name: 'portName', label: 'Port Name', type: 'text', required: true, placeholder: 'MyWebServicePort' },
+      { name: 'username', label: 'Username', type: 'text', required: false, placeholder: 'SOAP Username' },
+      { name: 'password', label: 'Password', type: 'password', required: false, placeholder: 'SOAP Password' },
+      { name: 'timeout', label: 'Timeout (ms)', type: 'number', required: false, placeholder: '30000' }
+    ]
+  },
+  {
+    id: 'jms',
+    name: 'JMS',
+    icon: MessageSquare,
+    description: 'Java Message Service connections',
+    category: 'Messaging',
+    fields: [
+      { name: 'brokerUrl', label: 'Broker URL', type: 'text', required: true, placeholder: 'tcp://localhost:61616' },
+      { name: 'queueName', label: 'Queue Name', type: 'text', required: false, placeholder: 'myqueue' },
+      { name: 'topicName', label: 'Topic Name', type: 'text', required: false, placeholder: 'mytopic' },
+      { name: 'username', label: 'Username', type: 'text', required: false, placeholder: 'JMS Username' },
+      { name: 'password', label: 'Password', type: 'password', required: false, placeholder: 'JMS Password' },
+      { name: 'connectionFactory', label: 'Connection Factory', type: 'text', required: false, placeholder: 'ConnectionFactory' }
+    ]
+  },
+  {
+    id: 'odata',
+    name: 'ODATA',
+    icon: Layers,
+    description: 'Open Data Protocol services',
+    category: 'API',
+    fields: [
+      { name: 'serviceUrl', label: 'Service URL', type: 'text', required: true, placeholder: 'https://services.odata.org/V4/service' },
+      { name: 'version', label: 'OData Version', type: 'select', required: true, options: ['V4', 'V3', 'V2'] },
+      { name: 'authType', label: 'Authentication', type: 'select', required: false, options: ['None', 'Basic Auth', 'Bearer Token', 'OAuth 2.0'] },
+      { name: 'authValue', label: 'Auth Value', type: 'password', required: false, placeholder: 'Token or credentials' },
+      { name: 'maxPageSize', label: 'Max Page Size', type: 'number', required: false, placeholder: '1000' }
+    ]
+  },
+  {
+    id: 'idoc',
+    name: 'IDOC',
+    icon: FileSpreadsheet,
+    description: 'SAP Intermediate Document format',
+    category: 'SAP',
+    fields: [
+      { name: 'sapHost', label: 'SAP Host', type: 'text', required: true, placeholder: 'sap.example.com' },
+      { name: 'systemNumber', label: 'System Number', type: 'text', required: true, placeholder: '00' },
+      { name: 'client', label: 'Client', type: 'text', required: true, placeholder: '100' },
+      { name: 'username', label: 'Username', type: 'text', required: true, placeholder: 'SAP Username' },
+      { name: 'password', label: 'Password', type: 'password', required: true, placeholder: 'SAP Password' },
+      { name: 'language', label: 'Language', type: 'text', required: false, placeholder: 'EN' },
+      { name: 'idocType', label: 'IDOC Type', type: 'text', required: false, placeholder: 'ORDERS05' }
+    ]
+  },
+  {
+    id: 'jdbc',
+    name: 'JDBC',
+    icon: Database,
+    description: 'Java Database Connectivity',
+    category: 'Database',
+    fields: [
+      { name: 'jdbcUrl', label: 'JDBC URL', type: 'text', required: true, placeholder: 'jdbc:postgresql://localhost:5432/mydb' },
+      { name: 'driverClass', label: 'Driver Class', type: 'text', required: true, placeholder: 'org.postgresql.Driver' },
+      { name: 'username', label: 'Username', type: 'text', required: true, placeholder: 'dbuser' },
+      { name: 'password', label: 'Password', type: 'password', required: true, placeholder: 'Database Password' },
+      { name: 'maxPoolSize', label: 'Max Pool Size', type: 'number', required: false, placeholder: '10' },
+      { name: 'connectionTimeout', label: 'Connection Timeout (ms)', type: 'number', required: false, placeholder: '30000' }
+    ]
+  },
+  {
+    id: 'as2',
+    name: 'AS2',
+    icon: Cable,
+    description: 'Applicability Statement 2 protocol',
+    category: 'EDI',
+    fields: [
+      { name: 'as2Url', label: 'AS2 URL', type: 'text', required: true, placeholder: 'https://partner.example.com/as2' },
+      { name: 'as2From', label: 'AS2 From', type: 'text', required: true, placeholder: 'MyCompany' },
+      { name: 'as2To', label: 'AS2 To', type: 'text', required: true, placeholder: 'PartnerCompany' },
+      { name: 'certificate', label: 'Certificate Path', type: 'text', required: true, placeholder: '/path/to/certificate.p12' },
+      { name: 'certificatePassword', label: 'Certificate Password', type: 'password', required: true, placeholder: 'Certificate Password' },
+      { name: 'encryptionAlgorithm', label: 'Encryption Algorithm', type: 'select', required: false, options: ['3DES', 'AES128', 'AES192', 'AES256'] }
+    ]
+  },
+  {
+    id: 'kafka',
+    name: 'KAFKA',
+    icon: Activity,
+    description: 'Apache Kafka messaging platform',
+    category: 'Streaming',
+    fields: [
+      { name: 'bootstrapServers', label: 'Bootstrap Servers', type: 'text', required: true, placeholder: 'localhost:9092' },
+      { name: 'topicName', label: 'Topic Name', type: 'text', required: true, placeholder: 'my-topic' },
+      { name: 'groupId', label: 'Consumer Group ID', type: 'text', required: false, placeholder: 'my-consumer-group' },
+      { name: 'securityProtocol', label: 'Security Protocol', type: 'select', required: false, options: ['PLAINTEXT', 'SSL', 'SASL_PLAINTEXT', 'SASL_SSL'] },
+      { name: 'saslMechanism', label: 'SASL Mechanism', type: 'select', required: false, options: ['PLAIN', 'SCRAM-SHA-256', 'SCRAM-SHA-512'] },
+      { name: 'username', label: 'Username', type: 'text', required: false, placeholder: 'Kafka Username' },
+      { name: 'password', label: 'Password', type: 'password', required: false, placeholder: 'Kafka Password' }
+    ]
+  },
+  {
+    id: 'rfc',
+    name: 'RFC',
+    icon: Server,
+    description: 'SAP Remote Function Call',
+    category: 'SAP',
+    fields: [
+      { name: 'sapHost', label: 'SAP Host', type: 'text', required: true, placeholder: 'sap.example.com' },
+      { name: 'systemNumber', label: 'System Number', type: 'text', required: true, placeholder: '00' },
+      { name: 'client', label: 'Client', type: 'text', required: true, placeholder: '100' },
+      { name: 'username', label: 'Username', type: 'text', required: true, placeholder: 'SAP Username' },
+      { name: 'password', label: 'Password', type: 'password', required: true, placeholder: 'SAP Password' },
+      { name: 'language', label: 'Language', type: 'text', required: false, placeholder: 'EN' },
+      { name: 'poolSize', label: 'Connection Pool Size', type: 'number', required: false, placeholder: '5' }
     ]
   }
 ];
