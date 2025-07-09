@@ -50,29 +50,13 @@ export const StructureDefinitionTabs: React.FC<StructureDefinitionTabsProps> = (
         <CardDescription>Choose your preferred method to define the data structure</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="structureType">Structure Type</Label>
-            <Select value={selectedStructureType} onValueChange={setSelectedStructureType}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select structure type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="json">JSON Schema</SelectItem>
-                <SelectItem value="xsd">XSD/XML</SelectItem>
-                <SelectItem value="wsdl">WSDL</SelectItem>
-                <SelectItem value="custom">Custom Builder</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <Tabs value={selectedStructureType} className="w-full" onValueChange={(value) => setSelectedStructureType(value)}>
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="json">JSON Schema</TabsTrigger>
-              <TabsTrigger value="xsd">XSD/XML</TabsTrigger>
-              <TabsTrigger value="wsdl">WSDL</TabsTrigger>
-              <TabsTrigger value="custom">Custom Builder</TabsTrigger>
-            </TabsList>
+        <Tabs value={selectedStructureType} className="w-full" onValueChange={(value) => setSelectedStructureType(value)}>
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="json">JSON Schema</TabsTrigger>
+            <TabsTrigger value="xsd">XSD/XML</TabsTrigger>
+            <TabsTrigger value="wsdl">WSDL</TabsTrigger>
+            <TabsTrigger value="custom">Custom Builder</TabsTrigger>
+          </TabsList>
           
           <TabsContent value="json">
             <JsonStructureTab
@@ -103,10 +87,11 @@ export const StructureDefinitionTabs: React.FC<StructureDefinitionTabsProps> = (
             <CustomStructureTab
               customFields={customFields}
               setCustomFields={setCustomFields}
+              selectedStructureType={selectedStructureType}
+              setSelectedStructureType={setSelectedStructureType}
             />
           </TabsContent>
-          </Tabs>
-        </div>
+        </Tabs>
         
         <div className="mt-6 pt-4 border-t">
           <Button onClick={onSave} className="w-full bg-gradient-primary hover:opacity-90">

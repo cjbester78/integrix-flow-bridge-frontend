@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FieldBuilder } from '@/components/FieldBuilder';
 import { Field } from '@/types/dataStructures';
 import { Plus, Database } from 'lucide-react';
@@ -8,12 +9,17 @@ import { Plus, Database } from 'lucide-react';
 interface CustomStructureTabProps {
   customFields: Field[];
   setCustomFields: (fields: Field[]) => void;
+  selectedStructureType: string;
+  setSelectedStructureType: (type: string) => void;
 }
 
 export const CustomStructureTab: React.FC<CustomStructureTabProps> = ({
   customFields,
-  setCustomFields
+  setCustomFields,
+  selectedStructureType,
+  setSelectedStructureType
 }) => {
+  const [customStructureType, setCustomStructureType] = useState<string>('');
   const addCustomField = (parentIndex?: number) => {
     const newField: Field = {
       name: '',
@@ -69,13 +75,38 @@ export const CustomStructureTab: React.FC<CustomStructureTabProps> = ({
 
   return (
     <div className="space-y-4">
-      {customFields.length === 0 ? (
+      <div className="space-y-2">
+        <Label htmlFor="customStructureType">Structure Type</Label>
+        <Select value={customStructureType} onValueChange={setCustomStructureType}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select structure type to build" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="json">JSON Schema</SelectItem>
+            <SelectItem value="xsd">XSD/XML</SelectItem>
+            <SelectItem value="wsdl">WSDL</SelectItem>
+            <SelectItem value="xml">XML</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {!customStructureType ? (
+        <div className="text-center py-8 space-y-4">
+          <Database className="h-12 w-12 mx-auto text-muted-foreground opacity-50" />
+          <div>
+            <h3 className="text-lg font-semibold mb-2">Custom Structure Builder</h3>
+            <p className="text-sm text-muted-foreground">
+              Select a structure type above to start building your custom data structure
+            </p>
+          </div>
+        </div>
+      ) : customFields.length === 0 ? (
         <div className="text-center py-8 space-y-4">
           <Database className="h-12 w-12 mx-auto text-muted-foreground" />
           <div>
-            <h3 className="text-lg font-semibold mb-2">Custom Structure Builder</h3>
+            <h3 className="text-lg font-semibold mb-2">Build {customStructureType.toUpperCase()} Structure</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Build your data structure by adding fields manually for XSD, XML, WSDL, or JSON
+              Add fields to create your {customStructureType.toUpperCase()} data structure
             </p>
             <Button 
               onClick={() => addCustomField()}
@@ -89,10 +120,10 @@ export const CustomStructureTab: React.FC<CustomStructureTabProps> = ({
       ) : (
         <>
           <div className="flex items-center justify-between">
-            <Label>Structure Definition</Label>
+            <Label>Structure Definition ({customStructureType.toUpperCase()})</Label>
             <Button onClick={() => addCustomField()} size="sm" variant="outline">
               <Plus className="h-4 w-4 mr-2" />
-              Add Root Field
+              Add Field
             </Button>
           </div>
           
