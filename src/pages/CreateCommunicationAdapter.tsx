@@ -423,33 +423,41 @@ export const CreateCommunicationAdapter = () => {
               <CardTitle>Adapter Type Selection</CardTitle>
               <CardDescription>Choose the type of communication adapter to configure</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {communicationAdapters.map((adapter) => (
-                  <div
-                    key={adapter.id}
-                    className={`p-4 border rounded-lg cursor-pointer transition-all duration-300 group hover:shadow-soft ${
-                      selectedAdapter === adapter.id 
-                        ? 'border-primary bg-primary/10 shadow-elegant' 
-                        : 'border-border hover:bg-accent/50'
-                    }`}
-                    onClick={() => setSelectedAdapter(adapter.id)}
-                  >
-                    <div className="flex items-start gap-3">
-                      <adapter.icon className={`h-6 w-6 mt-1 transition-colors ${
-                        selectedAdapter === adapter.id ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'
-                      }`} />
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">{adapter.name}</span>
-                          <Badge variant="outline" className="text-xs">{adapter.category}</Badge>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="adapterType">Adapter Type *</Label>
+                <Select value={selectedAdapter} onValueChange={setSelectedAdapter}>
+                  <SelectTrigger className="transition-all duration-300 hover:bg-accent/50">
+                    <SelectValue placeholder="Select communication adapter type" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-card border-border shadow-lg max-h-60">
+                    {communicationAdapters.map((adapter) => (
+                      <SelectItem key={adapter.id} value={adapter.id}>
+                        <div className="flex items-center gap-3 py-1">
+                          <adapter.icon className="h-4 w-4 text-primary" />
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">{adapter.name}</span>
+                            <Badge variant="outline" className="text-xs">{adapter.category}</Badge>
+                          </div>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1">{adapter.description}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
+              
+              {selectedAdapterConfig && (
+                <div className="p-3 bg-muted/50 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <selectedAdapterConfig.icon className="h-4 w-4 text-primary" />
+                    <span className="font-medium">{selectedAdapterConfig.name}</span>
+                    <Badge variant="outline" className="text-xs">{selectedAdapterConfig.category}</Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {selectedAdapterConfig.description}
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
 
