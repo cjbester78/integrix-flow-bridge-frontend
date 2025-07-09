@@ -11,8 +11,28 @@ import {
   Server,
   Zap,
   Clock,
-  TrendingUp
+  TrendingUp,
+  Database,
+  Globe,
+  FileText,
+  Mail,
+  Smartphone,
+  AlertTriangle,
+  CheckCircle,
+  XCircle
 } from 'lucide-react';
+
+// New adapter definitions matching CreateFlow
+const adapters = [
+  { id: 'sap', name: 'SAP ERP', icon: Database, category: 'Enterprise' },
+  { id: 'salesforce', name: 'Salesforce CRM', icon: Globe, category: 'CRM' },
+  { id: 'rest', name: 'REST API', icon: Zap, category: 'Web Service' },
+  { id: 'soap', name: 'SOAP Service', icon: Server, category: 'Web Service' },
+  { id: 'file', name: 'File System', icon: FileText, category: 'Storage' },
+  { id: 'email', name: 'Email SMTP', icon: Mail, category: 'Communication' },
+  { id: 'sms', name: 'SMS Gateway', icon: Smartphone, category: 'Communication' },
+  { id: 'database', name: 'Database', icon: Database, category: 'Storage' },
+];
 
 const channels = [
   {
@@ -24,8 +44,13 @@ const channels = [
     throughput: '245 msg/min',
     uptime: '99.8%',
     lastActivity: '2 seconds ago',
-    adapters: ['SAP Adapter', 'Salesforce Adapter'],
-    errorRate: 0.2
+    adapters: [
+      { id: 'sap', name: 'SAP ERP', icon: Database, category: 'Enterprise' },
+      { id: 'salesforce', name: 'Salesforce CRM', icon: Globe, category: 'CRM' }
+    ],
+    errorRate: 0.2,
+    totalMessages: 124567,
+    avgResponseTime: '120ms'
   },
   {
     id: 'CH-002',
@@ -36,32 +61,46 @@ const channels = [
     throughput: '89 msg/min',
     uptime: '100%',
     lastActivity: '15 seconds ago',
-    adapters: ['File Adapter', 'JDBC Adapter'],
-    errorRate: 0.0
+    adapters: [
+      { id: 'file', name: 'File System', icon: FileText, category: 'Storage' },
+      { id: 'database', name: 'Database', icon: Database, category: 'Storage' }
+    ],
+    errorRate: 0.0,
+    totalMessages: 45890,
+    avgResponseTime: '85ms'
   },
   {
     id: 'CH-003',
-    name: 'API Gateway Channel',
+    name: 'REST API Gateway',
     description: 'REST API request routing and transformation gateway',
     status: 'running',
     load: 92,
     throughput: '412 msg/min',
     uptime: '98.5%',
     lastActivity: '1 second ago',
-    adapters: ['HTTP Adapter', 'REST Adapter'],
-    errorRate: 1.5
+    adapters: [
+      { id: 'rest', name: 'REST API', icon: Zap, category: 'Web Service' }
+    ],
+    errorRate: 1.5,
+    totalMessages: 289456,
+    avgResponseTime: '45ms'
   },
   {
     id: 'CH-004',
-    name: 'Batch Processing Pipeline',
-    description: 'Scheduled batch processing for large data transfers',
+    name: 'Email Notification Service',
+    description: 'Automated email notifications and SMS alerts system',
     status: 'idle',
     load: 12,
-    throughput: '0 msg/min',
+    throughput: '15 msg/min',
     uptime: '95.2%',
     lastActivity: '2 hours ago',
-    adapters: ['SFTP Adapter', 'Database Adapter'],
-    errorRate: 0.0
+    adapters: [
+      { id: 'email', name: 'Email SMTP', icon: Mail, category: 'Communication' },
+      { id: 'sms', name: 'SMS Gateway', icon: Smartphone, category: 'Communication' }
+    ],
+    errorRate: 0.0,
+    totalMessages: 12345,
+    avgResponseTime: '200ms'
   },
   {
     id: 'CH-005',
@@ -72,8 +111,13 @@ const channels = [
     throughput: '0 msg/min',
     uptime: '87.3%',
     lastActivity: '6 hours ago',
-    adapters: ['SOAP Adapter', 'HTTP Adapter'],
-    errorRate: 2.8
+    adapters: [
+      { id: 'soap', name: 'SOAP Service', icon: Server, category: 'Web Service' },
+      { id: 'rest', name: 'REST API', icon: Zap, category: 'Web Service' }
+    ],
+    errorRate: 2.8,
+    totalMessages: 67890,
+    avgResponseTime: '350ms'
   }
 ];
 
@@ -241,11 +285,15 @@ export const Channels = () => {
                 <div className="space-y-2">
                   <div className="text-sm font-medium text-muted-foreground">Adapters</div>
                   <div className="flex flex-wrap gap-1">
-                    {channel.adapters.map((adapter) => (
-                      <Badge key={adapter} variant="outline" className="text-xs">
-                        {adapter}
-                      </Badge>
-                    ))}
+                    {channel.adapters.map((adapter) => {
+                      const IconComponent = adapter.icon;
+                      return (
+                        <Badge key={adapter.id} variant="outline" className="text-xs flex items-center gap-1">
+                          <IconComponent className="h-3 w-3" />
+                          {adapter.name}
+                        </Badge>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
