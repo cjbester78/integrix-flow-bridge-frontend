@@ -25,7 +25,7 @@ export const Sidebar = () => {
 
   return (
     <div className={cn(
-      "h-full bg-card border-r border-border transition-all duration-300",
+      "h-full bg-card/80 backdrop-blur-md border-r border-border transition-all duration-300 ease-in-out",
       collapsed ? "w-16" : "w-64"
     )}>
       <div className="flex flex-col h-full">
@@ -34,12 +34,12 @@ export const Sidebar = () => {
             variant="ghost"
             size="sm"
             onClick={() => setCollapsed(!collapsed)}
-            className="ml-auto flex"
+            className="ml-auto flex transition-all duration-300 hover:scale-110 hover:bg-accent/50"
           >
             {collapsed ? (
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-4 w-4 transition-transform duration-300" />
             ) : (
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-4 w-4 transition-transform duration-300" />
             )}
           </Button>
         </div>
@@ -51,16 +51,21 @@ export const Sidebar = () => {
               to={item.href}
               className={({ isActive }) =>
                 cn(
-                  "flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-                  "hover:bg-accent hover:text-accent-foreground",
+                  "flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 group",
+                  "hover:bg-accent hover:text-accent-foreground hover:scale-[1.02] hover:shadow-soft",
                   isActive
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground"
+                    ? "bg-primary text-primary-foreground shadow-elegant"
+                    : "text-muted-foreground hover:text-foreground"
                 )
               }
             >
-              <item.icon className={cn("h-4 w-4", !collapsed && "mr-3")} />
-              {!collapsed && <span>{item.name}</span>}
+              <item.icon className={cn(
+                "h-4 w-4 transition-all duration-300 group-hover:scale-110", 
+                !collapsed && "mr-3"
+              )} />
+              {!collapsed && (
+                <span className="transition-all duration-300">{item.name}</span>
+              )}
             </NavLink>
           ))}
         </nav>
