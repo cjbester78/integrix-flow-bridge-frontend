@@ -10,6 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { DataStructure, Field } from '@/types/dataStructures';
+import { FieldBuilder } from '@/components/FieldBuilder';
 import { 
   Upload,
   FileText,
@@ -127,26 +128,63 @@ export const DataStructures = () => {
     }
   };
 
-  const addCustomField = () => {
-    setCustomFields([...customFields, {
+  const addCustomField = (parentIndex?: number) => {
+    const newField: Field = {
       name: '',
       type: 'string',
       required: false,
       description: '',
       isComplexType: false,
       minOccurs: 1,
-      maxOccurs: 1
-    }]);
+      maxOccurs: 1,
+      children: []
+    };
+
+    if (parentIndex !== undefined) {
+      // Adding child field
+      const updated = [...customFields];
+      if (!updated[parentIndex].children) {
+        updated[parentIndex].children = [];
+      }
+      updated[parentIndex].children!.push(newField);
+      setCustomFields(updated);
+    } else {
+      // Adding root field
+      setCustomFields([...customFields, newField]);
+    }
   };
 
-  const updateCustomField = (index: number, field: Partial<Field>) => {
+  const updateCustomField = (index: number, field: Partial<Field>, parentIndex?: number) => {
     const updated = [...customFields];
-    updated[index] = { ...updated[index], ...field };
+    if (parentIndex !== undefined) {
+      // Updating child field - need to find the correct path
+      const findAndUpdate = (fields: Field[], targetParent: number, targetChild: number, updates: Partial<Field>) => {
+        if (targetParent < fields.length && fields[targetParent].children) {
+          if (targetChild < fields[targetParent].children!.length) {
+            fields[targetParent].children![targetChild] = { ...fields[targetParent].children![targetChild], ...updates };
+          }
+        }
+      };
+      findAndUpdate(updated, parentIndex, index, field);
+    } else {
+      // Updating root field
+      updated[index] = { ...updated[index], ...field };
+    }
     setCustomFields(updated);
   };
 
-  const removeCustomField = (index: number) => {
-    setCustomFields(customFields.filter((_, i) => i !== index));
+  const removeCustomField = (index: number, parentIndex?: number) => {
+    if (parentIndex !== undefined) {
+      // Removing child field
+      const updated = [...customFields];
+      if (updated[parentIndex].children) {
+        updated[parentIndex].children = updated[parentIndex].children!.filter((_, i) => i !== index);
+      }
+      setCustomFields(updated);
+    } else {
+      // Removing root field
+      setCustomFields(customFields.filter((_, i) => i !== index));
+    }
   };
 
   const parseJsonStructure = (jsonString: string) => {
@@ -225,6 +263,22 @@ export const DataStructures = () => {
     }
   };
 
+  const buildNestedStructure = (fields: Field[]): any => {
+    const structure: any = {};
+    
+    fields.forEach(field => {
+      if (field.children && field.children.length > 0) {
+        // Complex type with children
+        structure[field.name] = buildNestedStructure(field.children);
+      } else {
+        // Simple field
+        structure[field.name] = field.type;
+      }
+    });
+    
+    return structure;
+  };
+
   const saveStructure = () => {
     if (!structureName) {
       toast({
@@ -245,10 +299,7 @@ export const DataStructures = () => {
       // Basic XSD parsing could be added here similar to WSDL
       structure = { message: 'XSD parsing not fully implemented yet' };
     } else if (customFields.length > 0) {
-      structure = customFields.reduce((acc, field) => {
-        acc[field.name] = field.type;
-        return acc;
-      }, {} as any);
+      structure = buildNestedStructure(customFields);
     } else {
       toast({
         title: "Validation Error",
@@ -535,119 +586,29 @@ export const DataStructures = () => {
                 <TabsContent value="custom" className="space-y-4">
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <Label>Custom Fields</Label>
-                      <Button onClick={addCustomField} size="sm" variant="outline">
+                      <Label>Structure Definition</Label>
+                      <Button onClick={() => addCustomField()} size="sm" variant="outline">
                         <Plus className="h-4 w-4 mr-2" />
-                        Add Field
+                        Add Root Field
                       </Button>
                     </div>
                     
                     {customFields.map((field, index) => (
-                      <div key={index} className="space-y-3 p-4 border rounded-lg">
-                        <div className="grid grid-cols-12 gap-2 items-end">
-                          <div className="col-span-3">
-                            <Label className="text-xs">Field Name</Label>
-                            <Input
-                              placeholder="fieldName"
-                              value={field.name}
-                              onChange={(e) => updateCustomField(index, { name: e.target.value })}
-                              className="text-sm"
-                            />
-                          </div>
-                          <div className="col-span-2">
-                            <Label className="text-xs">Type</Label>
-                            <Select value={field.type} onValueChange={(value) => updateCustomField(index, { type: value })}>
-                              <SelectTrigger className="text-sm">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {fieldTypes.map((type) => (
-                                  <SelectItem key={type} value={type}>{type}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="col-span-4">
-                            <Label className="text-xs">Description</Label>
-                            <Input
-                              placeholder="Field description..."
-                              value={field.description || ''}
-                              onChange={(e) => updateCustomField(index, { description: e.target.value })}
-                              className="text-sm"
-                            />
-                          </div>
-                          <div className="col-span-2 flex items-center space-x-2">
-                            <label className="flex items-center space-x-1 text-xs">
-                              <input
-                                type="checkbox"
-                                checked={field.required}
-                                onChange={(e) => updateCustomField(index, { required: e.target.checked })}
-                                className="rounded"
-                              />
-                              <span>Required</span>
-                            </label>
-                          </div>
-                          <div className="col-span-1">
-                            <Button
-                              onClick={() => removeCustomField(index)}
-                              size="sm"
-                              variant="ghost"
-                              className="text-destructive hover:text-destructive"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-12 gap-2 items-end">
-                          <div className="col-span-2">
-                            <label className="flex items-center space-x-1 text-xs">
-                              <input
-                                type="checkbox"
-                                checked={field.isComplexType || false}
-                                onChange={(e) => updateCustomField(index, { isComplexType: e.target.checked })}
-                                className="rounded"
-                              />
-                              <span>Complex Type</span>
-                            </label>
-                          </div>
-                          <div className="col-span-2">
-                            <Label className="text-xs">Min Occurs</Label>
-                            <Input
-                              type="number"
-                              min="0"
-                              placeholder="1"
-                              value={field.minOccurs || 1}
-                              onChange={(e) => updateCustomField(index, { minOccurs: parseInt(e.target.value) || 1 })}
-                              className="text-sm"
-                            />
-                          </div>
-                          <div className="col-span-3">
-                            <Label className="text-xs">Max Occurs</Label>
-                            <Select 
-                              value={field.maxOccurs?.toString() || '1'} 
-                              onValueChange={(value) => updateCustomField(index, { maxOccurs: value === 'unbounded' ? 'unbounded' : parseInt(value) })}
-                            >
-                              <SelectTrigger className="text-sm">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="1">1</SelectItem>
-                                <SelectItem value="2">2</SelectItem>
-                                <SelectItem value="5">5</SelectItem>
-                                <SelectItem value="10">10</SelectItem>
-                                <SelectItem value="unbounded">Unbounded</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                      </div>
+                      <FieldBuilder
+                        key={index}
+                        field={field}
+                        index={index}
+                        onUpdate={(idx, updates) => updateCustomField(idx, updates)}
+                        onRemove={(idx) => removeCustomField(idx)}
+                        onAddChild={(idx) => addCustomField(idx)}
+                        depth={0}
+                      />
                     ))}
                     
                     {customFields.length === 0 && (
                       <div className="text-center py-8 text-muted-foreground">
                         <Database className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                        <p>No custom fields defined. Click "Add Field" to get started.</p>
+                        <p>No fields defined. Click "Add Root Field" to get started.</p>
                       </div>
                     )}
                   </div>
