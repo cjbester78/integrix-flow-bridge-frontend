@@ -16,7 +16,6 @@ import { Channels } from "@/pages/Channels";
 import { Admin } from "@/pages/Admin";
 import { Settings } from "@/pages/Settings";
 import NotFound from "./pages/NotFound";
-import { JarManagement } from "./pages/JarManagement";
 
 const queryClient = new QueryClient();
 
@@ -38,7 +37,6 @@ const App = () => (
               <Route path="messages" element={<Messages />} />
               <Route path="channels" element={<Channels />} />
               <Route path="admin" element={<Admin />} />
-              <Route path="admin/jar-management" element={<JarManagement />} />
               <Route path="settings" element={<Settings />} />
             </Route>
             <Route path="*" element={<NotFound />} />
