@@ -69,31 +69,45 @@ export const CustomStructureTab: React.FC<CustomStructureTabProps> = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <Label>Structure Definition</Label>
-        <Button onClick={() => addCustomField()} size="sm" variant="outline">
-          <Plus className="h-4 w-4 mr-2" />
-          Add Root Field
-        </Button>
-      </div>
-      
-      {customFields.map((field, index) => (
-        <FieldBuilder
-          key={index}
-          field={field}
-          index={index}
-          onUpdate={(idx, updates) => updateCustomField(idx, updates)}
-          onRemove={(idx) => removeCustomField(idx)}
-          onAddChild={(idx) => addCustomField(idx)}
-          depth={0}
-        />
-      ))}
-      
-      {customFields.length === 0 && (
-        <div className="text-center py-8 text-muted-foreground">
-          <Database className="h-12 w-12 mx-auto mb-4 opacity-50" />
-          <p>No fields defined. Click "Add Root Field" to get started.</p>
+      {customFields.length === 0 ? (
+        <div className="text-center py-8 space-y-4">
+          <Database className="h-12 w-12 mx-auto text-muted-foreground" />
+          <div>
+            <h3 className="text-lg font-semibold mb-2">Custom Structure Builder</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Build your data structure by adding fields manually for XSD, XML, WSDL, or JSON
+            </p>
+            <Button 
+              onClick={() => addCustomField()}
+              className="w-full max-w-xs bg-gradient-primary hover:opacity-90"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Field
+            </Button>
+          </div>
         </div>
+      ) : (
+        <>
+          <div className="flex items-center justify-between">
+            <Label>Structure Definition</Label>
+            <Button onClick={() => addCustomField()} size="sm" variant="outline">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Root Field
+            </Button>
+          </div>
+          
+          {customFields.map((field, index) => (
+            <FieldBuilder
+              key={index}
+              field={field}
+              index={index}
+              onUpdate={(idx, updates) => updateCustomField(idx, updates)}
+              onRemove={(idx) => removeCustomField(idx)}
+              onAddChild={(idx) => addCustomField(idx)}
+              depth={0}
+            />
+          ))}
+        </>
       )}
     </div>
   );
