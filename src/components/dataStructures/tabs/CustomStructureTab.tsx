@@ -46,18 +46,22 @@ export const CustomStructureTab: React.FC<CustomStructureTabProps> = ({
 
   const updateCustomField = (index: number, field: Partial<Field>, parentIndex?: number) => {
     const updated = [...customFields];
+    
     if (parentIndex !== undefined) {
-      const findAndUpdate = (fields: Field[], targetParent: number, targetChild: number, updates: Partial<Field>) => {
-        if (targetParent < fields.length && fields[targetParent].children) {
-          if (targetChild < fields[targetParent].children!.length) {
-            fields[targetParent].children![targetChild] = { ...fields[targetParent].children![targetChild], ...updates };
-          }
-        }
-      };
-      findAndUpdate(updated, parentIndex, index, field);
+      // Update child field
+      if (updated[parentIndex] && updated[parentIndex].children && updated[parentIndex].children![index]) {
+        updated[parentIndex].children![index] = { 
+          ...updated[parentIndex].children![index], 
+          ...field 
+        };
+      }
     } else {
-      updated[index] = { ...updated[index], ...field };
+      // Update parent field
+      if (updated[index]) {
+        updated[index] = { ...updated[index], ...field };
+      }
     }
+    
     setCustomFields(updated);
   };
 
