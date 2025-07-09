@@ -1,10 +1,7 @@
 import { Field } from '@/types/dataStructures';
 
-export const generateJsonSchema = (fields: Field[]): string => {
-  const schema: any = {
-    type: "object",
-    properties: {}
-  };
+const buildJsonStructure = (fields: Field[]): any => {
+  const result: any = {};
   
   fields.forEach(field => {
     if (field.name) {
@@ -12,94 +9,41 @@ export const generateJsonSchema = (fields: Field[]): string => {
                   (typeof field.maxOccurs === 'number' && field.maxOccurs > 1) || 
                   field.maxOccurs === 'unbounded';
       
-      if (isArray) {
-        schema.properties[field.name] = {
-          type: 'array',
-          items: {
-            type: field.type === 'array' ? 'string' : // default item type for array
-                   field.type === 'string' ? 'string' : 
-                   field.type === 'number' || field.type === 'integer' ? 'number' :
-                   field.type === 'boolean' ? 'boolean' :
-                   field.type === 'object' || field.isComplexType ? 'object' : 'string'
-          }
-        };
-      } else {
-        schema.properties[field.name] = {
-          type: field.type === 'string' ? 'string' : 
-                field.type === 'number' || field.type === 'integer' ? 'number' :
-                field.type === 'boolean' ? 'boolean' :
-                field.type === 'object' || field.isComplexType ? 'object' : 'string'
-        };
-      }
-      
-      if (field.description) {
-        schema.properties[field.name].description = field.description;
-      }
-      
       if (field.children && field.children.length > 0) {
         if (isArray) {
-          schema.properties[field.name].items = {
-            type: 'object',
-            properties: {}
-          };
-          field.children.forEach(child => {
-            if (child.name) {
-              schema.properties[field.name].items.properties[child.name] = {
-                type: child.type === 'array' ? 'array' : 
-                     child.type === 'string' ? 'string' : 
-                     child.type === 'number' || child.type === 'integer' ? 'number' :
-                     child.type === 'boolean' ? 'boolean' :
-                     child.type === 'object' || child.isComplexType ? 'object' : 'string',
-                ...(child.description && { description: child.description })
-              };
-              
-              // Handle nested children recursively
-              if (child.children && child.children.length > 0) {
-                schema.properties[field.name].items.properties[child.name].properties = {};
-                child.children.forEach(grandchild => {
-                  if (grandchild.name) {
-                    schema.properties[field.name].items.properties[child.name].properties[grandchild.name] = {
-                      type: grandchild.type,
-                      ...(grandchild.description && { description: grandchild.description })
-                    };
-                  }
-                });
-              }
-            }
-          });
+          // For arrays, create an array with sample object
+          result[field.name] = [buildJsonStructure(field.children)];
         } else {
-          schema.properties[field.name].properties = {};
-          field.children.forEach(child => {
-            if (child.name) {
-              schema.properties[field.name].properties[child.name] = {
-                type: child.type === 'array' ? 'array' : 
-                     child.type === 'string' ? 'string' : 
-                     child.type === 'number' || child.type === 'integer' ? 'number' :
-                     child.type === 'boolean' ? 'boolean' :
-                     child.type === 'object' || child.isComplexType ? 'object' : 'string',
-                ...(child.description && { description: child.description })
-              };
-              
-              // Handle nested children recursively  
-              if (child.children && child.children.length > 0) {
-                schema.properties[field.name].properties[child.name].properties = {};
-                child.children.forEach(grandchild => {
-                  if (grandchild.name) {
-                    schema.properties[field.name].properties[child.name].properties[grandchild.name] = {
-                      type: grandchild.type,
-                      ...(grandchild.description && { description: grandchild.description })
-                    };
-                  }
-                });
-              }
-            }
-          });
+          // For objects, build nested structure
+          result[field.name] = buildJsonStructure(field.children);
+        }
+      } else {
+        if (isArray) {
+          // Simple array of primitives
+          result[field.name] = [];
+        } else {
+          // Simple primitive field - show type info
+          result[field.name] = {
+            type: field.type === 'number' || field.type === 'integer' ? 'number' :
+                  field.type === 'boolean' ? 'boolean' : 'string'
+          };
         }
       }
     }
   });
   
-  return JSON.stringify(schema, null, 2);
+  return result;
+};
+
+export const generateJsonSchema = (fields: Field[]): string => {
+  if (fields.length === 0) return '{}';
+  
+  // Create the structure with a root wrapper
+  const structure = {
+    root: buildJsonStructure(fields)
+  };
+  
+  return JSON.stringify(structure, null, 2);
 };
 
 export const generateXmlSchema = (fields: Field[]): string => {
