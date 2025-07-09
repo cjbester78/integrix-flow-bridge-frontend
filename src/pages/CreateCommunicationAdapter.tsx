@@ -481,7 +481,11 @@ export const CreateCommunicationAdapter = () => {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="adapterType">Adapter Type *</Label>
-                <Select value={selectedAdapter} onValueChange={setSelectedAdapter}>
+                <Select value={selectedAdapter} onValueChange={(value) => {
+                  setSelectedAdapter(value);
+                  // Clear configuration including auth methods when adapter changes
+                  setConfiguration({});
+                }}>
                   <SelectTrigger className="transition-all duration-300 hover:bg-accent/50">
                     <SelectValue placeholder="Select communication adapter type" />
                   </SelectTrigger>
