@@ -27,7 +27,7 @@ export const CustomStructureTab: React.FC<CustomStructureTabProps> = ({
       required: false,
       description: '',
       isComplexType: false,
-      minOccurs: 1,
+      minOccurs: 0,
       maxOccurs: 1,
       children: []
     };
@@ -270,8 +270,12 @@ export const CustomStructureTab: React.FC<CustomStructureTabProps> = ({
               index={index}
               onUpdate={(idx, updates, parentIdx) => updateCustomField(idx, updates, parentIdx)}
               onRemove={(idx, parentIdx) => removeCustomField(idx, parentIdx)}
-              onAddChild={(idx) => addCustomField(idx)}
+              onAddChild={(idx, parentIdx) => {
+                console.log('Adding child to field:', idx, 'parent:', parentIdx);
+                addCustomField(idx);
+              }}
               depth={0}
+              parentIndex={undefined}
             />
           ))}
           

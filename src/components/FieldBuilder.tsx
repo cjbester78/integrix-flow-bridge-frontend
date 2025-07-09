@@ -151,9 +151,9 @@ export const FieldBuilder: React.FC<FieldBuilderProps> = ({
             <Input
               type="number"
               min="0"
-              placeholder="1"
-              value={field.minOccurs || 1}
-              onChange={(e) => handleUpdate({ minOccurs: parseInt(e.target.value) || 1 })}
+              placeholder="0"
+              value={field.minOccurs || 0}
+              onChange={(e) => handleUpdate({ minOccurs: parseInt(e.target.value) || 0 })}
               className="text-sm"
             />
           </div>
