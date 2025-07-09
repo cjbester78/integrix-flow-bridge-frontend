@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   MessageSquare, 
   Search, 
@@ -18,7 +19,8 @@ import {
   Info,
   AlertTriangle,
   Terminal,
-  FileText
+  FileText,
+  Calendar
 } from 'lucide-react';
 
 const messages = [
@@ -115,6 +117,7 @@ export const Messages = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedMessage, setExpandedMessage] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [dateTimeFilter, setDateTimeFilter] = useState<string>('all');
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -184,7 +187,47 @@ export const Messages = () => {
   const successfulMessages = messages.filter(msg => msg.status === 'success').length;
   const failedMessages = messages.filter(msg => msg.status === 'failed').length;
 
-  // Filter messages based on status and search term
+  // Helper function to check if message matches date/time filter
+  const matchesDateTime = (message: any, filter: string) => {
+    const messageDate = new Date(message.timestamp);
+    const now = new Date();
+    
+    if (filter === 'all') return true;
+    
+    // Today's filters (by hour)
+    if (filter.startsWith('today-')) {
+      const isToday = messageDate.toDateString() === now.toDateString();
+      if (!isToday) return false;
+      
+      if (filter === 'today-all') return true;
+      
+      const hour = parseInt(filter.split('-')[1]);
+      return messageDate.getHours() === hour;
+    }
+    
+    // Historical filters (by day)
+    if (filter === 'yesterday') {
+      const yesterday = new Date(now);
+      yesterday.setDate(yesterday.getDate() - 1);
+      return messageDate.toDateString() === yesterday.toDateString();
+    }
+    
+    if (filter === 'last-7-days') {
+      const sevenDaysAgo = new Date(now);
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      return messageDate >= sevenDaysAgo;
+    }
+    
+    if (filter === 'last-30-days') {
+      const thirtyDaysAgo = new Date(now);
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      return messageDate >= thirtyDaysAgo;
+    }
+    
+    return true;
+  };
+
+  // Filter messages based on status, search term, and date/time
   const filteredMessages = messages.filter((message) => {
     const matchesStatus = !statusFilter || message.status === statusFilter;
     const matchesSearch = !searchTerm || 
@@ -192,7 +235,8 @@ export const Messages = () => {
       message.source.toLowerCase().includes(searchTerm.toLowerCase()) ||
       message.target.toLowerCase().includes(searchTerm.toLowerCase()) ||
       message.type.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesStatus && matchesSearch;
+    const matchesDateTimeFilter = matchesDateTime(message, dateTimeFilter);
+    return matchesStatus && matchesSearch && matchesDateTimeFilter;
   });
 
   return (
@@ -209,6 +253,32 @@ export const Messages = () => {
           <RefreshCw className="h-4 w-4 mr-2" />
           Refresh
         </Button>
+      </div>
+
+      {/* Date/Time Filter */}
+      <div className="flex items-center gap-3">
+        <Calendar className="h-5 w-5 text-muted-foreground" />
+        <Select value={dateTimeFilter} onValueChange={setDateTimeFilter}>
+          <SelectTrigger className="w-64 bg-card border-border">
+            <SelectValue placeholder="Filter by date/time" />
+          </SelectTrigger>
+          <SelectContent className="bg-card border-border shadow-lg">
+            <SelectItem value="all">All Messages</SelectItem>
+            
+            {/* Today's options (hourly) */}
+            <SelectItem value="today-all">Today (All Hours)</SelectItem>
+            {Array.from({ length: 24 }, (_, i) => (
+              <SelectItem key={`today-${i}`} value={`today-${i}`}>
+                Today {i.toString().padStart(2, '0')}:00 - {i.toString().padStart(2, '0')}:59
+              </SelectItem>
+            ))}
+            
+            {/* Historical options (daily) */}
+            <SelectItem value="yesterday">Yesterday</SelectItem>
+            <SelectItem value="last-7-days">Last 7 Days</SelectItem>
+            <SelectItem value="last-30-days">Last 30 Days</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Stats Cards */}
