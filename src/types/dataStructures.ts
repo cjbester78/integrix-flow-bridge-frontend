@@ -1,7 +1,7 @@
 export interface DataStructure {
   id: string;
   name: string;
-  type: 'xsd' | 'soap' | 'json' | 'custom';
+  type: 'xsd' | 'soap' | 'json' | 'custom' | 'wsdl';
   description?: string;
   structure: any;
   createdAt: string;

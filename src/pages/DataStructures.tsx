@@ -76,10 +76,11 @@ export const DataStructures = () => {
   const [customFields, setCustomFields] = useState<Field[]>([]);
   const [jsonInput, setJsonInput] = useState('');
   const [xsdInput, setXsdInput] = useState('');
+  const [wsdlInput, setWsdlInput] = useState('');
   const [dragOver, setDragOver] = useState(false);
   const { toast } = useToast();
 
-  const handleFileUpload = (file: File, type: 'xsd' | 'json' | 'soap') => {
+  const handleFileUpload = (file: File, type: 'xsd' | 'json' | 'soap' | 'wsdl') => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const content = e.target?.result as string;
@@ -99,6 +100,12 @@ export const DataStructures = () => {
             variant: "destructive",
           });
         }
+      } else if (type === 'wsdl') {
+        setWsdlInput(content);
+        toast({
+          title: "WSDL File Loaded",
+          description: `Successfully loaded ${file.name}`,
+        });
       } else {
         setXsdInput(content);
         toast({
@@ -110,7 +117,7 @@ export const DataStructures = () => {
     reader.readAsText(file);
   };
 
-  const handleDrop = (e: React.DragEvent, type: 'xsd' | 'json' | 'soap') => {
+  const handleDrop = (e: React.DragEvent, type: 'xsd' | 'json' | 'soap' | 'wsdl') => {
     e.preventDefault();
     setDragOver(false);
     
@@ -162,6 +169,59 @@ export const DataStructures = () => {
     }
   };
 
+  const parseWsdlStructure = (wsdlString: string) => {
+    try {
+      // Basic WSDL parsing - extract complex types and elements
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(wsdlString, 'text/xml');
+      
+      // Check for parsing errors
+      const parserError = doc.querySelector('parsererror');
+      if (parserError) {
+        return null;
+      }
+      
+      const structure: any = {};
+      
+      // Extract complex types
+      const complexTypes = doc.querySelectorAll('complexType, xs\\:complexType');
+      complexTypes.forEach((complexType, index) => {
+        const typeName = complexType.getAttribute('name') || `ComplexType${index + 1}`;
+        const typeStructure: any = {};
+        
+        // Extract elements within the complex type
+        const elements = complexType.querySelectorAll('element, xs\\:element');
+        elements.forEach(element => {
+          const elementName = element.getAttribute('name');
+          const elementType = element.getAttribute('type') || 'string';
+          if (elementName) {
+            typeStructure[elementName] = elementType.replace(/^(xs:|xsd:)/, '');
+          }
+        });
+        
+        if (Object.keys(typeStructure).length > 0) {
+          structure[typeName] = typeStructure;
+        }
+      });
+      
+      // Extract simple elements if no complex types found
+      if (Object.keys(structure).length === 0) {
+        const elements = doc.querySelectorAll('element, xs\\:element');
+        elements.forEach(element => {
+          const elementName = element.getAttribute('name');
+          const elementType = element.getAttribute('type') || 'string';
+          if (elementName) {
+            structure[elementName] = elementType.replace(/^(xs:|xsd:)/, '');
+          }
+        });
+      }
+      
+      return Object.keys(structure).length > 0 ? structure : null;
+    } catch (error) {
+      return null;
+    }
+  };
+
   const saveStructure = () => {
     if (!structureName) {
       toast({
@@ -176,6 +236,11 @@ export const DataStructures = () => {
     
     if (jsonInput) {
       structure = parseJsonStructure(jsonInput);
+    } else if (wsdlInput) {
+      structure = parseWsdlStructure(wsdlInput);
+    } else if (xsdInput) {
+      // Basic XSD parsing could be added here similar to WSDL
+      structure = { message: 'XSD parsing not fully implemented yet' };
     } else if (customFields.length > 0) {
       structure = customFields.reduce((acc, field) => {
         acc[field.name] = field.type;
@@ -184,7 +249,7 @@ export const DataStructures = () => {
     } else {
       toast({
         title: "Validation Error",
-        description: "Please define a structure using JSON, XSD, or custom fields",
+        description: "Please define a structure using JSON, XSD, WSDL, or custom fields",
         variant: "destructive",
       });
       return;
@@ -193,7 +258,7 @@ export const DataStructures = () => {
     const newStructure: DataStructure = {
       id: Date.now().toString(),
       name: structureName,
-      type: jsonInput ? 'json' : xsdInput ? 'xsd' : 'custom',
+      type: jsonInput ? 'json' : wsdlInput ? 'wsdl' : xsdInput ? 'xsd' : 'custom',
       description: structureDescription,
       structure,
       createdAt: new Date().toISOString().split('T')[0],
@@ -207,7 +272,7 @@ export const DataStructures = () => {
     setStructureDescription('');
     setJsonInput('');
     setXsdInput('');
-    setCustomFields([]);
+    setWsdlInput('');
     
     toast({
       title: "Structure Saved",
@@ -243,7 +308,7 @@ export const DataStructures = () => {
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'json': return FileJson;
-      case 'xsd': case 'soap': return FileCode;
+      case 'xsd': case 'soap': case 'wsdl': return FileCode;
       case 'custom': return Database;
       default: return FileText;
     }
@@ -343,9 +408,10 @@ export const DataStructures = () => {
             </CardHeader>
             <CardContent>
               <Tabs defaultValue="json" className="w-full">
-                <TabsList className="grid w-full grid-cols-3">
+                <TabsList className="grid w-full grid-cols-4">
                   <TabsTrigger value="json">JSON Schema</TabsTrigger>
-                  <TabsTrigger value="xsd">XSD/SOAP</TabsTrigger>
+                  <TabsTrigger value="xsd">XSD/XML</TabsTrigger>
+                  <TabsTrigger value="wsdl">WSDL</TabsTrigger>
                   <TabsTrigger value="custom">Custom Builder</TabsTrigger>
                 </TabsList>
                 
@@ -419,6 +485,44 @@ export const DataStructures = () => {
                       placeholder="Paste your XSD or SOAP schema here..."
                       value={xsdInput}
                       onChange={(e) => setXsdInput(e.target.value)}
+                      className="font-mono text-sm"
+                      rows={8}
+                    />
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="wsdl" className="space-y-4">
+                  <div
+                    className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+                      dragOver ? 'border-primary bg-primary/10' : 'border-border'
+                    }`}
+                    onDrop={(e) => handleDrop(e, 'wsdl')}
+                    onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                    onDragLeave={() => setDragOver(false)}
+                  >
+                    <FileCode className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Drag & drop a WSDL file or paste WSDL content below
+                    </p>
+                    <input
+                      type="file"
+                      accept=".wsdl,.xml"
+                      onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'wsdl')}
+                      className="hidden"
+                      id="wsdl-upload"
+                    />
+                    <Button variant="outline" onClick={() => document.getElementById('wsdl-upload')?.click()}>
+                      <Upload className="h-4 w-4 mr-2" />
+                      Upload WSDL File
+                    </Button>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label>WSDL Content</Label>
+                    <Textarea
+                      placeholder="Paste your WSDL definition here..."
+                      value={wsdlInput}
+                      onChange={(e) => setWsdlInput(e.target.value)}
                       className="font-mono text-sm"
                       rows={8}
                     />
