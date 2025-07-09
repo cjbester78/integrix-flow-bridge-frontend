@@ -6,6 +6,12 @@ export interface DataStructure {
   structure: any;
   createdAt: string;
   usage: 'source' | 'target' | 'both';
+  namespace?: {
+    uri: string;
+    prefix?: string;
+    targetNamespace?: string;
+    schemaLocation?: string;
+  };
 }
 
 export interface Field {

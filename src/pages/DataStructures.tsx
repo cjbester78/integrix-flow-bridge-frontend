@@ -79,6 +79,13 @@ export const DataStructures = () => {
   const [xsdInput, setXsdInput] = useState('');
   const [wsdlInput, setWsdlInput] = useState('');
   const [dragOver, setDragOver] = useState(false);
+  const [selectedStructureType, setSelectedStructureType] = useState<'json' | 'xsd' | 'wsdl' | 'custom'>('json');
+  const [namespaceConfig, setNamespaceConfig] = useState({
+    uri: '',
+    prefix: '',
+    targetNamespace: '',
+    schemaLocation: ''
+  });
   const { toast } = useToast();
 
   const handleFileUpload = (file: File, type: 'xsd' | 'json' | 'soap' | 'wsdl') => {
@@ -316,7 +323,8 @@ export const DataStructures = () => {
       description: structureDescription,
       structure,
       createdAt: new Date().toISOString().split('T')[0],
-      usage: structureUsage
+      usage: structureUsage,
+      namespace: (selectedStructureType === 'xsd' || selectedStructureType === 'wsdl') && namespaceConfig.uri ? namespaceConfig : undefined
     };
 
     setStructures([...structures, newStructure]);
@@ -327,6 +335,13 @@ export const DataStructures = () => {
     setJsonInput('');
     setXsdInput('');
     setWsdlInput('');
+    setCustomFields([]);
+    setNamespaceConfig({
+      uri: '',
+      prefix: '',
+      targetNamespace: '',
+      schemaLocation: ''
+    });
     
     toast({
       title: "Structure Saved",
@@ -461,7 +476,7 @@ export const DataStructures = () => {
               <CardDescription>Choose your preferred method to define the data structure</CardDescription>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue="json" className="w-full">
+              <Tabs defaultValue="json" className="w-full" onValueChange={(value) => setSelectedStructureType(value as any)}>
                 <TabsList className="grid w-full grid-cols-4">
                   <TabsTrigger value="json">JSON Schema</TabsTrigger>
                   <TabsTrigger value="xsd">XSD/XML</TabsTrigger>
@@ -508,6 +523,51 @@ export const DataStructures = () => {
                 </TabsContent>
                 
                 <TabsContent value="xsd" className="space-y-4">
+                  {/* XML Namespace Configuration */}
+                  <Card className="p-4 bg-muted/30">
+                    <h4 className="font-medium mb-3 flex items-center gap-2">
+                      <Settings className="h-4 w-4" />
+                      XML Namespace Configuration
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-xs">Namespace URI *</Label>
+                        <Input
+                          placeholder="http://example.com/namespace"
+                          value={namespaceConfig.uri}
+                          onChange={(e) => setNamespaceConfig({...namespaceConfig, uri: e.target.value})}
+                          className="text-sm"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs">Namespace Prefix</Label>
+                        <Input
+                          placeholder="ns1"
+                          value={namespaceConfig.prefix}
+                          onChange={(e) => setNamespaceConfig({...namespaceConfig, prefix: e.target.value})}
+                          className="text-sm"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs">Target Namespace</Label>
+                        <Input
+                          placeholder="http://example.com/target"
+                          value={namespaceConfig.targetNamespace}
+                          onChange={(e) => setNamespaceConfig({...namespaceConfig, targetNamespace: e.target.value})}
+                          className="text-sm"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs">Schema Location</Label>
+                        <Input
+                          placeholder="http://example.com/schema.xsd"
+                          value={namespaceConfig.schemaLocation}
+                          onChange={(e) => setNamespaceConfig({...namespaceConfig, schemaLocation: e.target.value})}
+                          className="text-sm"
+                        />
+                      </div>
+                    </div>
+                  </Card>
                   <div
                     className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
                       dragOver ? 'border-primary bg-primary/10' : 'border-border'
@@ -546,6 +606,51 @@ export const DataStructures = () => {
                 </TabsContent>
                 
                 <TabsContent value="wsdl" className="space-y-4">
+                  {/* WSDL Namespace Configuration */}
+                  <Card className="p-4 bg-muted/30">
+                    <h4 className="font-medium mb-3 flex items-center gap-2">
+                      <Settings className="h-4 w-4" />
+                      WSDL Namespace Configuration
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-xs">Service Namespace *</Label>
+                        <Input
+                          placeholder="http://example.com/service"
+                          value={namespaceConfig.uri}
+                          onChange={(e) => setNamespaceConfig({...namespaceConfig, uri: e.target.value})}
+                          className="text-sm"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs">Service Prefix</Label>
+                        <Input
+                          placeholder="svc"
+                          value={namespaceConfig.prefix}
+                          onChange={(e) => setNamespaceConfig({...namespaceConfig, prefix: e.target.value})}
+                          className="text-sm"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs">Target Namespace</Label>
+                        <Input
+                          placeholder="http://example.com/target"
+                          value={namespaceConfig.targetNamespace}
+                          onChange={(e) => setNamespaceConfig({...namespaceConfig, targetNamespace: e.target.value})}
+                          className="text-sm"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs">WSDL Location</Label>
+                        <Input
+                          placeholder="http://example.com/service.wsdl"
+                          value={namespaceConfig.schemaLocation}
+                          onChange={(e) => setNamespaceConfig({...namespaceConfig, schemaLocation: e.target.value})}
+                          className="text-sm"
+                        />
+                      </div>
+                    </div>
+                  </Card>
                   <div
                     className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
                       dragOver ? 'border-primary bg-primary/10' : 'border-border'
@@ -707,6 +812,14 @@ export const DataStructures = () => {
                   <div>
                     <h4 className="font-medium">{selectedStructure.name}</h4>
                     <p className="text-sm text-muted-foreground">{selectedStructure.description}</p>
+                    {selectedStructure.namespace && (
+                      <div className="mt-2 text-xs text-muted-foreground">
+                        <span className="font-medium">Namespace:</span> {selectedStructure.namespace.uri}
+                        {selectedStructure.namespace.prefix && (
+                          <span className="ml-2">({selectedStructure.namespace.prefix})</span>
+                        )}
+                      </div>
+                    )}
                   </div>
                   
                   <Separator />
