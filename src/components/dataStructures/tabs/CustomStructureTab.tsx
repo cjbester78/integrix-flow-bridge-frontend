@@ -20,7 +20,7 @@ export const CustomStructureTab: React.FC<CustomStructureTabProps> = ({
   setSelectedStructureType
 }) => {
   const [customStructureType, setCustomStructureType] = useState<string>('');
-  const addCustomField = (parentIndex?: number) => {
+  const addCustomField = (fieldIndex?: number, parentIndex?: number) => {
     const newField: Field = {
       name: '',
       type: 'string',
@@ -32,14 +32,24 @@ export const CustomStructureTab: React.FC<CustomStructureTabProps> = ({
       children: []
     };
 
-    if (parentIndex !== undefined) {
+    if (parentIndex !== undefined && fieldIndex !== undefined) {
+      // Adding child to a nested field
       const updated = [...customFields];
-      if (!updated[parentIndex].children) {
-        updated[parentIndex].children = [];
+      if (!updated[parentIndex].children![fieldIndex].children) {
+        updated[parentIndex].children![fieldIndex].children = [];
       }
-      updated[parentIndex].children!.push(newField);
+      updated[parentIndex].children![fieldIndex].children!.push(newField);
+      setCustomFields(updated);
+    } else if (fieldIndex !== undefined) {
+      // Adding child to a root level field
+      const updated = [...customFields];
+      if (!updated[fieldIndex].children) {
+        updated[fieldIndex].children = [];
+      }
+      updated[fieldIndex].children!.push(newField);
       setCustomFields(updated);
     } else {
+      // Adding new root level field
       setCustomFields([...customFields, newField]);
     }
   };
@@ -272,7 +282,7 @@ export const CustomStructureTab: React.FC<CustomStructureTabProps> = ({
               onRemove={(idx, parentIdx) => removeCustomField(idx, parentIdx)}
               onAddChild={(idx, parentIdx) => {
                 console.log('Adding child to field:', idx, 'parent:', parentIdx);
-                addCustomField(idx);
+                addCustomField(idx, parentIdx);
               }}
               depth={0}
               parentIndex={undefined}
