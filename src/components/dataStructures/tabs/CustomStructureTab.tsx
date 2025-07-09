@@ -83,9 +83,9 @@ export const CustomStructureTab: React.FC<CustomStructureTabProps> = ({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="json">JSON Schema</SelectItem>
-            <SelectItem value="xsd">XSD/XML</SelectItem>
-            <SelectItem value="wsdl">WSDL</SelectItem>
-            <SelectItem value="xml">XML</SelectItem>
+            <SelectItem value="xsd">XSD Schema</SelectItem>
+            <SelectItem value="xml">XML Schema</SelectItem>
+            <SelectItem value="wsdl">WSDL Schema</SelectItem>
           </SelectContent>
         </Select>
       </div>
