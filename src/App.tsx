@@ -9,6 +9,7 @@ import { Layout } from "@/components/layout/Layout";
 import { Login } from "@/pages/Login";
 import { Dashboard } from "@/pages/Dashboard";
 import { CreateFlow } from "@/pages/CreateFlow";
+import { CreateCommunicationAdapter } from "@/pages/CreateCommunicationAdapter";
 import { Messages } from "@/pages/Messages";
 import { Channels } from "@/pages/Channels";
 import { Admin } from "@/pages/Admin";
@@ -30,6 +31,7 @@ const App = () => (
               <Route index element={<Navigate to="/dashboard" replace />} />
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="create-flow" element={<CreateFlow />} />
+              <Route path="create-communication-adapter" element={<CreateCommunicationAdapter />} />
               <Route path="messages" element={<Messages />} />
               <Route path="channels" element={<Channels />} />
               <Route path="admin" element={<Admin />} />
