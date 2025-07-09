@@ -12,6 +12,8 @@ interface StructureCreationFormProps {
   setStructureDescription: (description: string) => void;
   structureUsage: 'source' | 'target' | 'both';
   setStructureUsage: (usage: 'source' | 'target' | 'both') => void;
+  selectedStructureType: string;
+  setSelectedStructureType: (type: string) => void;
 }
 
 export const StructureCreationForm: React.FC<StructureCreationFormProps> = ({
@@ -20,7 +22,9 @@ export const StructureCreationForm: React.FC<StructureCreationFormProps> = ({
   structureDescription,
   setStructureDescription,
   structureUsage,
-  setStructureUsage
+  setStructureUsage,
+  selectedStructureType,
+  setSelectedStructureType
 }) => {
   return (
     <Card className="animate-scale-in">
@@ -30,7 +34,7 @@ export const StructureCreationForm: React.FC<StructureCreationFormProps> = ({
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="structureName">Structure Name *</Label>
               <Input
@@ -40,6 +44,20 @@ export const StructureCreationForm: React.FC<StructureCreationFormProps> = ({
                 onChange={(e) => setStructureName(e.target.value)}
                 className="transition-all duration-300 focus:scale-[1.01]"
               />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="structureType">Structure Type</Label>
+              <Select value={selectedStructureType} onValueChange={setSelectedStructureType}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="json">JSON Schema</SelectItem>
+                  <SelectItem value="xsd">XSD/XML</SelectItem>
+                  <SelectItem value="wsdl">WSDL</SelectItem>
+                  <SelectItem value="custom">Custom Builder</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="usage">Usage</Label>

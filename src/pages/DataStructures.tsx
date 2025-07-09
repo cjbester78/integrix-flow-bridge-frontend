@@ -83,6 +83,8 @@ export const DataStructures = () => {
             setStructureDescription={setStructureDescription}
             structureUsage={structureUsage}
             setStructureUsage={setStructureUsage}
+            selectedStructureType={selectedStructureType}
+            setSelectedStructureType={setSelectedStructureType}
           />
 
           <StructureDefinitionTabs
