@@ -121,36 +121,164 @@ export const generateXmlSchema = (fields: Field[]): string => {
   return xsd;
 };
 
-export const generateWsdlSchema = (fields: Field[]): string => {
+const generateComplexType = (field: Field, indent: string = '        '): string => {
+  let xsd = '';
+  
+  if (field.isComplexType || (field.children && field.children.length > 0)) {
+    xsd += `${indent}<xsd:complexType name="${field.name}Type">
+${indent}  <xsd:sequence>`;
+    
+    field.children?.forEach(child => {
+      if (child.name) {
+        const minOccurs = child.minOccurs || (child.required ? 1 : 0);
+        const maxOccurs = child.maxOccurs === 'unbounded' ? 'unbounded' : (child.maxOccurs || 1);
+        const occursAttr = `minOccurs="${minOccurs}" maxOccurs="${maxOccurs}"`;
+        
+        if (child.isComplexType || (child.children && child.children.length > 0)) {
+          xsd += `
+${indent}    <xsd:element name="${child.name}" type="tns:${child.name}Type" ${occursAttr}/>`;
+        } else {
+          const xsdType = child.type === 'array' ? 'string' : child.type === 'integer' ? 'int' : child.type;
+          xsd += `
+${indent}    <xsd:element name="${child.name}" type="xsd:${xsdType}" ${occursAttr}/>`;
+        }
+      }
+    });
+    
+    xsd += `
+${indent}  </xsd:sequence>
+${indent}</xsd:complexType>`;
+  }
+  
+  return xsd;
+};
+
+export const generateWsdlSchema = (fields: Field[], serviceName: string = 'DataService', operationName: string = 'ProcessData'): string => {
+  if (fields.length === 0) return '';
+  
   let wsdl = `<?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
-             xmlns:tns="http://example.com/schema"
+             xmlns:tns="http://example.com/service"
              xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-             targetNamespace="http://example.com/schema">
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+             targetNamespace="http://example.com/service"
+             elementFormDefault="qualified">
   
+  <!-- Types Section: XSD definitions for data types -->
   <types>
-    <xsd:schema targetNamespace="http://example.com/schema">
-      <xsd:element name="MessageType">
+    <xsd:schema targetNamespace="http://example.com/service"
+                xmlns:tns="http://example.com/service">
+      
+      <!-- Request Message Type -->
+      <xsd:element name="${operationName}Request">
         <xsd:complexType>
           <xsd:sequence>`;
-  
+
+  // Add input fields
   fields.forEach(field => {
     if (field.name) {
       const minOccurs = field.minOccurs || (field.required ? 1 : 0);
       const maxOccurs = field.maxOccurs === 'unbounded' ? 'unbounded' : (field.maxOccurs || 1);
       const occursAttr = `minOccurs="${minOccurs}" maxOccurs="${maxOccurs}"`;
       
-      wsdl += `
-            <xsd:element name="${field.name}" type="xsd:${field.type === 'array' ? 'string' : field.type}" ${occursAttr}/>`;
+      if (field.isComplexType || (field.children && field.children.length > 0)) {
+        wsdl += `
+            <xsd:element name="${field.name}" type="tns:${field.name}Type" ${occursAttr}/>`;
+      } else {
+        const xsdType = field.type === 'array' ? 'string' : field.type === 'integer' ? 'int' : field.type;
+        wsdl += `
+            <xsd:element name="${field.name}" type="xsd:${xsdType}" ${occursAttr}/>`;
+      }
     }
   });
-  
+
   wsdl += `
           </xsd:sequence>
         </xsd:complexType>
       </xsd:element>
+      
+      <!-- Response Message Type -->
+      <xsd:element name="${operationName}Response">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="result" type="xsd:string"/>
+            <xsd:element name="status" type="xsd:string"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      
+      <!-- Fault Message Type -->
+      <xsd:element name="${operationName}Fault">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="faultCode" type="xsd:string"/>
+            <xsd:element name="faultString" type="xsd:string"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>`;
+
+  // Add complex type definitions
+  fields.forEach(field => {
+    if (field.isComplexType || (field.children && field.children.length > 0)) {
+      wsdl += `
+      
+      ${generateComplexType(field)}`;
+    }
+  });
+
+  wsdl += `
     </xsd:schema>
   </types>
+  
+  <!-- Messages Section: Define input and output messages -->
+  <message name="${operationName}RequestMessage">
+    <part name="parameters" element="tns:${operationName}Request"/>
+  </message>
+  
+  <message name="${operationName}ResponseMessage">
+    <part name="parameters" element="tns:${operationName}Response"/>
+  </message>
+  
+  <message name="${operationName}FaultMessage">
+    <part name="fault" element="tns:${operationName}Fault"/>
+  </message>
+  
+  <!-- Port Type/Interface: Group related operations -->
+  <portType name="${serviceName}PortType">
+    <operation name="${operationName}">
+      <documentation>Process data operation</documentation>
+      <input message="tns:${operationName}RequestMessage"/>
+      <output message="tns:${operationName}ResponseMessage"/>
+      <fault name="${operationName}Fault" message="tns:${operationName}FaultMessage"/>
+    </operation>
+  </portType>
+  
+  <!-- Binding: Describe concrete protocol and data format (SOAP) -->
+  <binding name="${serviceName}SOAPBinding" type="tns:${serviceName}PortType">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <operation name="${operationName}">
+      <soap:operation soapAction="http://example.com/service/${operationName}"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+      <fault name="${operationName}Fault">
+        <soap:fault name="${operationName}Fault" use="literal"/>
+      </fault>
+    </operation>
+  </binding>
+  
+  <!-- Service: Network address (endpoint) - to be added by Java application -->
+  <!-- 
+  <service name="${serviceName}">
+    <port name="${serviceName}SOAPPort" binding="tns:${serviceName}SOAPBinding">
+      <soap:address location="[ENDPOINT_URL_TO_BE_SET_BY_JAVA_APP]"/>
+    </port>
+  </service>
+  -->
+  
 </definitions>`;
   
   return wsdl;
