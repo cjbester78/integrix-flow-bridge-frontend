@@ -10,6 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { DataStructure } from '@/types/dataStructures';
+import { flowService } from '@/services/flowService';
 import { 
   Plus, 
   ArrowRight, 
@@ -201,7 +202,7 @@ export const CreateFlow = () => {
     setJavaFunction('');
   };
 
-  const handleSaveFlow = () => {
+  const handleSaveFlow = async () => {
     if (!flowName || !sourceAdapter || !targetAdapter) {
       toast({
         title: "Validation Error",
@@ -211,20 +212,52 @@ export const CreateFlow = () => {
       return;
     }
 
-    toast({
-      title: "Flow Saved Successfully",
-      description: `Integration flow "${flowName}" has been created`,
-      variant: "default",
-    });
+    try {
+      const flowData = {
+        name: flowName,
+        description,
+        sourceAdapterId: sourceAdapter,
+        targetAdapterId: targetAdapter,
+        sourceStructureId: sourceStructure || undefined,
+        targetStructureId: targetStructure || undefined,
+        transformations: selectedTransformations.map((transformationId, index) => ({
+          type: transformationId as 'field-mapping' | 'custom-function' | 'filter' | 'enrichment',
+          configuration: transformationId === 'field-mapping' ? { fieldMappings } : {},
+          order: index + 1
+        })),
+        status: 'draft' as const
+      };
 
-    // Reset form
-    setFlowName('');
-    setDescription('');
-    setSourceAdapter('');
-    setTargetAdapter('');
-    setSourceStructure('');
-    setTargetStructure('');
-    setSelectedTransformations([]);
+      const response = await flowService.createFlow(flowData);
+
+      if (response.success) {
+        toast({
+          title: "Flow Saved Successfully",
+          description: `Integration flow "${flowName}" has been created with ID: ${response.data?.id}`,
+          variant: "default",
+        });
+
+        // Reset form
+        setFlowName('');
+        setDescription('');
+        setSourceAdapter('');
+        setTargetAdapter('');
+        setSourceStructure('');
+        setTargetStructure('');
+        setSelectedTransformations([]);
+        setFieldMappings([]);
+        setShowFieldMapping(false);
+      } else {
+        throw new Error(response.error || 'Failed to save flow');
+      }
+    } catch (error) {
+      console.error('Error saving flow:', error);
+      toast({
+        title: "Save Failed",
+        description: error instanceof Error ? error.message : "Failed to save integration flow",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleTestFlow = () => {
