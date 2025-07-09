@@ -114,6 +114,7 @@ const messages = [
 export const Messages = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedMessage, setExpandedMessage] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -175,6 +176,25 @@ export const Messages = () => {
     setExpandedMessage(expandedMessage === messageId ? null : messageId);
   };
 
+  const handleStatusFilter = (status: string) => {
+    setStatusFilter(statusFilter === status ? null : status);
+  };
+
+  // Calculate stats
+  const successfulMessages = messages.filter(msg => msg.status === 'success').length;
+  const failedMessages = messages.filter(msg => msg.status === 'failed').length;
+
+  // Filter messages based on status and search term
+  const filteredMessages = messages.filter((message) => {
+    const matchesStatus = !statusFilter || message.status === statusFilter;
+    const matchesSearch = !searchTerm || 
+      message.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      message.source.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      message.target.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      message.type.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesStatus && matchesSearch;
+  });
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -192,7 +212,7 @@ export const Messages = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <Card className="bg-gradient-secondary border-border/50">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Messages</CardTitle>
@@ -220,13 +240,32 @@ export const Messages = () => {
             <p className="text-xs text-success">-23ms improvement</p>
           </CardContent>
         </Card>
-        <Card className="bg-gradient-secondary border-border/50">
+        <Card 
+          className={`bg-gradient-secondary border-border/50 cursor-pointer transition-all hover:scale-105 ${
+            statusFilter === 'success' ? 'ring-2 ring-success' : ''
+          }`}
+          onClick={() => handleStatusFilter('success')}
+        >
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Successful Messages</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-success">{successfulMessages}</div>
+            <p className="text-xs text-muted-foreground">Click to filter</p>
+          </CardContent>
+        </Card>
+        <Card 
+          className={`bg-gradient-secondary border-border/50 cursor-pointer transition-all hover:scale-105 ${
+            statusFilter === 'failed' ? 'ring-2 ring-destructive' : ''
+          }`}
+          onClick={() => handleStatusFilter('failed')}
+        >
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Failed Messages</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-destructive">23</div>
-            <p className="text-xs text-muted-foreground">Requires attention</p>
+            <div className="text-2xl font-bold text-destructive">{failedMessages}</div>
+            <p className="text-xs text-muted-foreground">Click to filter</p>
           </CardContent>
         </Card>
       </div>
@@ -269,7 +308,7 @@ export const Messages = () => {
           </div>
 
           <div className="space-y-4">
-            {messages.map((message) => (
+            {filteredMessages.map((message) => (
               <div key={message.id} className="border border-border rounded-lg">
                 {/* Main Message Row */}
                 <div className="p-4">
