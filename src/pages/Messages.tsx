@@ -258,7 +258,13 @@ export const Messages = () => {
       {/* Date/Time Filter */}
       <div className="flex items-center gap-3">
         <Calendar className="h-5 w-5 text-muted-foreground" />
-        <Select value={dateTimeFilter} onValueChange={setDateTimeFilter}>
+        <Select value={dateTimeFilter} onValueChange={(value) => {
+          setDateTimeFilter(value);
+          // Clear status filter when "All Messages" is selected
+          if (value === 'all') {
+            setStatusFilter(null);
+          }
+        }}>
           <SelectTrigger className="w-64 bg-card border-border">
             <SelectValue placeholder="Filter by date/time" />
           </SelectTrigger>
