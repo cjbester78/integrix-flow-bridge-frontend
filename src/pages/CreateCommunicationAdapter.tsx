@@ -129,7 +129,7 @@ const communicationAdapters = [
       { name: 'url', label: 'URL', type: 'text', required: true, placeholder: 'https://api.example.com/endpoint' },
       { name: 'method', label: 'HTTP Method', type: 'select', required: true, options: ['POST', 'PUT', 'PATCH', 'GET'] },
       { name: 'contentType', label: 'Content Type', type: 'select', required: true, options: ['application/json', 'application/xml', 'application/x-www-form-urlencoded'] },
-      { name: 'authType', label: 'Authentication', type: 'select', required: false, options: ['None', 'Basic Auth', 'Bearer Token', 'API Key'] },
+      { name: 'authType', label: 'Authentication', type: 'select', required: false, options: ['None', 'Basic Auth', 'Bearer Token', 'API Key', 'OAuth', 'OAuth 2.0'] },
       { name: 'authValue', label: 'Auth Value', type: 'password', required: false, placeholder: 'Token or credentials' },
       { name: 'timeout', label: 'Timeout (ms)', type: 'number', required: false, placeholder: '30000' }
     ]
@@ -144,7 +144,7 @@ const communicationAdapters = [
       { name: 'url', label: 'REST API URL', type: 'text', required: true, placeholder: 'https://api.example.com/v1/endpoint' },
       { name: 'method', label: 'HTTP Method', type: 'select', required: true, options: ['POST', 'PUT', 'PATCH', 'GET'] },
       { name: 'contentType', label: 'Content Type', type: 'select', required: true, options: ['application/json', 'application/xml', 'application/x-www-form-urlencoded'] },
-      { name: 'authType', label: 'Authentication', type: 'select', required: false, options: ['None', 'Basic Auth', 'Bearer Token', 'API Key'] },
+      { name: 'authType', label: 'Authentication', type: 'select', required: false, options: ['None', 'Basic Auth', 'Bearer Token', 'API Key', 'OAuth', 'OAuth 2.0'] },
       { name: 'authValue', label: 'Auth Value', type: 'password', required: false, placeholder: 'Token or credentials' },
       { name: 'timeout', label: 'Timeout (ms)', type: 'number', required: false, placeholder: '30000' }
     ]
@@ -159,8 +159,8 @@ const communicationAdapters = [
       { name: 'wsdlUrl', label: 'WSDL URL', type: 'text', required: true, placeholder: 'https://example.com/service.wsdl' },
       { name: 'serviceName', label: 'Service Name', type: 'text', required: true, placeholder: 'MyWebService' },
       { name: 'portName', label: 'Port Name', type: 'text', required: true, placeholder: 'MyWebServicePort' },
-      { name: 'username', label: 'Username', type: 'text', required: false, placeholder: 'SOAP Username' },
-      { name: 'password', label: 'Password', type: 'password', required: false, placeholder: 'SOAP Password' },
+      { name: 'authType', label: 'Authentication', type: 'select', required: false, options: ['None', 'Basic Auth', 'Bearer Token', 'API Key', 'OAuth', 'OAuth 2.0'] },
+      { name: 'authValue', label: 'Auth Value', type: 'password', required: false, placeholder: 'Token or credentials' },
       { name: 'timeout', label: 'Timeout (ms)', type: 'number', required: false, placeholder: '30000' }
     ]
   },
