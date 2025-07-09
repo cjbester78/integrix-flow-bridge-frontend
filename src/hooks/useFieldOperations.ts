@@ -9,8 +9,19 @@ export const useFieldOperations = (
   onAddChild: (path: number[]) => void
 ) => {
   const handleUpdate = useCallback((updates: Partial<Field>) => {
+    // Auto-set type to array if maxOccurs > 1
+    if (updates.maxOccurs !== undefined) {
+      const maxOccurs = updates.maxOccurs;
+      if ((typeof maxOccurs === 'number' && maxOccurs > 1) || maxOccurs === 'unbounded') {
+        updates.type = 'array';
+      } else if (maxOccurs === 1 && field.type === 'array') {
+        // Reset to string if changing from array back to single occurrence
+        updates.type = 'string';
+      }
+    }
+    
     onUpdate(path, updates);
-  }, [path, onUpdate]);
+  }, [path, onUpdate, field.type]);
 
   const handleAddChild = useCallback(() => {
     // Mark as complex type when adding children

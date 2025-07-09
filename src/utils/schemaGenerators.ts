@@ -8,13 +8,29 @@ export const generateJsonSchema = (fields: Field[]): string => {
   
   fields.forEach(field => {
     if (field.name) {
-      schema.properties[field.name] = {
-        type: field.type === 'string' ? 'string' : 
-              field.type === 'number' || field.type === 'integer' ? 'number' :
-              field.type === 'boolean' ? 'boolean' :
-              field.type === 'array' ? 'array' :
-              field.type === 'object' || field.isComplexType ? 'object' : 'string'
-      };
+      const isArray = field.type === 'array' || 
+                  (typeof field.maxOccurs === 'number' && field.maxOccurs > 1) || 
+                  field.maxOccurs === 'unbounded';
+      
+      if (isArray) {
+        schema.properties[field.name] = {
+          type: 'array',
+          items: {
+            type: field.type === 'array' ? 'string' : // default item type for array
+                   field.type === 'string' ? 'string' : 
+                   field.type === 'number' || field.type === 'integer' ? 'number' :
+                   field.type === 'boolean' ? 'boolean' :
+                   field.type === 'object' || field.isComplexType ? 'object' : 'string'
+          }
+        };
+      } else {
+        schema.properties[field.name] = {
+          type: field.type === 'string' ? 'string' : 
+                field.type === 'number' || field.type === 'integer' ? 'number' :
+                field.type === 'boolean' ? 'boolean' :
+                field.type === 'object' || field.isComplexType ? 'object' : 'string'
+        };
+      }
       
       if (field.description) {
         schema.properties[field.name].description = field.description;
@@ -64,8 +80,12 @@ export const generateXmlSchema = (fields: Field[]): string => {
           </xs:complexType>
         </xs:element>`;
       } else {
+        const minOccurs = field.minOccurs || (field.required ? 1 : 0);
+        const maxOccurs = field.maxOccurs === 'unbounded' ? 'unbounded' : (field.maxOccurs || 1);
+        const occursAttr = `minOccurs="${minOccurs}" maxOccurs="${maxOccurs}"`;
+        
         xsd += `
-        <xs:element name="${field.name}" type="xs:${field.type}" ${field.required ? '' : 'minOccurs="0"'}/>`;
+        <xs:element name="${field.name}" type="xs:${field.type === 'array' ? 'string' : field.type}" ${occursAttr}/>`;
       }
     }
   });
@@ -94,8 +114,12 @@ export const generateWsdlSchema = (fields: Field[]): string => {
   
   fields.forEach(field => {
     if (field.name) {
+      const minOccurs = field.minOccurs || (field.required ? 1 : 0);
+      const maxOccurs = field.maxOccurs === 'unbounded' ? 'unbounded' : (field.maxOccurs || 1);
+      const occursAttr = `minOccurs="${minOccurs}" maxOccurs="${maxOccurs}"`;
+      
       wsdl += `
-            <xsd:element name="${field.name}" type="xsd:${field.type}" ${field.required ? '' : 'minOccurs="0"'}/>`;
+            <xsd:element name="${field.name}" type="xsd:${field.type === 'array' ? 'string' : field.type}" ${occursAttr}/>`;
     }
   });
   

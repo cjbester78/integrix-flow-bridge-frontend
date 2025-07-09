@@ -36,8 +36,8 @@ export const useCustomFields = (customFields: Field[], setCustomFields: (fields:
     }
   }, [customFields, setCustomFields]);
 
-  const updateFieldAtPath = useCallback((path: number[], field: Partial<Field>) => {
-    console.log('updateFieldAtPath called:', { path, field });
+  const updateFieldAtPath = useCallback((path: number[], fieldUpdates: Partial<Field>) => {
+    console.log('updateFieldAtPath called:', { path, field: fieldUpdates });
     
     const updated = [...customFields];
     let current = updated;
@@ -54,7 +54,18 @@ export const useCustomFields = (customFields: Field[], setCustomFields: (fields:
     // Update the final field
     const finalIndex = path[path.length - 1];
     if (current[finalIndex]) {
-      current[finalIndex] = { ...current[finalIndex], ...field };
+      // Auto-set type to array if maxOccurs > 1
+      if (fieldUpdates.maxOccurs !== undefined) {
+        const maxOccurs = fieldUpdates.maxOccurs;
+        if ((typeof maxOccurs === 'number' && maxOccurs > 1) || maxOccurs === 'unbounded') {
+          fieldUpdates.type = 'array';
+        } else if (maxOccurs === 1 && current[finalIndex].type === 'array') {
+          // Reset to string if changing from array back to single occurrence
+          fieldUpdates.type = 'string';
+        }
+      }
+      
+      current[finalIndex] = { ...current[finalIndex], ...fieldUpdates };
       console.log('Updated field at path:', path, current[finalIndex]);
     }
     
