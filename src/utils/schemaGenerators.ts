@@ -19,11 +19,8 @@ const buildJsonStructure = (fields: Field[]): any => {
           result[field.name] = buildJsonStructure(field.children!);
         }
       } else {
-        // Simple primitive field - show type info only for non-complex types
-        result[field.name] = {
-          type: field.type === 'number' || field.type === 'integer' ? 'number' :
-                field.type === 'boolean' ? 'boolean' : 'string'
-        };
+        // Simple primitive field - show default values
+        result[field.name] = field.type === 'integer' ? 0 : "";
       }
     }
   });
