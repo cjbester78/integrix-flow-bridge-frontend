@@ -79,24 +79,62 @@ export const CustomStructureTab: React.FC<CustomStructureTabProps> = ({
     setCustomFields(updated);
   };
 
-  const updateCustomField = (index: number, field: Partial<Field>, parentIndex?: number) => {
-    if (parentIndex !== undefined) {
-      updateFieldAtPath([parentIndex, index], field);
+  const removeFieldAtPath = (path: number[]) => {
+    const updated = [...customFields];
+    
+    if (path.length === 1) {
+      // Remove root level field
+      setCustomFields(updated.filter((_, i) => i !== path[0]));
     } else {
-      updateFieldAtPath([index], field);
+      // Navigate to parent and remove child
+      let current = updated;
+      for (let i = 0; i < path.length - 2; i++) {
+        const index = path[i];
+        if (!current[index].children) return;
+        current = current[index].children!;
+      }
+      
+      const parentIndex = path[path.length - 2];
+      const childIndex = path[path.length - 1];
+      
+      if (current[parentIndex] && current[parentIndex].children) {
+        current[parentIndex].children = current[parentIndex].children!.filter((_, i) => i !== childIndex);
+      }
+      
+      setCustomFields(updated);
     }
   };
 
-  const removeCustomField = (index: number, parentIndex?: number) => {
-    if (parentIndex !== undefined) {
-      const updated = [...customFields];
-      if (updated[parentIndex].children) {
-        updated[parentIndex].children = updated[parentIndex].children!.filter((_, i) => i !== index);
+  const addChildAtPath = (path: number[]) => {
+    const newField: Field = {
+      name: '',
+      type: 'string',
+      required: false,
+      description: '',
+      isComplexType: false,
+      minOccurs: 0,
+      maxOccurs: 1,
+      children: []
+    };
+
+    const updated = [...customFields];
+    let current = updated;
+    
+    // Navigate to the target field
+    for (let i = 0; i < path.length; i++) {
+      const index = path[i];
+      if (!current[index].children) {
+        current[index].children = [];
       }
-      setCustomFields(updated);
-    } else {
-      setCustomFields(customFields.filter((_, i) => i !== index));
+      if (i === path.length - 1) {
+        // Add child to this field
+        current[index].children!.push(newField);
+      } else {
+        current = current[index].children!;
+      }
     }
+    
+    setCustomFields(updated);
   };
 
   const generateSchemaPreview = (fields: Field[], schemaType: string): string => {
@@ -284,14 +322,11 @@ export const CustomStructureTab: React.FC<CustomStructureTabProps> = ({
               key={index}
               field={field}
               index={index}
-              onUpdate={(idx, updates, parentIdx) => updateCustomField(idx, updates, parentIdx)}
-              onRemove={(idx, parentIdx) => removeCustomField(idx, parentIdx)}
-              onAddChild={(idx, parentIdx) => {
-                console.log('Adding child to field:', idx, 'parent:', parentIdx);
-                addCustomField(idx, parentIdx);
-              }}
+              onUpdate={updateFieldAtPath}
+              onRemove={removeFieldAtPath}
+              onAddChild={addChildAtPath}
               depth={0}
-              parentIndex={undefined}
+              path={[index]}
             />
           ))}
           

@@ -14,11 +14,11 @@ const fieldTypes = [
 interface FieldBuilderProps {
   field: Field;
   index: number;
-  onUpdate: (index: number, updates: Partial<Field>, parentIndex?: number) => void;
-  onRemove: (index: number, parentIndex?: number) => void;
-  onAddChild: (index: number, parentIndex?: number) => void;
+  onUpdate: (path: number[], updates: Partial<Field>) => void;
+  onRemove: (path: number[]) => void;
+  onAddChild: (path: number[]) => void;
   depth: number;
-  parentIndex?: number;
+  path: number[];
 }
 
 export const FieldBuilder: React.FC<FieldBuilderProps> = ({
@@ -28,37 +28,34 @@ export const FieldBuilder: React.FC<FieldBuilderProps> = ({
   onRemove,
   onAddChild,
   depth,
-  parentIndex
+  path
 }) => {
   const [isExpanded, setIsExpanded] = React.useState(true);
   const hasChildren = field.children && field.children.length > 0;
   const canHaveChildren = field.isComplexType || field.type === 'object' || field.type === 'array';
 
   const handleUpdate = (updates: Partial<Field>) => {
-    onUpdate(index, updates, parentIndex);
+    onUpdate(path, updates);
   };
 
   const handleAddChild = () => {
     // Mark as complex type when adding children
     if (!field.isComplexType && field.type !== 'object' && field.type !== 'array') {
-      onUpdate(index, { isComplexType: true }, parentIndex);
+      onUpdate(path, { isComplexType: true });
     }
-    onAddChild(index, parentIndex);
+    onAddChild(path);
   };
 
-  const handleRemoveChild = (childIndex: number) => {
-    const currentParentIdx = parentIndex !== undefined ? parentIndex : index;
-    onRemove(childIndex, currentParentIdx);
+  const handleRemoveChild = (childPath: number[]) => {
+    onRemove(childPath);
   };
 
-  const handleUpdateChild = (childIndex: number, updates: Partial<Field>) => {
-    const currentParentIdx = parentIndex !== undefined ? parentIndex : index;
-    onUpdate(childIndex, updates, currentParentIdx);
+  const handleUpdateChild = (childPath: number[], updates: Partial<Field>) => {
+    onUpdate(childPath, updates);
   };
 
-  const handleAddGrandChild = (childIndex: number) => {
-    const currentParentIdx = parentIndex !== undefined ? parentIndex : index;
-    onAddChild(childIndex, currentParentIdx);
+  const handleAddGrandChild = (childPath: number[]) => {
+    onAddChild(childPath);
   };
 
   return (
@@ -122,7 +119,7 @@ export const FieldBuilder: React.FC<FieldBuilderProps> = ({
           </div>
           <div className="col-span-1">
             <Button
-              onClick={() => onRemove(index, parentIndex)}
+              onClick={() => onRemove(path)}
               size="sm"
               variant="ghost"
               className="text-destructive hover:text-destructive h-6 w-6 p-0"
@@ -204,7 +201,7 @@ export const FieldBuilder: React.FC<FieldBuilderProps> = ({
               onRemove={handleRemoveChild}
               onAddChild={handleAddGrandChild}
               depth={depth + 1}
-              parentIndex={parentIndex !== undefined ? parentIndex : index}
+              path={[...path, childIndex]}
             />
           ))}
         </div>
