@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { DataStructure, Field } from '@/types/dataStructures';
 import { 
   Upload,
   FileText,
@@ -28,24 +29,6 @@ import {
   Edit,
   Settings
 } from 'lucide-react';
-
-interface DataStructure {
-  id: string;
-  name: string;
-  type: 'xsd' | 'soap' | 'json' | 'custom';
-  description?: string;
-  structure: any;
-  createdAt: string;
-  usage: 'source' | 'target' | 'both';
-}
-
-interface Field {
-  name: string;
-  type: string;
-  required: boolean;
-  description?: string;
-  children?: Field[];
-}
 
 const fieldTypes = [
   'string', 'number', 'boolean', 'date', 'datetime', 
