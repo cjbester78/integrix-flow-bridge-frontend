@@ -415,7 +415,6 @@ export const CreateCommunicationAdapter = () => {
                   <SelectContent>
                     <SelectItem value="sender">Sender</SelectItem>
                     <SelectItem value="receiver">Receiver</SelectItem>
-                    <SelectItem value="both">Both</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
