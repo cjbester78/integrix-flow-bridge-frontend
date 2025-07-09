@@ -54,31 +54,37 @@ export const CustomStructureTab: React.FC<CustomStructureTabProps> = ({
     }
   };
 
-  const updateCustomField = (index: number, field: Partial<Field>, parentIndex?: number) => {
-    console.log('updateCustomField called:', { index, field, parentIndex, customFields });
+  const updateFieldAtPath = (path: number[], field: Partial<Field>) => {
+    console.log('updateFieldAtPath called:', { path, field });
     
     const updated = [...customFields];
+    let current = updated;
     
-    if (parentIndex !== undefined) {
-      // Update child field
-      console.log('Updating child field at parent:', parentIndex, 'child:', index);
-      if (updated[parentIndex] && updated[parentIndex].children && updated[parentIndex].children![index]) {
-        updated[parentIndex].children![index] = { 
-          ...updated[parentIndex].children![index], 
-          ...field 
-        };
-        console.log('Updated child field:', updated[parentIndex].children![index]);
+    // Navigate to the parent of the field we want to update
+    for (let i = 0; i < path.length - 1; i++) {
+      const index = path[i];
+      if (!current[index].children) {
+        current[index].children = [];
       }
-    } else {
-      // Update parent field
-      console.log('Updating parent field at index:', index);
-      if (updated[index]) {
-        updated[index] = { ...updated[index], ...field };
-        console.log('Updated parent field:', updated[index]);
-      }
+      current = current[index].children!;
+    }
+    
+    // Update the final field
+    const finalIndex = path[path.length - 1];
+    if (current[finalIndex]) {
+      current[finalIndex] = { ...current[finalIndex], ...field };
+      console.log('Updated field at path:', path, current[finalIndex]);
     }
     
     setCustomFields(updated);
+  };
+
+  const updateCustomField = (index: number, field: Partial<Field>, parentIndex?: number) => {
+    if (parentIndex !== undefined) {
+      updateFieldAtPath([parentIndex, index], field);
+    } else {
+      updateFieldAtPath([index], field);
+    }
   };
 
   const removeCustomField = (index: number, parentIndex?: number) => {
