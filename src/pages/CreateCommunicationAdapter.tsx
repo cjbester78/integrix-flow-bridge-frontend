@@ -159,6 +159,7 @@ const communicationAdapters = [
       // For Sender Mode
       { name: 'wsdlFile', label: 'WSDL File to Receive', type: 'select', required: true, options: ['OrderService.wsdl', 'CustomerService.wsdl', 'InvoiceService.wsdl'], conditionalField: 'sender' },
       { name: 'soapOperation', label: 'SOAP Action/Operation', type: 'select', required: true, options: ['ProcessOrder', 'GetCustomer', 'CreateInvoice'], conditionalField: 'sender' },
+      { name: 'callType', label: 'Call Type', type: 'select', required: true, options: ['Synchronous', 'Asynchronous'], conditionalField: 'sender' },
       
       // For Receiver Mode
       { name: 'targetUrl', label: 'Target URL', type: 'text', required: true, placeholder: 'https://api.example.com/soap/endpoint', conditionalField: 'receiver' },
