@@ -285,6 +285,47 @@ export const CreateCommunicationAdapter = () => {
 
   const selectedAdapterConfig = communicationAdapters.find(adapter => adapter.id === selectedAdapter);
 
+  // Get dynamic auth fields based on selected auth type
+  const getAuthFields = (authType: string) => {
+    switch (authType) {
+      case 'Basic Auth':
+        return [
+          { name: 'authUsername', label: 'Username', type: 'text', required: true, placeholder: 'Enter username' },
+          { name: 'authPassword', label: 'Password', type: 'password', required: true, placeholder: 'Enter password' }
+        ];
+      case 'Bearer Token':
+        return [
+          { name: 'bearerToken', label: 'Bearer Token', type: 'password', required: true, placeholder: 'Enter bearer token' }
+        ];
+      case 'API Key':
+        return [
+          { name: 'apiKeyValue', label: 'API Key', type: 'password', required: true, placeholder: 'Enter API key' },
+          { name: 'apiKeyLocation', label: 'API Key Location', type: 'select', required: true, options: ['Header', 'Query Parameter'] },
+          { name: 'apiKeyName', label: 'API Key Name', type: 'text', required: true, placeholder: 'e.g., X-API-Key or api_key' }
+        ];
+      case 'OAuth':
+        return [
+          { name: 'oauthClientId', label: 'Client ID', type: 'text', required: true, placeholder: 'Enter client ID' },
+          { name: 'oauthClientSecret', label: 'Client Secret', type: 'password', required: true, placeholder: 'Enter client secret' },
+          { name: 'oauthAuthUrl', label: 'Authorization URL', type: 'text', required: true, placeholder: 'https://auth.example.com/oauth/authorize' },
+          { name: 'oauthTokenUrl', label: 'Token URL', type: 'text', required: true, placeholder: 'https://auth.example.com/oauth/token' },
+          { name: 'oauthScope', label: 'Scope', type: 'text', required: false, placeholder: 'read write' }
+        ];
+      case 'OAuth 2.0':
+        return [
+          { name: 'oauth2ClientId', label: 'Client ID', type: 'text', required: true, placeholder: 'Enter client ID' },
+          { name: 'oauth2ClientSecret', label: 'Client Secret', type: 'password', required: true, placeholder: 'Enter client secret' },
+          { name: 'oauth2AuthUrl', label: 'Authorization URL', type: 'text', required: true, placeholder: 'https://auth.example.com/oauth2/authorize' },
+          { name: 'oauth2TokenUrl', label: 'Token URL', type: 'text', required: true, placeholder: 'https://auth.example.com/oauth2/token' },
+          { name: 'oauth2GrantType', label: 'Grant Type', type: 'select', required: true, options: ['authorization_code', 'client_credentials', 'password', 'refresh_token'] },
+          { name: 'oauth2Scope', label: 'Scope', type: 'text', required: false, placeholder: 'read write' }
+        ];
+      default:
+        return [];
+    }
+  };
+
+
   const handleConfigurationChange = (fieldName: string, value: string) => {
     setConfiguration(prev => ({
       ...prev,
@@ -521,6 +562,53 @@ export const CreateCommunicationAdapter = () => {
                       )}
                     </div>
                   ))}
+                  
+                  {/* Dynamic Authentication Fields */}
+                  {configuration.authType && configuration.authType !== 'None' && (
+                    <>
+                      <div className="md:col-span-2">
+                        <Separator className="my-4" />
+                        <h4 className="font-medium text-sm text-muted-foreground mb-4">
+                          {configuration.authType} Configuration
+                        </h4>
+                      </div>
+                      {getAuthFields(configuration.authType).map((authField) => (
+                        <div key={authField.name} className={authField.name.includes('Url') || authField.name.includes('url') ? 'md:col-span-2' : ''}>
+                          <Label htmlFor={authField.name} className="flex items-center gap-1">
+                            {authField.label}
+                            {authField.required && <span className="text-destructive">*</span>}
+                            {authField.type === 'password' && <Key className="h-3 w-3 text-muted-foreground" />}
+                          </Label>
+                          {authField.type === 'select' ? (
+                            <Select 
+                              value={configuration[authField.name] || ''} 
+                              onValueChange={(value) => handleConfigurationChange(authField.name, value)}
+                            >
+                              <SelectTrigger className="transition-all duration-300 hover:bg-accent/50">
+                                <SelectValue placeholder={`Select ${authField.label}`} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {authField.options?.map((option) => (
+                                  <SelectItem key={option} value={option}>
+                                    {option}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          ) : (
+                            <Input
+                              id={authField.name}
+                              type={authField.type}
+                              placeholder={authField.placeholder}
+                              value={configuration[authField.name] || ''}
+                              onChange={(e) => handleConfigurationChange(authField.name, e.target.value)}
+                              className="transition-all duration-300 focus:scale-[1.01]"
+                            />
+                          )}
+                        </div>
+                      ))}
+                    </>
+                  )}
                 </div>
               </CardContent>
             </Card>
