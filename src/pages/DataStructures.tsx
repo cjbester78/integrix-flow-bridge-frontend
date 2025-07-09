@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Field } from '@/types/dataStructures';
 import { useDataStructures } from '@/hooks/useDataStructures';
 import { StructureCreationForm } from '@/components/dataStructures/StructureCreationForm';
 import { StructureDefinitionTabs } from '@/components/dataStructures/StructureDefinitionTabs';
 import { StructureLibrary } from '@/components/dataStructures/StructureLibrary';
 import { StructurePreview } from '@/components/dataStructures/StructurePreview';
+import { parseJsonStructure, parseWsdlStructure, buildNestedStructure } from '@/utils/structureParsers';
 import { Layers } from 'lucide-react';
 
 export const DataStructures = () => {
@@ -32,6 +33,36 @@ export const DataStructures = () => {
     targetNamespace: '',
     schemaLocation: ''
   });
+
+  // Create a preview structure based on current inputs
+  const previewStructure = useMemo(() => {
+    if (!structureName) return null;
+
+    let structure: any = {};
+    
+    if (selectedStructureType === 'json' && jsonInput) {
+      structure = parseJsonStructure(jsonInput);
+    } else if (selectedStructureType === 'wsdl' && wsdlInput) {
+      structure = parseWsdlStructure(wsdlInput);
+    } else if (selectedStructureType === 'xsd' && xsdInput) {
+      structure = { message: 'XSD parsing not fully implemented yet' };
+    } else if (selectedStructureType === 'custom' && customFields.length > 0) {
+      structure = buildNestedStructure(customFields);
+    }
+
+    if (Object.keys(structure).length === 0) return null;
+
+    return {
+      id: 'preview',
+      name: structureName,
+      type: selectedStructureType as 'json' | 'xsd' | 'wsdl' | 'custom',
+      description: structureDescription,
+      structure,
+      createdAt: new Date().toISOString().split('T')[0],
+      usage: structureUsage,
+      namespace: (selectedStructureType === 'xsd' || selectedStructureType === 'wsdl') && namespaceConfig.uri ? namespaceConfig : undefined
+    };
+  }, [structureName, structureDescription, structureUsage, selectedStructureType, jsonInput, xsdInput, wsdlInput, customFields, namespaceConfig]);
 
   const handleSave = () => {
     const success = saveStructure(
@@ -102,6 +133,12 @@ export const DataStructures = () => {
             setNamespaceConfig={setNamespaceConfig}
             onSave={handleSave}
           />
+
+          {previewStructure && (
+            <div className="animate-fade-in">
+              <StructurePreview selectedStructure={previewStructure} />
+            </div>
+          )}
         </div>
 
         {/* Structure Library */}

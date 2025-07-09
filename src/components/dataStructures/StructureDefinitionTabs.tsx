@@ -158,7 +158,7 @@ export const StructureDefinitionTabs: React.FC<StructureDefinitionTabsProps> = (
         <CardDescription>Choose your preferred method to define the data structure</CardDescription>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="json" className="w-full" onValueChange={(value) => setSelectedStructureType(value)}>
+        <Tabs value={selectedStructureType} className="w-full" onValueChange={(value) => setSelectedStructureType(value)}>
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="json">JSON Schema</TabsTrigger>
             <TabsTrigger value="xsd">XSD/XML</TabsTrigger>
