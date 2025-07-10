@@ -28,6 +28,39 @@ export interface AdapterConfiguration {
   soapAction?: string;
   namespace?: string;
   
+  // SOAP Sender Configuration
+  sender?: string;
+  senderAddress?: string;
+  senderWsdlUrl?: string;
+  senderAuthorization?: string;
+  senderUserRole?: string;
+  bodySizeMB?: number;
+  attachmentsSizeMB?: number;
+  
+  // SOAP Receiver Configuration
+  receiver?: string;
+  receiverAddress?: string;
+  receiverWsdlUrl?: string;
+  service?: string;
+  endpoint?: string;
+  operationName?: string;
+  proxyType?: string;
+  receiverAuthentication?: string;
+  credentialName?: string;
+  receiverTimeout?: number;
+  keepAlive?: boolean;
+  compressMessage?: boolean;
+  allowChunking?: boolean;
+  returnHttpResponseCodeAsHeader?: boolean;
+  cleanupRequestHeaders?: boolean;
+  sapRmMessageIdDetermination?: string;
+  
+  // SOAP More/Advanced Configuration
+  parameterType?: string;
+  allowHeader?: string;
+  httpSessionReuse?: string;
+  returnExceptionToSender?: boolean;
+  
   // File Configuration
   directory?: string;
   filePattern?: string;

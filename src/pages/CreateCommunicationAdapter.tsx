@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { JarSelector } from '@/components/JarSelector';
+import { SoapAdapterConfig } from '@/components/SoapAdapterConfig';
 import { useToast } from '@/hooks/use-toast';
 import { adapterService } from '@/services/adapterService';
 import { 
@@ -181,16 +182,38 @@ const communicationAdapters: CommunicationAdapter[] = [
     description: 'SOAP web services integration',
     category: 'Web Services',
     fields: [
-      // For Sender Mode
-      { name: 'wsdlFile', label: 'WSDL File to Receive', type: 'select', required: true, options: ['OrderService.wsdl', 'CustomerService.wsdl', 'InvoiceService.wsdl'], conditionalField: 'sender' },
-      { name: 'soapOperation', label: 'SOAP Action/Operation', type: 'select', required: true, options: ['ProcessOrder', 'GetCustomer', 'CreateInvoice'], conditionalField: 'sender' },
-      { name: 'callType', label: 'Call Type', type: 'select', required: true, options: ['Synchronous', 'Asynchronous'], conditionalField: 'sender' },
+      // Sender Tab Fields
+      { name: 'sender', label: 'Sender', type: 'select', required: true, options: ['S4H', 'CPI', 'BTP'], conditionalField: 'sender' },
+      { name: 'senderAddress', label: 'Address', type: 'text', required: true, placeholder: '/UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmation', conditionalField: 'sender' },
+      { name: 'senderWsdlUrl', label: 'URL to WSDL', type: 'text', required: true, placeholder: '/wsdl/UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmation_Out.wsdl', conditionalField: 'sender' },
+      { name: 'senderAuthorization', label: 'Authorization', type: 'select', required: true, options: ['User Role', 'Basic Auth', 'Client Certificate'], conditionalField: 'sender' },
+      { name: 'senderUserRole', label: 'User Role', type: 'text', required: true, placeholder: 'ESBMessaging.send', conditionalField: 'sender' },
+      { name: 'bodySizeMB', label: 'Body Size (in MB)', type: 'number', required: false, placeholder: '40', conditionalField: 'sender' },
+      { name: 'attachmentsSizeMB', label: 'Attachments Size (in MB)', type: 'number', required: false, placeholder: '100', conditionalField: 'sender' },
       
-      // For Receiver Mode
-      { name: 'targetUrl', label: 'Target URL', type: 'text', required: true, placeholder: 'https://api.example.com/soap/endpoint', conditionalField: 'receiver' },
-      { name: 'authType', label: 'Authentication', type: 'select', required: false, options: ['None', 'Basic Auth', 'Bearer Token', 'API Key', 'OAuth', 'OAuth 2.0', 'SSL Certificate'], conditionalField: 'receiver' },
-      { name: 'authValue', label: 'Auth Value', type: 'password', required: false, placeholder: 'Token or credentials', conditionalField: 'receiver' },
-      { name: 'soapOperationReceiver', label: 'SOAP Action/Operation', type: 'select', required: true, options: ['ProcessOrder', 'GetCustomer', 'CreateInvoice'], conditionalField: 'receiver' }
+      // Receiver Tab Fields
+      { name: 'receiver', label: 'Receiver', type: 'select', required: true, options: ['MDUS', 'CPI', 'External'], conditionalField: 'receiver' },
+      { name: 'receiverAddress', label: 'Address', type: 'text', required: true, placeholder: 'Target system endpoint address', conditionalField: 'receiver' },
+      { name: 'receiverWsdlUrl', label: 'URL to WSDL', type: 'text', required: true, placeholder: 'WSDL URL for receiver service', conditionalField: 'receiver' },
+      { name: 'service', label: 'Service', type: 'text', required: true, placeholder: 'Service name from WSDL', conditionalField: 'receiver' },
+      { name: 'endpoint', label: 'Endpoint', type: 'text', required: true, placeholder: 'Endpoint name from WSDL', conditionalField: 'receiver' },
+      { name: 'operationName', label: 'Operation Name', type: 'text', required: true, placeholder: 'Operation name from WSDL', conditionalField: 'receiver' },
+      { name: 'proxyType', label: 'Proxy Type', type: 'select', required: false, options: ['Internet', 'On-Premise', 'None'], conditionalField: 'receiver' },
+      { name: 'receiverAuthentication', label: 'Authentication', type: 'select', required: false, options: ['Basic', 'None', 'Client Certificate', 'OAuth'], conditionalField: 'receiver' },
+      { name: 'credentialName', label: 'Credential Name', type: 'text', required: false, placeholder: 'Credential alias for authentication', conditionalField: 'receiver' },
+      { name: 'receiverTimeout', label: 'Timeout (in ms)', type: 'number', required: false, placeholder: '60000', conditionalField: 'receiver' },
+      { name: 'keepAlive', label: 'Keep-Alive', type: 'checkbox', required: false, conditionalField: 'receiver' },
+      { name: 'compressMessage', label: 'Compress Message', type: 'checkbox', required: false, conditionalField: 'receiver' },
+      { name: 'allowChunking', label: 'Allow Chunking', type: 'checkbox', required: false, conditionalField: 'receiver' },
+      { name: 'returnHttpResponseCodeAsHeader', label: 'Return HTTP Response Code as Header', type: 'checkbox', required: false, conditionalField: 'receiver' },
+      { name: 'cleanupRequestHeaders', label: 'Clean-up Request Headers', type: 'checkbox', required: false, conditionalField: 'receiver' },
+      { name: 'sapRmMessageIdDetermination', label: 'SAP RM Message ID Determination', type: 'select', required: false, options: ['Reuse', 'Generate', 'Map'], conditionalField: 'receiver' },
+      
+      // More Tab Fields
+      { name: 'parameterType', label: 'Type', type: 'select', required: false, options: ['All Parameters', 'Selected Parameters'], conditionalField: 'more' },
+      { name: 'allowHeader', label: 'Allow_Header', type: 'text', required: false, placeholder: 'Header configuration', conditionalField: 'more' },
+      { name: 'httpSessionReuse', label: 'HTTP_Session_Reuse', type: 'select', required: false, options: ['None', 'Session', 'Connection'], conditionalField: 'more' },
+      { name: 'returnExceptionToSender', label: 'Return_Exception_to_Sender', type: 'checkbox', required: false, conditionalField: 'more' }
     ]
   },
   {
@@ -313,7 +336,7 @@ export const CreateCommunicationAdapter = () => {
   const [adapterName, setAdapterName] = useState('');
   const [adapterMode, setAdapterMode] = useState('');
   const [description, setDescription] = useState('');
-  const [configuration, setConfiguration] = useState<Record<string, string>>({});
+  const [configuration, setConfiguration] = useState<Record<string, any>>({});
   const [isTestingConnection, setIsTestingConnection] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const { toast } = useToast();
@@ -563,7 +586,13 @@ export const CreateCommunicationAdapter = () => {
             </CardContent>
           </Card>
 
-          {selectedAdapterConfig && (
+          {selectedAdapterConfig && selectedAdapter === 'soap' ? (
+            <SoapAdapterConfig
+              adapterMode={adapterMode as 'sender' | 'receiver'}
+              configuration={configuration}
+              onConfigurationChange={handleConfigurationChange}
+            />
+          ) : selectedAdapterConfig && (
             <Card className="animate-scale-in" style={{ animationDelay: '0.2s' }}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -625,6 +654,19 @@ export const CreateCommunicationAdapter = () => {
                           className="transition-all duration-300 focus:scale-[1.01]"
                           rows={3}
                         />
+                      ) : field.type === 'checkbox' ? (
+                        <div className="flex items-center space-x-2">
+                          <input
+                            id={field.name}
+                            type="checkbox"
+                            checked={configuration[field.name] === 'true' || configuration[field.name] === true || configuration[field.name] === 'on'}
+                            onChange={(e) => handleConfigurationChange(field.name, e.target.checked.toString())}
+                            className="h-4 w-4 rounded border-border"
+                          />
+                          <Label htmlFor={field.name} className="text-sm font-normal">
+                            {field.label}
+                          </Label>
+                        </div>
                       ) : (
                         <Input
                           id={field.name}
