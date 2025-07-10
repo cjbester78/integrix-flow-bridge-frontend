@@ -140,10 +140,6 @@ export function FieldMappingScreen({ onClose, onSave, initialMappingName = '' }:
       {/* Header */}
       <div className="h-16 border-b flex items-center justify-between px-6">
         <div className="flex items-center gap-4">
-          <h1 className="text-xl font-semibold">Field Mapping</h1>
-          <Separator orientation="vertical" className="h-6" />
-          <Badge variant="secondary">SOAP Adapter</Badge>
-          <Separator orientation="vertical" className="h-6" />
           <div className="flex items-center gap-2">
             <Label htmlFor="mappingName" className="text-sm font-medium">Mapping Name:</Label>
             <Input
