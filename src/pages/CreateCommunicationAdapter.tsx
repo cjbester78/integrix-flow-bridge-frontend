@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Customer } from '@/types/customer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { JarSelector } from '@/components/JarSelector';
+import { CustomerSelectionAdapterCard } from '@/components/adapter/CustomerSelectionAdapterCard';
 import { FieldMappingScreen } from '@/components/FieldMappingScreen';
 import { useToast } from '@/hooks/use-toast';
 import { adapterService } from '@/services/adapterService';
@@ -329,6 +331,7 @@ const communicationAdapters: CommunicationAdapter[] = [
 ];
 
 export const CreateCommunicationAdapter = () => {
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [selectedAdapter, setSelectedAdapter] = useState('');
   const [adapterName, setAdapterName] = useState('');
   const [adapterMode, setAdapterMode] = useState('');
@@ -445,6 +448,15 @@ export const CreateCommunicationAdapter = () => {
   };
 
   const handleSaveAdapter = () => {
+    if (!selectedCustomer) {
+      toast({
+        title: "Validation Error",
+        description: "Please select a customer for this adapter",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     if (!adapterName || !selectedAdapter || !adapterMode) {
       toast({
         title: "Validation Error",
@@ -473,6 +485,7 @@ export const CreateCommunicationAdapter = () => {
     });
 
     // Reset form
+    setSelectedCustomer(null);
     setAdapterName('');
     setAdapterMode('');
     setDescription('');
@@ -500,6 +513,11 @@ export const CreateCommunicationAdapter = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Adapter Selection & Configuration */}
         <div className="lg:col-span-2 space-y-6">
+          <CustomerSelectionAdapterCard
+            selectedCustomer={selectedCustomer}
+            setSelectedCustomer={setSelectedCustomer}
+          />
+          
           <Card className="animate-scale-in">
             <CardHeader>
               <CardTitle>Adapter Details</CardTitle>
