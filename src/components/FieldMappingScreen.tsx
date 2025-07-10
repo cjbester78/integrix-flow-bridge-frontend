@@ -1,5 +1,4 @@
 import { useState, useRef, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,18 +6,18 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Textarea } from '@/components/ui/textarea';
 import { 
   Search, 
   Trash2, 
   ArrowRight, 
-  FileText, 
   Settings, 
   Link2,
   X,
   ChevronDown,
   ChevronRight,
-  Plus,
-  Minus
+  Code,
+  Plus
 } from 'lucide-react';
 
 interface FieldNode {
@@ -32,100 +31,93 @@ interface FieldNode {
 
 interface FieldMapping {
   id: string;
-  sourceField: string;
+  sourceFields: string[];
   targetField: string;
-  sourcePath: string;
+  sourcePaths: string[];
   targetPath: string;
+  javaFunction?: string;
 }
 
 interface MappingScreenProps {
   onClose?: () => void;
 }
 
-// Mock data for source and target structures
-const sourceStructure: FieldNode[] = [
-  {
-    id: 'src_1',
-    name: 'UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmation_Out',
-    type: 'object',
-    path: '/UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmation_Out',
-    expanded: true,
-    children: [
-      {
-        id: 'src_2',
-        name: 'MessageHeader',
-        type: 'object',
-        path: '/MessageHeader',
-        expanded: true,
-        children: [
-          { id: 'src_3', name: 'ID', type: 'string', path: '/MessageHeader/ID' },
-          { id: 'src_4', name: 'UUID', type: 'string', path: '/MessageHeader/UUID' },
-          { id: 'src_5', name: 'ReferenceID', type: 'string', path: '/MessageHeader/ReferenceID' }
-        ]
-      },
-      {
-        id: 'src_6',
-        name: 'UtilitiesDevice',
-        type: 'object',
-        path: '/UtilitiesDevice',
-        expanded: false,
-        children: [
-          { id: 'src_7', name: 'ID', type: 'string', path: '/UtilitiesDevice/ID' },
-          { id: 'src_8', name: 'DeviceCategory', type: 'string', path: '/UtilitiesDevice/DeviceCategory' }
-        ]
-      },
-      { id: 'src_9', name: 'Log', type: 'object', path: '/Log' }
-    ]
-  }
+// Demo webservice files
+const demoWebservices = [
+  'CustomerOrderService.wsdl',
+  'InventoryManagementService.wsdl', 
+  'PaymentProcessingService.wsdl',
+  'UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmation_Out.wsdl',
+  'UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmation_In.wsdl'
 ];
 
-const targetStructure: FieldNode[] = [
-  {
-    id: 'tgt_1',
-    name: 'UtilitiesDeviceERPSmartMeterChangeConfirmation',
-    type: 'object',
-    path: '/UtilitiesDeviceERPSmartMeterChangeConfirmation',
-    expanded: true,
-    children: [
-      {
-        id: 'tgt_2',
-        name: 'MessageHeader',
-        type: 'object',
-        path: '/MessageHeader',
-        expanded: true,
-        children: [
-          { id: 'tgt_3', name: 'ID', type: 'string', path: '/MessageHeader/ID' },
-          { id: 'tgt_4', name: 'UUID', type: 'string', path: '/MessageHeader/UUID' },
-          { id: 'tgt_5', name: 'ReferenceID', type: 'string', path: '/MessageHeader/ReferenceID' }
-        ]
-      },
-      {
-        id: 'tgt_6',
-        name: 'UtilitiesDevice',
-        type: 'object',
-        path: '/UtilitiesDevice',
-        expanded: false,
-        children: [
-          { id: 'tgt_7', name: 'ID', type: 'string', path: '/UtilitiesDevice/ID' },
-          { id: 'tgt_8', name: 'DeviceCategory', type: 'string', path: '/UtilitiesDevice/DeviceCategory' }
-        ]
-      },
-      { id: 'tgt_9', name: 'Log', type: 'object', path: '/Log' }
-    ]
-  }
-];
+// Mock structures for demo webservices
+const webserviceStructures: Record<string, FieldNode[]> = {
+  'CustomerOrderService.wsdl': [
+    {
+      id: 'customer_1',
+      name: 'CustomerOrder',
+      type: 'object',
+      path: '/CustomerOrder',
+      expanded: true,
+      children: [
+        {
+          id: 'customer_2',
+          name: 'OrderHeader',
+          type: 'object',
+          path: '/OrderHeader',
+          expanded: true,
+          children: [
+            { id: 'customer_3', name: 'OrderID', type: 'string', path: '/OrderHeader/OrderID' },
+            { id: 'customer_4', name: 'CustomerID', type: 'string', path: '/OrderHeader/CustomerID' },
+            { id: 'customer_5', name: 'OrderDate', type: 'date', path: '/OrderHeader/OrderDate' }
+          ]
+        },
+        {
+          id: 'customer_6',
+          name: 'OrderItems',
+          type: 'array',
+          path: '/OrderItems',
+          expanded: false,
+          children: [
+            { id: 'customer_7', name: 'ProductID', type: 'string', path: '/OrderItems/ProductID' },
+            { id: 'customer_8', name: 'Quantity', type: 'number', path: '/OrderItems/Quantity' },
+            { id: 'customer_9', name: 'Price', type: 'decimal', path: '/OrderItems/Price' }
+          ]
+        }
+      ]
+    }
+  ],
+  'InventoryManagementService.wsdl': [
+    {
+      id: 'inventory_1',
+      name: 'InventoryUpdate',
+      type: 'object',
+      path: '/InventoryUpdate',
+      expanded: true,
+      children: [
+        { id: 'inventory_2', name: 'ProductID', type: 'string', path: '/InventoryUpdate/ProductID' },
+        { id: 'inventory_3', name: 'StockLevel', type: 'number', path: '/InventoryUpdate/StockLevel' },
+        { id: 'inventory_4', name: 'Location', type: 'string', path: '/InventoryUpdate/Location' }
+      ]
+    }
+  ]
+};
 
 export function FieldMappingScreen({ onClose }: MappingScreenProps) {
-  const [sourceFields, setSourceFields] = useState<FieldNode[]>(sourceStructure);
-  const [targetFields, setTargetFields] = useState<FieldNode[]>(targetStructure);
+  const [sourceFields, setSourceFields] = useState<FieldNode[]>([]);
+  const [targetFields, setTargetFields] = useState<FieldNode[]>([]);
   const [mappings, setMappings] = useState<FieldMapping[]>([]);
-  const [draggedField, setDraggedField] = useState<{ field: FieldNode; side: 'source' | 'target' } | null>(null);
+  const [draggedField, setDraggedField] = useState<FieldNode | null>(null);
   const [searchSource, setSearchSource] = useState('');
   const [searchTarget, setSearchTarget] = useState('');
-  const [selectedSource, setSelectedSource] = useState<string>('UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmation_Out.wsdl');
-  const [selectedTarget, setSelectedTarget] = useState<string>('UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmation_In.wsdl');
+  const [selectedSource, setSelectedSource] = useState<string>('');
+  const [selectedTarget, setSelectedTarget] = useState<string>('');
   const [showSourceSelector, setShowSourceSelector] = useState(false);
   const [showTargetSelector, setShowTargetSelector] = useState(false);
+  const [showJavaEditor, setShowJavaEditor] = useState<string | null>(null);
+  const [tempJavaFunction, setTempJavaFunction] = useState('');
+  const [fieldPositions, setFieldPositions] = useState<Record<string, { x: number, y: number }>>({});
   const svgRef = useRef<SVGSVGElement>(null);
 
   const toggleExpanded = useCallback((nodeId: string, isSource: boolean) => {
@@ -148,24 +140,41 @@ export function FieldMappingScreen({ onClose }: MappingScreenProps) {
     }
   }, []);
 
-  const handleDragStart = (field: FieldNode, side: 'source' | 'target') => {
-    setDraggedField({ field, side });
+  const handleDragStart = (field: FieldNode) => {
+    setDraggedField(field);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
   };
 
-  const handleDrop = (targetField: FieldNode, targetSide: 'source' | 'target') => {
+  const handleDrop = (targetField: FieldNode) => {
     if (!draggedField) return;
     
-    if (draggedField.side !== targetSide) {
+    // Find existing mapping for target field
+    const existingMappingIndex = mappings.findIndex(m => m.targetPath === targetField.path);
+    
+    if (existingMappingIndex >= 0) {
+      // Add to existing mapping (multi-source)
+      const existingMapping = mappings[existingMappingIndex];
+      const updatedMapping: FieldMapping = {
+        ...existingMapping,
+        sourceFields: [...existingMapping.sourceFields, draggedField.name],
+        sourcePaths: [...existingMapping.sourcePaths, draggedField.path]
+      };
+      
+      const updatedMappings = [...mappings];
+      updatedMappings[existingMappingIndex] = updatedMapping;
+      setMappings(updatedMappings);
+    } else {
+      // Create new mapping
       const newMapping: FieldMapping = {
         id: `mapping_${Date.now()}`,
-        sourceField: draggedField.side === 'source' ? draggedField.field.name : targetField.name,
-        targetField: draggedField.side === 'target' ? draggedField.field.name : targetField.name,
-        sourcePath: draggedField.side === 'source' ? draggedField.field.path : targetField.path,
-        targetPath: draggedField.side === 'target' ? draggedField.field.path : targetField.path
+        sourceFields: [draggedField.name],
+        targetField: targetField.name,
+        sourcePaths: [draggedField.path],
+        targetPath: targetField.path,
+        javaFunction: ''
       };
       
       setMappings(prev => [...prev, newMapping]);
@@ -182,26 +191,52 @@ export function FieldMappingScreen({ onClose }: MappingScreenProps) {
     setMappings([]);
   };
 
+  const selectWebservice = (filename: string, isSource: boolean) => {
+    const structure = webserviceStructures[filename] || [];
+    
+    if (isSource) {
+      setSelectedSource(filename);
+      setSourceFields(structure);
+      setShowSourceSelector(false);
+    } else {
+      setSelectedTarget(filename);
+      setTargetFields(structure);
+      setShowTargetSelector(false);
+    }
+  };
+
+  const updateMappingJavaFunction = (mappingId: string, javaFunction: string) => {
+    setMappings(prev => prev.map(m => 
+      m.id === mappingId ? { ...m, javaFunction } : m
+    ));
+    setShowJavaEditor(null);
+    setTempJavaFunction('');
+  };
+
   const renderField = (field: FieldNode, level: number, side: 'source' | 'target') => {
     const isLeaf = !field.children || field.children.length === 0;
     const isMapped = mappings.some(m => 
-      side === 'source' ? m.sourcePath === field.path : m.targetPath === field.path
+      side === 'source' ? m.sourcePaths.includes(field.path) : m.targetPath === field.path
     );
 
     return (
       <div key={field.id} className="w-full">
         <div
-          className={`flex items-center p-2 border rounded-md cursor-pointer transition-colors ${
+          className={`flex items-center p-2 border rounded-md transition-colors ${
             isMapped ? 'bg-primary/10 border-primary' : 'bg-background hover:bg-muted/50'
-          } ${isLeaf ? 'cursor-grab' : ''}`}
+          } ${isLeaf && side === 'source' ? 'cursor-grab active:cursor-grabbing' : ''} ${
+            isLeaf && side === 'target' ? 'border-dashed border-2 hover:border-primary' : ''
+          }`}
           style={{ marginLeft: `${level * 16}px` }}
-          draggable={isLeaf}
-          onDragStart={() => isLeaf && handleDragStart(field, side)}
-          onDragOver={handleDragOver}
+          draggable={isLeaf && side === 'source'}
+          onDragStart={() => isLeaf && side === 'source' && handleDragStart(field)}
+          onDragOver={isLeaf && side === 'target' ? handleDragOver : undefined}
           onDrop={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (isLeaf) handleDrop(field, side);
+            if (isLeaf && side === 'target') {
+              e.preventDefault();
+              e.stopPropagation();
+              handleDrop(field);
+            }
           }}
         >
           {!isLeaf && (
@@ -219,7 +254,12 @@ export function FieldMappingScreen({ onClose }: MappingScreenProps) {
             {isMapped && <Link2 className="h-3 w-3 text-primary" />}
           </div>
           
-          <span className="text-xs text-muted-foreground">1..1</span>
+          {side === 'source' && isLeaf && (
+            <span className="text-xs text-muted-foreground">Drag →</span>
+          )}
+          {side === 'target' && isLeaf && (
+            <span className="text-xs text-muted-foreground">Drop here</span>
+          )}
         </div>
 
         {!isLeaf && field.expanded && field.children && (
@@ -229,23 +269,6 @@ export function FieldMappingScreen({ onClose }: MappingScreenProps) {
         )}
       </div>
     );
-  };
-
-  const renderMappingLines = () => {
-    return mappings.map(mapping => (
-      <g key={mapping.id}>
-        <line
-          x1={300}
-          y1={100}
-          x2={500}
-          y2={100}
-          stroke="hsl(var(--primary))"
-          strokeWidth={2}
-          markerEnd="url(#arrowhead)"
-        />
-        <circle cx={400} cy={100} r={4} fill="hsl(var(--primary))" />
-      </g>
-    ));
   };
 
   return (
@@ -294,19 +317,26 @@ export function FieldMappingScreen({ onClose }: MappingScreenProps) {
                       <Button variant="outline">Global Resources</Button>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      List of local resources that are available in your integration flow.
+                      List of demo webservice files available for mapping.
                     </p>
                     <div className="relative">
                       <Search className="h-4 w-4 absolute left-3 top-3 text-muted-foreground" />
                       <Input placeholder="Search" className="pl-10" />
                     </div>
                     <div className="border rounded-md p-3 space-y-2">
-                      <div className="p-2 bg-primary/10 border border-primary rounded text-sm">
-                        UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmation_Out.wsdl
-                      </div>
-                      <div className="p-2 hover:bg-muted rounded text-sm cursor-pointer">
-                        UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmation_In.wsdl
-                      </div>
+                      {demoWebservices.map(service => (
+                        <div 
+                          key={service}
+                          className={`p-2 rounded text-sm cursor-pointer transition-colors ${
+                            selectedSource === service 
+                              ? 'bg-primary/10 border border-primary' 
+                              : 'hover:bg-muted'
+                          }`}
+                          onClick={() => selectWebservice(service, true)}
+                        >
+                          {service}
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </DialogContent>
@@ -314,7 +344,7 @@ export function FieldMappingScreen({ onClose }: MappingScreenProps) {
             </div>
             
             <div className="text-sm text-muted-foreground mb-3 p-2 bg-background border rounded">
-              {selectedSource}
+              {selectedSource || 'No source selected'}
             </div>
             
             <div className="relative">
@@ -329,9 +359,17 @@ export function FieldMappingScreen({ onClose }: MappingScreenProps) {
           </div>
           
           <div className="p-4 h-[calc(100%-140px)] overflow-y-auto">
-            <div className="space-y-2">
-              {sourceFields.map(field => renderField(field, 0, 'source'))}
-            </div>
+            {sourceFields.length === 0 ? (
+              <Alert>
+                <AlertDescription>
+                  Select a source webservice to view fields
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <div className="space-y-2">
+                {sourceFields.map(field => renderField(field, 0, 'source'))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -356,57 +394,58 @@ export function FieldMappingScreen({ onClose }: MappingScreenProps) {
                 {mappings.map(mapping => (
                   <div key={mapping.id} className="p-3 border rounded-lg bg-muted/30">
                     <div className="flex items-center justify-between mb-2">
-                      <Badge variant="outline" className="text-xs">Mapping</Badge>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeMapping(mapping.id)}
-                        className="h-6 w-6 p-0 text-destructive hover:text-destructive"
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
+                      <Badge variant="outline" className="text-xs">
+                        {mapping.sourceFields.length > 1 ? 'Multi-Source Mapping' : 'Mapping'}
+                      </Badge>
+                      <div className="flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setShowJavaEditor(mapping.id);
+                            setTempJavaFunction(mapping.javaFunction || '');
+                          }}
+                          className="h-6 w-6 p-0"
+                        >
+                          <Code className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeMapping(mapping.id)}
+                          className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
                     </div>
                     
                     <div className="text-xs space-y-1">
                       <div className="flex items-center gap-2">
                         <span className="font-medium">Source:</span>
-                        <span className="text-muted-foreground">{mapping.sourceField}</span>
+                        <span className="text-muted-foreground">
+                          {mapping.sourceFields.join(', ')}
+                        </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <ArrowRight className="h-3 w-3 text-primary" />
                         <span className="font-medium">Target:</span>
                         <span className="text-muted-foreground">{mapping.targetField}</span>
                       </div>
+                      {mapping.javaFunction && (
+                        <div className="mt-2 p-2 bg-background rounded text-xs">
+                          <span className="font-medium">Java Function:</span>
+                          <pre className="mt-1 text-muted-foreground whitespace-pre-wrap">
+                            {mapping.javaFunction}
+                          </pre>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
               </div>
             )}
           </div>
-
-          {/* SVG for mapping lines */}
-          <svg
-            ref={svgRef}
-            className="absolute inset-0 pointer-events-none z-10"
-            style={{ width: '100%', height: '100%' }}
-          >
-            <defs>
-              <marker
-                id="arrowhead"
-                markerWidth="10"
-                markerHeight="7"
-                refX="10"
-                refY="3.5"
-                orient="auto"
-              >
-                <polygon
-                  points="0 0, 10 3.5, 0 7"
-                  fill="hsl(var(--primary))"
-                />
-              </marker>
-            </defs>
-            {renderMappingLines()}
-          </svg>
         </div>
 
         {/* Target Panel */}
@@ -431,19 +470,26 @@ export function FieldMappingScreen({ onClose }: MappingScreenProps) {
                       <Button variant="outline">Global Resources</Button>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      List of local resources that are available in your integration flow.
+                      List of demo webservice files available for mapping.
                     </p>
                     <div className="relative">
                       <Search className="h-4 w-4 absolute left-3 top-3 text-muted-foreground" />
                       <Input placeholder="Search" className="pl-10" />
                     </div>
                     <div className="border rounded-md p-3 space-y-2">
-                      <div className="p-2 hover:bg-muted rounded text-sm cursor-pointer">
-                        UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmation_Out.wsdl
-                      </div>
-                      <div className="p-2 bg-primary/10 border border-primary rounded text-sm">
-                        UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmation_In.wsdl
-                      </div>
+                      {demoWebservices.map(service => (
+                        <div 
+                          key={service}
+                          className={`p-2 rounded text-sm cursor-pointer transition-colors ${
+                            selectedTarget === service 
+                              ? 'bg-primary/10 border border-primary' 
+                              : 'hover:bg-muted'
+                          }`}
+                          onClick={() => selectWebservice(service, false)}
+                        >
+                          {service}
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </DialogContent>
@@ -451,7 +497,7 @@ export function FieldMappingScreen({ onClose }: MappingScreenProps) {
             </div>
             
             <div className="text-sm text-muted-foreground mb-3 p-2 bg-background border rounded">
-              {selectedTarget}
+              {selectedTarget || 'No target selected'}
             </div>
             
             <div className="relative">
@@ -466,12 +512,57 @@ export function FieldMappingScreen({ onClose }: MappingScreenProps) {
           </div>
           
           <div className="p-4 h-[calc(100%-140px)] overflow-y-auto">
-            <div className="space-y-2">
-              {targetFields.map(field => renderField(field, 0, 'target'))}
-            </div>
+            {targetFields.length === 0 ? (
+              <Alert>
+                <AlertDescription>
+                  Select a target webservice to view fields
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <div className="space-y-2">
+                {targetFields.map(field => renderField(field, 0, 'target'))}
+              </div>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Java Function Editor Dialog */}
+      <Dialog open={!!showJavaEditor} onOpenChange={() => setShowJavaEditor(null)}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Edit Java Function</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Write a custom Java function to transform the source field(s) to the target field.
+              {showJavaEditor && mappings.find(m => m.id === showJavaEditor)?.sourceFields.length! > 1 && (
+                <span className="block mt-1 font-medium">
+                  Multiple inputs: {mappings.find(m => m.id === showJavaEditor)?.sourceFields.join(', ')}
+                </span>
+              )}
+            </p>
+            <Textarea
+              placeholder={`// Example function:
+public String transform(${showJavaEditor ? mappings.find(m => m.id === showJavaEditor)?.sourceFields.map((field, i) => `String input${i + 1}`).join(', ') || 'String input' : 'String input'}) {
+    // Your transformation logic here
+    return ${showJavaEditor && mappings.find(m => m.id === showJavaEditor)?.sourceFields.length! > 1 ? 'input1 + " " + input2' : 'input.toUpperCase()'};
+}`}
+              value={tempJavaFunction}
+              onChange={(e) => setTempJavaFunction(e.target.value)}
+              className="min-h-[200px] font-mono text-sm"
+            />
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowJavaEditor(null)}>
+                Cancel
+              </Button>
+              <Button onClick={() => updateMappingJavaFunction(showJavaEditor!, tempJavaFunction)}>
+                Save Function
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
