@@ -54,6 +54,8 @@ interface AdapterField {
   options?: string[];
   conditionalField?: string;
   driverTypeFilter?: string;
+  parentField?: string;
+  parentValue?: string;
 }
 
 interface CommunicationAdapter {
@@ -185,22 +187,28 @@ const communicationAdapters: CommunicationAdapter[] = [
       { name: 'senderAddress', label: 'Address', type: 'text', required: true, placeholder: '/UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmation', conditionalField: 'sender' },
       
       // Receiver Fields (show when mode is 'receiver')
-      { name: 'receiver', label: 'Receiver', type: 'select', required: true, options: ['MDUS', 'CPI', 'External'], conditionalField: 'receiver' },
-      { name: 'receiverAddress', label: 'Address', type: 'text', required: true, placeholder: 'Target system endpoint address', conditionalField: 'receiver' },
-      { name: 'receiverWsdlUrl', label: 'URL to WSDL', type: 'text', required: true, placeholder: 'WSDL URL for receiver service', conditionalField: 'receiver' },
-      { name: 'service', label: 'Service', type: 'text', required: true, placeholder: 'Service name from WSDL', conditionalField: 'receiver' },
-      { name: 'endpoint', label: 'Endpoint', type: 'text', required: true, placeholder: 'Endpoint name from WSDL', conditionalField: 'receiver' },
-      { name: 'operationName', label: 'Operation Name', type: 'text', required: true, placeholder: 'Operation name from WSDL', conditionalField: 'receiver' },
-      { name: 'proxyType', label: 'Proxy Type', type: 'select', required: false, options: ['Internet', 'On-Premise', 'None'], conditionalField: 'receiver' },
-      { name: 'receiverAuthentication', label: 'Authentication', type: 'select', required: false, options: ['Basic', 'None', 'Client Certificate', 'OAuth'], conditionalField: 'receiver' },
-      { name: 'credentialName', label: 'Credential Name', type: 'text', required: false, placeholder: 'Credential alias for authentication', conditionalField: 'receiver' },
-      { name: 'receiverTimeout', label: 'Timeout (in ms)', type: 'number', required: false, placeholder: '60000', conditionalField: 'receiver' },
-      { name: 'keepAlive', label: 'Keep-Alive', type: 'checkbox', required: false, conditionalField: 'receiver' },
-      { name: 'compressMessage', label: 'Compress Message', type: 'checkbox', required: false, conditionalField: 'receiver' },
-      { name: 'allowChunking', label: 'Allow Chunking', type: 'checkbox', required: false, conditionalField: 'receiver' },
-      { name: 'returnHttpResponseCodeAsHeader', label: 'Return HTTP Response Code as Header', type: 'checkbox', required: false, conditionalField: 'receiver' },
-      { name: 'cleanupRequestHeaders', label: 'Clean-up Request Headers', type: 'checkbox', required: false, conditionalField: 'receiver' },
-      { name: 'sapRmMessageIdDetermination', label: 'SAP RM Message ID Determination', type: 'select', required: false, options: ['Reuse', 'Generate', 'Map'], conditionalField: 'receiver' }
+      { name: 'receiverAddress', label: 'Target Address', type: 'text', required: true, placeholder: 'https://api.example.com/soap', conditionalField: 'receiver' },
+      { name: 'wsdl', label: 'WSDL', type: 'select', required: true, options: ['Select WSDL...', 'UserService.wsdl', 'PaymentService.wsdl', 'NotificationService.wsdl'], conditionalField: 'receiver' },
+      { name: 'receiverAuthentication', label: 'Authentication', type: 'select', required: true, options: ['None', 'Basic', 'Client Certificate', 'OAuth', 'OAuth 2'], conditionalField: 'receiver' },
+      
+      // Authentication conditional fields
+      { name: 'username', label: 'Username', type: 'text', required: true, placeholder: 'Enter username', conditionalField: 'receiver', parentField: 'receiverAuthentication', parentValue: 'Basic' },
+      { name: 'password', label: 'Password', type: 'password', required: true, placeholder: 'Enter password', conditionalField: 'receiver', parentField: 'receiverAuthentication', parentValue: 'Basic' },
+      
+      { name: 'clientCertificate', label: 'Client Certificate', type: 'file', required: true, conditionalField: 'receiver', parentField: 'receiverAuthentication', parentValue: 'Client Certificate' },
+      { name: 'privateKey', label: 'Private Key', type: 'file', required: true, conditionalField: 'receiver', parentField: 'receiverAuthentication', parentValue: 'Client Certificate' },
+      
+      { name: 'oauthClientId', label: 'Client ID', type: 'text', required: true, placeholder: 'Enter OAuth client ID', conditionalField: 'receiver', parentField: 'receiverAuthentication', parentValue: 'OAuth' },
+      { name: 'oauthClientSecret', label: 'Client Secret', type: 'password', required: true, placeholder: 'Enter OAuth client secret', conditionalField: 'receiver', parentField: 'receiverAuthentication', parentValue: 'OAuth' },
+      { name: 'oauthTokenUrl', label: 'Token URL', type: 'text', required: true, placeholder: 'https://auth.example.com/oauth/token', conditionalField: 'receiver', parentField: 'receiverAuthentication', parentValue: 'OAuth' },
+      
+      { name: 'oauth2ClientId', label: 'Client ID', type: 'text', required: true, placeholder: 'Enter OAuth 2 client ID', conditionalField: 'receiver', parentField: 'receiverAuthentication', parentValue: 'OAuth 2' },
+      { name: 'oauth2ClientSecret', label: 'Client Secret', type: 'password', required: true, placeholder: 'Enter OAuth 2 client secret', conditionalField: 'receiver', parentField: 'receiverAuthentication', parentValue: 'OAuth 2' },
+      { name: 'oauth2TokenUrl', label: 'Token URL', type: 'text', required: true, placeholder: 'https://auth.example.com/oauth2/token', conditionalField: 'receiver', parentField: 'receiverAuthentication', parentValue: 'OAuth 2' },
+      { name: 'oauth2Scope', label: 'Scope', type: 'text', required: false, placeholder: 'read write', conditionalField: 'receiver', parentField: 'receiverAuthentication', parentValue: 'OAuth 2' },
+      
+      { name: 'receiverTimeout', label: 'Timeout (seconds)', type: 'number', required: false, placeholder: '30', conditionalField: 'receiver' },
+      { name: 'connectionType', label: 'Connection Type', type: 'select', required: true, options: ['Synchronous', 'Asynchronous'], conditionalField: 'receiver' }
     ]
   },
   {
@@ -583,18 +591,27 @@ export const CreateCommunicationAdapter = () => {
                 <CardDescription>Configure the connection parameters and authentication</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {selectedAdapterConfig.fields
-                    .filter((field: any) => {
-                      // Filter fields based on adapter mode
-                      if (field.conditionalField === 'receiver' && adapterMode === 'sender') {
-                        return false;
-                      }
-                      if (field.conditionalField === 'sender' && adapterMode === 'receiver') {
-                        return false;
-                      }
-                      return true;
-                    })
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                   {selectedAdapterConfig.fields
+                     .filter((field: any) => {
+                       // Filter fields based on adapter mode
+                       if (field.conditionalField === 'receiver' && adapterMode === 'sender') {
+                         return false;
+                       }
+                       if (field.conditionalField === 'sender' && adapterMode === 'receiver') {
+                         return false;
+                       }
+                       
+                       // Filter fields based on parent field values (for authentication)
+                       if (field.parentField && field.parentValue) {
+                         const parentFieldValue = configuration[field.parentField];
+                         if (parentFieldValue !== field.parentValue) {
+                           return false;
+                         }
+                       }
+                       
+                       return true;
+                     })
                     .map((field) => (
                     <div key={field.name} className={field.name === 'url' || field.name === 'webhookUrl' || field.name === 'customHeaders' ? 'md:col-span-2' : ''}>
                       <Label htmlFor={field.name} className="flex items-center gap-1">
