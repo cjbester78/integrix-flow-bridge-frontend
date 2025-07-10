@@ -161,9 +161,9 @@ export const CreateFlow = () => {
   const handleRemoveTransformation = (transformationId: string) => {
     setSelectedTransformations(selectedTransformations.filter(id => id !== transformationId));
     if (transformationId === 'field-mapping') {
-      setShowFieldMapping(false);
       setFieldMappings([]);
       setMappingName('');
+      // Keep showFieldMapping true so user can create a new mapping
     }
   };
 
