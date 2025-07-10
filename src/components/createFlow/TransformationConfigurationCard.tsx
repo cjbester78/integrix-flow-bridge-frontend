@@ -130,23 +130,15 @@ export const TransformationConfigurationCard = ({
                   <CheckCircle className="h-4 w-4 text-success" />
                   <span className="font-medium">Field Mapping</span>
                 </div>
-                 <div className="flex items-center gap-2">
-                   <Button 
-                     variant="outline" 
-                     size="sm"
-                     onClick={onShowMappingScreen}
-                   >
-                     <Plus className="h-4 w-4 mr-2" />
-                     Create Mapping
-                   </Button>
-                   <Button 
-                     variant="ghost" 
-                     size="sm"
-                     onClick={() => onRemoveTransformation('field-mapping')}
-                   >
-                     <Trash2 className="h-4 w-4" />
-                   </Button>
-                 </div>
+                <div className="flex items-center gap-2">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => onRemoveTransformation('field-mapping')}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
 
               {/* Show mappings if they exist, otherwise show create button */}
@@ -167,23 +159,6 @@ export const TransformationConfigurationCard = ({
                         Edit Mapping
                       </Button>
                     </div>
-                    {fieldMappings.map((mapping, index) => (
-                      <div key={index} className="p-3 bg-background rounded border">
-                        <div className="text-sm">
-                          <span className="font-medium text-primary block mb-1">
-                            {mapping.name}
-                          </span>
-                          <span className="text-muted-foreground text-xs">
-                            {mapping.sourceFields.join(' + ')} → {mapping.targetField}
-                          </span>
-                          {mapping.javaFunction && (
-                            <div className="text-xs text-muted-foreground mt-1">
-                              Custom Java function applied
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
                   </div>
                 </div>
               ) : (
