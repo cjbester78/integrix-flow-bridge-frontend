@@ -27,6 +27,7 @@ export const DataStructures = () => {
   const [customFields, setCustomFields] = useState<Field[]>([]);
   const [jsonInput, setJsonInput] = useState('');
   const [xsdInput, setXsdInput] = useState('');
+  const [edmxInput, setEdmxInput] = useState('');
   const [wsdlInput, setWsdlInput] = useState('');
   const [selectedStructureType, setSelectedStructureType] = useState<string>('json');
   const [namespaceConfig, setNamespaceConfig] = useState({
@@ -48,6 +49,8 @@ export const DataStructures = () => {
       structure = parseWsdlStructure(wsdlInput);
     } else if (selectedStructureType === 'xsd' && xsdInput) {
       structure = { message: 'XSD parsing not fully implemented yet' };
+    } else if (selectedStructureType === 'edmx' && edmxInput) {
+      structure = { message: 'EDMX parsing not fully implemented yet' };
     } else if (selectedStructureType === 'custom' && customFields.length > 0) {
       structure = buildNestedStructure(customFields);
     }
@@ -57,14 +60,14 @@ export const DataStructures = () => {
     return {
       id: 'preview',
       name: structureName,
-      type: selectedStructureType as 'json' | 'xsd' | 'wsdl' | 'custom',
+      type: selectedStructureType as 'json' | 'xsd' | 'wsdl' | 'edmx' | 'custom',
       description: structureDescription,
       structure,
       createdAt: new Date().toISOString().split('T')[0],
       usage: 'source' as 'source' | 'target', // Default to source, can be modified later
-      namespace: (selectedStructureType === 'xsd' || selectedStructureType === 'wsdl') && namespaceConfig.uri ? namespaceConfig : undefined
+      namespace: (selectedStructureType === 'xsd' || selectedStructureType === 'wsdl' || selectedStructureType === 'edmx') && namespaceConfig.uri ? namespaceConfig : undefined
     };
-  }, [structureName, structureDescription, selectedStructureType, jsonInput, xsdInput, wsdlInput, customFields, namespaceConfig]);
+  }, [structureName, structureDescription, selectedStructureType, jsonInput, xsdInput, edmxInput, wsdlInput, customFields, namespaceConfig]);
 
   const handleSave = () => {
     if (!selectedCustomer) {
@@ -78,6 +81,7 @@ export const DataStructures = () => {
       'source', // Default to source
       jsonInput,
       xsdInput,
+      edmxInput,
       wsdlInput,
       customFields,
       selectedStructureType,
@@ -91,6 +95,7 @@ export const DataStructures = () => {
       setSelectedCustomer(null);
       setJsonInput('');
       setXsdInput('');
+      setEdmxInput('');
       setWsdlInput('');
       setCustomFields([]);
       setNamespaceConfig({
@@ -134,6 +139,8 @@ export const DataStructures = () => {
             setJsonInput={setJsonInput}
             xsdInput={xsdInput}
             setXsdInput={setXsdInput}
+            edmxInput={edmxInput}
+            setEdmxInput={setEdmxInput}
             wsdlInput={wsdlInput}
             setWsdlInput={setWsdlInput}
             selectedStructureType={selectedStructureType}

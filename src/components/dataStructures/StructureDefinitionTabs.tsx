@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { JsonStructureTab } from './tabs/JsonStructureTab';
 import { XsdStructureTab } from './tabs/XsdStructureTab';
 import { WsdlStructureTab } from './tabs/WsdlStructureTab';
+import { EdmxStructureTab } from './tabs/EdmxStructureTab';
 import { CustomStructureTab } from './tabs/CustomStructureTab';
 import { Field } from '@/types/dataStructures';
 import { Save } from 'lucide-react';
@@ -18,6 +19,8 @@ interface StructureDefinitionTabsProps {
   setJsonInput: (input: string) => void;
   xsdInput: string;
   setXsdInput: (input: string) => void;
+  edmxInput: string;
+  setEdmxInput: (input: string) => void;
   wsdlInput: string;
   setWsdlInput: (input: string) => void;
   selectedStructureType: string;
@@ -34,6 +37,8 @@ export const StructureDefinitionTabs: React.FC<StructureDefinitionTabsProps> = (
   setJsonInput,
   xsdInput,
   setXsdInput,
+  edmxInput,
+  setEdmxInput,
   wsdlInput,
   setWsdlInput,
   selectedStructureType,
@@ -51,10 +56,11 @@ export const StructureDefinitionTabs: React.FC<StructureDefinitionTabsProps> = (
       </CardHeader>
       <CardContent>
         <Tabs value={selectedStructureType} className="w-full" onValueChange={(value) => setSelectedStructureType(value)}>
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="json">JSON Schema</TabsTrigger>
             <TabsTrigger value="xsd">XSD/XML</TabsTrigger>
             <TabsTrigger value="wsdl">WSDL</TabsTrigger>
+            <TabsTrigger value="edmx">EDMX</TabsTrigger>
             <TabsTrigger value="custom">Custom Builder</TabsTrigger>
           </TabsList>
           
@@ -78,6 +84,15 @@ export const StructureDefinitionTabs: React.FC<StructureDefinitionTabsProps> = (
             <WsdlStructureTab
               wsdlInput={wsdlInput}
               setWsdlInput={setWsdlInput}
+              namespaceConfig={namespaceConfig}
+              setNamespaceConfig={setNamespaceConfig}
+            />
+          </TabsContent>
+          
+          <TabsContent value="edmx">
+            <EdmxStructureTab
+              edmxInput={edmxInput}
+              setEdmxInput={setEdmxInput}
               namespaceConfig={namespaceConfig}
               setNamespaceConfig={setNamespaceConfig}
             />

@@ -46,6 +46,7 @@ export const useDataStructures = () => {
     structureUsage: 'source' | 'target',
     jsonInput: string,
     xsdInput: string,
+    edmxInput: string,
     wsdlInput: string,
     customFields: Field[],
     selectedStructureType: string,
@@ -68,12 +69,14 @@ export const useDataStructures = () => {
       structure = parseWsdlStructure(wsdlInput);
     } else if (xsdInput) {
       structure = { message: 'XSD parsing not fully implemented yet' };
+    } else if (edmxInput) {
+      structure = { message: 'EDMX parsing not fully implemented yet' };
     } else if (customFields.length > 0) {
       structure = buildNestedStructure(customFields);
     } else {
       toast({
         title: "Validation Error",
-        description: "Please define a structure using JSON, XSD, WSDL, or custom fields",
+        description: "Please define a structure using JSON, XSD, EDMX, WSDL, or custom fields",
         variant: "destructive",
       });
       return false;
@@ -82,12 +85,12 @@ export const useDataStructures = () => {
     const newStructure: DataStructure = {
       id: Date.now().toString(),
       name: structureName,
-      type: jsonInput ? 'json' : wsdlInput ? 'wsdl' : xsdInput ? 'xsd' : 'custom',
+      type: jsonInput ? 'json' : wsdlInput ? 'wsdl' : xsdInput ? 'xsd' : edmxInput ? 'edmx' : 'custom',
       description: structureDescription,
       structure,
       createdAt: new Date().toISOString().split('T')[0],
       usage: structureUsage,
-      namespace: (selectedStructureType === 'xsd' || selectedStructureType === 'wsdl') && namespaceConfig.uri ? namespaceConfig : undefined
+      namespace: (selectedStructureType === 'xsd' || selectedStructureType === 'wsdl' || selectedStructureType === 'edmx') && namespaceConfig.uri ? namespaceConfig : undefined
     };
 
     setStructures([...structures, newStructure]);
