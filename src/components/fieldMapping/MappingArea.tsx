@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -41,6 +42,7 @@ export function MappingArea({ mappings, onRemoveMapping, onEditJavaFunction }: M
                       size="sm"
                       onClick={() => onEditJavaFunction(mapping.id)}
                       className="h-6 w-6 p-0 hover-scale"
+                      title="Edit Java Function"
                     >
                       <Code className="h-3 w-3" />
                     </Button>
@@ -49,6 +51,7 @@ export function MappingArea({ mappings, onRemoveMapping, onEditJavaFunction }: M
                       size="sm"
                       onClick={() => onRemoveMapping(mapping.id)}
                       className="h-6 w-6 p-0 text-destructive hover:text-destructive hover-scale"
+                      title="Remove Mapping"
                     >
                       <X className="h-3 w-3" />
                     </Button>
@@ -69,10 +72,18 @@ export function MappingArea({ mappings, onRemoveMapping, onEditJavaFunction }: M
                   </div>
                   {mapping.javaFunction && (
                     <div className="mt-2 p-2 bg-background rounded text-xs">
-                      <span className="font-medium">Java Function:</span>
-                      <pre className="mt-1 text-muted-foreground whitespace-pre-wrap">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Code className="h-3 w-3" />
+                        <span className="font-medium">Java Function:</span>
+                      </div>
+                      <pre className="text-muted-foreground whitespace-pre-wrap text-xs font-mono">
                         {mapping.javaFunction}
                       </pre>
+                    </div>
+                  )}
+                  {!mapping.javaFunction && (
+                    <div className="mt-2 text-xs text-muted-foreground italic">
+                      Click the code icon to add a custom Java function
                     </div>
                   )}
                 </div>
