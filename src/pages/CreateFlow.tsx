@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { FieldMappingScreen } from '@/components/FieldMappingScreen';
 import { useToast } from '@/hooks/use-toast';
 import { DataStructure } from '@/types/dataStructures';
 import { flowService } from '@/services/flowService';
@@ -112,6 +113,7 @@ export const CreateFlow = () => {
   const [isConfiguring, setIsConfiguring] = useState(false);
   const [showStructurePreview, setShowStructurePreview] = useState<string | null>(null);
   const [showFieldMapping, setShowFieldMapping] = useState(false);
+  const [showMappingScreen, setShowMappingScreen] = useState(false);
   const [fieldMappings, setFieldMappings] = useState<{ sourceFields: string[]; targetField: string; javaFunction?: string }[]>([]);
   const [selectedTargetField, setSelectedTargetField] = useState<string | null>(null);
   const [javaFunction, setJavaFunction] = useState('');
@@ -317,14 +319,19 @@ export const CreateFlow = () => {
   };
 
   return (
-    <div className="p-6 space-y-6 animate-fade-in">
-      <div className="animate-slide-up">
-        <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-          <Plus className="h-8 w-8" />
-          Create Integration Flow
-        </h1>
-        <p className="text-muted-foreground">Design and configure a new message integration flow</p>
-      </div>
+    <>
+      {showMappingScreen && (
+        <FieldMappingScreen onClose={() => setShowMappingScreen(false)} />
+      )}
+      
+      <div className="p-6 space-y-6 animate-fade-in">
+        <div className="animate-slide-up">
+          <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+            <Plus className="h-8 w-8" />
+            Create Integration Flow
+          </h1>
+          <p className="text-muted-foreground">Design and configure a new message integration flow</p>
+        </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Flow Configuration */}
@@ -729,23 +736,23 @@ export const CreateFlow = () => {
                       <CheckCircle className="h-4 w-4 text-success" />
                       <span className="font-medium">Field Mapping</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={handleAddMapping}
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Mapping
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => handleRemoveTransformation('field-mapping')}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+                     <div className="flex items-center gap-2">
+                       <Button 
+                         variant="outline" 
+                         size="sm"
+                         onClick={() => setShowMappingScreen(true)}
+                       >
+                         <Plus className="h-4 w-4 mr-2" />
+                         Add Mapping
+                       </Button>
+                       <Button 
+                         variant="ghost" 
+                         size="sm"
+                         onClick={() => handleRemoveTransformation('field-mapping')}
+                       >
+                         <Trash2 className="h-4 w-4" />
+                       </Button>
+                     </div>
                   </div>
 
                   {/* Graphical Mapping Interface */}
@@ -1067,5 +1074,6 @@ public Object transform(Object sourceValue) {
         </div>
       </div>
     </div>
+    </>
   );
 };
