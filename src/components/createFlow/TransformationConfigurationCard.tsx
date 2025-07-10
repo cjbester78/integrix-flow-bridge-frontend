@@ -151,20 +151,52 @@ export const TransformationConfigurationCard = ({
                  </div>
               </div>
 
-              {/* Show Create Mapping button always when field mapping is active */}
-              <div className="border rounded-lg p-4 bg-muted/20">
-                <div className="text-center py-8 text-muted-foreground">
-                  <Link className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p className="mb-4">Open the graphical mapping interface to configure field mappings</p>
-                  <Button 
-                    onClick={onShowMappingScreen}
-                    className="bg-gradient-primary hover:opacity-90 transition-all duration-300"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create Mapping
-                  </Button>
+              {/* Show mappings if they exist, otherwise show create button */}
+              {fieldMappings.length > 0 ? (
+                <div className="border rounded-lg p-4 bg-muted/20">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-medium">Current Mappings:</h4>
+                      <Button 
+                        onClick={onShowMappingScreen}
+                        variant="outline"
+                        size="sm"
+                      >
+                        <Settings className="h-4 w-4 mr-2" />
+                        Edit Mapping
+                      </Button>
+                    </div>
+                    {fieldMappings.map((mapping, index) => (
+                      <div key={index} className="p-3 bg-background rounded border">
+                        <div className="text-sm">
+                          <span className="font-medium">
+                            {mapping.sourceFields.join(' + ')} → {mapping.targetField}
+                          </span>
+                          {mapping.javaFunction && (
+                            <div className="text-xs text-muted-foreground mt-1">
+                              Custom Java function applied
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="border rounded-lg p-4 bg-muted/20">
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Link className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p className="mb-4">Open the graphical mapping interface to configure field mappings</p>
+                    <Button 
+                      onClick={onShowMappingScreen}
+                      className="bg-gradient-primary hover:opacity-90 transition-all duration-300"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create Mapping
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

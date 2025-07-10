@@ -95,8 +95,8 @@ ${exampleLogic}
             </p>
             
             <Textarea
-              placeholder={getPlaceholder()}
-              value={javaFunction}
+              placeholder="// Write your Java function here..."
+              value={javaFunction || getPlaceholder()}
               onChange={(e) => onJavaFunctionChange(e.target.value)}
               className="min-h-[300px] font-mono text-sm resize-none"
             />
