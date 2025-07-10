@@ -59,11 +59,11 @@ export function FieldMappingScreen({
   const [mappingName, setMappingName] = useState(initialMappingName);
   const { customers, loading, getStructuresForCustomer } = useCustomerAdapters();
 
-  const getFilteredStructures = (customerId: string, usage: 'source' | 'target' | 'both') => {
-    if (!customerId) return sampleStructures.filter(s => s.usage === usage || s.usage === 'both');
+  const getFilteredStructures = (customerId: string, usage: 'source' | 'target') => {
+    if (!customerId) return sampleStructures.filter(s => s.usage === usage);
     const allowedStructureIds = getStructuresForCustomer(customerId);
     return sampleStructures.filter(s => 
-      allowedStructureIds.includes(s.id) && (s.usage === usage || s.usage === 'both')
+      allowedStructureIds.includes(s.id) && s.usage === usage
     );
   };
 

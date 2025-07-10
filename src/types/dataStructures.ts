@@ -5,7 +5,7 @@ export interface DataStructure {
   description?: string;
   structure: any;
   createdAt: string;
-  usage: 'source' | 'target' | 'both';
+  usage: 'source' | 'target';
   namespace?: {
     uri: string;
     prefix?: string;

@@ -40,7 +40,7 @@ export const CustomStructureTab: React.FC<CustomStructureTabProps> = ({
           <SelectContent>
             <SelectItem value="json">JSON Schema</SelectItem>
             <SelectItem value="xsd">XSD Schema</SelectItem>
-            <SelectItem value="xml">XML Schema</SelectItem>
+            <SelectItem value="edmx">EDMX Schema</SelectItem>
             <SelectItem value="wsdl">WSDL Schema</SelectItem>
           </SelectContent>
         </Select>

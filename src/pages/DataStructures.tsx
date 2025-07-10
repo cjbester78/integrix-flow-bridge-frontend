@@ -1,7 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { Field } from '@/types/dataStructures';
+import { Customer } from '@/types/customer';
 import { useDataStructures } from '@/hooks/useDataStructures';
 import { StructureCreationForm } from '@/components/dataStructures/StructureCreationForm';
+import { CustomerSelectionCard } from '@/components/dataStructures/CustomerSelectionCard';
 import { StructureDefinitionTabs } from '@/components/dataStructures/StructureDefinitionTabs';
 import { StructureLibrary } from '@/components/dataStructures/StructureLibrary';
 import { StructurePreview } from '@/components/dataStructures/StructurePreview';
@@ -21,7 +23,7 @@ export const DataStructures = () => {
   // Form state
   const [structureName, setStructureName] = useState('');
   const [structureDescription, setStructureDescription] = useState('');
-  const [structureUsage, setStructureUsage] = useState<'source' | 'target' | 'both'>('both');
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [customFields, setCustomFields] = useState<Field[]>([]);
   const [jsonInput, setJsonInput] = useState('');
   const [xsdInput, setXsdInput] = useState('');
@@ -59,16 +61,21 @@ export const DataStructures = () => {
       description: structureDescription,
       structure,
       createdAt: new Date().toISOString().split('T')[0],
-      usage: structureUsage,
+      usage: 'source' as 'source' | 'target', // Default to source, can be modified later
       namespace: (selectedStructureType === 'xsd' || selectedStructureType === 'wsdl') && namespaceConfig.uri ? namespaceConfig : undefined
     };
-  }, [structureName, structureDescription, structureUsage, selectedStructureType, jsonInput, xsdInput, wsdlInput, customFields, namespaceConfig]);
+  }, [structureName, structureDescription, selectedStructureType, jsonInput, xsdInput, wsdlInput, customFields, namespaceConfig]);
 
   const handleSave = () => {
+    if (!selectedCustomer) {
+      // Handle validation - customer is required
+      return;
+    }
+    
     const success = saveStructure(
       structureName,
       structureDescription,
-      structureUsage,
+      'source', // Default to source
       jsonInput,
       xsdInput,
       wsdlInput,
@@ -81,6 +88,7 @@ export const DataStructures = () => {
       // Reset form
       setStructureName('');
       setStructureDescription('');
+      setSelectedCustomer(null);
       setJsonInput('');
       setXsdInput('');
       setWsdlInput('');
@@ -107,13 +115,16 @@ export const DataStructures = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Structure Creation */}
         <div className="lg:col-span-2 space-y-6">
+          <CustomerSelectionCard
+            selectedCustomer={selectedCustomer}
+            setSelectedCustomer={setSelectedCustomer}
+          />
+          
           <StructureCreationForm
             structureName={structureName}
             setStructureName={setStructureName}
             structureDescription={structureDescription}
             setStructureDescription={setStructureDescription}
-            structureUsage={structureUsage}
-            setStructureUsage={setStructureUsage}
           />
 
           <StructureDefinitionTabs

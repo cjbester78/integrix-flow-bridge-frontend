@@ -43,7 +43,7 @@ export const useDataStructures = () => {
   const saveStructure = (
     structureName: string,
     structureDescription: string,
-    structureUsage: 'source' | 'target' | 'both',
+    structureUsage: 'source' | 'target',
     jsonInput: string,
     xsdInput: string,
     wsdlInput: string,

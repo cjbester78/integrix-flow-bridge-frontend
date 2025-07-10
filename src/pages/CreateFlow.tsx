@@ -79,7 +79,7 @@ const sampleStructures: DataStructure[] = [
       createdAt: 'datetime'
     },
     createdAt: '2024-01-12',
-    usage: 'both'
+    usage: 'target'
   }
 ];
 

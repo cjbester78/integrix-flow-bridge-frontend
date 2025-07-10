@@ -10,17 +10,13 @@ interface StructureCreationFormProps {
   setStructureName: (name: string) => void;
   structureDescription: string;
   setStructureDescription: (description: string) => void;
-  structureUsage: 'source' | 'target' | 'both';
-  setStructureUsage: (usage: 'source' | 'target' | 'both') => void;
 }
 
 export const StructureCreationForm: React.FC<StructureCreationFormProps> = ({
   structureName,
   setStructureName,
   structureDescription,
-  setStructureDescription,
-  structureUsage,
-  setStructureUsage
+  setStructureDescription
 }) => {
   return (
     <Card className="animate-scale-in">
@@ -30,30 +26,15 @@ export const StructureCreationForm: React.FC<StructureCreationFormProps> = ({
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="structureName">Structure Name *</Label>
-              <Input
-                id="structureName"
-                placeholder="e.g., Customer Order Schema"
-                value={structureName}
-                onChange={(e) => setStructureName(e.target.value)}
-                className="transition-all duration-300 focus:scale-[1.01]"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="usage">Usage</Label>
-              <Select value={structureUsage} onValueChange={(value: 'source' | 'target' | 'both') => setStructureUsage(value)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="source">Source Message</SelectItem>
-                  <SelectItem value="target">Target Message</SelectItem>
-                  <SelectItem value="both">Both Source & Target</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="structureName">Structure Name *</Label>
+            <Input
+              id="structureName"
+              placeholder="e.g., Customer Order Schema"
+              value={structureName}
+              onChange={(e) => setStructureName(e.target.value)}
+              className="transition-all duration-300 focus:scale-[1.01]"
+            />
           </div>
           
           <div className="space-y-2">

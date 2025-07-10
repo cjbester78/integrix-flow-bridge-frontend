@@ -85,11 +85,11 @@ export const TransformationConfigurationCard = ({
   const { customers, loading, getStructuresForCustomer } = useCustomerAdapters();
   const getStructureById = (id: string) => sampleStructures.find(s => s.id === id);
 
-  const getFilteredStructures = (customerId: string, usage: 'source' | 'target' | 'both') => {
-    if (!customerId) return sampleStructures.filter(s => s.usage === usage || s.usage === 'both');
+  const getFilteredStructures = (customerId: string, usage: 'source' | 'target') => {
+    if (!customerId) return sampleStructures.filter(s => s.usage === usage);
     const allowedStructureIds = getStructuresForCustomer(customerId);
     return sampleStructures.filter(s => 
-      allowedStructureIds.includes(s.id) && (s.usage === usage || s.usage === 'both')
+      allowedStructureIds.includes(s.id) && s.usage === usage
     );
   };
 
