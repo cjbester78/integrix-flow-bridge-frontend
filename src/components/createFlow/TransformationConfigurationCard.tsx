@@ -181,69 +181,6 @@ export const TransformationConfigurationCard = ({
                 </div>
               ) : (
                 <div className="border rounded-lg p-4 bg-muted/20">
-                  {/* Customer and Structure Selection */}
-                  <div className="space-y-4 mb-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium">Source Customer</Label>
-                        <Select value={sourceCustomer} disabled>
-                          <SelectTrigger className="h-8">
-                            <SelectValue placeholder="No customer selected" />
-                          </SelectTrigger>
-                        </Select>
-                        {sourceCustomer && (
-                          <div className="space-y-2">
-                            <Label className="text-sm font-medium">Source Structure</Label>
-                            <Select value={sourceStructure} onValueChange={onSourceStructureChange}>
-                              <SelectTrigger className="h-8">
-                                <SelectValue placeholder="Select source structure" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {getFilteredStructures(sourceCustomer, 'source').map((structure) => (
-                                  <SelectItem key={structure.id} value={structure.id}>
-                                    <div className="flex items-center gap-2">
-                                      <span>{structure.name}</span>
-                                      <Badge variant="outline" className="text-xs">{structure.type}</Badge>
-                                    </div>
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        )}
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium">Target Customer</Label>
-                        <Select value={targetCustomer} disabled>
-                          <SelectTrigger className="h-8">
-                            <SelectValue placeholder="No customer selected" />
-                          </SelectTrigger>
-                        </Select>
-                        {targetCustomer && (
-                          <div className="space-y-2">
-                            <Label className="text-sm font-medium">Target Structure</Label>
-                            <Select value={targetStructure} onValueChange={onTargetStructureChange}>
-                              <SelectTrigger className="h-8">
-                                <SelectValue placeholder="Select target structure" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {getFilteredStructures(targetCustomer, 'target').map((structure) => (
-                                  <SelectItem key={structure.id} value={structure.id}>
-                                    <div className="flex items-center gap-2">
-                                      <span>{structure.name}</span>
-                                      <Badge variant="outline" className="text-xs">{structure.type}</Badge>
-                                    </div>
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
                   <div className="text-center py-8 text-muted-foreground">
                     <Link className="h-12 w-12 mx-auto mb-4 opacity-50" />
                     <p className="mb-2">Open the graphical mapping interface to configure field mappings</p>

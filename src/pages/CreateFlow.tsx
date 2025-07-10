@@ -235,6 +235,15 @@ export const CreateFlow = () => {
           onClose={() => setShowMappingScreen(false)}
           onSave={handleMappingSave}
           initialMappingName={mappingName}
+          sourceCustomer={sourceCustomer}
+          targetCustomer={targetCustomer}
+          sourceStructure={sourceStructure}
+          targetStructure={targetStructure}
+          sampleStructures={sampleStructures}
+          onSourceCustomerChange={setSourceCustomer}
+          onTargetCustomerChange={setTargetCustomer}
+          onSourceStructureChange={setSourceStructure}
+          onTargetStructureChange={setTargetStructure}
         />
       )}
       
