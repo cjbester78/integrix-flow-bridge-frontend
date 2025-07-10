@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { JarSelector } from '@/components/JarSelector';
+import { FieldMappingScreen } from '@/components/FieldMappingScreen';
 import { useToast } from '@/hooks/use-toast';
 import { adapterService } from '@/services/adapterService';
 import { 
@@ -42,7 +43,8 @@ import {
   Cable,
   Cloud,
   Server,
-  Activity
+  Activity,
+  ArrowLeftRight
 } from 'lucide-react';
 
 interface AdapterField {
@@ -334,6 +336,7 @@ export const CreateCommunicationAdapter = () => {
   const [configuration, setConfiguration] = useState<Record<string, any>>({});
   const [isTestingConnection, setIsTestingConnection] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [showMappingScreen, setShowMappingScreen] = useState(false);
   const { toast } = useToast();
 
   const selectedAdapterConfig = communicationAdapters.find(adapter => adapter.id === selectedAdapter);
@@ -480,14 +483,19 @@ export const CreateCommunicationAdapter = () => {
 
 
   return (
-    <div className="p-6 space-y-6 animate-fade-in">
-      <div className="animate-slide-up">
-        <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-          <Send className="h-8 w-8" />
-          Create Communication Adapter
-        </h1>
-        <p className="text-muted-foreground">Configure communication channels for sending messages, emails, and notifications</p>
-      </div>
+    <>
+      {showMappingScreen && (
+        <FieldMappingScreen onClose={() => setShowMappingScreen(false)} />
+      )}
+      
+      <div className="p-6 space-y-6 animate-fade-in">
+        <div className="animate-slide-up">
+          <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+            <Send className="h-8 w-8" />
+            Create Communication Adapter
+          </h1>
+          <p className="text-muted-foreground">Configure communication channels for sending messages, emails, and notifications</p>
+        </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Adapter Selection & Configuration */}
@@ -757,6 +765,17 @@ export const CreateCommunicationAdapter = () => {
                 )}
               </Button>
 
+              {selectedAdapter === 'soap' && (
+                <Button 
+                  onClick={() => setShowMappingScreen(true)}
+                  className="w-full bg-gradient-primary hover:opacity-90 transition-all duration-300"
+                  variant="outline"
+                >
+                  <ArrowLeftRight className="h-4 w-4 mr-2" />
+                  Configure Field Mapping
+                </Button>
+              )}
+
               
 
               {connectionStatus !== 'idle' && (
@@ -848,5 +867,6 @@ export const CreateCommunicationAdapter = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
