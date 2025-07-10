@@ -272,6 +272,8 @@ export const CreateFlow = () => {
               transformations={transformations}
               selectedTransformations={selectedTransformations}
               showFieldMapping={showFieldMapping}
+              sourceCustomer={sourceCustomer}
+              targetCustomer={targetCustomer}
               sourceStructure={sourceStructure}
               targetStructure={targetStructure}
               fieldMappings={fieldMappings}
@@ -282,6 +284,8 @@ export const CreateFlow = () => {
               onAddTransformation={handleAddTransformation}
               onRemoveTransformation={handleRemoveTransformation}
               onShowMappingScreen={() => setShowMappingScreen(true)}
+              onSourceStructureChange={setSourceStructure}
+              onTargetStructureChange={setTargetStructure}
               onAddMapping={handleAddMapping}
               onRemoveMapping={handleRemoveMapping}
               onMappingChange={handleMappingChange}

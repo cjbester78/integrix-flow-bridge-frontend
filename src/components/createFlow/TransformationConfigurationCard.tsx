@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { DataStructure } from '@/types/dataStructures';
 import { FieldMapping } from '@/hooks/useFlowState';
+import { useCustomerAdapters } from '@/hooks/useCustomerAdapters';
 
 interface Transformation {
   id: string;
@@ -28,6 +29,8 @@ interface TransformationConfigurationCardProps {
   transformations: Transformation[];
   selectedTransformations: string[];
   showFieldMapping: boolean;
+  sourceCustomer: string;
+  targetCustomer: string;
   sourceStructure: string;
   targetStructure: string;
   fieldMappings: FieldMapping[];
@@ -38,6 +41,8 @@ interface TransformationConfigurationCardProps {
   onAddTransformation: (transformationId: string) => void;
   onRemoveTransformation: (transformationId: string) => void;
   onShowMappingScreen: () => void;
+  onSourceStructureChange: (value: string) => void;
+  onTargetStructureChange: (value: string) => void;
   onAddMapping: () => void;
   onRemoveMapping: (index: number) => void;
   onMappingChange: (index: number, field: 'targetField', value: string) => void;
@@ -53,6 +58,8 @@ export const TransformationConfigurationCard = ({
   transformations,
   selectedTransformations,
   showFieldMapping,
+  sourceCustomer,
+  targetCustomer,
   sourceStructure,
   targetStructure,
   fieldMappings,
@@ -63,6 +70,8 @@ export const TransformationConfigurationCard = ({
   onAddTransformation,
   onRemoveTransformation,
   onShowMappingScreen,
+  onSourceStructureChange,
+  onTargetStructureChange,
   onAddMapping,
   onRemoveMapping,
   onMappingChange,
@@ -73,7 +82,16 @@ export const TransformationConfigurationCard = ({
   onSaveJavaFunction,
   onCloseJavaEditor,
 }: TransformationConfigurationCardProps) => {
+  const { customers, loading, getStructuresForCustomer } = useCustomerAdapters();
   const getStructureById = (id: string) => sampleStructures.find(s => s.id === id);
+
+  const getFilteredStructures = (customerId: string, usage: 'source' | 'target' | 'both') => {
+    if (!customerId) return sampleStructures.filter(s => s.usage === usage || s.usage === 'both');
+    const allowedStructureIds = getStructuresForCustomer(customerId);
+    return sampleStructures.filter(s => 
+      allowedStructureIds.includes(s.id) && (s.usage === usage || s.usage === 'both')
+    );
+  };
 
   const getFieldsFromStructure = (structure: any, prefix = ''): string[] => {
     if (!structure) return [];
@@ -163,12 +181,81 @@ export const TransformationConfigurationCard = ({
                 </div>
               ) : (
                 <div className="border rounded-lg p-4 bg-muted/20">
+                  {/* Customer and Structure Selection */}
+                  <div className="space-y-4 mb-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Source Customer</Label>
+                        <Select value={sourceCustomer} disabled>
+                          <SelectTrigger className="h-8">
+                            <SelectValue placeholder="No customer selected" />
+                          </SelectTrigger>
+                        </Select>
+                        {sourceCustomer && (
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium">Source Structure</Label>
+                            <Select value={sourceStructure} onValueChange={onSourceStructureChange}>
+                              <SelectTrigger className="h-8">
+                                <SelectValue placeholder="Select source structure" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {getFilteredStructures(sourceCustomer, 'source').map((structure) => (
+                                  <SelectItem key={structure.id} value={structure.id}>
+                                    <div className="flex items-center gap-2">
+                                      <span>{structure.name}</span>
+                                      <Badge variant="outline" className="text-xs">{structure.type}</Badge>
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Target Customer</Label>
+                        <Select value={targetCustomer} disabled>
+                          <SelectTrigger className="h-8">
+                            <SelectValue placeholder="No customer selected" />
+                          </SelectTrigger>
+                        </Select>
+                        {targetCustomer && (
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium">Target Structure</Label>
+                            <Select value={targetStructure} onValueChange={onTargetStructureChange}>
+                              <SelectTrigger className="h-8">
+                                <SelectValue placeholder="Select target structure" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {getFilteredStructures(targetCustomer, 'target').map((structure) => (
+                                  <SelectItem key={structure.id} value={structure.id}>
+                                    <div className="flex items-center gap-2">
+                                      <span>{structure.name}</span>
+                                      <Badge variant="outline" className="text-xs">{structure.type}</Badge>
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="text-center py-8 text-muted-foreground">
                     <Link className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p className="mb-4">Open the graphical mapping interface to configure field mappings</p>
+                    <p className="mb-2">Open the graphical mapping interface to configure field mappings</p>
+                    {(!sourceCustomer || !targetCustomer) && (
+                      <p className="text-xs text-amber-600 mb-4">
+                        Please select both source and target customers above to enable mapping
+                      </p>
+                    )}
                     <Button 
                       onClick={onShowMappingScreen}
                       className="bg-gradient-primary hover:opacity-90 transition-all duration-300"
+                      disabled={!sourceCustomer || !targetCustomer}
                     >
                       <Plus className="h-4 w-4 mr-2" />
                       Create Mapping
