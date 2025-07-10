@@ -181,14 +181,8 @@ const communicationAdapters: CommunicationAdapter[] = [
     description: 'SOAP web services integration',
     category: 'Web Services',
     fields: [
-      // Sender Fields (show when mode is 'sender')
-      { name: 'sender', label: 'Sender', type: 'select', required: true, options: ['S4H', 'CPI', 'BTP'], conditionalField: 'sender' },
+      // Sender Fields (show when mode is 'sender') - Only Address
       { name: 'senderAddress', label: 'Address', type: 'text', required: true, placeholder: '/UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmation', conditionalField: 'sender' },
-      { name: 'senderWsdlUrl', label: 'URL to WSDL', type: 'text', required: true, placeholder: '/wsdl/UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmation_Out.wsdl', conditionalField: 'sender' },
-      { name: 'senderAuthorization', label: 'Authorization', type: 'select', required: true, options: ['User Role', 'Basic Auth', 'Client Certificate'], conditionalField: 'sender' },
-      { name: 'senderUserRole', label: 'User Role', type: 'text', required: true, placeholder: 'ESBMessaging.send', conditionalField: 'sender' },
-      { name: 'bodySizeMB', label: 'Body Size (in MB)', type: 'number', required: false, placeholder: '40', conditionalField: 'sender' },
-      { name: 'attachmentsSizeMB', label: 'Attachments Size (in MB)', type: 'number', required: false, placeholder: '100', conditionalField: 'sender' },
       
       // Receiver Fields (show when mode is 'receiver')
       { name: 'receiver', label: 'Receiver', type: 'select', required: true, options: ['MDUS', 'CPI', 'External'], conditionalField: 'receiver' },
