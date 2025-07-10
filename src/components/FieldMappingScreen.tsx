@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Trash2, X } from 'lucide-react';
+import { Trash2, X, CheckCircle } from 'lucide-react';
 import { FieldNode, FieldMapping } from './fieldMapping/types';
 import { webserviceStructures } from './fieldMapping/demoData';
 import { SourcePanel } from './fieldMapping/SourcePanel';
@@ -12,9 +12,10 @@ import { JavaEditor } from './fieldMapping/JavaEditor';
 
 interface MappingScreenProps {
   onClose?: () => void;
+  onSave?: (mappings: FieldMapping[]) => void;
 }
 
-export function FieldMappingScreen({ onClose }: MappingScreenProps) {
+export function FieldMappingScreen({ onClose, onSave }: MappingScreenProps) {
   const [sourceFields, setSourceFields] = useState<FieldNode[]>([]);
   const [targetFields, setTargetFields] = useState<FieldNode[]>([]);
   const [mappings, setMappings] = useState<FieldMapping[]>([]);
@@ -148,7 +149,20 @@ export function FieldMappingScreen({ onClose }: MappingScreenProps) {
             <Trash2 className="h-4 w-4 mr-2" />
             Delete All Mappings
           </Button>
-          <Button onClick={onClose} className="hover-scale">
+          {mappings.length > 0 && (
+            <Button 
+              onClick={() => onSave?.(mappings)} 
+              className="hover-scale"
+            >
+              <CheckCircle className="h-4 w-4 mr-2" />
+              Save Mappings
+            </Button>
+          )}
+          <Button 
+            variant="outline" 
+            onClick={onClose} 
+            className="hover-scale"
+          >
             <X className="h-4 w-4 mr-2" />
             Close
           </Button>

@@ -119,6 +119,24 @@ export const CreateFlow = () => {
   const [javaFunction, setJavaFunction] = useState('');
   const { toast } = useToast();
 
+  const handleMappingSave = (mappings: any[]) => {
+    // Convert the mapping format from FieldMappingScreen to CreateFlow format
+    const convertedMappings = mappings.map(mapping => ({
+      sourceFields: mapping.sourceFields || [],
+      targetField: mapping.targetField || '',
+      javaFunction: mapping.javaFunction || ''
+    }));
+    
+    setFieldMappings(convertedMappings);
+    setShowMappingScreen(false);
+    
+    toast({
+      title: "Mappings Saved",
+      description: `${mappings.length} field mapping(s) have been configured`,
+      variant: "default",
+    });
+  };
+
   const handleAddTransformation = (transformationId: string) => {
     if (!selectedTransformations.includes(transformationId)) {
       setSelectedTransformations([...selectedTransformations, transformationId]);
@@ -321,7 +339,10 @@ export const CreateFlow = () => {
   return (
     <>
       {showMappingScreen && (
-        <FieldMappingScreen onClose={() => setShowMappingScreen(false)} />
+        <FieldMappingScreen 
+          onClose={() => setShowMappingScreen(false)}
+          onSave={handleMappingSave}
+        />
       )}
       
       <div className="p-6 space-y-6 animate-fade-in">
@@ -499,205 +520,6 @@ export const CreateFlow = () => {
             </CardContent>
           </Card>
 
-          <Card className="animate-scale-in" style={{ animationDelay: '0.15s' }}>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Layers className="h-5 w-5" />
-                Message Structures
-              </CardTitle>
-              <CardDescription>Select the data structures for source and target messages</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Tabs defaultValue="selection" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="selection">Structure Selection</TabsTrigger>
-                  <TabsTrigger value="preview">Preview & Mapping</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="selection" className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Source Structure */}
-                    <div className="space-y-3">
-                      <Label>Source Message Structure</Label>
-                      <Select value={sourceStructure} onValueChange={setSourceStructure}>
-                        <SelectTrigger className="transition-all duration-300 hover:bg-accent/50">
-                          <SelectValue placeholder="Select source structure" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {sampleStructures
-                            .filter(s => s.usage === 'source' || s.usage === 'both')
-                            .map((structure) => {
-                              const Icon = getTypeIcon(structure.type);
-                              return (
-                                <SelectItem key={structure.id} value={structure.id}>
-                                  <div className="flex items-center gap-2">
-                                    <Icon className="h-4 w-4" />
-                                    <span>{structure.name}</span>
-                                    <Badge variant="outline" className="text-xs">{structure.type.toUpperCase()}</Badge>
-                                  </div>
-                                </SelectItem>
-                              );
-                            })}
-                        </SelectContent>
-                      </Select>
-                      {sourceStructure && (
-                        <div className="p-3 bg-muted/50 rounded-lg">
-                          <div className="flex items-center gap-2 mb-2">
-                            {getStructureById(sourceStructure) && (
-                              <>
-                                {(() => {
-                                  const structure = getStructureById(sourceStructure)!;
-                                  const IconComponent = getTypeIcon(structure.type);
-                                  return (
-                                    <>
-                                      <IconComponent className="h-4 w-4 text-primary" />
-                                      <span className="font-medium">{structure.name}</span>
-                                      <Badge variant="outline" className="text-xs">{structure.type}</Badge>
-                                    </>
-                                  );
-                                })()}
-                              </>
-                            )}
-                          </div>
-                          {getStructureById(sourceStructure)?.description && (
-                            <p className="text-sm text-muted-foreground">
-                              {getStructureById(sourceStructure)?.description}
-                            </p>
-                          )}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Target Structure */}
-                    <div className="space-y-3">
-                      <Label>Target Message Structure</Label>
-                      <Select value={targetStructure} onValueChange={setTargetStructure}>
-                        <SelectTrigger className="transition-all duration-300 hover:bg-accent/50">
-                          <SelectValue placeholder="Select target structure" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {sampleStructures
-                            .filter(s => s.usage === 'target' || s.usage === 'both')
-                            .map((structure) => {
-                              const Icon = getTypeIcon(structure.type);
-                              return (
-                                <SelectItem key={structure.id} value={structure.id}>
-                                  <div className="flex items-center gap-2">
-                                    <Icon className="h-4 w-4" />
-                                    <span>{structure.name}</span>
-                                    <Badge variant="outline" className="text-xs">{structure.type.toUpperCase()}</Badge>
-                                  </div>
-                                </SelectItem>
-                              );
-                            })}
-                        </SelectContent>
-                      </Select>
-                      {targetStructure && (
-                        <div className="p-3 bg-muted/50 rounded-lg">
-                          <div className="flex items-center gap-2 mb-2">
-                            {getStructureById(targetStructure) && (
-                              <>
-                                {(() => {
-                                  const structure = getStructureById(targetStructure)!;
-                                  const IconComponent = getTypeIcon(structure.type);
-                                  return (
-                                    <>
-                                      <IconComponent className="h-4 w-4 text-primary" />
-                                      <span className="font-medium">{structure.name}</span>
-                                      <Badge variant="outline" className="text-xs">{structure.type}</Badge>
-                                    </>
-                                  );
-                                })()}
-                              </>
-                            )}
-                          </div>
-                          {getStructureById(targetStructure)?.description && (
-                            <p className="text-sm text-muted-foreground">
-                              {getStructureById(targetStructure)?.description}
-                            </p>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Quick Actions */}
-                  <div className="flex gap-2 pt-4 border-t">
-                    <Button variant="outline" size="sm" asChild>
-                      <a href="/data-structures" className="flex items-center gap-2">
-                        <Plus className="h-4 w-4" />
-                        Create New Structure
-                      </a>
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Eye className="h-4 w-4 mr-2" />
-                      Browse Library
-                    </Button>
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="preview" className="space-y-6">
-                  {sourceStructure && targetStructure ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* Source Structure Preview */}
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2">
-                          <Label>Source Structure</Label>
-                          <Badge variant="outline" className="text-xs">
-                            {getStructureById(sourceStructure)?.name}
-                          </Badge>
-                        </div>
-                        <div className="border rounded-lg p-4 bg-muted/20 max-h-60 overflow-y-auto">
-                          {getStructureById(sourceStructure) && renderStructurePreview(getStructureById(sourceStructure)!.structure)}
-                        </div>
-                      </div>
-
-                      {/* Target Structure Preview */}
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2">
-                          <Label>Target Structure</Label>
-                          <Badge variant="outline" className="text-xs">
-                            {getStructureById(targetStructure)?.name}
-                          </Badge>
-                        </div>
-                        <div className="border rounded-lg p-4 bg-muted/20 max-h-60 overflow-y-auto">
-                          {getStructureById(targetStructure) && renderStructurePreview(getStructureById(targetStructure)!.structure)}
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <Layers className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p>Select both source and target structures to see the preview</p>
-                    </div>
-                  )}
-
-                  {/* Mapping Suggestions */}
-                  {sourceStructure && targetStructure && (
-                    <div className="mt-6 p-4 bg-gradient-secondary rounded-lg">
-                      <h4 className="font-medium mb-2 flex items-center gap-2">
-                        <Settings className="h-4 w-4" />
-                        Field Mapping Suggestions
-                      </h4>
-                      <p className="text-sm text-muted-foreground mb-3">
-                        Based on your selected structures, these field mappings are suggested:
-                      </p>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between text-sm bg-card p-2 rounded">
-                          <span className="text-primary">Source Field</span>
-                          <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-primary">Target Field</span>
-                        </div>
-                        <div className="text-xs text-muted-foreground text-center py-2">
-                          Auto-mapping will be available in field mapping transformation
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </TabsContent>
-              </Tabs>
-            </CardContent>
-          </Card>
 
           <Card className="animate-scale-in" style={{ animationDelay: '0.2s' }}>
             <CardHeader>
@@ -743,7 +565,7 @@ export const CreateFlow = () => {
                          onClick={() => setShowMappingScreen(true)}
                        >
                          <Plus className="h-4 w-4 mr-2" />
-                         Add Mapping
+                         Create Mapping
                        </Button>
                        <Button 
                          variant="ghost" 
