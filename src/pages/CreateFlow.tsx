@@ -90,6 +90,8 @@ export const CreateFlow = () => {
   const {
     flowName,
     description,
+    sourceCustomer,
+    targetCustomer,
     sourceAdapter,
     targetAdapter,
     sourceStructure,
@@ -103,6 +105,8 @@ export const CreateFlow = () => {
     mappingName,
     setFlowName,
     setDescription,
+    setSourceCustomer,
+    setTargetCustomer,
     setSourceAdapter,
     setTargetAdapter,
     setSourceStructure,
@@ -254,8 +258,12 @@ export const CreateFlow = () => {
 
             <AdapterConfigurationCard
               adapters={adapters}
+              sourceCustomer={sourceCustomer}
+              targetCustomer={targetCustomer}
               sourceAdapter={sourceAdapter}
               targetAdapter={targetAdapter}
+              onSourceCustomerChange={setSourceCustomer}
+              onTargetCustomerChange={setTargetCustomer}
               onSourceAdapterChange={setSourceAdapter}
               onTargetAdapterChange={setTargetAdapter}
             />
