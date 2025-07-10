@@ -33,6 +33,7 @@ interface TransformationConfigurationCardProps {
   fieldMappings: FieldMapping[];
   selectedTargetField: string | null;
   javaFunction: string;
+  mappingName: string;
   sampleStructures: DataStructure[];
   onAddTransformation: (transformationId: string) => void;
   onRemoveTransformation: (transformationId: string) => void;
@@ -57,6 +58,7 @@ export const TransformationConfigurationCard = ({
   fieldMappings,
   selectedTargetField,
   javaFunction,
+  mappingName,
   sampleStructures,
   onAddTransformation,
   onRemoveTransformation,
@@ -152,7 +154,10 @@ export const TransformationConfigurationCard = ({
                 <div className="border rounded-lg p-4 bg-muted/20">
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <h4 className="font-medium">Current Mappings:</h4>
+                      <div>
+                        <h4 className="font-medium text-primary">{mappingName || 'Untitled Mapping'}</h4>
+                        <p className="text-xs text-muted-foreground">{fieldMappings.length} field mapping(s)</p>
+                      </div>
                       <Button 
                         onClick={onShowMappingScreen}
                         variant="outline"

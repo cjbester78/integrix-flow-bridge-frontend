@@ -23,6 +23,7 @@ export interface FlowState {
   fieldMappings: FieldMapping[];
   selectedTargetField: string | null;
   javaFunction: string;
+  mappingName: string;
 }
 
 export const useFlowState = () => {
@@ -40,6 +41,7 @@ export const useFlowState = () => {
   const [fieldMappings, setFieldMappings] = useState<FieldMapping[]>([]);
   const [selectedTargetField, setSelectedTargetField] = useState<string | null>(null);
   const [javaFunction, setJavaFunction] = useState('');
+  const [mappingName, setMappingName] = useState('');
 
   const resetForm = () => {
     setFlowName('');
@@ -51,6 +53,7 @@ export const useFlowState = () => {
     setSelectedTransformations([]);
     setFieldMappings([]);
     setShowFieldMapping(false);
+    setMappingName('');
   };
 
   return {
@@ -69,6 +72,7 @@ export const useFlowState = () => {
     fieldMappings,
     selectedTargetField,
     javaFunction,
+    mappingName,
     
     // Setters
     setFlowName,
@@ -85,6 +89,7 @@ export const useFlowState = () => {
     setFieldMappings,
     setSelectedTargetField,
     setJavaFunction,
+    setMappingName,
     
     // Utilities
     resetForm,

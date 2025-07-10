@@ -1,5 +1,7 @@
 import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Trash2, X, CheckCircle } from 'lucide-react';
@@ -9,14 +11,14 @@ import { SourcePanel } from './fieldMapping/SourcePanel';
 import { TargetPanel } from './fieldMapping/TargetPanel';
 import { MappingArea } from './fieldMapping/MappingArea';
 import { JavaEditor } from './fieldMapping/JavaEditor';
-import { MappingNameDialog } from './fieldMapping/MappingNameDialog';
 
 interface MappingScreenProps {
   onClose?: () => void;
-  onSave?: (mappings: FieldMapping[]) => void;
+  onSave?: (mappings: FieldMapping[], mappingName: string) => void;
+  initialMappingName?: string;
 }
 
-export function FieldMappingScreen({ onClose, onSave }: MappingScreenProps) {
+export function FieldMappingScreen({ onClose, onSave, initialMappingName = '' }: MappingScreenProps) {
   const [sourceFields, setSourceFields] = useState<FieldNode[]>([]);
   const [targetFields, setTargetFields] = useState<FieldNode[]>([]);
   const [mappings, setMappings] = useState<FieldMapping[]>([]);
@@ -29,8 +31,7 @@ export function FieldMappingScreen({ onClose, onSave }: MappingScreenProps) {
   const [showTargetSelector, setShowTargetSelector] = useState(false);
   const [showJavaEditor, setShowJavaEditor] = useState<string | null>(null);
   const [tempJavaFunction, setTempJavaFunction] = useState('');
-  const [showNameDialog, setShowNameDialog] = useState(false);
-  const [pendingMapping, setPendingMapping] = useState<Omit<FieldMapping, 'name'> | null>(null);
+  const [mappingName, setMappingName] = useState(initialMappingName);
 
   const toggleExpanded = useCallback((nodeId: string, isSource: boolean) => {
     const updateNode = (nodes: FieldNode[]): FieldNode[] => {
@@ -79,9 +80,10 @@ export function FieldMappingScreen({ onClose, onSave }: MappingScreenProps) {
       updatedMappings[existingMappingIndex] = updatedMapping;
       setMappings(updatedMappings);
     } else {
-      // Create new mapping and prompt for name
-      const newMapping = {
+      // Create new mapping
+      const newMapping: FieldMapping = {
         id: `mapping_${Date.now()}`,
+        name: `${draggedField.name}_to_${targetField.name}`,
         sourceFields: [draggedField.name],
         targetField: targetField.name,
         sourcePaths: [draggedField.path],
@@ -89,8 +91,7 @@ export function FieldMappingScreen({ onClose, onSave }: MappingScreenProps) {
         javaFunction: ''
       };
       
-      setPendingMapping(newMapping);
-      setShowNameDialog(true);
+      setMappings(prev => [...prev, newMapping]);
     }
     
     setDraggedField(null);
@@ -132,23 +133,6 @@ export function FieldMappingScreen({ onClose, onSave }: MappingScreenProps) {
     setTempJavaFunction(mapping?.javaFunction || '');
   };
 
-  const handleSaveMapping = (name: string) => {
-    if (pendingMapping) {
-      const finalMapping: FieldMapping = {
-        ...pendingMapping,
-        name
-      };
-      setMappings(prev => [...prev, finalMapping]);
-      setPendingMapping(null);
-      setShowNameDialog(false);
-    }
-  };
-
-  const generateDefaultName = (mapping: Omit<FieldMapping, 'name'> | null) => {
-    if (!mapping) return '';
-    return `${mapping.sourceFields.join('_')}_to_${mapping.targetField}`;
-  };
-
   const currentMapping = showJavaEditor ? mappings.find(m => m.id === showJavaEditor) : null;
 
   return (
@@ -159,6 +143,17 @@ export function FieldMappingScreen({ onClose, onSave }: MappingScreenProps) {
           <h1 className="text-xl font-semibold">Field Mapping</h1>
           <Separator orientation="vertical" className="h-6" />
           <Badge variant="secondary">SOAP Adapter</Badge>
+          <Separator orientation="vertical" className="h-6" />
+          <div className="flex items-center gap-2">
+            <Label htmlFor="mappingName" className="text-sm font-medium">Mapping Name:</Label>
+            <Input
+              id="mappingName"
+              placeholder="Enter mapping name"
+              value={mappingName}
+              onChange={(e) => setMappingName(e.target.value)}
+              className="w-64"
+            />
+          </div>
         </div>
         
         <div className="flex items-center gap-2">
@@ -172,8 +167,9 @@ export function FieldMappingScreen({ onClose, onSave }: MappingScreenProps) {
           </Button>
           {mappings.length > 0 && (
             <Button 
-              onClick={() => onSave?.(mappings)} 
+              onClick={() => onSave?.(mappings, mappingName)} 
               className="hover-scale"
+              disabled={!mappingName.trim()}
             >
               <CheckCircle className="h-4 w-4 mr-2" />
               Save Mappings
@@ -233,16 +229,6 @@ export function FieldMappingScreen({ onClose, onSave }: MappingScreenProps) {
         javaFunction={tempJavaFunction}
         onJavaFunctionChange={setTempJavaFunction}
         onSave={() => updateMappingJavaFunction(showJavaEditor!, tempJavaFunction)}
-      />
-
-      <MappingNameDialog
-        isOpen={showNameDialog}
-        onClose={() => {
-          setShowNameDialog(false);
-          setPendingMapping(null);
-        }}
-        onSave={handleSaveMapping}
-        defaultName={generateDefaultName(pendingMapping)}
       />
     </div>
   );

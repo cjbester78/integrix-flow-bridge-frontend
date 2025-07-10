@@ -100,6 +100,7 @@ export const CreateFlow = () => {
     fieldMappings,
     selectedTargetField,
     javaFunction,
+    mappingName,
     setFlowName,
     setDescription,
     setSourceAdapter,
@@ -112,6 +113,7 @@ export const CreateFlow = () => {
     setFieldMappings,
     setSelectedTargetField,
     setJavaFunction,
+    setMappingName,
     resetForm,
   } = flowState;
 
@@ -127,7 +129,7 @@ export const CreateFlow = () => {
     resetForm,
   });
 
-  const handleMappingSave = (mappings: any[]) => {
+  const handleMappingSave = (mappings: any[], newMappingName: string) => {
     const convertedMappings = mappings.map(mapping => ({
       id: mapping.id || `mapping_${Date.now()}`,
       name: mapping.name || 'Untitled Mapping',
@@ -137,6 +139,7 @@ export const CreateFlow = () => {
     }));
     
     setFieldMappings(convertedMappings);
+    setMappingName(newMappingName);
     setShowMappingScreen(false);
     
     toast({
@@ -160,6 +163,7 @@ export const CreateFlow = () => {
     if (transformationId === 'field-mapping') {
       setShowFieldMapping(false);
       setFieldMappings([]);
+      setMappingName('');
     }
   };
 
@@ -226,6 +230,7 @@ export const CreateFlow = () => {
         <FieldMappingScreen 
           onClose={() => setShowMappingScreen(false)}
           onSave={handleMappingSave}
+          initialMappingName={mappingName}
         />
       )}
       
@@ -264,6 +269,7 @@ export const CreateFlow = () => {
               fieldMappings={fieldMappings}
               selectedTargetField={selectedTargetField}
               javaFunction={javaFunction}
+              mappingName={mappingName}
               sampleStructures={sampleStructures}
               onAddTransformation={handleAddTransformation}
               onRemoveTransformation={handleRemoveTransformation}
