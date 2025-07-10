@@ -8,7 +8,8 @@ import {
   Send,
   ChevronLeft,
   ChevronRight,
-  Layers
+  Layers,
+  Building2
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useState } from 'react';
@@ -39,6 +40,12 @@ const navigation = [
     name: 'Create Communication Adapter', 
     href: '/create-communication-adapter', 
     icon: Send, 
+    roles: ['admin', 'integrator'] 
+  },
+  { 
+    name: 'Customers', 
+    href: '/customers', 
+    icon: Building2, 
     roles: ['admin', 'integrator'] 
   },
   { 

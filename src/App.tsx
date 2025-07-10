@@ -11,6 +11,7 @@ import { Dashboard } from "@/pages/Dashboard";
 import { CreateFlow } from "@/pages/CreateFlow";
 import { CreateCommunicationAdapter } from "@/pages/CreateCommunicationAdapter";
 import { DataStructures } from "@/pages/DataStructures";
+import { Customers } from "@/pages/Customers";
 import { Messages } from "@/pages/Messages";
 import { Channels } from "@/pages/Channels";
 import { Admin } from "@/pages/Admin";
@@ -34,6 +35,7 @@ const App = () => (
               <Route path="create-flow" element={<CreateFlow />} />
               <Route path="create-communication-adapter" element={<CreateCommunicationAdapter />} />
               <Route path="data-structures" element={<DataStructures />} />
+              <Route path="customers" element={<Customers />} />
               <Route path="messages" element={<Messages />} />
               <Route path="channels" element={<Channels />} />
               <Route path="admin" element={<Admin />} />
