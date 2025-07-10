@@ -125,7 +125,7 @@ export const TransformationConfigurationCard = ({
           </div>
 
           {/* Field Mapping Interface */}
-          {showFieldMapping && sourceStructure && targetStructure && (
+          {showFieldMapping && (
             <div className="mt-6 space-y-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -151,166 +151,18 @@ export const TransformationConfigurationCard = ({
                  </div>
               </div>
 
-              {/* Graphical Mapping Interface */}
+              {/* Show Create Mapping button always when field mapping is active */}
               <div className="border rounded-lg p-4 bg-muted/20">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                  {/* Source Fields */}
-                  <div className="space-y-3">
-                    <Label className="text-sm font-medium">Source Fields</Label>
-                    <div className="border rounded-lg p-3 bg-card max-h-60 overflow-y-auto">
-                      {getFieldsFromStructure(getStructureById(sourceStructure)?.structure || {}).map((field) => (
-                        <div key={field} className="p-2 text-sm hover:bg-accent rounded cursor-default">
-                          <div className="flex items-center gap-2">
-                            <div className="h-2 w-2 rounded-full bg-primary" />
-                            <span>{field}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Mapping Configuration */}
-                  <div className="space-y-3">
-                    <Label className="text-sm font-medium">Field Mappings</Label>
-                    <div className="space-y-2 max-h-60 overflow-y-auto">
-                      {fieldMappings.map((mapping, index) => (
-                        <div key={index} className="p-3 border rounded-lg bg-card space-y-3">
-                          {/* Target Field Selection */}
-                          <div className="flex items-center gap-2">
-                            <Label className="text-xs font-medium min-w-[60px]">Target:</Label>
-                            <Select 
-                              value={mapping.targetField} 
-                              onValueChange={(value) => onMappingChange(index, 'targetField', value)}
-                            >
-                              <SelectTrigger className="h-8 text-xs flex-1">
-                                <SelectValue placeholder="Select target field" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {getFieldsFromStructure(getStructureById(targetStructure)?.structure || {}).map((field) => (
-                                  <SelectItem key={field} value={field} className="text-xs">
-                                    {field}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => onRemoveMapping(index)}
-                            >
-                              <X className="h-3 w-3" />
-                            </Button>
-                          </div>
-
-                          {/* Source Fields Section */}
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2">
-                              <Label className="text-xs font-medium">Sources:</Label>
-                              <Select 
-                                value="" 
-                                onValueChange={(value) => onAddSourceField(index, value)}
-                              >
-                                <SelectTrigger className="h-7 text-xs flex-1">
-                                  <SelectValue placeholder="Add source field" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {getFieldsFromStructure(getStructureById(sourceStructure)?.structure || {})
-                                    .filter(field => !mapping.sourceFields.includes(field))
-                                    .map((field) => (
-                                    <SelectItem key={field} value={field} className="text-xs">
-                                      {field}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-
-                            {/* Selected Source Fields */}
-                            {mapping.sourceFields.length > 0 && (
-                              <div className="flex flex-wrap gap-1 p-2 bg-muted/50 rounded border-l-2 border-primary/20">
-                                {mapping.sourceFields.map((sourceField, sourceIndex) => (
-                                  <div key={sourceIndex} className="flex items-center gap-1 bg-primary/10 px-2 py-1 rounded text-xs">
-                                    <span>{sourceField}</span>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() => onRemoveSourceField(index, sourceIndex)}
-                                      className="h-4 w-4 p-0 hover:bg-destructive/20"
-                                    >
-                                      <X className="h-2 w-2" />
-                                    </Button>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-
-                            {mapping.sourceFields.length === 0 && (
-                              <div className="text-xs text-muted-foreground italic p-2 bg-muted/30 rounded">
-                                No source fields selected
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Mapping Summary and Function */}
-                          {mapping.targetField && mapping.sourceFields.length > 0 && (
-                            <div className="space-y-2">
-                              <div className="flex items-center justify-between p-2 bg-accent/30 rounded text-xs">
-                                <span className="font-medium">
-                                  {mapping.sourceFields.length} source field{mapping.sourceFields.length !== 1 ? 's' : ''} → {mapping.targetField}
-                                </span>
-                                {mapping.sourceFields.length > 1 && (
-                                  <Badge variant="secondary" className="text-xs">
-                                    Multi-field mapping
-                                  </Badge>
-                                )}
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <Button 
-                                  variant="outline" 
-                                  size="sm"
-                                  onClick={() => onTargetFieldSelect(mapping.targetField, index)}
-                                  className="text-xs"
-                                >
-                                  <Code className="h-3 w-3 mr-1" />
-                                  {mapping.javaFunction ? 'Edit Function' : 'Add Function'}
-                                </Button>
-                                {mapping.javaFunction && (
-                                  <Badge variant="secondary" className="text-xs">
-                                    Function Added
-                                  </Badge>
-                                )}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                      {fieldMappings.length === 0 && (
-                        <div className="text-center py-4 text-muted-foreground text-sm">
-                          <Link className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                          <p>No mappings configured</p>
-                          <p className="text-xs">Click "Create Mapping" to start</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Target Fields */}
-                  <div className="space-y-3">
-                    <Label className="text-sm font-medium">Target Fields</Label>
-                    <div className="border rounded-lg p-3 bg-card max-h-60 overflow-y-auto">
-                      {getFieldsFromStructure(getStructureById(targetStructure)?.structure || {}).map((field) => (
-                        <div key={field} className="p-2 text-sm hover:bg-accent rounded cursor-default">
-                          <div className="flex items-center gap-2">
-                            <div className="h-2 w-2 rounded-full bg-secondary" />
-                            <span>{field}</span>
-                            {fieldMappings.some(m => m.targetField === field) && (
-                              <Badge variant="outline" className="text-xs ml-auto">Mapped</Badge>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                <div className="text-center py-8 text-muted-foreground">
+                  <Link className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p className="mb-4">Open the graphical mapping interface to configure field mappings</p>
+                  <Button 
+                    onClick={onShowMappingScreen}
+                    className="bg-gradient-primary hover:opacity-90 transition-all duration-300"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create Mapping
+                  </Button>
                 </div>
               </div>
             </div>
