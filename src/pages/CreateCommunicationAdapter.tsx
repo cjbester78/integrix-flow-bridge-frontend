@@ -9,7 +9,6 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { JarSelector } from '@/components/JarSelector';
-import { SoapAdapterConfig } from '@/components/SoapAdapterConfig';
 import { useToast } from '@/hooks/use-toast';
 import { adapterService } from '@/services/adapterService';
 import { 
@@ -182,7 +181,7 @@ const communicationAdapters: CommunicationAdapter[] = [
     description: 'SOAP web services integration',
     category: 'Web Services',
     fields: [
-      // Sender Tab Fields
+      // Sender Fields (show when mode is 'sender')
       { name: 'sender', label: 'Sender', type: 'select', required: true, options: ['S4H', 'CPI', 'BTP'], conditionalField: 'sender' },
       { name: 'senderAddress', label: 'Address', type: 'text', required: true, placeholder: '/UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmation', conditionalField: 'sender' },
       { name: 'senderWsdlUrl', label: 'URL to WSDL', type: 'text', required: true, placeholder: '/wsdl/UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmation_Out.wsdl', conditionalField: 'sender' },
@@ -191,7 +190,7 @@ const communicationAdapters: CommunicationAdapter[] = [
       { name: 'bodySizeMB', label: 'Body Size (in MB)', type: 'number', required: false, placeholder: '40', conditionalField: 'sender' },
       { name: 'attachmentsSizeMB', label: 'Attachments Size (in MB)', type: 'number', required: false, placeholder: '100', conditionalField: 'sender' },
       
-      // Receiver Tab Fields
+      // Receiver Fields (show when mode is 'receiver')
       { name: 'receiver', label: 'Receiver', type: 'select', required: true, options: ['MDUS', 'CPI', 'External'], conditionalField: 'receiver' },
       { name: 'receiverAddress', label: 'Address', type: 'text', required: true, placeholder: 'Target system endpoint address', conditionalField: 'receiver' },
       { name: 'receiverWsdlUrl', label: 'URL to WSDL', type: 'text', required: true, placeholder: 'WSDL URL for receiver service', conditionalField: 'receiver' },
@@ -207,13 +206,7 @@ const communicationAdapters: CommunicationAdapter[] = [
       { name: 'allowChunking', label: 'Allow Chunking', type: 'checkbox', required: false, conditionalField: 'receiver' },
       { name: 'returnHttpResponseCodeAsHeader', label: 'Return HTTP Response Code as Header', type: 'checkbox', required: false, conditionalField: 'receiver' },
       { name: 'cleanupRequestHeaders', label: 'Clean-up Request Headers', type: 'checkbox', required: false, conditionalField: 'receiver' },
-      { name: 'sapRmMessageIdDetermination', label: 'SAP RM Message ID Determination', type: 'select', required: false, options: ['Reuse', 'Generate', 'Map'], conditionalField: 'receiver' },
-      
-      // More Tab Fields
-      { name: 'parameterType', label: 'Type', type: 'select', required: false, options: ['All Parameters', 'Selected Parameters'], conditionalField: 'more' },
-      { name: 'allowHeader', label: 'Allow_Header', type: 'text', required: false, placeholder: 'Header configuration', conditionalField: 'more' },
-      { name: 'httpSessionReuse', label: 'HTTP_Session_Reuse', type: 'select', required: false, options: ['None', 'Session', 'Connection'], conditionalField: 'more' },
-      { name: 'returnExceptionToSender', label: 'Return_Exception_to_Sender', type: 'checkbox', required: false, conditionalField: 'more' }
+      { name: 'sapRmMessageIdDetermination', label: 'SAP RM Message ID Determination', type: 'select', required: false, options: ['Reuse', 'Generate', 'Map'], conditionalField: 'receiver' }
     ]
   },
   {
@@ -586,13 +579,7 @@ export const CreateCommunicationAdapter = () => {
             </CardContent>
           </Card>
 
-          {selectedAdapterConfig && selectedAdapter === 'soap' ? (
-            <SoapAdapterConfig
-              adapterMode={adapterMode as 'sender' | 'receiver'}
-              configuration={configuration}
-              onConfigurationChange={handleConfigurationChange}
-            />
-          ) : selectedAdapterConfig && (
+          {selectedAdapterConfig && (
             <Card className="animate-scale-in" style={{ animationDelay: '0.2s' }}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
