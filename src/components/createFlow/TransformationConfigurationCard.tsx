@@ -15,6 +15,7 @@ import {
   Save
 } from 'lucide-react';
 import { DataStructure } from '@/types/dataStructures';
+import { FieldMapping } from '@/hooks/useFlowState';
 
 interface Transformation {
   id: string;
@@ -22,11 +23,6 @@ interface Transformation {
   description: string;
 }
 
-interface FieldMapping {
-  sourceFields: string[];
-  targetField: string;
-  javaFunction?: string;
-}
 
 interface TransformationConfigurationCardProps {
   transformations: Transformation[];
@@ -169,7 +165,10 @@ export const TransformationConfigurationCard = ({
                     {fieldMappings.map((mapping, index) => (
                       <div key={index} className="p-3 bg-background rounded border">
                         <div className="text-sm">
-                          <span className="font-medium">
+                          <span className="font-medium text-primary block mb-1">
+                            {mapping.name}
+                          </span>
+                          <span className="text-muted-foreground text-xs">
                             {mapping.sourceFields.join(' + ')} → {mapping.targetField}
                           </span>
                           {mapping.javaFunction && (

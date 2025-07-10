@@ -9,6 +9,7 @@ import { SourcePanel } from './fieldMapping/SourcePanel';
 import { TargetPanel } from './fieldMapping/TargetPanel';
 import { MappingArea } from './fieldMapping/MappingArea';
 import { JavaEditor } from './fieldMapping/JavaEditor';
+import { MappingNameDialog } from './fieldMapping/MappingNameDialog';
 
 interface MappingScreenProps {
   onClose?: () => void;
@@ -28,6 +29,8 @@ export function FieldMappingScreen({ onClose, onSave }: MappingScreenProps) {
   const [showTargetSelector, setShowTargetSelector] = useState(false);
   const [showJavaEditor, setShowJavaEditor] = useState<string | null>(null);
   const [tempJavaFunction, setTempJavaFunction] = useState('');
+  const [showNameDialog, setShowNameDialog] = useState(false);
+  const [pendingMapping, setPendingMapping] = useState<Omit<FieldMapping, 'name'> | null>(null);
 
   const toggleExpanded = useCallback((nodeId: string, isSource: boolean) => {
     const updateNode = (nodes: FieldNode[]): FieldNode[] => {
@@ -76,8 +79,8 @@ export function FieldMappingScreen({ onClose, onSave }: MappingScreenProps) {
       updatedMappings[existingMappingIndex] = updatedMapping;
       setMappings(updatedMappings);
     } else {
-      // Create new mapping
-      const newMapping: FieldMapping = {
+      // Create new mapping and prompt for name
+      const newMapping = {
         id: `mapping_${Date.now()}`,
         sourceFields: [draggedField.name],
         targetField: targetField.name,
@@ -86,7 +89,8 @@ export function FieldMappingScreen({ onClose, onSave }: MappingScreenProps) {
         javaFunction: ''
       };
       
-      setMappings(prev => [...prev, newMapping]);
+      setPendingMapping(newMapping);
+      setShowNameDialog(true);
     }
     
     setDraggedField(null);
@@ -126,6 +130,23 @@ export function FieldMappingScreen({ onClose, onSave }: MappingScreenProps) {
     const mapping = mappings.find(m => m.id === mappingId);
     setShowJavaEditor(mappingId);
     setTempJavaFunction(mapping?.javaFunction || '');
+  };
+
+  const handleSaveMapping = (name: string) => {
+    if (pendingMapping) {
+      const finalMapping: FieldMapping = {
+        ...pendingMapping,
+        name
+      };
+      setMappings(prev => [...prev, finalMapping]);
+      setPendingMapping(null);
+      setShowNameDialog(false);
+    }
+  };
+
+  const generateDefaultName = (mapping: Omit<FieldMapping, 'name'> | null) => {
+    if (!mapping) return '';
+    return `${mapping.sourceFields.join('_')}_to_${mapping.targetField}`;
   };
 
   const currentMapping = showJavaEditor ? mappings.find(m => m.id === showJavaEditor) : null;
@@ -212,6 +233,16 @@ export function FieldMappingScreen({ onClose, onSave }: MappingScreenProps) {
         javaFunction={tempJavaFunction}
         onJavaFunctionChange={setTempJavaFunction}
         onSave={() => updateMappingJavaFunction(showJavaEditor!, tempJavaFunction)}
+      />
+
+      <MappingNameDialog
+        isOpen={showNameDialog}
+        onClose={() => {
+          setShowNameDialog(false);
+          setPendingMapping(null);
+        }}
+        onSave={handleSaveMapping}
+        defaultName={generateDefaultName(pendingMapping)}
       />
     </div>
   );

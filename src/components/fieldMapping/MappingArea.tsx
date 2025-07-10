@@ -60,6 +60,9 @@ export function MappingArea({ mappings, onRemoveMapping, onEditJavaFunction }: M
                 
                 <div className="text-xs space-y-1">
                   <div className="flex items-center gap-2">
+                    <span className="font-medium text-primary">{mapping.name}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
                     <span className="font-medium">Source:</span>
                     <span className="text-muted-foreground">
                       {mapping.sourceFields.join(', ')}

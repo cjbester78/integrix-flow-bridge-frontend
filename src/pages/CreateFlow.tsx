@@ -129,6 +129,8 @@ export const CreateFlow = () => {
 
   const handleMappingSave = (mappings: any[]) => {
     const convertedMappings = mappings.map(mapping => ({
+      id: mapping.id || `mapping_${Date.now()}`,
+      name: mapping.name || 'Untitled Mapping',
       sourceFields: mapping.sourceFields || [],
       targetField: mapping.targetField || '',
       javaFunction: mapping.javaFunction || ''
@@ -162,7 +164,12 @@ export const CreateFlow = () => {
   };
 
   const handleAddMapping = () => {
-    setFieldMappings([...fieldMappings, { sourceFields: [], targetField: '' }]);
+    setFieldMappings([...fieldMappings, { 
+      id: `mapping_${Date.now()}`,
+      name: 'New Mapping',
+      sourceFields: [], 
+      targetField: '' 
+    }]);
   };
 
   const handleRemoveMapping = (index: number) => {

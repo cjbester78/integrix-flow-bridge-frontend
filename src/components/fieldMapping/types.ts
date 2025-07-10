@@ -9,6 +9,7 @@ export interface FieldNode {
 
 export interface FieldMapping {
   id: string;
+  name: string;
   sourceFields: string[];
   targetField: string;
   sourcePaths: string[];

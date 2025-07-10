@@ -1,5 +1,13 @@
 import { useState } from 'react';
 
+export interface FieldMapping {
+  id: string;
+  name: string;
+  sourceFields: string[];
+  targetField: string;
+  javaFunction?: string;
+}
+
 export interface FlowState {
   flowName: string;
   description: string;
@@ -12,7 +20,7 @@ export interface FlowState {
   showStructurePreview: string | null;
   showFieldMapping: boolean;
   showMappingScreen: boolean;
-  fieldMappings: { sourceFields: string[]; targetField: string; javaFunction?: string }[];
+  fieldMappings: FieldMapping[];
   selectedTargetField: string | null;
   javaFunction: string;
 }
@@ -29,7 +37,7 @@ export const useFlowState = () => {
   const [showStructurePreview, setShowStructurePreview] = useState<string | null>(null);
   const [showFieldMapping, setShowFieldMapping] = useState(false);
   const [showMappingScreen, setShowMappingScreen] = useState(false);
-  const [fieldMappings, setFieldMappings] = useState<{ sourceFields: string[]; targetField: string; javaFunction?: string }[]>([]);
+  const [fieldMappings, setFieldMappings] = useState<FieldMapping[]>([]);
   const [selectedTargetField, setSelectedTargetField] = useState<string | null>(null);
   const [javaFunction, setJavaFunction] = useState('');
 
