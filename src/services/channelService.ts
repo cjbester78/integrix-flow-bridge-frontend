@@ -1,6 +1,6 @@
 import { api } from './api';
 
-export type ChannelStatus = 'active' | 'inactive' | 'error';
+export type ChannelStatus = 'active' | 'inactive' | 'error' | 'running' | 'idle' | 'stopped';
 export type AdapterStatus = 'connected' | 'disconnected' | 'error';
 export type LogLevel = 'INFO' | 'WARN' | 'ERROR' | 'SUCCESS';
 
@@ -12,6 +12,9 @@ export interface ChannelAdapter {
   status: AdapterStatus;
   lastSync?: string;
   errorMessage?: string;
+  messagesProcessed?: number;
+  errorCount?: number;
+  avgResponseTime?: string;
 }
 
 export interface ChannelLog {
@@ -40,6 +43,12 @@ export interface Channel {
   flowMetrics: FlowMetrics;
   lastActivity: string;
   customerId: string;
+  load?: number;
+  throughput?: string;
+  uptime?: string;
+  errorRate?: number;
+  healthScore?: number;
+  totalMessages?: number;
 }
 
 export interface ChannelLogsFilters {
@@ -47,6 +56,7 @@ export interface ChannelLogsFilters {
   dateFrom?: string;
   dateTo?: string;
   search?: string;
+  limit?: number;
 }
 
 class ChannelService {
