@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { useAdapterLogs } from '@/hooks/useAdapterLogs';
+import { useSystemLogs } from '@/hooks/useSystemLogs';
 import { Download, FileText, FileJson } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -14,7 +14,7 @@ export const LogExport = ({ adapterId }: LogExportProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [exportFormat, setExportFormat] = useState<'csv' | 'json'>('csv');
   const [exporting, setExporting] = useState(false);
-  const { logs } = useAdapterLogs({ adapterId });
+  const { logs } = useSystemLogs({ sourceId: adapterId });
   const { toast } = useToast();
 
   const exportLogs = async () => {

@@ -4,20 +4,22 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { useAdapterLogs } from '@/hooks/useAdapterLogs';
-import { LogViewer } from '@/components/adapter/LogViewer';
+import { useSystemLogs } from '@/hooks/useSystemLogs';
+import { SystemLogViewer } from '@/components/logs/SystemLogViewer';
 import { LogFilters } from '@/components/adapter/LogFilters';
 import { LogExport } from '@/components/adapter/LogExport';
 import { ScrollText, Search, Filter, Download, RefreshCw } from 'lucide-react';
 
-export const AdapterLogs = () => {
-  const [selectedAdapter, setSelectedAdapter] = useState<string>('');
-  const [logLevel, setLogLevel] = useState<'info' | 'warn' | 'error' | ''>('');
+export const Logs = () => {
+  const [selectedSource, setSelectedSource] = useState<'adapter' | 'system' | 'channel' | 'flow' | 'api' | ''>('');
+  const [selectedSourceId, setSelectedSourceId] = useState<string>('');
+  const [logLevel, setLogLevel] = useState<'info' | 'warn' | 'error' | 'debug' | ''>('');
   const [searchQuery, setSearchQuery] = useState('');
   const [dateRange, setDateRange] = useState<{ start?: string; end?: string }>({});
 
-  const { logs, loading, error, refetch, adapters } = useAdapterLogs({
-    adapterId: selectedAdapter || undefined,
+  const { logs, loading, error, refetch, sources } = useSystemLogs({
+    source: selectedSource || undefined,
+    sourceId: selectedSourceId || undefined,
     level: logLevel || undefined,
     search: searchQuery,
     startDate: dateRange.start,
@@ -39,12 +41,12 @@ export const AdapterLogs = () => {
         <div>
           <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
             <ScrollText className="h-8 w-8" />
-            Adapter Logs
+            System Logs
           </h1>
-          <p className="text-muted-foreground">Monitor and analyze adapter execution logs</p>
+          <p className="text-muted-foreground">Monitor and analyze all system logs including errors, adapters, channels, and flows</p>
         </div>
         <div className="flex gap-2">
-          <LogExport adapterId={selectedAdapter} />
+          <LogExport adapterId={selectedSourceId} />
           <Button variant="outline" size="sm" onClick={handleRefresh} className="hover-scale">
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
@@ -61,22 +63,45 @@ export const AdapterLogs = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Adapter</label>
-              <Select value={selectedAdapter} onValueChange={setSelectedAdapter}>
+              <label className="text-sm font-medium">Source Type</label>
+              <Select value={selectedSource} onValueChange={(value: any) => setSelectedSource(value)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select adapter" />
+                  <SelectValue placeholder="All sources" />
                 </SelectTrigger>
                 <SelectContent>
-                  {adapters.map((adapter) => (
-                    <SelectItem key={adapter.id} value={adapter.id!}>
-                      {adapter.name}
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="system">System</SelectItem>
+                  <SelectItem value="adapter">Adapters</SelectItem>
+                  <SelectItem value="channel">Channels</SelectItem>
+                  <SelectItem value="flow">Flows</SelectItem>
+                  <SelectItem value="api">API</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+
+            {selectedSource && selectedSource !== 'system' && selectedSource !== 'api' && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Specific Source</label>
+                <Select value={selectedSourceId} onValueChange={setSelectedSourceId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={`Select ${selectedSource}`} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {selectedSource === 'adapter' && sources.adapters.map((adapter) => (
+                      <SelectItem key={adapter.id} value={adapter.id!}>
+                        {adapter.name}
+                      </SelectItem>
+                    ))}
+                    {selectedSource === 'channel' && sources.channels.map((channel) => (
+                      <SelectItem key={channel.id} value={channel.id!}>
+                        {channel.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Log Level</label>
@@ -85,6 +110,7 @@ export const AdapterLogs = () => {
                   <SelectValue placeholder="All levels" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="debug">Debug</SelectItem>
                   <SelectItem value="info">Info</SelectItem>
                   <SelectItem value="warn">Warning</SelectItem>
                   <SelectItem value="error">Error</SelectItem>
@@ -111,7 +137,7 @@ export const AdapterLogs = () => {
       </Card>
 
       {/* Log Stats */}
-      {selectedAdapter && (
+      {logs.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card className="bg-gradient-secondary border-border/50">
             <CardContent className="p-4">
@@ -167,11 +193,11 @@ export const AdapterLogs = () => {
       )}
 
       {/* Log Viewer */}
-      <LogViewer 
+      <SystemLogViewer 
         logs={logs} 
         loading={loading} 
         error={error}
-        adapterId={selectedAdapter}
+        selectedSource={selectedSource}
       />
     </div>
   );
