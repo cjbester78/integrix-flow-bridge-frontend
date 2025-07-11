@@ -104,14 +104,14 @@ export const MessageFiltersComponent = ({
           <div className="space-y-2">
             <label className="text-sm font-medium">Status</label>
             <Select 
-              value={filters.status?.[0] || ''} 
-              onValueChange={(value) => handleFilterChange('status', value ? [value] : undefined)}
+              value={filters.status?.[0] || 'all'} 
+              onValueChange={(value) => handleFilterChange('status', value === 'all' ? undefined : [value])}
             >
               <SelectTrigger>
                 <SelectValue placeholder="All statuses" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Statuses</SelectItem>
+                <SelectItem value="all">All Statuses</SelectItem>
                 <SelectItem value="pending">Pending</SelectItem>
                 <SelectItem value="processing">Processing</SelectItem>
                 <SelectItem value="completed">Completed</SelectItem>
@@ -125,14 +125,14 @@ export const MessageFiltersComponent = ({
           <div className="space-y-2">
             <label className="text-sm font-medium">Priority</label>
             <Select 
-              value={filters.priority?.[0] || ''} 
-              onValueChange={(value) => handleFilterChange('priority', value ? [value] : undefined)}
+              value={filters.priority?.[0] || 'all'} 
+              onValueChange={(value) => handleFilterChange('priority', value === 'all' ? undefined : [value])}
             >
               <SelectTrigger>
                 <SelectValue placeholder="All priorities" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Priorities</SelectItem>
+                <SelectItem value="all">All Priorities</SelectItem>
                 <SelectItem value="low">Low</SelectItem>
                 <SelectItem value="normal">Normal</SelectItem>
                 <SelectItem value="high">High</SelectItem>
