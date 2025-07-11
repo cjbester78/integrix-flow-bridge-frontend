@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Message } from './messageData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { FileText, Database } from 'lucide-react';
 import { TimeFilter } from './types/timeFilter';
 import { filterMessagesByTime, getFilterDescription } from './utils/timeFilters';
@@ -11,9 +12,10 @@ interface MessageListProps {
   messages: Message[];
   isCustomerSelected: boolean;
   statusFilter?: string | null;
+  loading?: boolean;
 }
 
-export const MessageList = ({ messages, isCustomerSelected, statusFilter }: MessageListProps) => {
+export const MessageList = ({ messages, isCustomerSelected, statusFilter, loading = false }: MessageListProps) => {
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('today');
 
   // Apply filters
@@ -46,7 +48,28 @@ export const MessageList = ({ messages, isCustomerSelected, statusFilter }: Mess
 
       {/* Message List */}
       <div className="space-y-3">
-        {filteredMessages.length === 0 ? (
+        {loading ? (
+          // Loading skeleton
+          Array.from({ length: 5 }).map((_, i) => (
+            <Card key={i} className="bg-gradient-secondary border-border/50">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="h-6 w-6 rounded-full" />
+                    <div>
+                      <Skeleton className="h-4 w-32 mb-2" />
+                      <Skeleton className="h-3 w-48" />
+                    </div>
+                  </div>
+                  <div>
+                    <Skeleton className="h-3 w-24 mb-1" />
+                    <Skeleton className="h-3 w-16" />
+                  </div>
+                </div>
+              </CardHeader>
+            </Card>
+          ))
+        ) : filteredMessages.length === 0 ? (
           <Card className="bg-gradient-secondary border-border/50">
             <CardContent className="py-12 text-center">
               <Database className="h-12 w-12 mx-auto text-muted-foreground mb-4" />

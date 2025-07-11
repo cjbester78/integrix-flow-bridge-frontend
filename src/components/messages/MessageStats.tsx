@@ -1,35 +1,40 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Message } from './messageData';
+import { MessageStats as MessageStatsType } from '@/services/messageService';
 
 interface MessageStatsProps {
   messages: Message[];
+  stats?: MessageStatsType | null;
   isCustomerSelected: boolean;
   onStatusFilter?: (status: string) => void;
   statusFilter?: string | null;
+  loading?: boolean;
 }
 
 export const MessageStats = ({ 
   messages, 
+  stats,
   isCustomerSelected, 
   onStatusFilter, 
-  statusFilter 
+  statusFilter,
+  loading = false
 }: MessageStatsProps) => {
-  const successfulMessages = messages.filter(msg => msg.status === 'success').length;
-  const processingMessages = messages.filter(msg => msg.status === 'processing').length;
-  const failedMessages = messages.filter(msg => msg.status === 'failed').length;
-  
-  // Calculate success rate
-  const totalMessages = messages.length;
-  const successRate = totalMessages > 0 ? ((successfulMessages / totalMessages) * 100).toFixed(1) : '0.0';
-  
-  // Calculate average processing time
-  const completedMessages = messages.filter(msg => msg.status !== 'processing' && msg.processingTime !== '-');
-  const avgProcessingTime = completedMessages.length > 0 
-    ? Math.round(completedMessages.reduce((sum, msg) => {
-        const time = parseFloat(msg.processingTime.replace(/[^\d.]/g, ''));
-        return sum + (isNaN(time) ? 0 : time);
-      }, 0) / completedMessages.length)
-    : 0;
+  // Use API stats if available, otherwise calculate from messages
+  const successfulMessages = stats?.successful ?? messages.filter(msg => msg.status === 'success').length;
+  const processingMessages = stats?.processing ?? messages.filter(msg => msg.status === 'processing').length;
+  const failedMessages = stats?.failed ?? messages.filter(msg => msg.status === 'failed').length;
+  const totalMessages = stats?.total ?? messages.length;
+  const successRate = stats?.successRate ?? (totalMessages > 0 ? ((successfulMessages / totalMessages) * 100) : 0);
+  const avgProcessingTime = stats?.avgProcessingTime ?? (() => {
+    const completedMessages = messages.filter(msg => msg.status !== 'processing' && msg.processingTime !== '-');
+    return completedMessages.length > 0 
+      ? Math.round(completedMessages.reduce((sum, msg) => {
+          const time = parseFloat(msg.processingTime.replace(/[^\d.]/g, ''));
+          return sum + (isNaN(time) ? 0 : time);
+        }, 0) / completedMessages.length)
+      : 0;
+  })();
 
   const getSubtext = () => 
     isCustomerSelected 
@@ -41,6 +46,24 @@ export const MessageStats = ({
       onStatusFilter(status);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Card key={i} className="bg-gradient-secondary border-border/50">
+            <CardHeader className="pb-2">
+              <Skeleton className="h-4 w-32" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-8 w-16 mb-2" />
+              <Skeleton className="h-3 w-24" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
@@ -94,7 +117,7 @@ export const MessageStats = ({
           <CardTitle className="text-sm font-medium text-muted-foreground">Success Rate</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-success">{successRate}%</div>
+          <div className="text-2xl font-bold text-success">{successRate.toFixed(1)}%</div>
           <p className="text-xs text-muted-foreground">{getSubtext()}</p>
         </CardContent>
       </Card>
