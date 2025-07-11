@@ -13,7 +13,7 @@ import { JarSelector } from '@/components/JarSelector';
 import { CustomerSelectionAdapterCard } from '@/components/adapter/CustomerSelectionAdapterCard';
 import { FieldMappingScreen } from '@/components/FieldMappingScreen';
 import { useToast } from '@/hooks/use-toast';
-import { adapterService } from '@/services/adapter';
+import { adapterService } from '@/services/adapterService';
 import { 
   Mail, 
   Smartphone, 

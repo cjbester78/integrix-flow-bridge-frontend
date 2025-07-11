@@ -3,37 +3,28 @@ import { Button } from '@/components/ui/button';
 import { useCustomerAdapters } from '@/hooks/useCustomerAdapters';
 import { Customer } from '@/types/customer';
 import { Activity, RefreshCw } from 'lucide-react';
-import { customerChannelData, ChannelStatus } from '@/components/channels/channelData';
+import { customerChannelData } from '@/components/channels/channelData';
 import { ChannelStats } from '@/components/channels/ChannelStats';
 import { CustomerFilter } from '@/components/channels/CustomerFilter';
 import { ChannelList } from '@/components/channels/ChannelList';
 
 export const Channels = () => {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
-  const [statusFilter, setStatusFilter] = useState<ChannelStatus | 'error' | null>(null);
   const { customers, loading } = useCustomerAdapters();
 
   // Get all channels or customer-specific channels
   const allChannels = Object.values(customerChannelData).flat();
-  const customerSpecificChannels = selectedCustomer 
+  const displayChannels = selectedCustomer 
     ? customerChannelData[selectedCustomer.id as keyof typeof customerChannelData] || []
     : allChannels;
 
-  // Apply status filter
-  const displayChannels = statusFilter 
-    ? customerSpecificChannels.filter(channel => {
-        if (statusFilter === 'error') return channel.errorRate > 0;
-        return channel.status === statusFilter;
-      })
-    : customerSpecificChannels;
+  // Get customer-specific channels for display
+  const customerChannels = selectedCustomer 
+    ? customerChannelData[selectedCustomer.id as keyof typeof customerChannelData] || []
+    : [];
 
   const handleRefresh = () => {
     setSelectedCustomer(null);
-    setStatusFilter(null);
-  };
-
-  const handleStatusFilter = (status: ChannelStatus | 'error' | null) => {
-    setStatusFilter(statusFilter === status ? null : status);
   };
 
   return (
@@ -54,10 +45,8 @@ export const Channels = () => {
 
       {/* Overview Stats */}
       <ChannelStats 
-        channels={customerSpecificChannels} 
-        isCustomerSelected={!!selectedCustomer}
-        statusFilter={statusFilter}
-        onStatusFilter={handleStatusFilter}
+        channels={displayChannels} 
+        isCustomerSelected={!!selectedCustomer} 
       />
 
       {/* Customer Selection */}
@@ -70,7 +59,8 @@ export const Channels = () => {
 
       {/* Channel List */}
       <ChannelList
-        channels={displayChannels}
+        selectedCustomer={selectedCustomer}
+        customerChannels={customerChannels}
       />
     </div>
   );

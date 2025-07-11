@@ -14,7 +14,7 @@ interface MessageListProps {
 }
 
 export const MessageList = ({ messages, isCustomerSelected, statusFilter }: MessageListProps) => {
-  const [timeFilter, setTimeFilter] = useState<TimeFilter>('today');
+  const [timeFilter, setTimeFilter] = useState<TimeFilter>('all');
 
   // Apply filters
   let filteredMessages = filterMessagesByTime(messages, timeFilter);

@@ -14,7 +14,6 @@ import { DataStructures } from "@/pages/DataStructures";
 import { Customers } from "@/pages/Customers";
 import { Messages } from "@/pages/Messages";
 import { Channels } from "@/pages/Channels";
-import { AdapterLogs } from "@/pages/AdapterLogs";
 import { Admin } from "@/pages/Admin";
 import { Settings } from "@/pages/Settings";
 import NotFound from "./pages/NotFound";
@@ -39,7 +38,6 @@ const App = () => (
               <Route path="customers" element={<Customers />} />
               <Route path="messages" element={<Messages />} />
               <Route path="channels" element={<Channels />} />
-              <Route path="adapter-logs" element={<AdapterLogs />} />
               <Route path="admin" element={<Admin />} />
               <Route path="settings" element={<Settings />} />
             </Route>

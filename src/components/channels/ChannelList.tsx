@@ -1,23 +1,25 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { ChannelCard } from './ChannelCard';
 import { Channel } from './channelData';
+import { Customer } from '@/types/customer';
 
 interface ChannelListProps {
-  channels: Channel[];
+  selectedCustomer: Customer | null;
+  customerChannels: Channel[];
 }
 
-export const ChannelList = ({ channels }: ChannelListProps) => {
+export const ChannelList = ({ selectedCustomer, customerChannels }: ChannelListProps) => {
   return (
     <div className="space-y-4">
-      {channels.length > 0 ? (
-        channels.map((channel) => (
+      {selectedCustomer && customerChannels.length > 0 ? (
+        customerChannels.map((channel) => (
           <ChannelCard key={channel.id} channel={channel} />
         ))
       ) : (
         <Card className="bg-gradient-secondary border-border/50 animate-fade-in">
           <CardContent className="text-center py-12">
             <div className="text-muted-foreground">
-              No channels found matching the current filters
+              {selectedCustomer ? 'No channels found for this customer' : 'Select a customer to view their channels'}
             </div>
           </CardContent>
         </Card>
