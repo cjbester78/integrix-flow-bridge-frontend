@@ -1,6 +1,11 @@
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { useCustomerAdapters } from '@/hooks/useCustomerAdapters';
+import { Customer } from '@/types/customer';
 import { 
   Activity, 
   MessageSquare, 
@@ -9,7 +14,8 @@ import {
   Clock,
   TrendingUp,
   Server,
-  Zap
+  Zap,
+  Users
 } from 'lucide-react';
 
 const stats = [
@@ -43,27 +49,90 @@ const stats = [
   }
 ];
 
-const recentMessages = [
-  { id: '1', source: 'SAP ERP', target: 'Salesforce', status: 'success', time: '2 min ago' },
-  { id: '2', source: 'REST API', target: 'MySQL DB', status: 'success', time: '5 min ago' },
-  { id: '3', source: 'File System', target: 'HTTP Endpoint', status: 'failed', time: '12 min ago' },
-  { id: '4', source: 'SOAP Service', target: 'JSON API', status: 'processing', time: '15 min ago' },
-];
-
-const channels = [
-  { name: 'SAP-to-Salesforce', status: 'running', load: 85 },
-  { name: 'File-to-Database', status: 'running', load: 45 },
-  { name: 'API-Gateway', status: 'running', load: 92 },
-  { name: 'Batch-Processor', status: 'idle', load: 12 },
-];
+// Customer-specific mock data
+const customerData = {
+  '1': { // ACME Corporation
+    messages: [
+      { id: '1', source: 'SAP ERP', target: 'Salesforce', status: 'success', time: '2 min ago' },
+      { id: '2', source: 'REST API', target: 'MySQL DB', status: 'success', time: '5 min ago' },
+      { id: '3', source: 'SOAP Service', target: 'JSON API', status: 'processing', time: '15 min ago' },
+    ],
+    channels: [
+      { name: 'SAP-to-Salesforce', status: 'running', load: 85 },
+      { name: 'REST-to-Database', status: 'running', load: 45 },
+      { name: 'SOAP-Gateway', status: 'running', load: 92 },
+    ]
+  },
+  '2': { // TechStart Inc
+    messages: [
+      { id: '4', source: 'Salesforce API', target: 'Email Service', status: 'success', time: '1 min ago' },
+      { id: '5', source: 'REST API', target: 'SMS Gateway', status: 'failed', time: '8 min ago' },
+      { id: '6', source: 'File System', target: 'HTTP Endpoint', status: 'success', time: '12 min ago' },
+    ],
+    channels: [
+      { name: 'Salesforce-to-Email', status: 'running', load: 67 },
+      { name: 'API-to-SMS', status: 'idle', load: 12 },
+      { name: 'File-Processor', status: 'running', load: 78 },
+    ]
+  }
+};
 
 export const Dashboard = () => {
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const { customers, loading } = useCustomerAdapters();
+
+  // Get customer-specific data or default empty arrays
+  const customerMessages = selectedCustomer 
+    ? customerData[selectedCustomer.id as keyof typeof customerData]?.messages || []
+    : [];
+  
+  const customerChannels = selectedCustomer 
+    ? customerData[selectedCustomer.id as keyof typeof customerData]?.channels || []
+    : [];
+
   return (
     <div className="p-6 space-y-6 animate-fade-in">
       <div className="animate-slide-up">
         <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
         <p className="text-muted-foreground">Monitor your integration platform performance</p>
       </div>
+
+      {/* Customer Selection */}
+      <Card className="animate-scale-in">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Users className="h-5 w-5" />
+            Customer Filter
+          </CardTitle>
+          <CardDescription>
+            Filter dashboard data by customer
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <Label htmlFor="customer">Customer</Label>
+            <Select
+              value={selectedCustomer?.id || ''}
+              onValueChange={(customerId) => {
+                const customer = customers.find(c => c.id === customerId) || null;
+                setSelectedCustomer(customer);
+              }}
+              disabled={loading}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select a customer to filter data" />
+              </SelectTrigger>
+              <SelectContent>
+                {customers.map((customer) => (
+                  <SelectItem key={customer.id} value={customer.id}>
+                    {customer.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-scale-in">
@@ -100,27 +169,33 @@ export const Dashboard = () => {
             <CardDescription>Latest integration message flows</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {recentMessages.map((message) => (
-              <div key={message.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 transition-all duration-300 hover:bg-muted/70 group">
-                <div className="flex items-center space-x-3">
-                  <div className="flex items-center space-x-2">
-                    {message.status === 'success' && <CheckCircle className="h-4 w-4 text-success" />}
-                    {message.status === 'failed' && <XCircle className="h-4 w-4 text-destructive" />}
-                    {message.status === 'processing' && <Clock className="h-4 w-4 text-warning" />}
+            {selectedCustomer && customerMessages.length > 0 ? (
+              customerMessages.map((message) => (
+                <div key={message.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 transition-all duration-300 hover:bg-muted/70 group">
+                  <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-2">
+                      {message.status === 'success' && <CheckCircle className="h-4 w-4 text-success" />}
+                      {message.status === 'failed' && <XCircle className="h-4 w-4 text-destructive" />}
+                      {message.status === 'processing' && <Clock className="h-4 w-4 text-warning" />}
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium">{message.source} → {message.target}</div>
+                      <div className="text-xs text-muted-foreground">{message.time}</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-sm font-medium">{message.source} → {message.target}</div>
-                    <div className="text-xs text-muted-foreground">{message.time}</div>
-                  </div>
+                  <Badge variant={
+                    message.status === 'success' ? 'default' : 
+                    message.status === 'failed' ? 'destructive' : 'secondary'
+                  }>
+                    {message.status}
+                  </Badge>
                 </div>
-                <Badge variant={
-                  message.status === 'success' ? 'default' : 
-                  message.status === 'failed' ? 'destructive' : 'secondary'
-                }>
-                  {message.status}
-                </Badge>
+              ))
+            ) : (
+              <div className="text-center text-muted-foreground py-8">
+                {selectedCustomer ? 'No recent messages for this customer' : 'Select a customer to view messages'}
               </div>
-            ))}
+            )}
           </CardContent>
         </Card>
 
@@ -134,28 +209,34 @@ export const Dashboard = () => {
             <CardDescription>Integration channel performance</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {channels.map((channel) => (
-              <div key={channel.name} className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <div className={`h-2 w-2 rounded-full ${
-                      channel.status === 'running' ? 'bg-success' : 'bg-muted-foreground'
-                    }`} />
-                    <span className="text-sm font-medium">{channel.name}</span>
+            {selectedCustomer && customerChannels.length > 0 ? (
+              customerChannels.map((channel) => (
+                <div key={channel.name} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <div className={`h-2 w-2 rounded-full ${
+                        channel.status === 'running' ? 'bg-success' : 'bg-muted-foreground'
+                      }`} />
+                      <span className="text-sm font-medium">{channel.name}</span>
+                    </div>
+                    <Badge variant={channel.status === 'running' ? 'default' : 'secondary'}>
+                      {channel.status}
+                    </Badge>
                   </div>
-                  <Badge variant={channel.status === 'running' ? 'default' : 'secondary'}>
-                    {channel.status}
-                  </Badge>
-                </div>
-                <div className="space-y-1">
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>Load</span>
-                    <span>{channel.load}%</span>
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>Load</span>
+                      <span>{channel.load}%</span>
+                    </div>
+                    <Progress value={channel.load} className="h-2" />
                   </div>
-                  <Progress value={channel.load} className="h-2" />
                 </div>
+              ))
+            ) : (
+              <div className="text-center text-muted-foreground py-8">
+                {selectedCustomer ? 'No channels for this customer' : 'Select a customer to view channels'}
               </div>
-            ))}
+            )}
           </CardContent>
         </Card>
       </div>
