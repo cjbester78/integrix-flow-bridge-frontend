@@ -19,7 +19,7 @@ import {
   ChevronDown,
   ChevronRight
 } from 'lucide-react';
-import { ChannelLog, LogLevel } from './channelData';
+import { ChannelLog, LogLevel } from '@/services/channelService';
 import { formatDistanceToNow } from 'date-fns';
 
 interface ChannelLogViewerProps {

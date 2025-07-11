@@ -39,5 +39,9 @@ export const useChannelLogs = (channelId: string, filters?: ChannelLogsFilters) 
     loading,
     error,
     refreshLogs: loadLogs,
+    connected: false,
+    exportLogs: async () => {
+      console.log('Export logs functionality will be implemented');
+    },
   };
 };

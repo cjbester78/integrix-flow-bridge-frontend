@@ -2,7 +2,7 @@ import { api } from './api';
 
 export type ChannelStatus = 'active' | 'inactive' | 'error' | 'running' | 'idle' | 'stopped';
 export type AdapterStatus = 'connected' | 'disconnected' | 'error';
-export type LogLevel = 'INFO' | 'WARN' | 'ERROR' | 'SUCCESS';
+export type LogLevel = 'INFO' | 'WARN' | 'ERROR' | 'SUCCESS' | 'error' | 'warn' | 'info' | 'debug';
 
 export interface ChannelAdapter {
   id: string;
@@ -24,6 +24,9 @@ export interface ChannelLog {
   message: string;
   channelId: string;
   details?: any;
+  adapterName?: string;
+  correlationId?: string;
+  duration?: number;
 }
 
 export interface FlowMetrics {

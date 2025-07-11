@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Message } from './messageData';
+import { Message } from '@/services/messageService';
 import { MessageStats as MessageStatsType } from '@/services/messageService';
 
 interface MessageStatsProps {

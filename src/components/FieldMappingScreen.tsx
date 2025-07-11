@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -57,13 +57,28 @@ export function FieldMappingScreen({
   const [showJavaEditor, setShowJavaEditor] = useState<string | null>(null);
   const [tempJavaFunction, setTempJavaFunction] = useState('');
   const [mappingName, setMappingName] = useState(initialMappingName);
-  const { customers, loading, getStructuresForCustomer } = useCustomerAdapters();
+  const { customers, loading, getStructuresForCustomer, getAdaptersForCustomer } = useCustomerAdapters();
+
+  const [customerAdapters, setCustomerAdapters] = useState<string[]>([]);
+  const [customerStructures, setCustomerStructures] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (sourceCustomer) {
+      loadCustomerData(sourceCustomer);
+    }
+  }, [sourceCustomer]);
+
+  const loadCustomerData = async (customerId: string) => {
+    const adapters = await getAdaptersForCustomer(customerId);
+    const structures = await getStructuresForCustomer(customerId);
+    setCustomerAdapters(adapters);
+    setCustomerStructures(structures);
+  };
 
   const getFilteredStructures = (customerId: string, usage: 'source' | 'target') => {
     if (!customerId) return sampleStructures.filter(s => s.usage === usage);
-    const allowedStructureIds = getStructuresForCustomer(customerId);
     return sampleStructures.filter(s => 
-      allowedStructureIds.includes(s.id) && s.usage === usage
+      customerStructures.includes(s.id) && s.usage === usage
     );
   };
 
@@ -139,8 +154,9 @@ export function FieldMappingScreen({
     setMappings([]);
   };
 
-  const selectWebservice = (filename: string, isSource: boolean) => {
-    const structure = webserviceStructures[filename] || [];
+  const selectWebservice = async (filename: string, isSource: boolean) => {
+    const { getWebserviceStructure } = useWebservices();
+    const structure = await getWebserviceStructure(filename) || [];
     
     if (isSource) {
       setSelectedSource(filename);
