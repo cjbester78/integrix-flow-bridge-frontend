@@ -15,6 +15,8 @@ export interface FlowState {
   targetCustomer: string;
   sourceAdapter: string;
   targetAdapter: string;
+  sourceAdapterActive: boolean;
+  targetAdapterActive: boolean;
   sourceStructure: string;
   targetStructure: string;
   selectedTransformations: string[];
@@ -35,6 +37,8 @@ export const useFlowState = () => {
   const [targetCustomer, setTargetCustomer] = useState('');
   const [sourceAdapter, setSourceAdapter] = useState('');
   const [targetAdapter, setTargetAdapter] = useState('');
+  const [sourceAdapterActive, setSourceAdapterActive] = useState(true);
+  const [targetAdapterActive, setTargetAdapterActive] = useState(true);
   const [sourceStructure, setSourceStructure] = useState('');
   const [targetStructure, setTargetStructure] = useState('');
   const [selectedTransformations, setSelectedTransformations] = useState<string[]>([]);
@@ -54,6 +58,8 @@ export const useFlowState = () => {
     setTargetCustomer('');
     setSourceAdapter('');
     setTargetAdapter('');
+    setSourceAdapterActive(true);
+    setTargetAdapterActive(true);
     setSourceStructure('');
     setTargetStructure('');
     setSelectedTransformations([]);
@@ -70,6 +76,8 @@ export const useFlowState = () => {
     targetCustomer,
     sourceAdapter,
     targetAdapter,
+    sourceAdapterActive,
+    targetAdapterActive,
     sourceStructure,
     targetStructure,
     selectedTransformations,
@@ -89,6 +97,8 @@ export const useFlowState = () => {
     setTargetCustomer,
     setSourceAdapter,
     setTargetAdapter,
+    setSourceAdapterActive,
+    setTargetAdapterActive,
     setSourceStructure,
     setTargetStructure,
     setSelectedTransformations,

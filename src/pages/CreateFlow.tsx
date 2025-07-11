@@ -94,6 +94,8 @@ export const CreateFlow = () => {
     targetCustomer,
     sourceAdapter,
     targetAdapter,
+    sourceAdapterActive,
+    targetAdapterActive,
     sourceStructure,
     targetStructure,
     selectedTransformations,
@@ -109,6 +111,8 @@ export const CreateFlow = () => {
     setTargetCustomer,
     setSourceAdapter,
     setTargetAdapter,
+    setSourceAdapterActive,
+    setTargetAdapterActive,
     setSourceStructure,
     setTargetStructure,
     setSelectedTransformations,
@@ -271,10 +275,14 @@ export const CreateFlow = () => {
               targetCustomer={targetCustomer}
               sourceAdapter={sourceAdapter}
               targetAdapter={targetAdapter}
+              sourceAdapterActive={sourceAdapterActive}
+              targetAdapterActive={targetAdapterActive}
               onSourceCustomerChange={setSourceCustomer}
               onTargetCustomerChange={setTargetCustomer}
               onSourceAdapterChange={setSourceAdapter}
               onTargetAdapterChange={setTargetAdapter}
+              onSourceAdapterActiveChange={setSourceAdapterActive}
+              onTargetAdapterActiveChange={setTargetAdapterActive}
             />
 
             <TransformationConfigurationCard

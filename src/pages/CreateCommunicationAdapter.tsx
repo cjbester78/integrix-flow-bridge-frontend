@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Checkbox } from '@/components/ui/checkbox';
 import { JarSelector } from '@/components/JarSelector';
 import { CustomerSelectionAdapterCard } from '@/components/adapter/CustomerSelectionAdapterCard';
 import { FieldMappingScreen } from '@/components/FieldMappingScreen';
@@ -336,6 +337,7 @@ export const CreateCommunicationAdapter = () => {
   const [adapterName, setAdapterName] = useState('');
   const [adapterMode, setAdapterMode] = useState('');
   const [description, setDescription] = useState('');
+  const [isActive, setIsActive] = useState(true);
   const [configuration, setConfiguration] = useState<Record<string, any>>({});
   const [isTestingConnection, setIsTestingConnection] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'success' | 'error'>('idle');
@@ -489,6 +491,7 @@ export const CreateCommunicationAdapter = () => {
     setAdapterName('');
     setAdapterMode('');
     setDescription('');
+    setIsActive(true);
     setSelectedAdapter('');
     setConfiguration({});
     setConnectionStatus('idle');
@@ -556,6 +559,19 @@ export const CreateCommunicationAdapter = () => {
                   className="transition-all duration-300 focus:scale-[1.01]"
                   rows={3}
                 />
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="isActive"
+                  checked={isActive}
+                  onCheckedChange={(checked) => setIsActive(checked === true)}
+                />
+                <Label htmlFor="isActive" className="text-sm font-normal flex items-center gap-1">
+                  Active adapter
+                  <Badge variant={isActive ? "default" : "secondary"} className="text-xs">
+                    {isActive ? "Active" : "Inactive"}
+                  </Badge>
+                </Label>
               </div>
             </CardContent>
           </Card>

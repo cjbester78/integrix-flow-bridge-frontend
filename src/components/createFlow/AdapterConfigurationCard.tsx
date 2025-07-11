@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { ArrowRight } from 'lucide-react';
 import { useCustomerAdapters } from '@/hooks/useCustomerAdapters';
 
@@ -19,10 +20,14 @@ interface AdapterConfigurationCardProps {
   targetCustomer: string;
   sourceAdapter: string;
   targetAdapter: string;
+  sourceAdapterActive: boolean;
+  targetAdapterActive: boolean;
   onSourceCustomerChange: (value: string) => void;
   onTargetCustomerChange: (value: string) => void;
   onSourceAdapterChange: (value: string) => void;
   onTargetAdapterChange: (value: string) => void;
+  onSourceAdapterActiveChange: (active: boolean) => void;
+  onTargetAdapterActiveChange: (active: boolean) => void;
 }
 
 export const AdapterConfigurationCard = ({
@@ -31,10 +36,14 @@ export const AdapterConfigurationCard = ({
   targetCustomer,
   sourceAdapter,
   targetAdapter,
+  sourceAdapterActive,
+  targetAdapterActive,
   onSourceCustomerChange,
   onTargetCustomerChange,
   onSourceAdapterChange,
   onTargetAdapterChange,
+  onSourceAdapterActiveChange,
+  onTargetAdapterActiveChange,
 }: AdapterConfigurationCardProps) => {
   const { customers, loading, getAdaptersForCustomer } = useCustomerAdapters();
   
@@ -150,6 +159,23 @@ export const AdapterConfigurationCard = ({
                 </div>
               )}
             </div>
+            
+            {/* Source Adapter Active Status */}
+            {sourceAdapter && (
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="sourceAdapterActive"
+                  checked={sourceAdapterActive}
+                  onCheckedChange={(checked) => onSourceAdapterActiveChange(checked === true)}
+                />
+                <Label htmlFor="sourceAdapterActive" className="text-sm font-normal flex items-center gap-1">
+                  Active source adapter
+                  <Badge variant={sourceAdapterActive ? "default" : "secondary"} className="text-xs">
+                    {sourceAdapterActive ? "Active" : "Inactive"}
+                  </Badge>
+                </Label>
+              </div>
+            )}
           </div>
 
           {/* Target Customer & Adapter */}
@@ -218,6 +244,23 @@ export const AdapterConfigurationCard = ({
                 </div>
               )}
             </div>
+            
+            {/* Target Adapter Active Status */}
+            {targetAdapter && (
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="targetAdapterActive"
+                  checked={targetAdapterActive}
+                  onCheckedChange={(checked) => onTargetAdapterActiveChange(checked === true)}
+                />
+                <Label htmlFor="targetAdapterActive" className="text-sm font-normal flex items-center gap-1">
+                  Active target adapter
+                  <Badge variant={targetAdapterActive ? "default" : "secondary"} className="text-xs">
+                    {targetAdapterActive ? "Active" : "Inactive"}
+                  </Badge>
+                </Label>
+              </div>
+            )}
           </div>
         </div>
 
