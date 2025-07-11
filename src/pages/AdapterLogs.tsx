@@ -5,9 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { useAdapterLogs } from '@/hooks/useAdapterLogs';
-import { LogViewer } from '@/components/logs/LogViewer';
-import { LogFilters } from '@/components/logs/LogFilters';
-import { LogExport } from '@/components/logs/LogExport';
+import { LogViewer } from '@/components/adapter/LogViewer';
+import { LogFilters } from '@/components/adapter/LogFilters';
+import { LogExport } from '@/components/adapter/LogExport';
 import { ScrollText, Search, Filter, Download, RefreshCw } from 'lucide-react';
 
 export const AdapterLogs = () => {

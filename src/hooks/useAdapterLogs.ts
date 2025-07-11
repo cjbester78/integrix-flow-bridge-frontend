@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { adapterService, CommunicationAdapter } from '@/services/adapterService';
+import { adapterService, CommunicationAdapter } from '@/services/adapter';
 
 export interface LogEntry {
   id: string;
