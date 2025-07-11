@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { useSystemLogs } from '@/hooks/useSystemLogs';
-import { SystemLogViewer } from '@/components/logs/SystemLogViewer';
+import { SystemLogViewer } from '@/components/SystemLogViewer';
 import { LogFilters } from '@/components/adapter/LogFilters';
 import { LogExport } from '@/components/adapter/LogExport';
 import { ScrollText, Search, Filter, Download, RefreshCw } from 'lucide-react';
