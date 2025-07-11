@@ -10,7 +10,7 @@ import { LogFilters } from '@/components/adapter/LogFilters';
 import { LogExport } from '@/components/adapter/LogExport';
 import { ScrollText, Search, Filter, Download, RefreshCw } from 'lucide-react';
 
-export const Logs = () => {
+export const SystemLogs = () => {
   const [selectedSource, setSelectedSource] = useState<'adapter' | 'system' | 'channel' | 'flow' | 'api' | ''>('');
   const [selectedSourceId, setSelectedSourceId] = useState<string>('');
   const [logLevel, setLogLevel] = useState<'info' | 'warn' | 'error' | 'debug' | ''>('');
@@ -36,13 +36,13 @@ export const Logs = () => {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-            <ScrollText className="h-8 w-8" />
+          <h2 className="text-2xl font-bold text-foreground flex items-center gap-3">
+            <ScrollText className="h-7 w-7" />
             System Logs
-          </h1>
+          </h2>
           <p className="text-muted-foreground">Monitor and analyze all system logs including errors, adapters, channels, and flows</p>
         </div>
         <div className="flex gap-2">
