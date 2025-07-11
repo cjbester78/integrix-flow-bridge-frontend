@@ -36,10 +36,6 @@ export const Login = () => {
     setIsLoading(false);
   };
 
-  const handleDemoLogin = () => {
-    setUsername('admin');
-    setPassword('password');
-  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-secondary relative overflow-hidden">
@@ -116,40 +112,6 @@ export const Login = () => {
               )}
             </Button>
           </form>
-          
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-border" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">Demo Access</span>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full transition-all duration-300 hover:scale-[1.02] hover:bg-accent/50"
-              onClick={handleDemoLogin}
-            >
-              Use Demo Credentials
-            </Button>
-            
-            <div className="bg-muted/30 rounded-lg p-4 text-center space-y-2">
-              <div className="text-sm font-medium text-muted-foreground">Demo Credentials:</div>
-              <div className="text-xs space-y-1">
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Username:</span>
-                  <code className="bg-muted px-2 py-1 rounded text-foreground">admin</code>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Password:</span>
-                  <code className="bg-muted px-2 py-1 rounded text-foreground">password</code>
-                </div>
-              </div>
-            </div>
-          </div>
         </CardContent>
       </Card>
     </div>
