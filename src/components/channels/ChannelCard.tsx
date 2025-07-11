@@ -19,7 +19,7 @@ import {
   BarChart3,
   Eye
 } from 'lucide-react';
-import { Channel, ChannelStatus } from './channelData';
+import { Channel, ChannelStatus } from '@/services/channelService';
 import { ChannelLogViewer } from './ChannelLogViewer';
 import { useChannelLogs } from '@/hooks/useChannelLogs';
 

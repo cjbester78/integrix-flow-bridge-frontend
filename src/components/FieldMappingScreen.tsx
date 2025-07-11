@@ -7,7 +7,7 @@ import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Trash2, X, CheckCircle } from 'lucide-react';
 import { FieldNode, FieldMapping } from './fieldMapping/types';
-import { webserviceStructures } from './fieldMapping/demoData';
+import { useWebservices } from '@/hooks/useWebservices';
 import { SourcePanel } from './fieldMapping/SourcePanel';
 import { TargetPanel } from './fieldMapping/TargetPanel';
 import { MappingArea } from './fieldMapping/MappingArea';

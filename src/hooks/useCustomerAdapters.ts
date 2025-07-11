@@ -1,46 +1,60 @@
 import { useState, useEffect } from 'react';
 import { Customer } from '@/types/customer';
 import { customerService } from '@/services/customerService';
-
-// Mock customer relationships
-const adapterCustomerMappings = {
-  '1': ['sap', 'rest', 'soap', 'database'], // ACME Corporation
-  '2': ['salesforce', 'rest', 'email', 'sms'], // TechStart Inc
-};
-
-const structureCustomerMappings = {
-  '1': ['1', '2'], // ACME Corporation - Customer Order, Payment Response
-  '2': ['2', '3'], // TechStart Inc - Payment Response, User Profile
-};
+import { channelService } from '@/services/channelService';
+import { structureService } from '@/services/structureService';
 
 export const useCustomerAdapters = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [adapters, setAdapters] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadCustomers();
+    loadData();
   }, []);
 
-  const loadCustomers = async () => {
-    const response = await customerService.getAllCustomers();
-    if (response.success && response.data) {
-      setCustomers(response.data);
+  const loadData = async () => {
+    const [customersResponse, adaptersResponse] = await Promise.all([
+      customerService.getAllCustomers(),
+      channelService.getAvailableAdapters()
+    ]);
+
+    if (customersResponse.success && customersResponse.data) {
+      setCustomers(customersResponse.data);
     }
+
+    if (adaptersResponse.success && adaptersResponse.data) {
+      setAdapters(adaptersResponse.data);
+    }
+
     setLoading(false);
   };
 
-  const getAdaptersForCustomer = (customerId: string): string[] => {
-    return adapterCustomerMappings[customerId as keyof typeof adapterCustomerMappings] || [];
+  const getAdaptersForCustomer = async (customerId: string) => {
+    const response = await channelService.getChannels(customerId);
+    if (response.success && response.data) {
+      const adapterIds = response.data.flatMap(channel => 
+        channel.adapters.map(adapter => adapter.id)
+      );
+      return [...new Set(adapterIds)]; // Remove duplicates
+    }
+    return [];
   };
 
-  const getStructuresForCustomer = (customerId: string): string[] => {
-    return structureCustomerMappings[customerId as keyof typeof structureCustomerMappings] || [];
+  const getStructuresForCustomer = async (customerId: string) => {
+    const response = await structureService.getStructures();
+    if (response.success && response.data) {
+      return response.data.structures.filter(s => s.customerId === customerId).map(structure => structure.id);
+    }
+    return [];
   };
 
   return {
     customers,
+    adapters,
     loading,
     getAdaptersForCustomer,
     getStructuresForCustomer,
+    refreshData: loadData,
   };
 };

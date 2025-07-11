@@ -1,35 +1,34 @@
 import { api, ApiResponse } from './api';
 
-export interface Message {
-  id: string;
-  type: string;
-  status: 'success' | 'processing' | 'failed';
-  source: string;
-  target: string;
-  timestamp: string;
-  processingTime: string;
-  size: string;
-  customerId?: string;
-  logs: MessageLog[];
-}
+export type MessageStatus = 'success' | 'failed' | 'processing';
 
 export interface MessageLog {
   timestamp: string;
-  level: 'INFO' | 'WARN' | 'ERROR' | 'DEBUG';
+  level: string;
   message: string;
 }
 
+export interface Message {
+  id: string;
+  timestamp: string;
+  source: string;
+  target: string;
+  type: string;
+  status: MessageStatus;
+  processingTime: string;
+  size: string;
+  customerId: string;
+  logs: MessageLog[];
+}
+
 export interface MessageFilters {
-  customerId?: string;
-  status?: string;
-  type?: string;
+  status?: MessageStatus[];
   source?: string;
   target?: string;
-  timeFilter?: string;
-  startDate?: string;
-  endDate?: string;
-  limit?: number;
-  offset?: number;
+  type?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  search?: string;
 }
 
 export interface MessageStats {
@@ -55,7 +54,11 @@ class MessageService {
     if (filters) {
       Object.entries(filters).forEach(([key, value]) => {
         if (value !== undefined) {
-          queryParams.append(key, value.toString());
+          if (Array.isArray(value)) {
+            queryParams.append(key, value.join(','));
+          } else {
+            queryParams.append(key, value.toString());
+          }
         }
       });
     }
@@ -75,7 +78,11 @@ class MessageService {
     if (filters) {
       Object.entries(filters).forEach(([key, value]) => {
         if (value !== undefined) {
-          queryParams.append(key, value.toString());
+          if (Array.isArray(value)) {
+            queryParams.append(key, value.join(','));
+          } else {
+            queryParams.append(key, value.toString());
+          }
         }
       });
     }
@@ -95,7 +102,11 @@ class MessageService {
     if (filters) {
       Object.entries(filters).forEach(([key, value]) => {
         if (value !== undefined) {
-          queryParams.append(key, value.toString());
+          if (Array.isArray(value)) {
+            queryParams.append(key, value.join(','));
+          } else {
+            queryParams.append(key, value.toString());
+          }
         }
       });
     }

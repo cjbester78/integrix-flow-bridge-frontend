@@ -1,6 +1,6 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { ChannelCard } from './ChannelCard';
-import { Channel } from './channelData';
+import { Channel } from '@/services/channelService';
 
 interface ChannelListProps {
   channels: Channel[];

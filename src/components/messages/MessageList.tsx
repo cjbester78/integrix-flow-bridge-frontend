@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Message } from './messageData';
+import { Message } from '@/services/messageService';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FileText, Database } from 'lucide-react';

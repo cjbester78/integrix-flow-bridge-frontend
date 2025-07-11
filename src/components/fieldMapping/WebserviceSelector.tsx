@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Search, Settings } from 'lucide-react';
-import { demoWebservices } from './demoData';
+import { useWebservices } from '@/hooks/useWebservices';
 
 interface WebserviceSelectorProps {
   isOpen: boolean;
@@ -44,19 +44,9 @@ export function WebserviceSelector({
             <Input placeholder="Search" className="pl-10" />
           </div>
           <div className="border rounded-md p-3 space-y-2">
-            {demoWebservices.map(service => (
-              <div 
-                key={service}
-                className={`p-2 rounded text-sm cursor-pointer transition-colors ${
-                  selectedService === service 
-                    ? 'bg-primary/10 border border-primary' 
-                    : 'hover:bg-muted'
-                }`}
-                onClick={() => onSelectService(service)}
-              >
-                {service}
-              </div>
-            ))}
+            <div className="text-sm text-muted-foreground">
+              Please use the Data Structures page to upload webservice files first.
+            </div>
           </div>
         </div>
       </DialogContent>
