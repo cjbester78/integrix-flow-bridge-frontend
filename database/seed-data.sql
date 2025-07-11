@@ -1,19 +1,39 @@
 -- Seed Data for Integration Platform
 -- This file contains sample data for development and testing
 
--- Insert default admin user (password: admin123)
-INSERT INTO users (id, username, email, password_hash, first_name, last_name, role, status, permissions, email_verified) VALUES
-('550e8400-e29b-41d4-a716-446655440000', 'admin', 'admin@integration-platform.com', '$2b$10$rKjWJL8sZZ8fCLwn8yJLruN1.5HJLfMvKxWHNM3YzNHN1EpZUxzKu', 'System', 'Administrator', 'admin', 'active', 
- ARRAY['flows:create', 'flows:read', 'flows:update', 'flows:delete', 'flows:execute', 'adapters:create', 'adapters:read', 'adapters:update', 'adapters:delete', 'adapters:test', 'structures:create', 'structures:read', 'structures:update', 'structures:delete', 'users:create', 'users:read', 'users:update', 'users:delete', 'system:admin'], TRUE),
+-- Insert roles
+INSERT INTO roles (id, name, description, permissions) VALUES
+('440e8400-e29b-41d4-a716-446655440000', 'administrator', 'Full system access with user management capabilities', ARRAY['read', 'write', 'admin', 'user_management']),
+('440e8400-e29b-41d4-a716-446655440001', 'integrator', 'Can create and manage integration flows', ARRAY['read', 'write', 'execute']),
+('440e8400-e29b-41d4-a716-446655440002', 'viewer', 'Read-only access to monitoring and logs', ARRAY['read']);
 
-('550e8400-e29b-41d4-a716-446655440001', 'developer', 'developer@integration-platform.com', '$2b$10$rKjWJL8sZZ8fCLwn8yJLruN1.5HJLfMvKxWHNM3YzNHN1EpZUxzKu', 'John', 'Developer', 'developer', 'active',
- ARRAY['flows:create', 'flows:read', 'flows:update', 'flows:execute', 'adapters:create', 'adapters:read', 'adapters:update', 'adapters:test', 'structures:create', 'structures:read', 'structures:update'], TRUE),
+-- Insert default admin users (password: admin123)
+INSERT INTO users (id, username, email, password_hash, first_name, last_name, role_id, role, status, permissions, email_verified, last_login_at) VALUES
+('550e8400-e29b-41d4-a716-446655440000', 'admin', 'admin@integrixlab.com', '$2b$10$rKjWJL8sZZ8fCLwn8yJLruN1.5HJLfMvKxWHNM3YzNHN1EpZUxzKu', 'System', 'Administrator', '440e8400-e29b-41d4-a716-446655440000', 'administrator', 'active', 
+ ARRAY['flows:create', 'flows:read', 'flows:update', 'flows:delete', 'flows:execute', 'adapters:create', 'adapters:read', 'adapters:update', 'adapters:delete', 'adapters:test', 'structures:create', 'structures:read', 'structures:update', 'structures:delete', 'users:create', 'users:read', 'users:update', 'users:delete', 'system:admin'], TRUE, '2024-01-15 14:30:25'),
 
-('550e8400-e29b-41d4-a716-446655440002', 'operator', 'operator@integration-platform.com', '$2b$10$rKjWJL8sZZ8fCLwn8yJLruN1.5HJLfMvKxWHNM3YzNHN1EpZUxzKu', 'Jane', 'Operator', 'operator', 'active',
- ARRAY['flows:read', 'flows:execute', 'adapters:read', 'adapters:test', 'structures:read'], TRUE),
+('550e8400-e29b-41d4-a716-446655440001', 'integrator1', 'integrator1@company.com', '$2b$10$rKjWJL8sZZ8fCLwn8yJLruN1.5HJLfMvKxWHNM3YzNHN1EpZUxzKu', 'John', 'Integrator', '440e8400-e29b-41d4-a716-446655440001', 'integrator', 'active',
+ ARRAY['flows:create', 'flows:read', 'flows:update', 'flows:execute', 'adapters:create', 'adapters:read', 'adapters:update', 'adapters:test', 'structures:create', 'structures:read', 'structures:update'], TRUE, '2024-01-15 12:15:30'),
 
-('550e8400-e29b-41d4-a716-446655440003', 'viewer', 'viewer@integration-platform.com', '$2b$10$rKjWJL8sZZ8fCLwn8yJLruN1.5HJLfMvKxWHNM3YzNHN1EpZUxzKu', 'Bob', 'Viewer', 'viewer', 'active',
- ARRAY['flows:read', 'adapters:read', 'structures:read'], TRUE);
+('550e8400-e29b-41d4-a716-446655440002', 'viewer1', 'viewer1@company.com', '$2b$10$rKjWJL8sZZ8fCLwn8yJLruN1.5HJLfMvKxWHNM3YzNHN1EpZUxzKu', 'Jane', 'Viewer', '440e8400-e29b-41d4-a716-446655440002', 'viewer', 'inactive',
+ ARRAY['flows:read', 'adapters:read', 'structures:read'], TRUE, '2024-01-10 16:45:12');
+
+-- Insert certificates
+INSERT INTO certificates (id, name, type, issuer, valid_from, valid_to, status, usage, created_by) VALUES
+('330e8400-e29b-41d4-a716-446655440000', 'SAP Production SSL', 'SSL Certificate', 'DigiCert Inc', '2024-01-01', '2025-01-01', 'active', 'SAP ERP Connection', '550e8400-e29b-41d4-a716-446655440000'),
+('330e8400-e29b-41d4-a716-446655440001', 'Salesforce OAuth', 'OAuth Certificate', 'Salesforce.com', '2024-01-01', '2024-12-31', 'active', 'Salesforce API Authentication', '550e8400-e29b-41d4-a716-446655440000'),
+('330e8400-e29b-41d4-a716-446655440002', 'Legacy System Cert', 'Client Certificate', 'Internal CA', '2023-06-01', '2024-02-01', 'expiring', 'Legacy SOAP Service', '550e8400-e29b-41d4-a716-446655440001'),
+('330e8400-e29b-41d4-a716-446655440003', 'Database SSL Cert', 'SSL Certificate', 'Let''s Encrypt', '2024-01-01', '2024-12-31', 'active', 'Database Connection Security', '550e8400-e29b-41d4-a716-446655440000'),
+('330e8400-e29b-41d4-a716-446655440004', 'API Gateway Cert', 'SSL Certificate', 'Verisign', '2024-01-01', '2025-06-01', 'active', 'External API Gateway', '550e8400-e29b-41d4-a716-446655440001');
+
+-- Insert JAR files
+INSERT INTO jar_files (id, name, version, description, file_name, size_bytes, driver_type, upload_date, uploaded_by) VALUES
+('220e8400-e29b-41d4-a716-446655440000', 'MySQL JDBC Driver', '8.0.33', 'MySQL Connector/J JDBC Driver for database connectivity', 'mysql-connector-java-8.0.33.jar', 2456789, 'Database', '2024-01-15', '550e8400-e29b-41d4-a716-446655440000'),
+('220e8400-e29b-41d4-a716-446655440001', 'PostgreSQL JDBC Driver', '42.6.0', 'PostgreSQL JDBC Driver for database operations', 'postgresql-42.6.0.jar', 1234567, 'Database', '2024-01-10', '550e8400-e29b-41d4-a716-446655440001'),
+('220e8400-e29b-41d4-a716-446655440002', 'ActiveMQ Client', '5.18.3', 'ActiveMQ JMS Client for message queue operations', 'activemq-client-5.18.3.jar', 987654, 'Message Queue', '2024-01-08', '550e8400-e29b-41d4-a716-446655440001'),
+('220e8400-e29b-41d4-a716-446655440003', 'Oracle JDBC Driver', '21.7.0.0', 'Oracle Database JDBC Driver', 'ojdbc11-21.7.0.0.jar', 4567890, 'Database', '2024-01-12', '550e8400-e29b-41d4-a716-446655440000'),
+('220e8400-e29b-41d4-a716-446655440004', 'RabbitMQ Client', '5.16.0', 'RabbitMQ Java Client for AMQP messaging', 'amqp-client-5.16.0.jar', 876543, 'Message Queue', '2024-01-09', '550e8400-e29b-41d4-a716-446655440001'),
+('220e8400-e29b-41d4-a716-446655440005', 'MongoDB Driver', '4.8.2', 'MongoDB Java Driver for NoSQL database operations', 'mongodb-driver-sync-4.8.2.jar', 1567890, 'Database', '2024-01-11', '550e8400-e29b-41d4-a716-446655440000');
 
 -- Sample Data Structures
 INSERT INTO data_structures (id, name, type, description, usage, structure, tags, created_by) VALUES
@@ -140,3 +160,22 @@ INSERT INTO adapter_statistics (adapter_id, date, total_messages, successful_mes
 ('770e8400-e29b-41d4-a716-446655440001', CURRENT_DATE, 24, 23, 1, 28500, 950, 1800),
 ('770e8400-e29b-41d4-a716-446655440002', CURRENT_DATE, 2, 2, 0, 30000, 14000, 16000),
 ('770e8400-e29b-41d4-a716-446655440003', CURRENT_DATE, 1500, 1500, 0, 75000, 20, 250);
+
+-- Insert enhanced system logs for admin interface
+INSERT INTO system_logs (id, timestamp, level, message, details, source, source_id, source_name, user_id) VALUES
+('110e8400-e29b-41d4-a716-446655440000', '2024-01-15 14:30:00', 'info', 'User logged in successfully', '{"ip": "192.168.1.100", "userAgent": "Mozilla/5.0"}', 'system', '550e8400-e29b-41d4-a716-446655440000', 'Authentication Service', '550e8400-e29b-41d4-a716-446655440000'),
+('110e8400-e29b-41d4-a716-446655440001', '2024-01-15 14:25:00', 'info', 'Adapter started successfully', '{"adapterId": "770e8400-e29b-41d4-a716-446655440000", "version": "1.2.3"}', 'adapter', '770e8400-e29b-41d4-a716-446655440000', 'Shopify REST API', '550e8400-e29b-41d4-a716-446655440001'),
+('110e8400-e29b-41d4-a716-446655440002', '2024-01-15 14:20:00', 'warn', 'Certificate expiring soon', '{"certificateId": "330e8400-e29b-41d4-a716-446655440002", "daysUntilExpiry": 15}', 'system', '330e8400-e29b-41d4-a716-446655440002', 'Certificate Manager', NULL),
+('110e8400-e29b-41d4-a716-446655440003', '2024-01-15 14:15:00', 'error', 'Database connection failed', '{"host": "db.example.com", "port": 5432, "error": "Connection timeout"}', 'adapter', '770e8400-e29b-41d4-a716-446655440003', 'PostgreSQL Database', '550e8400-e29b-41d4-a716-446655440001'),
+('110e8400-e29b-41d4-a716-446655440004', '2024-01-15 14:10:00', 'info', 'Message processed successfully', '{"messageId": "msg_12345", "processingTime": 150}', 'channel', 'ch_001', 'HTTP Channel', NULL),
+('110e8400-e29b-41d4-a716-446655440005', '2024-01-15 14:05:00', 'debug', 'Flow execution started', '{"flowId": "880e8400-e29b-41d4-a716-446655440000", "trigger": "scheduler"}', 'flow', '880e8400-e29b-41d4-a716-446655440000', 'Shopify to PayPal Order Processing', '550e8400-e29b-41d4-a716-446655440001'),
+('110e8400-e29b-41d4-a716-446655440006', '2024-01-15 14:00:00', 'info', 'System health check completed', '{"cpu": 45, "memory": 68, "disk": 23}', 'system', NULL, 'Health Monitor', NULL),
+('110e8400-e29b-41d4-a716-446655440007', '2024-01-15 13:55:00', 'warn', 'High memory usage detected', '{"usage": 85, "threshold": 80}', 'system', NULL, 'Resource Monitor', NULL),
+('110e8400-e29b-41d4-a716-446655440008', '2024-01-15 13:50:00', 'error', 'API rate limit exceeded', '{"endpoint": "/api/messages", "limit": 1000, "current": 1001}', 'api', NULL, 'API Gateway', NULL),
+('110e8400-e29b-41d4-a716-446655440009', '2024-01-15 13:45:00', 'info', 'JAR file uploaded successfully', '{"fileName": "mysql-connector-java-8.0.33.jar", "size": 2456789}', 'system', '220e8400-e29b-41d4-a716-446655440000', 'File Manager', '550e8400-e29b-41d4-a716-446655440000'),
+('110e8400-e29b-41d4-a716-446655440010', '2024-01-15 13:40:00', 'info', 'Configuration updated', '{"component": "adapter", "setting": "timeout", "oldValue": 30, "newValue": 60}', 'adapter', '770e8400-e29b-41d4-a716-446655440000', 'Shopify REST API', '550e8400-e29b-41d4-a716-446655440001'),
+('110e8400-e29b-41d4-a716-446655440011', '2024-01-15 13:35:00', 'error', 'SSL handshake failed', '{"host": "external-api.com", "certificateIssuer": "Unknown"}', 'adapter', '770e8400-e29b-41d4-a716-446655440001', 'PayPal Payment Gateway', NULL),
+('110e8400-e29b-41d4-a716-446655440012', '2024-01-15 13:30:00', 'info', 'Scheduled backup completed', '{"backupSize": "2.3GB", "duration": "15min"}', 'system', NULL, 'Backup Service', NULL),
+('110e8400-e29b-41d4-a716-446655440013', '2024-01-15 13:25:00', 'warn', 'Disk space low', '{"available": "2GB", "threshold": "5GB"}', 'system', NULL, 'Storage Monitor', NULL),
+('110e8400-e29b-41d4-a716-446655440014', '2024-01-15 13:20:00', 'info', 'User role updated', '{"userId": "550e8400-e29b-41d4-a716-446655440002", "oldRole": "integrator", "newRole": "viewer"}', 'system', '550e8400-e29b-41d4-a716-446655440002', 'User Management', '550e8400-e29b-41d4-a716-446655440000'),
+('110e8400-e29b-41d4-a716-446655440015', '2024-01-15 13:15:00', 'error', 'Certificate validation failed', '{"certificateId": "330e8400-e29b-41d4-a716-446655440002", "error": "Certificate has expired"}', 'system', '330e8400-e29b-41d4-a716-446655440002', 'Certificate Validator', NULL);

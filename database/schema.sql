@@ -4,15 +4,26 @@
 -- Enable UUID extension (PostgreSQL)
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- Roles table for admin management
+CREATE TABLE roles (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(50) UNIQUE NOT NULL,
+    description TEXT,
+    permissions TEXT[] NOT NULL DEFAULT '{}',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Users and Authentication
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    first_name VARCHAR(100) NOT NULL,
-    last_name VARCHAR(100) NOT NULL,
-    role VARCHAR(20) NOT NULL DEFAULT 'viewer' CHECK (role IN ('admin', 'developer', 'operator', 'viewer')),
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
+    role_id UUID REFERENCES roles(id) ON DELETE SET NULL,
+    role VARCHAR(20) NOT NULL DEFAULT 'viewer' CHECK (role IN ('administrator', 'integrator', 'viewer')),
     status VARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'pending')),
     permissions TEXT[], -- Array of permission strings
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -22,6 +33,43 @@ CREATE TABLE users (
     email_verification_token VARCHAR(255),
     password_reset_token VARCHAR(255),
     password_reset_expires_at TIMESTAMP WITH TIME ZONE
+);
+
+-- Certificates table for admin management
+CREATE TABLE certificates (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(255) NOT NULL,
+    type VARCHAR(100) NOT NULL,
+    issuer VARCHAR(255),
+    certificate_data TEXT,
+    private_key_data TEXT,
+    valid_from DATE,
+    valid_to DATE,
+    status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'expiring', 'expired', 'revoked')),
+    usage TEXT,
+    fingerprint VARCHAR(128),
+    serial_number VARCHAR(100),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    created_by UUID REFERENCES users(id)
+);
+
+-- JAR Files table for admin management
+CREATE TABLE jar_files (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(255) NOT NULL,
+    version VARCHAR(50),
+    description TEXT,
+    file_name VARCHAR(255) NOT NULL,
+    file_path VARCHAR(500),
+    size_bytes BIGINT,
+    driver_type VARCHAR(100),
+    upload_date DATE DEFAULT CURRENT_DATE,
+    checksum VARCHAR(64),
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    uploaded_by UUID REFERENCES users(id)
 );
 
 -- User Sessions/Tokens
@@ -147,14 +195,18 @@ CREATE TABLE flow_executions (
     failed_records INTEGER DEFAULT 0
 );
 
--- System Logs
+-- System Logs (enhanced for admin interface)
 CREATE TABLE system_logs (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    level VARCHAR(10) NOT NULL CHECK (level IN ('DEBUG', 'INFO', 'WARN', 'ERROR', 'FATAL')),
-    component VARCHAR(100) NOT NULL, -- adapter, flow, system, etc.
-    component_id UUID, -- ID of the related component
+    timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    level VARCHAR(10) NOT NULL CHECK (level IN ('info', 'warn', 'error', 'debug')),
     message TEXT NOT NULL,
     details JSONB,
+    source VARCHAR(50) NOT NULL CHECK (source IN ('adapter', 'system', 'channel', 'flow', 'api')),
+    source_id VARCHAR(255),
+    source_name VARCHAR(255),
+    component VARCHAR(100), -- Legacy field for compatibility
+    component_id UUID, -- Legacy field for compatibility
     user_id UUID REFERENCES users(id),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -203,10 +255,22 @@ CREATE TABLE system_settings (
 );
 
 -- Indexes for better performance
+CREATE INDEX idx_roles_name ON roles(name);
+
 CREATE INDEX idx_users_username ON users(username);
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_role ON users(role);
+CREATE INDEX idx_users_role_id ON users(role_id);
 CREATE INDEX idx_users_status ON users(status);
+
+CREATE INDEX idx_certificates_status ON certificates(status);
+CREATE INDEX idx_certificates_valid_to ON certificates(valid_to);
+CREATE INDEX idx_certificates_type ON certificates(type);
+CREATE INDEX idx_certificates_issuer ON certificates(issuer);
+
+CREATE INDEX idx_jar_files_driver_type ON jar_files(driver_type);
+CREATE INDEX idx_jar_files_upload_date ON jar_files(upload_date);
+CREATE INDEX idx_jar_files_is_active ON jar_files(is_active);
 
 CREATE INDEX idx_user_sessions_user_id ON user_sessions(user_id);
 CREATE INDEX idx_user_sessions_refresh_token ON user_sessions(refresh_token);
@@ -240,7 +304,10 @@ CREATE INDEX idx_executions_flow_id ON flow_executions(flow_id);
 CREATE INDEX idx_executions_status ON flow_executions(status);
 CREATE INDEX idx_executions_started_at ON flow_executions(started_at);
 
+CREATE INDEX idx_logs_timestamp ON system_logs(timestamp);
 CREATE INDEX idx_logs_level ON system_logs(level);
+CREATE INDEX idx_logs_source ON system_logs(source);
+CREATE INDEX idx_logs_source_id ON system_logs(source_id);
 CREATE INDEX idx_logs_component ON system_logs(component);
 CREATE INDEX idx_logs_component_id ON system_logs(component_id);
 CREATE INDEX idx_logs_created_at ON system_logs(created_at);
@@ -258,7 +325,10 @@ END;
 $$ language 'plpgsql';
 
 -- Triggers for automatic timestamp updates
+CREATE TRIGGER update_roles_updated_at BEFORE UPDATE ON roles FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_certificates_updated_at BEFORE UPDATE ON certificates FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_jar_files_updated_at BEFORE UPDATE ON jar_files FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_data_structures_updated_at BEFORE UPDATE ON data_structures FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_adapters_updated_at BEFORE UPDATE ON communication_adapters FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_flows_updated_at BEFORE UPDATE ON integration_flows FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
