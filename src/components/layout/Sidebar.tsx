@@ -62,12 +62,6 @@ const navigation = [
     roles: ['admin', 'integrator', 'viewer'] 
   },
   { 
-    name: 'Adapter Logs', 
-    href: '/adapter-logs', 
-    icon: ScrollText, 
-    roles: ['admin', 'integrator', 'viewer'] 
-  },
-  { 
     name: 'Admin Panel', 
     href: '/admin', 
     icon: Users, 

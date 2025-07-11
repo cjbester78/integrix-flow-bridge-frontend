@@ -22,8 +22,10 @@ import {
   FileArchive,
   Upload,
   Download,
-  Search
+  Search,
+  ScrollText
 } from 'lucide-react';
+import { Logs } from './Logs';
 
 const users = [
   {
@@ -389,7 +391,7 @@ export const Admin = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="users" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             Users
@@ -405,6 +407,10 @@ export const Admin = () => {
           <TabsTrigger value="jar-files" className="flex items-center gap-2">
             <FileArchive className="h-4 w-4" />
             JAR Files
+          </TabsTrigger>
+          <TabsTrigger value="system-logs" className="flex items-center gap-2">
+            <ScrollText className="h-4 w-4" />
+            System Logs
           </TabsTrigger>
         </TabsList>
 
@@ -772,6 +778,10 @@ export const Admin = () => {
               </Card>
             </div>
           </div>
+        </TabsContent>
+
+        <TabsContent value="system-logs" className="space-y-4">
+          <Logs />
         </TabsContent>
       </Tabs>
     </div>
