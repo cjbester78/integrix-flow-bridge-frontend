@@ -162,6 +162,38 @@ export const ChannelCard = ({ channel }: ChannelCardProps) => {
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2 mt-4">
+          {/* Play/Pause Button */}
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="hover-scale"
+            onClick={() => {
+              // Handle start/stop channel action
+              console.log(`${channel.status === 'running' ? 'Stopping' : 'Starting'} channel ${channel.id}`);
+            }}
+          >
+            {channel.status === 'running' ? (
+              <Pause className="h-4 w-4 mr-2" />
+            ) : (
+              <Play className="h-4 w-4 mr-2" />
+            )}
+            {channel.status === 'running' ? 'Pause' : 'Start'}
+          </Button>
+
+          {/* Settings Button */}
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="hover-scale"
+            onClick={() => {
+              // Handle channel settings
+              console.log(`Opening settings for channel ${channel.id}`);
+            }}
+          >
+            <Settings className="h-4 w-4 mr-2" />
+            Settings
+          </Button>
+
           <Collapsible open={isLogsExpanded} onOpenChange={setIsLogsExpanded}>
             <CollapsibleTrigger asChild>
               <Button variant="outline" size="sm" className="hover-scale">
