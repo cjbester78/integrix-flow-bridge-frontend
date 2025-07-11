@@ -151,24 +151,26 @@ export const Channels = () => {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const { customers, loading } = useCustomerAdapters();
 
-  // Get customer-specific channels or empty array
+  // Get all channels or customer-specific channels
+  const allChannels = Object.values(customerChannelData).flat();
+  const displayChannels = selectedCustomer 
+    ? customerChannelData[selectedCustomer.id as keyof typeof customerChannelData] || []
+    : allChannels;
+
+  // Calculate dynamic stats based on displayed channels
+  const activeChannels = displayChannels.filter(ch => ch.status === 'running').length;
+  const inactiveChannels = displayChannels.filter(ch => ch.status === 'idle').length;
+  const stoppedChannels = displayChannels.filter(ch => ch.status === 'stopped').length;
+  const errorChannels = displayChannels.filter(ch => ch.errorRate > 0).length;
+
+  // Get customer-specific channels for display
   const customerChannels = selectedCustomer 
     ? customerChannelData[selectedCustomer.id as keyof typeof customerChannelData] || []
     : [];
 
-  // Calculate dynamic stats based on selected customer
-  const activeChannels = customerChannels.filter(ch => ch.status === 'running').length;
-  const totalChannels = customerChannels.length;
-  const totalThroughput = customerChannels.reduce((sum, ch) => {
-    const throughput = parseInt(ch.throughput.split(' ')[0]);
-    return sum + (isNaN(throughput) ? 0 : throughput);
-  }, 0);
-  const avgUptime = customerChannels.length > 0 
-    ? (customerChannels.reduce((sum, ch) => sum + parseFloat(ch.uptime), 0) / customerChannels.length).toFixed(1)
-    : '0.0';
-  const avgErrorRate = customerChannels.length > 0 
-    ? (customerChannels.reduce((sum, ch) => sum + ch.errorRate, 0) / customerChannels.length).toFixed(1)
-    : '0.0';
+  const handleRefresh = () => {
+    setSelectedCustomer(null);
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -206,10 +208,50 @@ export const Channels = () => {
           </h1>
           <p className="text-muted-foreground">Monitor and manage integration channel performance</p>
         </div>
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" onClick={handleRefresh}>
           <RefreshCw className="h-4 w-4 mr-2" />
           Refresh
         </Button>
+      </div>
+
+      {/* Overview Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="bg-gradient-secondary border-border/50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Active Channels</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-success">{activeChannels}</div>
+            <p className="text-xs text-muted-foreground">{selectedCustomer ? `of ${displayChannels.length} customer channels` : 'across all channels'}</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-gradient-secondary border-border/50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Inactive Channels</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-warning">{inactiveChannels}</div>
+            <p className="text-xs text-muted-foreground">{selectedCustomer ? `of ${displayChannels.length} customer channels` : 'across all channels'}</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-gradient-secondary border-border/50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Stopped Channels</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-destructive">{stoppedChannels}</div>
+            <p className="text-xs text-muted-foreground">{selectedCustomer ? `of ${displayChannels.length} customer channels` : 'across all channels'}</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-gradient-secondary border-border/50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Error Channels</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-warning">{errorChannels}</div>
+            <p className="text-xs text-muted-foreground">{selectedCustomer ? `of ${displayChannels.length} customer channels` : 'across all channels'}</p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Customer Selection */}
@@ -249,45 +291,6 @@ export const Channels = () => {
         </CardContent>
       </Card>
 
-      {/* Overview Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-gradient-secondary border-border/50">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Active Channels</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-success">{activeChannels}</div>
-            <p className="text-xs text-muted-foreground">of {totalChannels} total channels</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-gradient-secondary border-border/50">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Throughput</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-info">{totalThroughput}</div>
-            <p className="text-xs text-muted-foreground">messages/minute</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-gradient-secondary border-border/50">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Avg Uptime</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-success">{avgUptime}%</div>
-            <p className="text-xs text-muted-foreground">Across all channels</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-gradient-secondary border-border/50">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Error Rate</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-warning">{avgErrorRate}%</div>
-            <p className="text-xs text-muted-foreground">Across all channels</p>
-          </CardContent>
-        </Card>
-      </div>
 
       {/* Channel List */}
       <div className="space-y-4">
