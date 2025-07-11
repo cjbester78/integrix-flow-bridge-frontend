@@ -25,8 +25,6 @@ interface MessageStatsEnhancedProps {
   wsConnected: boolean;
   newMessageCount: number;
   onClearNewMessages: () => void;
-  selectedCustomer?: string | null;
-  hasActiveFilters?: boolean;
 }
 
 export const MessageStatsEnhanced = ({ 
@@ -36,17 +34,9 @@ export const MessageStatsEnhanced = ({
   isRealtime,
   wsConnected,
   newMessageCount,
-  onClearNewMessages,
-  selectedCustomer,
-  hasActiveFilters
+  onClearNewMessages
 }: MessageStatsEnhancedProps) => {
   const [timeRange, setTimeRange] = useState('day');
-
-  const getContextualDescription = () => {
-    if (selectedCustomer) return `for ${selectedCustomer}`;
-    if (hasActiveFilters) return 'for selected filters';
-    return 'across all messages';
-  };
 
   const getButtonVariant = (filter: string) => 
     statusFilter === filter ? 'default' : 'ghost';
@@ -119,7 +109,9 @@ export const MessageStatsEnhanced = ({
                 <CheckCircle2 className="h-6 w-6" />
                 {formatNumber(stats.successfulMessages)}
               </div>
-              <p className="text-xs text-muted-foreground">{getContextualDescription()}</p>
+              <p className="text-xs text-muted-foreground">
+                {formatPercentage(stats.successRate)} success rate
+              </p>
             </CardContent>
           </Card>
         </Button>
@@ -138,7 +130,9 @@ export const MessageStatsEnhanced = ({
                 <AlertCircle className="h-6 w-6" />
                 {formatNumber(stats.failedMessages)}
               </div>
-              <p className="text-xs text-muted-foreground">{getContextualDescription()}</p>
+              <p className="text-xs text-muted-foreground">
+                {formatPercentage(stats.errorRate)} error rate
+              </p>
             </CardContent>
           </Card>
         </Button>

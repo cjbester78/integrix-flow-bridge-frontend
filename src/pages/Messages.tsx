@@ -149,8 +149,6 @@ export const Messages = () => {
         wsConnected={wsConnected}
         newMessageCount={newMessageCount}
         onClearNewMessages={clearNewMessageCount}
-        selectedCustomer={selectedCustomer?.name}
-        hasActiveFilters={Object.values(filters).some(v => v && v !== 1 && v !== 50 && v !== 'timestamp' && v !== 'desc')}
       />
 
       {/* Customer Selection */}
