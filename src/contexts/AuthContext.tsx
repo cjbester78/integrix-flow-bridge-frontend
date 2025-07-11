@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface User {
   id: string;
@@ -13,10 +13,11 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
-  login: (username: string, password: string) => Promise<boolean>;
+  login: (username: string, password: string, redirectTo?: string) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
   isLoading: boolean;
+  tokenExpiry: number | null;
   getAllUsers: () => User[];
   createUser: (userData: Omit<User, 'id' | 'createdAt'>) => void;
   updateUser: (id: string, userData: Partial<User>) => void;
@@ -75,22 +76,63 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [users, setUsers] = useState<User[]>(mockUsers);
+  const [tokenExpiry, setTokenExpiry] = useState<number | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Token validation and auto-logout
+  const isTokenValid = () => {
+    const token = localStorage.getItem('integrixlab_token');
+    const expiry = localStorage.getItem('integrixlab_token_expiry');
+    
+    if (!token || !expiry) return false;
+    
+    const expiryTime = parseInt(expiry);
+    if (Date.now() >= expiryTime) {
+      // Token expired
+      localStorage.removeItem('integrixlab_token');
+      localStorage.removeItem('integrixlab_username');
+      localStorage.removeItem('integrixlab_token_expiry');
+      return false;
+    }
+    
+    return true;
+  };
 
   useEffect(() => {
     // Check for existing token on app start
     const token = localStorage.getItem('integrixlab_token');
     const storedUsername = localStorage.getItem('integrixlab_username');
-    if (token && storedUsername) {
+    const expiry = localStorage.getItem('integrixlab_token_expiry');
+    
+    if (token && storedUsername && isTokenValid()) {
       const foundUser = mockUsers.find(u => u.username === storedUsername);
       if (foundUser) {
         setUser(foundUser);
+        setTokenExpiry(expiry ? parseInt(expiry) : null);
       }
     }
     setIsLoading(false);
   }, []);
 
-  const login = async (username: string, password: string): Promise<boolean> => {
+  // Auto-logout when token expires
+  useEffect(() => {
+    if (!tokenExpiry) return;
+
+    const timeUntilExpiry = tokenExpiry - Date.now();
+    if (timeUntilExpiry <= 0) {
+      logout();
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      logout();
+    }, timeUntilExpiry);
+
+    return () => clearTimeout(timer);
+  }, [tokenExpiry]);
+
+  const login = async (username: string, password: string, redirectTo?: string): Promise<boolean> => {
     try {
       // Check against mock credentials
       if (mockCredentials[username as keyof typeof mockCredentials] === password) {
@@ -98,11 +140,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (foundUser) {
           const updatedUser = { ...foundUser, lastLogin: new Date().toISOString().split('T')[0] };
           
-          const mockToken = `mock-jwt-token-${username}`;
+          // Create token with 24-hour expiry
+          const expiryTime = Date.now() + (24 * 60 * 60 * 1000); // 24 hours
+          const mockToken = `mock-jwt-token-${username}-${Date.now()}`;
+          
           localStorage.setItem('integrixlab_token', mockToken);
           localStorage.setItem('integrixlab_username', username);
+          localStorage.setItem('integrixlab_token_expiry', expiryTime.toString());
+          
           setUser(updatedUser);
-          navigate('/dashboard');
+          setTokenExpiry(expiryTime);
+          
+          // Redirect to the intended page or dashboard
+          const destination = redirectTo || '/dashboard';
+          navigate(destination);
           return true;
         }
       }
@@ -116,7 +167,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = () => {
     localStorage.removeItem('integrixlab_token');
     localStorage.removeItem('integrixlab_username');
+    localStorage.removeItem('integrixlab_token_expiry');
     setUser(null);
+    setTokenExpiry(null);
     navigate('/login');
   };
 
@@ -147,8 +200,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     user,
     login,
     logout,
-    isAuthenticated: !!user,
+    isAuthenticated: !!user && isTokenValid(),
     isLoading,
+    tokenExpiry,
     getAllUsers,
     createUser,
     updateUser,

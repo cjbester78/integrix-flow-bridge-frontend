@@ -24,9 +24,12 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center">
-          <div className="h-8 w-8 rounded-lg bg-gradient-primary animate-pulse mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading...</p>
+        <div className="text-center space-y-4">
+          <div className="h-12 w-12 rounded-2xl bg-gradient-primary animate-pulse mx-auto"></div>
+          <div className="space-y-2">
+            <p className="text-lg font-medium">IntegrixLab</p>
+            <p className="text-muted-foreground">Verifying authentication...</p>
+          </div>
         </div>
       </div>
     );

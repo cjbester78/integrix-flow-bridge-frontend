@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Shield, ArrowRight, KeyRound, User } from 'lucide-react';
+import { DemoCredentials } from '@/components/DemoCredentials';
 
 export const Login = () => {
   const [username, setUsername] = useState('');
@@ -14,16 +15,20 @@ export const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { login, isAuthenticated } = useAuth();
   const { toast } = useToast();
+  const location = useLocation();
+
+  // Get the page user was trying to access before being redirected to login
+  const from = location.state?.from?.pathname || '/dashboard';
 
   if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={from} replace />;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    const success = await login(username, password);
+    const success = await login(username, password, from);
     
     if (!success) {
       toast({
@@ -36,9 +41,13 @@ export const Login = () => {
     setIsLoading(false);
   };
 
+  const handleSelectDemoUser = (demoUsername: string, demoPassword: string) => {
+    setUsername(demoUsername);
+    setPassword(demoPassword);
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-secondary relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-secondary relative overflow-hidden p-4">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -left-40 w-80 h-80 bg-primary/10 rounded-full blur-3xl animate-float"></div>
@@ -46,7 +55,8 @@ export const Login = () => {
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-float" style={{animationDelay: '2s'}}></div>
       </div>
 
-      <Card className="w-full max-w-md shadow-elegant animate-scale-in relative z-10 border-border/50 bg-card/95 backdrop-blur-sm">
+      <div className="flex gap-6 w-full max-w-4xl relative z-10">
+        <Card className="w-full max-w-md shadow-elegant animate-scale-in border-border/50 bg-card/95 backdrop-blur-sm">
         <CardHeader className="text-center space-y-6 animate-fade-in">
           <div className="flex items-center justify-center">
             <div className="h-16 w-16 rounded-2xl bg-gradient-primary flex items-center justify-center animate-glow">
@@ -114,6 +124,11 @@ export const Login = () => {
           </form>
         </CardContent>
       </Card>
+      
+      <div className="hidden lg:block animate-slide-up" style={{animationDelay: '0.3s'}}>
+        <DemoCredentials onSelectUser={handleSelectDemoUser} />
+      </div>
+      </div>
     </div>
   );
 };

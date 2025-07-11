@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
+import { SessionTimeoutNotification } from '@/components/SessionTimeoutNotification';
 
 export const Layout = () => {
   return (
@@ -12,6 +13,7 @@ export const Layout = () => {
           <Outlet />
         </main>
       </div>
+      <SessionTimeoutNotification />
     </div>
   );
 };
