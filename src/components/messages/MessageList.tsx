@@ -13,7 +13,7 @@ interface MessageListProps {
   statusFilter?: string | null;
 }
 
-type TimeFilter = 'all' | 'today' | 'today-00' | 'today-01' | 'today-02' | 'today-03' | 'today-04' | 'today-05' | 'today-06' | 'today-07' | 'today-08' | 'today-09' | 'today-10' | 'today-11' | 'today-12' | 'today-13' | 'today-14' | 'today-15' | 'today-16' | 'today-17' | 'today-18' | 'today-19' | 'today-20' | 'today-21' | 'today-22' | 'today-23';
+type TimeFilter = 'all' | 'today' | 'yesterday' | 'last-7-days' | 'last-30-days' | 'today-00' | 'today-01' | 'today-02' | 'today-03' | 'today-04' | 'today-05' | 'today-06' | 'today-07' | 'today-08' | 'today-09' | 'today-10' | 'today-11' | 'today-12' | 'today-13' | 'today-14' | 'today-15' | 'today-16' | 'today-17' | 'today-18' | 'today-19' | 'today-20' | 'today-21' | 'today-22' | 'today-23';
 
 const getStatusIcon = (status: string) => {
   switch (status) {
@@ -50,6 +50,26 @@ const filterMessagesByTime = (messages: Message[], filter: TimeFilter): Message[
     
     if (filter === 'today') {
       return messageDate >= today;
+    }
+    
+    if (filter === 'yesterday') {
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const dayAfter = new Date(yesterday);
+      dayAfter.setDate(dayAfter.getDate() + 1);
+      return messageDate >= yesterday && messageDate < dayAfter;
+    }
+    
+    if (filter === 'last-7-days') {
+      const sevenDaysAgo = new Date(today);
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      return messageDate >= sevenDaysAgo;
+    }
+    
+    if (filter === 'last-30-days') {
+      const thirtyDaysAgo = new Date(today);
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      return messageDate >= thirtyDaysAgo;
     }
     
     if (filter.startsWith('today-')) {
@@ -95,7 +115,16 @@ export const MessageList = ({ messages, isCustomerSelected, statusFilter }: Mess
   const getFilterDescription = () => {
     const total = filteredMessages.length;
     if (timeFilter === 'today') {
-      return `${total} messages today (all hours)`;
+      return `${total} messages today`;
+    }
+    if (timeFilter === 'yesterday') {
+      return `${total} messages yesterday`;
+    }
+    if (timeFilter === 'last-7-days') {
+      return `${total} messages in the past 7 days`;
+    }
+    if (timeFilter === 'last-30-days') {
+      return `${total} messages in the past 30 days`;
     }
     if (timeFilter.startsWith('today-')) {
       const hour = parseInt(timeFilter.split('-')[1]);
@@ -120,7 +149,10 @@ export const MessageList = ({ messages, isCustomerSelected, statusFilter }: Mess
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="today">Today (All Hours)</SelectItem>
+                <SelectItem value="today">Today</SelectItem>
+                <SelectItem value="yesterday">Yesterday</SelectItem>
+                <SelectItem value="last-7-days">Past 7 Days</SelectItem>
+                <SelectItem value="last-30-days">Past 30 Days</SelectItem>
                 <SelectItem value="today-00">Today 00:00 - 00:59</SelectItem>
                 <SelectItem value="today-01">Today 01:00 - 01:59</SelectItem>
                 <SelectItem value="today-02">Today 02:00 - 02:59</SelectItem>
