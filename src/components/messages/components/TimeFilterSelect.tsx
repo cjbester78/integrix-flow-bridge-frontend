@@ -14,9 +14,6 @@ export const TimeFilterSelect = ({ value, onValueChange }: TimeFilterSelectProps
       </SelectTrigger>
       <SelectContent>
         <SelectItem value="today">Today</SelectItem>
-        <SelectItem value="yesterday">Yesterday</SelectItem>
-        <SelectItem value="last-7-days">Past 7 Days</SelectItem>
-        <SelectItem value="last-30-days">Past 30 Days</SelectItem>
         <SelectItem value="today-00">Today 00:00 - 00:59</SelectItem>
         <SelectItem value="today-01">Today 01:00 - 01:59</SelectItem>
         <SelectItem value="today-02">Today 02:00 - 02:59</SelectItem>
@@ -41,6 +38,9 @@ export const TimeFilterSelect = ({ value, onValueChange }: TimeFilterSelectProps
         <SelectItem value="today-21">Today 21:00 - 21:59</SelectItem>
         <SelectItem value="today-22">Today 22:00 - 22:59</SelectItem>
         <SelectItem value="today-23">Today 23:00 - 23:59</SelectItem>
+        <SelectItem value="yesterday">Yesterday</SelectItem>
+        <SelectItem value="last-7-days">Past 7 Days</SelectItem>
+        <SelectItem value="last-30-days">Past 30 Days</SelectItem>
         <SelectItem value="all">All Messages</SelectItem>
       </SelectContent>
     </Select>
