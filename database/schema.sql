@@ -305,6 +305,7 @@ CREATE INDEX idx_structure_versions_structure_id ON structure_versions(structure
 CREATE INDEX idx_adapters_type ON communication_adapters(type);
 CREATE INDEX idx_adapters_mode ON communication_adapters(mode);
 CREATE INDEX idx_adapters_status ON communication_adapters(status);
+CREATE INDEX idx_adapters_is_active ON communication_adapters(is_active);
 CREATE INDEX idx_adapters_created_by ON communication_adapters(created_by);
 
 CREATE INDEX idx_flows_source_adapter ON integration_flows(source_adapter_id);

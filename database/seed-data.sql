@@ -54,26 +54,35 @@ INSERT INTO data_structures (id, name, type, description, `usage`, structure, ta
  JSON_ARRAY('inventory', 'product', 'stock'), '550e8400-e29b-41d4-a716-446655440001');
 
 -- Sample Communication Adapters
-INSERT INTO communication_adapters (id, name, type, mode, description, configuration, status, created_by) VALUES
+INSERT INTO communication_adapters (id, name, type, mode, description, configuration, status, is_active, created_by) VALUES
 ('770e8400-e29b-41d4-a716-446655440000', 'Shopify REST API', 'rest', 'bidirectional', 'Shopify e-commerce platform integration via REST API',
  JSON_OBJECT('baseUrl', 'https://your-shop.myshopify.com/admin/api/2023-10', 'authentication', JSON_OBJECT('type', 'api-key', 'credentials', JSON_OBJECT('header', 'X-Shopify-Access-Token', 'token', 'your-access-token')), 'headers', JSON_OBJECT('Content-Type', 'application/json', 'Accept', 'application/json'), 'timeout', 30000, 'retryPolicy', JSON_OBJECT('maxRetries', 3, 'backoffMultiplier', 2)),
- 'active', '550e8400-e29b-41d4-a716-446655440000'),
+ 'active', TRUE, '550e8400-e29b-41d4-a716-446655440000'),
 
 ('770e8400-e29b-41d4-a716-446655440001', 'PayPal Payment Gateway', 'rest', 'outbound', 'PayPal payment processing integration',
  JSON_OBJECT('baseUrl', 'https://api.paypal.com', 'authentication', JSON_OBJECT('type', 'oauth2', 'credentials', JSON_OBJECT('clientId', 'your-client-id', 'clientSecret', 'your-client-secret', 'scope', 'payments')), 'headers', JSON_OBJECT('Content-Type', 'application/json', 'Accept', 'application/json'), 'timeout', 45000),
- 'active', '550e8400-e29b-41d4-a716-446655440000'),
+ 'active', TRUE, '550e8400-e29b-41d4-a716-446655440000'),
 
 ('770e8400-e29b-41d4-a716-446655440002', 'SFTP File Transfer', 'file', 'bidirectional', 'Secure file transfer for batch processing',
  JSON_OBJECT('protocol', 'sftp', 'host', 'files.example.com', 'port', 22, 'authentication', JSON_OBJECT('type', 'key', 'username', 'integration', 'privateKeyPath', '/keys/sftp-key'), 'directories', JSON_OBJECT('inbound', '/incoming', 'outbound', '/outgoing', 'archive', '/archive'), 'filePattern', '*.{json,xml,csv}', 'encoding', 'UTF-8'),
- 'active', '550e8400-e29b-41d4-a716-446655440001'),
+ 'active', TRUE, '550e8400-e29b-41d4-a716-446655440001'),
 
 ('770e8400-e29b-41d4-a716-446655440003', 'PostgreSQL Database', 'database', 'bidirectional', 'Primary application database connection',
  JSON_OBJECT('driver', 'postgresql', 'connectionString', 'postgresql://username:password@localhost:5432/integration_db', 'schema', 'public', 'poolSize', 10, 'connectionTimeout', 30000, 'queryTimeout', 60000, 'ssl', JSON_OBJECT('enabled', true, 'rejectUnauthorized', false)),
- 'active', '550e8400-e29b-41d4-a716-446655440001'),
+ 'active', TRUE, '550e8400-e29b-41d4-a716-446655440001'),
 
 ('770e8400-e29b-41d4-a716-446655440004', 'Email Notification Service', 'email', 'outbound', 'SMTP service for system notifications',
  JSON_OBJECT('smtpHost', 'smtp.gmail.com', 'smtpPort', 587, 'encryption', 'tls', 'authentication', JSON_OBJECT('username', 'notifications@company.com', 'password', 'app-password'), 'fromAddress', 'Integration Platform <notifications@company.com>', 'templates', JSON_OBJECT('success', 'flow-success.html', 'error', 'flow-error.html')),
- 'active', '550e8400-e29b-41d4-a716-446655440002');
+ 'active', TRUE, '550e8400-e29b-41d4-a716-446655440002'),
+
+-- Add some inactive adapters for testing
+('770e8400-e29b-41d4-a716-446655440005', 'Legacy SOAP Service', 'soap', 'inbound', 'Legacy system SOAP web service - temporarily disabled',
+ JSON_OBJECT('wsdlUrl', 'http://legacy.example.com/service.wsdl', 'endpoint', 'http://legacy.example.com/soap', 'timeout', 60000, 'authentication', JSON_OBJECT('type', 'basic', 'username', 'legacy_user', 'password', 'legacy_pass')),
+ 'inactive', FALSE, '550e8400-e29b-41d4-a716-446655440001'),
+
+('770e8400-e29b-41d4-a716-446655440006', 'Test SMS Gateway', 'sms', 'outbound', 'Testing SMS adapter - currently inactive',
+ JSON_OBJECT('provider', 'Twilio', 'apiKey', 'test-api-key', 'apiSecret', 'test-secret', 'fromNumber', '+1234567890'),
+ 'testing', FALSE, '550e8400-e29b-41d4-a716-446655440002');
 
 -- Sample Integration Flows
 INSERT INTO integration_flows (id, name, description, source_adapter_id, target_adapter_id, source_structure_id, target_structure_id, status, configuration, created_by) VALUES
