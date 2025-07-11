@@ -1,43 +1,44 @@
--- Integration Platform Database Schema
+-- Integration Platform Database Schema (MySQL)
 -- This schema supports the complete integration platform functionality
 
--- Enable UUID extension (PostgreSQL)
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- Set SQL mode for strict compliance
+SET SQL_MODE = 'STRICT_TRANS_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO';
 
 -- Roles table for admin management
 CREATE TABLE roles (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     name VARCHAR(50) UNIQUE NOT NULL,
     description TEXT,
-    permissions TEXT[] NOT NULL DEFAULT '{}',
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    permissions JSON NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- Users and Authentication
 CREATE TABLE users (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     first_name VARCHAR(100),
     last_name VARCHAR(100),
-    role_id UUID REFERENCES roles(id) ON DELETE SET NULL,
-    role VARCHAR(20) NOT NULL DEFAULT 'viewer' CHECK (role IN ('administrator', 'integrator', 'viewer')),
-    status VARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'pending')),
-    permissions TEXT[], -- Array of permission strings
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    last_login_at TIMESTAMP WITH TIME ZONE,
+    role_id CHAR(36),
+    role ENUM('administrator', 'integrator', 'viewer') NOT NULL DEFAULT 'viewer',
+    status ENUM('active', 'inactive', 'pending') NOT NULL DEFAULT 'active',
+    permissions JSON, -- JSON array of permission strings
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    last_login_at TIMESTAMP NULL,
     email_verified BOOLEAN DEFAULT FALSE,
     email_verification_token VARCHAR(255),
     password_reset_token VARCHAR(255),
-    password_reset_expires_at TIMESTAMP WITH TIME ZONE
+    password_reset_expires_at TIMESTAMP NULL,
+    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE SET NULL
 );
 
 -- Certificates table for admin management
 CREATE TABLE certificates (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     name VARCHAR(255) NOT NULL,
     type VARCHAR(100) NOT NULL,
     issuer VARCHAR(255),
@@ -45,18 +46,19 @@ CREATE TABLE certificates (
     private_key_data TEXT,
     valid_from DATE,
     valid_to DATE,
-    status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'expiring', 'expired', 'revoked')),
-    usage TEXT,
+    status ENUM('active', 'expiring', 'expired', 'revoked') DEFAULT 'active',
+    `usage` TEXT,
     fingerprint VARCHAR(128),
     serial_number VARCHAR(100),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    created_by UUID REFERENCES users(id)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_by CHAR(36),
+    FOREIGN KEY (created_by) REFERENCES users(id)
 );
 
 -- JAR Files table for admin management
 CREATE TABLE jar_files (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     name VARCHAR(255) NOT NULL,
     version VARCHAR(50),
     description TEXT,
@@ -64,157 +66,172 @@ CREATE TABLE jar_files (
     file_path VARCHAR(500),
     size_bytes BIGINT,
     driver_type VARCHAR(100),
-    upload_date DATE DEFAULT CURRENT_DATE,
+    upload_date DATE DEFAULT (CURDATE()),
     checksum VARCHAR(64),
     is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    uploaded_by UUID REFERENCES users(id)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    uploaded_by CHAR(36),
+    FOREIGN KEY (uploaded_by) REFERENCES users(id)
 );
 
 -- User Sessions/Tokens
 CREATE TABLE user_sessions (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    user_id CHAR(36) NOT NULL,
     refresh_token VARCHAR(500) UNIQUE NOT NULL,
-    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    last_used_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    ip_address INET,
-    user_agent TEXT
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_used_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ip_address VARCHAR(45), -- Supports IPv6
+    user_agent TEXT,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- Data Structures
 CREATE TABLE data_structures (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     name VARCHAR(255) NOT NULL,
-    type VARCHAR(20) NOT NULL CHECK (type IN ('json', 'xsd', 'wsdl', 'custom')),
+    type ENUM('json', 'xsd', 'wsdl', 'custom') NOT NULL,
     description TEXT,
-    usage VARCHAR(20) NOT NULL CHECK (usage IN ('source', 'target', 'both')),
-    structure JSONB NOT NULL, -- The actual structure definition
+    `usage` ENUM('source', 'target', 'both') NOT NULL,
+    structure JSON NOT NULL, -- The actual structure definition
     namespace_uri VARCHAR(500),
     namespace_prefix VARCHAR(50),
     schema_location VARCHAR(500),
-    tags TEXT[], -- Array of tags for categorization
+    tags JSON, -- JSON array of tags for categorization
     version INTEGER DEFAULT 1,
     is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    created_by UUID REFERENCES users(id)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_by CHAR(36),
+    FOREIGN KEY (created_by) REFERENCES users(id)
 );
 
 -- Structure Versions (for version history)
 CREATE TABLE structure_versions (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    structure_id UUID NOT NULL REFERENCES data_structures(id) ON DELETE CASCADE,
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    structure_id CHAR(36) NOT NULL,
     version INTEGER NOT NULL,
-    structure JSONB NOT NULL,
+    structure JSON NOT NULL,
     changes TEXT, -- Description of changes
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    created_by UUID REFERENCES users(id),
-    UNIQUE(structure_id, version)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_by CHAR(36),
+    FOREIGN KEY (structure_id) REFERENCES data_structures(id) ON DELETE CASCADE,
+    FOREIGN KEY (created_by) REFERENCES users(id),
+    UNIQUE KEY unique_structure_version (structure_id, version)
 );
 
 -- Communication Adapters
 CREATE TABLE communication_adapters (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     name VARCHAR(255) NOT NULL,
-    type VARCHAR(20) NOT NULL CHECK (type IN ('rest', 'soap', 'file', 'database', 'sap', 'salesforce', 'email', 'sms')),
-    mode VARCHAR(20) NOT NULL CHECK (mode IN ('inbound', 'outbound', 'bidirectional')),
+    type ENUM('rest', 'soap', 'file', 'database', 'sap', 'salesforce', 'email', 'sms') NOT NULL,
+    mode ENUM('inbound', 'outbound', 'bidirectional') NOT NULL,
     description TEXT,
-    configuration JSONB NOT NULL, -- Adapter-specific configuration
-    status VARCHAR(20) NOT NULL DEFAULT 'inactive' CHECK (status IN ('active', 'inactive', 'error', 'testing')),
+    configuration JSON NOT NULL, -- Adapter-specific configuration
+    status ENUM('active', 'inactive', 'error', 'testing') NOT NULL DEFAULT 'inactive',
     is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    created_by UUID REFERENCES users(id),
-    last_test_at TIMESTAMP WITH TIME ZONE,
-    last_test_result JSONB
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_by CHAR(36),
+    last_test_at TIMESTAMP NULL,
+    last_test_result JSON,
+    FOREIGN KEY (created_by) REFERENCES users(id)
 );
 
 -- Integration Flows
 CREATE TABLE integration_flows (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     name VARCHAR(255) NOT NULL,
     description TEXT,
-    source_adapter_id UUID NOT NULL REFERENCES communication_adapters(id),
-    target_adapter_id UUID NOT NULL REFERENCES communication_adapters(id),
-    source_structure_id UUID REFERENCES data_structures(id),
-    target_structure_id UUID REFERENCES data_structures(id),
-    status VARCHAR(20) NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'active', 'inactive', 'error')),
-    configuration JSONB, -- Flow-specific configuration
+    source_adapter_id CHAR(36) NOT NULL,
+    target_adapter_id CHAR(36) NOT NULL,
+    source_structure_id CHAR(36),
+    target_structure_id CHAR(36),
+    status ENUM('draft', 'active', 'inactive', 'error') NOT NULL DEFAULT 'draft',
+    configuration JSON, -- Flow-specific configuration
     is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    created_by UUID REFERENCES users(id),
-    last_execution_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_by CHAR(36),
+    last_execution_at TIMESTAMP NULL,
     execution_count INTEGER DEFAULT 0,
     success_count INTEGER DEFAULT 0,
-    error_count INTEGER DEFAULT 0
+    error_count INTEGER DEFAULT 0,
+    FOREIGN KEY (source_adapter_id) REFERENCES communication_adapters(id),
+    FOREIGN KEY (target_adapter_id) REFERENCES communication_adapters(id),
+    FOREIGN KEY (source_structure_id) REFERENCES data_structures(id),
+    FOREIGN KEY (target_structure_id) REFERENCES data_structures(id),
+    FOREIGN KEY (created_by) REFERENCES users(id)
 );
 
 -- Flow Transformations
 CREATE TABLE flow_transformations (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    flow_id UUID NOT NULL REFERENCES integration_flows(id) ON DELETE CASCADE,
-    type VARCHAR(50) NOT NULL CHECK (type IN ('field-mapping', 'custom-function', 'filter', 'enrichment', 'validation')),
-    configuration JSONB NOT NULL, -- Transformation-specific configuration
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    flow_id CHAR(36) NOT NULL,
+    type ENUM('field-mapping', 'custom-function', 'filter', 'enrichment', 'validation') NOT NULL,
+    configuration JSON NOT NULL, -- Transformation-specific configuration
     execution_order INTEGER NOT NULL,
     is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (flow_id) REFERENCES integration_flows(id) ON DELETE CASCADE
 );
 
 -- Field Mappings
 CREATE TABLE field_mappings (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    transformation_id UUID NOT NULL REFERENCES flow_transformations(id) ON DELETE CASCADE,
-    source_fields TEXT[] NOT NULL, -- Array of source field paths
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    transformation_id CHAR(36) NOT NULL,
+    source_fields JSON NOT NULL, -- JSON array of source field paths
     target_field VARCHAR(500) NOT NULL,
     java_function TEXT, -- Custom Java transformation function
     mapping_rule TEXT, -- Simple mapping rule description
     is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (transformation_id) REFERENCES flow_transformations(id) ON DELETE CASCADE
 );
 
 -- Flow Executions (Audit/History)
 CREATE TABLE flow_executions (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    flow_id UUID NOT NULL REFERENCES integration_flows(id),
-    status VARCHAR(20) NOT NULL CHECK (status IN ('success', 'error', 'warning', 'running')),
-    started_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    completed_at TIMESTAMP WITH TIME ZONE,
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    flow_id CHAR(36) NOT NULL,
+    status ENUM('success', 'error', 'warning', 'running') NOT NULL,
+    started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    completed_at TIMESTAMP NULL,
     execution_time_ms INTEGER,
-    input_data JSONB,
-    output_data JSONB,
+    input_data JSON,
+    output_data JSON,
     error_message TEXT,
-    error_details JSONB,
-    warnings TEXT[],
+    error_details JSON,
+    warnings JSON,
     processed_records INTEGER DEFAULT 0,
-    failed_records INTEGER DEFAULT 0
+    failed_records INTEGER DEFAULT 0,
+    FOREIGN KEY (flow_id) REFERENCES integration_flows(id)
 );
 
 -- System Logs (enhanced for admin interface)
 CREATE TABLE system_logs (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    level VARCHAR(10) NOT NULL CHECK (level IN ('info', 'warn', 'error', 'debug')),
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    level ENUM('info', 'warn', 'error', 'debug') NOT NULL,
     message TEXT NOT NULL,
-    details JSONB,
-    source VARCHAR(50) NOT NULL CHECK (source IN ('adapter', 'system', 'channel', 'flow', 'api')),
+    details JSON,
+    source ENUM('adapter', 'system', 'channel', 'flow', 'api') NOT NULL,
     source_id VARCHAR(255),
     source_name VARCHAR(255),
     component VARCHAR(100), -- Legacy field for compatibility
-    component_id UUID, -- Legacy field for compatibility
-    user_id UUID REFERENCES users(id),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    component_id CHAR(36), -- Legacy field for compatibility
+    user_id CHAR(36),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 -- Adapter Statistics
 CREATE TABLE adapter_statistics (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    adapter_id UUID NOT NULL REFERENCES communication_adapters(id) ON DELETE CASCADE,
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    adapter_id CHAR(36) NOT NULL,
     date DATE NOT NULL,
     total_messages INTEGER DEFAULT 0,
     successful_messages INTEGER DEFAULT 0,
@@ -222,36 +239,39 @@ CREATE TABLE adapter_statistics (
     total_response_time_ms BIGINT DEFAULT 0,
     min_response_time_ms INTEGER,
     max_response_time_ms INTEGER,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(adapter_id, date)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (adapter_id) REFERENCES communication_adapters(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_adapter_date (adapter_id, date)
 );
 
 -- Flow Statistics
 CREATE TABLE flow_statistics (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    flow_id UUID NOT NULL REFERENCES integration_flows(id) ON DELETE CASCADE,
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    flow_id CHAR(36) NOT NULL,
     date DATE NOT NULL,
     total_executions INTEGER DEFAULT 0,
     successful_executions INTEGER DEFAULT 0,
     failed_executions INTEGER DEFAULT 0,
     total_execution_time_ms BIGINT DEFAULT 0,
     total_records_processed INTEGER DEFAULT 0,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(flow_id, date)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (flow_id) REFERENCES integration_flows(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_flow_date (flow_id, date)
 );
 
 -- System Settings
 CREATE TABLE system_settings (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     category VARCHAR(100) NOT NULL,
-    key VARCHAR(100) NOT NULL,
-    value JSONB NOT NULL,
+    `key` VARCHAR(100) NOT NULL,
+    `value` JSON NOT NULL,
     description TEXT,
     is_encrypted BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_by UUID REFERENCES users(id),
-    UNIQUE(category, key)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_by CHAR(36),
+    FOREIGN KEY (updated_by) REFERENCES users(id),
+    UNIQUE KEY unique_category_key (category, `key`)
 );
 
 -- Indexes for better performance
@@ -277,12 +297,10 @@ CREATE INDEX idx_user_sessions_refresh_token ON user_sessions(refresh_token);
 CREATE INDEX idx_user_sessions_expires_at ON user_sessions(expires_at);
 
 CREATE INDEX idx_data_structures_type ON data_structures(type);
-CREATE INDEX idx_data_structures_usage ON data_structures(usage);
+CREATE INDEX idx_data_structures_usage ON data_structures(`usage`);
 CREATE INDEX idx_data_structures_created_by ON data_structures(created_by);
-CREATE INDEX idx_data_structures_tags ON data_structures USING GIN(tags);
 
 CREATE INDEX idx_structure_versions_structure_id ON structure_versions(structure_id);
-CREATE INDEX idx_structure_versions_version ON structure_versions(structure_id, version);
 
 CREATE INDEX idx_adapters_type ON communication_adapters(type);
 CREATE INDEX idx_adapters_mode ON communication_adapters(mode);
@@ -296,7 +314,6 @@ CREATE INDEX idx_flows_created_by ON integration_flows(created_by);
 
 CREATE INDEX idx_transformations_flow_id ON flow_transformations(flow_id);
 CREATE INDEX idx_transformations_type ON flow_transformations(type);
-CREATE INDEX idx_transformations_order ON flow_transformations(flow_id, execution_order);
 
 CREATE INDEX idx_field_mappings_transformation_id ON field_mappings(transformation_id);
 
@@ -314,24 +331,3 @@ CREATE INDEX idx_logs_created_at ON system_logs(created_at);
 
 CREATE INDEX idx_adapter_stats_adapter_date ON adapter_statistics(adapter_id, date);
 CREATE INDEX idx_flow_stats_flow_date ON flow_statistics(flow_id, date);
-
--- Functions for automatic timestamp updates
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = CURRENT_TIMESTAMP;
-    RETURN NEW;
-END;
-$$ language 'plpgsql';
-
--- Triggers for automatic timestamp updates
-CREATE TRIGGER update_roles_updated_at BEFORE UPDATE ON roles FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_certificates_updated_at BEFORE UPDATE ON certificates FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_jar_files_updated_at BEFORE UPDATE ON jar_files FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_data_structures_updated_at BEFORE UPDATE ON data_structures FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_adapters_updated_at BEFORE UPDATE ON communication_adapters FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_flows_updated_at BEFORE UPDATE ON integration_flows FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_transformations_updated_at BEFORE UPDATE ON flow_transformations FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_field_mappings_updated_at BEFORE UPDATE ON field_mappings FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_system_settings_updated_at BEFORE UPDATE ON system_settings FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
