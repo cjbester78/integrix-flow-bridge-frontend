@@ -9,7 +9,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Layers,
-  Building2
+  Building2,
+  ScrollText
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useState } from 'react';
@@ -58,6 +59,12 @@ const navigation = [
     name: 'Channel Monitor', 
     href: '/channels', 
     icon: Activity, 
+    roles: ['admin', 'integrator', 'viewer'] 
+  },
+  { 
+    name: 'Adapter Logs', 
+    href: '/adapter-logs', 
+    icon: ScrollText, 
     roles: ['admin', 'integrator', 'viewer'] 
   },
   { 
