@@ -5,6 +5,7 @@ import { Customer } from '@/types/customer';
 import { MessageSquare, RefreshCw } from 'lucide-react';
 import { customerMessageData } from '@/components/messages/messageData';
 import { MessageStats } from '@/components/messages/MessageStats';
+import { MessageList } from '@/components/messages/MessageList';
 import { CustomerFilter } from '@/components/channels/CustomerFilter';
 
 export const Messages = () => {
@@ -59,10 +60,12 @@ export const Messages = () => {
         onCustomerChange={setSelectedCustomer}
       />
 
-      {/* Message content will be added later */}
-      <div className="text-center py-12 text-muted-foreground">
-        Message history and details will be displayed here
-      </div>
+      {/* Message List */}
+      <MessageList 
+        messages={displayMessages} 
+        isCustomerSelected={!!selectedCustomer}
+        statusFilter={statusFilter}
+      />
     </div>
   );
 };
