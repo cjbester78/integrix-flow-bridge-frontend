@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { channelService, Channel, ChannelStats, ChannelFilters } from '@/services/channelService';
+import { channelService, Channel, ChannelStats, ChannelFilters } from '@/services/channel';
 import { useToast } from '@/hooks/use-toast';
 
 export const useChannelMonitoring = (customerId?: string) => {

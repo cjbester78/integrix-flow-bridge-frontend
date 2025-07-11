@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { channelService } from '@/services/channelService';
+import { channelService } from '@/services/channel';
 import { ChannelLog, LogLevel, sampleChannelLogs } from '@/components/channels/channelData';
 import { useToast } from '@/hooks/use-toast';
 
