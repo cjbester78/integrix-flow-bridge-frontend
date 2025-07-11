@@ -1,68 +1,69 @@
-import { Message } from '../messageData';
+import { Message, MessageStatus } from '@/services/messageService';
 import { TimeFilter } from '../types/timeFilter';
 
 export const filterMessagesByTime = (messages: Message[], filter: TimeFilter): Message[] => {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   
-  return messages.filter(message => {
-    const messageDate = new Date(message.timestamp);
+  switch (filter) {
+    case 'today':
+      return messages.filter(message => {
+        const messageDate = new Date(message.timestamp);
+        return messageDate >= today;
+      });
     
-    if (filter === 'today') {
-      return messageDate >= today;
-    }
+    case 'last-24h':
+      const last24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+      return messages.filter(message => {
+        const messageDate = new Date(message.timestamp);
+        return messageDate >= last24h;
+      });
     
-    if (filter === 'yesterday') {
-      const yesterday = new Date(today);
-      yesterday.setDate(yesterday.getDate() - 1);
-      const dayAfter = new Date(yesterday);
-      dayAfter.setDate(dayAfter.getDate() + 1);
-      return messageDate >= yesterday && messageDate < dayAfter;
-    }
+    case 'last-7d':
+      const last7d = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      return messages.filter(message => {
+        const messageDate = new Date(message.timestamp);
+        return messageDate >= last7d;
+      });
     
-    if (filter === 'last-7-days') {
-      const sevenDaysAgo = new Date(today);
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      return messageDate >= sevenDaysAgo;
-    }
+    case 'last-30d':
+      const last30d = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      return messages.filter(message => {
+        const messageDate = new Date(message.timestamp);
+        return messageDate >= last30d;
+      });
     
-    if (filter === 'last-30-days') {
-      const thirtyDaysAgo = new Date(today);
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      return messageDate >= thirtyDaysAgo;
-    }
+    case 'success':
+      return messages.filter(message => message.status === 'success');
     
-    if (filter.startsWith('today-')) {
-      const hour = parseInt(filter.split('-')[1]);
-      const hourStart = new Date(today);
-      hourStart.setHours(hour, 0, 0, 0);
-      const hourEnd = new Date(today);
-      hourEnd.setHours(hour, 59, 59, 999);
-      return messageDate >= hourStart && messageDate <= hourEnd;
-    }
+    case 'failed':
+      return messages.filter(message => message.status === 'failed');
     
-    // Default: all messages
-    return true;
-  });
+    case 'processing':
+      return messages.filter(message => message.status === 'processing');
+    
+    case 'all':
+    default:
+      return messages;
+  }
 };
 
 export const getFilterDescription = (timeFilter: TimeFilter, messageCount: number): string => {
   if (timeFilter === 'today') {
     return `${messageCount} messages today`;
+  } else if (timeFilter === 'last-24h') {
+    return `${messageCount} messages in last 24 hours`;
+  } else if (timeFilter === 'last-7d') {
+    return `${messageCount} messages in last 7 days`;
+  } else if (timeFilter === 'last-30d') {
+    return `${messageCount} messages in last 30 days`;
+  } else if (timeFilter === 'success') {
+    return `${messageCount} successful messages`;
+  } else if (timeFilter === 'failed') {
+    return `${messageCount} failed messages`;
+  } else if (timeFilter === 'processing') {
+    return `${messageCount} processing messages`;
+  } else {
+    return `${messageCount} messages total`;
   }
-  if (timeFilter === 'yesterday') {
-    return `${messageCount} messages yesterday`;
-  }
-  if (timeFilter === 'last-7-days') {
-    return `${messageCount} messages in the past 7 days`;
-  }
-  if (timeFilter === 'last-30-days') {
-    return `${messageCount} messages in the past 30 days`;
-  }
-  if (timeFilter.startsWith('today-')) {
-    const hour = parseInt(timeFilter.split('-')[1]);
-    const hourStr = hour.toString().padStart(2, '0');
-    return `${messageCount} messages today ${hourStr}:00 - ${hourStr}:59`;
-  }
-  return `${messageCount} total messages`;
 };

@@ -1,93 +1,100 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Channel, ChannelStatus } from './channelData';
+import { Channel, FlowMetrics } from '@/services/channelService';
 
 interface ChannelStatsProps {
   channels: Channel[];
   isCustomerSelected: boolean;
-  statusFilter: ChannelStatus | 'error' | null;
-  onStatusFilter: (status: ChannelStatus | 'error' | null) => void;
+  statusFilter: string | null;
+  onStatusFilter: (status: string | null) => void;
 }
 
-export const ChannelStats = ({ channels, isCustomerSelected, statusFilter, onStatusFilter }: ChannelStatsProps) => {
-  const activeChannels = channels.filter(ch => ch.status === 'running').length;
-  const inactiveChannels = channels.filter(ch => ch.status === 'idle').length;
-  const stoppedChannels = channels.filter(ch => ch.status === 'stopped').length;
-  const errorChannels = channels.filter(ch => ch.errorRate > 0).length;
+export const ChannelStats = ({ 
+  channels, 
+  isCustomerSelected, 
+  statusFilter, 
+  onStatusFilter 
+}: ChannelStatsProps) => {
+  const totalChannels = channels.length;
+  const activeChannels = channels.filter(c => c.status === 'active').length;
+  const inactiveChannels = channels.filter(c => c.status === 'inactive').length;
+  const errorChannels = channels.filter(c => c.status === 'error').length;
 
-  const getSubtext = () => 
-    isCustomerSelected 
-      ? `of ${channels.length} customer channels` 
-      : 'across all channels';
+  const totalMessages = channels.reduce((sum, channel) => 
+    sum + (channel.flowMetrics?.totalMessages || 0), 0);
+  const successfulMessages = channels.reduce((sum, channel) => 
+    sum + (channel.flowMetrics?.successfulMessages || 0), 0);
+  const failedMessages = channels.reduce((sum, channel) => 
+    sum + (channel.flowMetrics?.failedMessages || 0), 0);
 
-  const getButtonVariant = (filter: ChannelStatus | 'error') => 
-    statusFilter === filter ? 'default' : 'ghost';
+  const successRate = totalMessages > 0 ? Math.round((successfulMessages / totalMessages) * 100) : 0;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <Button
-        variant={getButtonVariant('running')}
-        className="h-auto p-0 bg-gradient-secondary border-border/50 animate-scale-in hover:scale-105 transition-transform"
-        onClick={() => onStatusFilter('running')}
-      >
-        <Card className="w-full border-0 bg-transparent">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Active Channels</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-success">{activeChannels}</div>
-            <p className="text-xs text-muted-foreground">{getSubtext()}</p>
-          </CardContent>
-        </Card>
-      </Button>
-      
-      <Button
-        variant={getButtonVariant('idle')}
-        className="h-auto p-0 bg-gradient-secondary border-border/50 animate-scale-in hover:scale-105 transition-transform"
-        onClick={() => onStatusFilter('idle')}
-      >
-        <Card className="w-full border-0 bg-transparent">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Inactive Channels</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-warning">{inactiveChannels}</div>
-            <p className="text-xs text-muted-foreground">{getSubtext()}</p>
-          </CardContent>
-        </Card>
-      </Button>
-      
-      <Button
-        variant={getButtonVariant('stopped')}
-        className="h-auto p-0 bg-gradient-secondary border-border/50 animate-scale-in hover:scale-105 transition-transform"
-        onClick={() => onStatusFilter('stopped')}
-      >
-        <Card className="w-full border-0 bg-transparent">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Stopped Channels</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-destructive">{stoppedChannels}</div>
-            <p className="text-xs text-muted-foreground">{getSubtext()}</p>
-          </CardContent>
-        </Card>
-      </Button>
-      
-      <Button
-        variant={getButtonVariant('error')}
-        className="h-auto p-0 bg-gradient-secondary border-border/50 animate-scale-in hover:scale-105 transition-transform"
-        onClick={() => onStatusFilter('error')}
-      >
-        <Card className="w-full border-0 bg-transparent">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Error Channels</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-warning">{errorChannels}</div>
-            <p className="text-xs text-muted-foreground">{getSubtext()}</p>
-          </CardContent>
-        </Card>
-      </Button>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Total Channels</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{totalChannels}</div>
+          <p className="text-xs text-muted-foreground">
+            {isCustomerSelected ? 'For selected customer' : 'Across all customers'}
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Channel Health</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-2 mb-2">
+            <Button
+              variant={statusFilter === 'active' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => onStatusFilter(statusFilter === 'active' ? null : 'active')}
+              className="text-xs"
+            >
+              Active ({activeChannels})
+            </Button>
+            <Button
+              variant={statusFilter === 'error' ? 'destructive' : 'outline'}
+              size="sm"
+              onClick={() => onStatusFilter(statusFilter === 'error' ? null : 'error')}
+              className="text-xs"
+            >
+              Error ({errorChannels})
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {errorChannels > 0 ? `${errorChannels} channels need attention` : 'All channels healthy'}
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Messages Today</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{totalMessages.toLocaleString()}</div>
+          <p className="text-xs text-muted-foreground">
+            {successRate}% success rate
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Failed Messages</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold text-destructive">{failedMessages}</div>
+          <p className="text-xs text-muted-foreground">
+            Requires investigation
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 };

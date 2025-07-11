@@ -6,6 +6,7 @@ export interface DataStructure {
   structure: any;
   createdAt: string;
   usage: 'source' | 'target';
+  customerId?: string;
   namespace?: {
     uri: string;
     prefix?: string;

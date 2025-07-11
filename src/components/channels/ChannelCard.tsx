@@ -192,7 +192,7 @@ export const ChannelCard = ({ channel }: ChannelCardProps) => {
                     variant={getAdapterStatusVariant(adapter.status)}
                     className="text-xs flex items-center gap-1 hover-scale"
                   >
-                    <IconComponent className="h-3 w-3" />
+                    <Activity className="h-3 w-3" />
                     {adapter.name}
                   </Badge>
                 );
@@ -266,7 +266,7 @@ export const ChannelCard = ({ channel }: ChannelCardProps) => {
                     return (
                       <div key={adapter.id} className="flex items-center justify-between p-3 border border-border/50 rounded-lg">
                         <div className="flex items-center gap-3">
-                          <IconComponent className="h-5 w-5" />
+                          <Activity className="h-5 w-5" />
                           <div>
                             <div className="font-medium">{adapter.name}</div>
                             <div className="text-sm text-muted-foreground">{adapter.category}</div>
