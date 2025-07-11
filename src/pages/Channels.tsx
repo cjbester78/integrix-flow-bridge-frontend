@@ -14,7 +14,51 @@ export default function Channels() {
   const { customers, loading } = useCustomerAdapters();
 
   // Mock channels data - replace with actual API call
-  const channels: Channel[] = [];
+  const channels: Channel[] = [
+    {
+      id: '1',
+      name: 'SAP-to-Salesforce Integration',
+      description: 'Customer data synchronization between SAP ERP and Salesforce CRM',
+      status: 'running',
+      customerId: selectedCustomer?.id || '1',
+      load: 85,
+      throughput: '245 msg/min',
+      uptime: '99.8%',
+      lastActivity: '2 seconds ago',
+      errorRate: 0.2,
+      totalMessages: 124567,
+      healthScore: 98,
+      flowMetrics: {
+        totalMessages: 124567,
+        successfulMessages: 124200,
+        failedMessages: 367,
+        averageProcessingTime: '120ms',
+        lastProcessed: '2 seconds ago'
+      },
+      adapters: [
+        {
+          id: 'sap-adapter',
+          name: 'SAP ERP',
+          status: 'connected',
+          category: 'Database',
+          messagesProcessed: 50000,
+          errorCount: 5,
+          avgResponseTime: '120ms',
+          icon: 'Activity'
+        },
+        {
+          id: 'salesforce-adapter', 
+          name: 'Salesforce CRM',
+          status: 'connected',
+          category: 'Cloud',
+          messagesProcessed: 48000,
+          errorCount: 2,
+          avgResponseTime: '95ms',
+          icon: 'Activity'
+        }
+      ]
+    }
+  ];
 
   const filteredChannels = channels.filter(channel => {
     if (selectedCustomer && channel.customerId !== selectedCustomer.id) return false;
@@ -41,35 +85,27 @@ export default function Channels() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Activity className="h-8 w-8 text-primary" />
-          <div>
-            <h1 className="text-3xl font-bold">Channel Management</h1>
-            <p className="text-muted-foreground">
-              Monitor and manage integration channels
-            </p>
-          </div>
-        </div>
-        <Button onClick={handleRefresh} variant="outline" className="gap-2">
-          <RefreshCw className="h-4 w-4" />
-          Refresh
-        </Button>
+    <div className="p-6 space-y-6 animate-fade-in">
+      <div className="animate-slide-up">
+        <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+          <Activity className="h-8 w-8" />
+          Channel Monitor
+        </h1>
+        <p className="text-muted-foreground">Monitor and manage integration channel performance</p>
       </div>
-
-      <CustomerFilter
-        customers={customers}
-        selectedCustomer={selectedCustomer}
-        onCustomerChange={setSelectedCustomer}
-        loading={loading}
-      />
 
       <ChannelStats
         channels={filteredChannels}
         isCustomerSelected={!!selectedCustomer}
         statusFilter={statusFilter}
         onStatusFilter={setStatusFilter}
+      />
+
+      <CustomerFilter
+        customers={customers}
+        selectedCustomer={selectedCustomer}
+        onCustomerChange={setSelectedCustomer}
+        loading={loading}
       />
 
       <ChannelList channels={filteredChannels} />
