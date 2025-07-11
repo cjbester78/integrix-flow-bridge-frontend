@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -83,13 +84,25 @@ export const TransformationConfigurationCard = ({
   onCloseJavaEditor,
 }: TransformationConfigurationCardProps) => {
   const { customers, loading, getStructuresForCustomer } = useCustomerAdapters();
+  const [customerStructures, setCustomerStructures] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (sourceCustomer) {
+      loadCustomerStructures(sourceCustomer);
+    }
+  }, [sourceCustomer]);
+
+  const loadCustomerStructures = async (customerId: string) => {
+    const allowedStructureIds = await getStructuresForCustomer(customerId);
+    setCustomerStructures(allowedStructureIds);
+  };
+
   const getStructureById = (id: string) => sampleStructures.find(s => s.id === id);
 
   const getFilteredStructures = (customerId: string, usage: 'source' | 'target') => {
     if (!customerId) return sampleStructures.filter(s => s.usage === usage);
-    const allowedStructureIds = getStructuresForCustomer(customerId);
     return sampleStructures.filter(s => 
-      allowedStructureIds.includes(s.id) && s.usage === usage
+      customerStructures.includes(s.id) && s.usage === usage
     );
   };
 

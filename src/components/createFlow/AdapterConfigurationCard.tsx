@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
@@ -39,24 +40,38 @@ export const AdapterConfigurationCard = ({
   
   const getAdapterById = (id: string) => adapters.find(adapter => adapter.id === id);
 
-  const getFilteredAdapters = (customerId: string) => {
-    if (!customerId) return adapters;
-    const allowedAdapterIds = getAdaptersForCustomer(customerId);
-    return adapters.filter(adapter => allowedAdapterIds.includes(adapter.id));
+  const [customerAdapters, setCustomerAdapters] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (sourceCustomer) {
+      loadCustomerAdapters(sourceCustomer);
+    }
+  }, [sourceCustomer]);
+
+  const loadCustomerAdapters = async (customerId: string) => {
+    const allowedAdapterIds = await getAdaptersForCustomer(customerId);
+    setCustomerAdapters(allowedAdapterIds);
   };
 
-  const handleSourceCustomerChange = (customerId: string) => {
+  const getFilteredAdapters = (customerId: string) => {
+    if (!customerId) return adapters;
+    return adapters.filter(adapter => customerAdapters.includes(adapter.id));
+  };
+
+  const handleSourceCustomerChange = async (customerId: string) => {
     onSourceCustomerChange(customerId);
     // Reset source adapter if it's not available for the new customer
-    if (sourceAdapter && !getAdaptersForCustomer(customerId).includes(sourceAdapter)) {
+    const adaptersForCustomer = await getAdaptersForCustomer(customerId);
+    if (sourceAdapter && !adaptersForCustomer.includes(sourceAdapter)) {
       onSourceAdapterChange('');
     }
   };
 
-  const handleTargetCustomerChange = (customerId: string) => {
+  const handleTargetCustomerChange = async (customerId: string) => {
     onTargetCustomerChange(customerId);
     // Reset target adapter if it's not available for the new customer
-    if (targetAdapter && !getAdaptersForCustomer(customerId).includes(targetAdapter)) {
+    const adaptersForCustomer = await getAdaptersForCustomer(customerId);
+    if (targetAdapter && !adaptersForCustomer.includes(targetAdapter)) {
       onTargetAdapterChange('');
     }
   };

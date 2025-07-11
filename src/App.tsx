@@ -13,7 +13,7 @@ import { CreateCommunicationAdapter } from "@/pages/CreateCommunicationAdapter";
 import { DataStructures } from "@/pages/DataStructures";
 import { Customers } from "@/pages/Customers";
 import { Messages } from "@/pages/Messages";
-import { Channels } from "@/pages/Channels";
+import Channels from "@/pages/Channels";
 
 import { Admin } from "@/pages/Admin";
 import { Settings } from "@/pages/Settings";

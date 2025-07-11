@@ -61,7 +61,8 @@ export default function Channels() {
       <CustomerFilter
         customers={customers}
         selectedCustomer={selectedCustomer}
-        onCustomerSelect={setSelectedCustomer}
+        onCustomerChange={setSelectedCustomer}
+        loading={loading}
       />
 
       <ChannelStats
