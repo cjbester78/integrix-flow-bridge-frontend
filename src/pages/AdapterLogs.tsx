@@ -17,7 +17,7 @@ export const AdapterLogs = () => {
   const [dateRange, setDateRange] = useState<{ start?: string; end?: string }>({});
 
   const { logs, loading, error, refetch, adapters } = useAdapterLogs({
-    adapterId: selectedAdapter,
+    adapterId: selectedAdapter || undefined,
     level: logLevel || undefined,
     search: searchQuery,
     startDate: dateRange.start,
@@ -69,7 +69,6 @@ export const AdapterLogs = () => {
                   <SelectValue placeholder="Select adapter" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Adapters</SelectItem>
                   {adapters.map((adapter) => (
                     <SelectItem key={adapter.id} value={adapter.id!}>
                       {adapter.name}
@@ -86,7 +85,6 @@ export const AdapterLogs = () => {
                   <SelectValue placeholder="All levels" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Levels</SelectItem>
                   <SelectItem value="info">Info</SelectItem>
                   <SelectItem value="warn">Warning</SelectItem>
                   <SelectItem value="error">Error</SelectItem>

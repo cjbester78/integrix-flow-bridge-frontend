@@ -96,7 +96,7 @@ export const JarSelector: React.FC<JarSelectorProps> = ({
             </SelectItem>
           ))}
           {filteredJars.length === 0 && (
-            <SelectItem value="" disabled>
+            <SelectItem value="no-jars-available" disabled>
               No JAR files available
               {driverTypeFilter && ` for ${driverTypeFilter}`}
             </SelectItem>
