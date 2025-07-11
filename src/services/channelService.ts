@@ -206,6 +206,62 @@ class ChannelService {
       this.websocket.send(JSON.stringify({ command, data }));
     }
   }
+
+  // Channel Log Methods
+  async getChannelLogs(channelId: string, filters?: any): Promise<ApiResponse<any[]>> {
+    const queryParams = new URLSearchParams();
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined) {
+          queryParams.append(key, value.toString());
+        }
+      });
+    }
+    
+    const endpoint = `/channels/${channelId}/logs${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    return api.get(endpoint);
+  }
+
+  async exportChannelLogs(channelId: string, filters?: any): Promise<ApiResponse<string>> {
+    const queryParams = new URLSearchParams();
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined) {
+          queryParams.append(key, value.toString());
+        }
+      });
+    }
+    
+    const endpoint = `/channels/${channelId}/logs/export${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    return api.get(endpoint);
+  }
+
+  // Real-time log streaming
+  connectLogStream(channelId: string): void {
+    if (this.websocket?.readyState === WebSocket.OPEN) {
+      this.sendCommand('subscribe_channel_logs', { channelId });
+    }
+  }
+
+  disconnectLogStream(channelId: string): void {
+    if (this.websocket?.readyState === WebSocket.OPEN) {
+      this.sendCommand('unsubscribe_channel_logs', { channelId });
+    }
+  }
+
+  onLogUpdate(callback: (log: any) => void): () => void {
+    const wrappedCallback = (data: any) => {
+      if (data.type === 'channel_log') {
+        callback(data.log);
+      }
+    };
+    
+    this.channelListeners.push(wrappedCallback);
+    return () => {
+      const index = this.channelListeners.indexOf(wrappedCallback);
+      if (index > -1) this.channelListeners.splice(index, 1);
+    };
+  }
 }
 
 export const channelService = new ChannelService();
