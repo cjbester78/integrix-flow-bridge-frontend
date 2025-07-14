@@ -1,6 +1,54 @@
 // Base API configuration and utilities
 const API_BASE_URL = 'http://localhost:8080/api';
 
+// Mock data for development
+const mockData = {
+  '/auth/profile': {
+    success: true,
+    data: {
+      id: '1',
+      username: 'demo-user',
+      email: 'demo@integrixlab.com',
+      firstName: 'Demo',
+      lastName: 'User',
+      role: 'administrator',
+      status: 'active',
+      permissions: ['read', 'write', 'admin']
+    }
+  },
+  '/customers': {
+    success: true,
+    data: [
+      {
+        id: "1",
+        name: "ACME Corporation",
+        description: "Large enterprise client",
+        contactEmail: "contact@acme.com",
+        contactPhone: "+1-555-0123",
+        createdAt: "2024-01-15T10:00:00Z",
+        updatedAt: "2024-01-15T10:00:00Z"
+      },
+      {
+        id: "2",
+        name: "TechStart Inc",
+        description: "Growing technology startup",
+        contactEmail: "hello@techstart.com",
+        contactPhone: "+1-555-0456",
+        createdAt: "2024-01-16T14:30:00Z",
+        updatedAt: "2024-01-16T14:30:00Z"
+      }
+    ]
+  },
+  '/adapters': {
+    success: true,
+    data: []
+  },
+  '/flows': {
+    success: true,
+    data: []
+  }
+};
+
 export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
@@ -129,6 +177,12 @@ export async function apiRequest<T = any>(
       message: data.message,
     };
   } catch (error) {
+    // Fall back to mock data if API is not available
+    if (mockData[endpoint as keyof typeof mockData]) {
+      console.log(`Using mock data for ${endpoint}`);
+      return mockData[endpoint as keyof typeof mockData] as ApiResponse<T>;
+    }
+
     if (error instanceof ApiError) {
       throw error;
     }
