@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { userService, CreateUserRequest, UpdateUserRequest } from '@/services/userService';
+import { User } from '@/services/authService';
 import { 
   Settings as SettingsIcon, 
   Save, 
@@ -29,40 +31,62 @@ import {
 } from 'lucide-react';
 
 export const Settings = () => {
-  const { user, getAllUsers, createUser, updateUser, deleteUser } = useAuth();
+  const { user } = useAuth();
   const { toast } = useToast();
-  const [users, setUsers] = useState(getAllUsers());
+  const [users, setUsers] = useState<User[]>([]);
   const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
   const [isEditUserOpen, setIsEditUserOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [showPasswords, setShowPasswords] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
   
   // New user form state
   const [newUser, setNewUser] = useState({
     username: '',
     email: '',
+    firstName: '',
+    lastName: '',
     role: 'viewer' as 'admin' | 'developer' | 'operator' | 'viewer',
-    permissions: ['read']
   });
 
-  const rolePermissions = {
-    admin: ['create', 'read', 'update', 'delete', 'manage_users', 'system_config'],
-    developer: ['create', 'read', 'update', 'delete'],
-    operator: ['create', 'read', 'update'],
-    viewer: ['read']
+  // Load users on component mount
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  const loadUsers = async () => {
+    try {
+      setIsLoading(true);
+      const response = await userService.getAllUsers();
+      if (response.success && response.data) {
+        setUsers(response.data.users);
+      } else {
+        toast({
+          title: "Error",
+          description: response.error || "Failed to load users",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load users",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // Mock passwords for display purposes
+  // Mock passwords for display purposes (will be removed when backend provides proper password management)
   const getUserPassword = (username: string) => {
-    const passwords: { [key: string]: string } = {
-      admin: 'admin123',
-      integrator1: 'integrator123',
-      viewer1: 'viewer123'
-    };
-    return passwords[username] || 'defaultpass123';
+    return '••••••••'; // Always show masked password
   };
 
-  const handleCreateUser = () => {
+  const handleCreateUser = async () => {
     if (!newUser.username || !newUser.email) {
       toast({
         title: "Validation Error",
@@ -72,45 +96,95 @@ export const Settings = () => {
       return;
     }
 
-    const userData = {
-      ...newUser,
-      firstName: newUser.username, // Use username as firstName for now
-      lastName: '', // Empty for now
-      status: 'active' as const,
-      permissions: rolePermissions[newUser.role]
-    };
+    try {
+      setIsCreating(true);
+      
+      const userData: CreateUserRequest = {
+        username: newUser.username,
+        email: newUser.email,
+        firstName: newUser.firstName || newUser.username,
+        lastName: newUser.lastName || '',
+        role: newUser.role,
+      };
 
-    createUser(userData);
-    setUsers(getAllUsers());
-    setNewUser({ username: '', email: '', role: 'viewer', permissions: ['read'] });
-    setIsCreateUserOpen(false);
-    
-    toast({
-      title: "User Created",
-      description: `User "${newUser.username}" has been created successfully`,
-    });
+      const response = await userService.createUser(userData);
+      
+      if (response.success) {
+        toast({
+          title: "User Created",
+          description: `User "${newUser.username}" has been created successfully`,
+        });
+        
+        // Reset form and close dialog
+        setNewUser({ username: '', email: '', firstName: '', lastName: '', role: 'viewer' });
+        setIsCreateUserOpen(false);
+        
+        // Reload users list
+        await loadUsers();
+      } else {
+        toast({
+          title: "Error",
+          description: response.error || "Failed to create user",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred while creating the user",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCreating(false);
+    }
   };
 
-  const handleEditUser = () => {
+  const handleEditUser = async () => {
     if (!selectedUser) return;
 
-    updateUser(selectedUser.id, {
-      email: selectedUser.email,
-      role: selectedUser.role,
-      permissions: rolePermissions[selectedUser.role]
-    });
-    
-    setUsers(getAllUsers());
-    setIsEditUserOpen(false);
-    setSelectedUser(null);
-    
-    toast({
-      title: "User Updated",
-      description: `User "${selectedUser.username}" has been updated successfully`,
-    });
+    try {
+      setIsUpdating(true);
+      
+      const updates: UpdateUserRequest = {
+        email: selectedUser.email,
+        firstName: selectedUser.firstName,
+        lastName: selectedUser.lastName,
+        role: selectedUser.role,
+        permissions: userService.getRolePermissions(selectedUser.role)
+      };
+
+      const response = await userService.updateUser(selectedUser.id, updates);
+      
+      if (response.success) {
+        toast({
+          title: "User Updated",
+          description: `User "${selectedUser.username}" has been updated successfully`,
+        });
+        
+        setIsEditUserOpen(false);
+        setSelectedUser(null);
+        
+        // Reload users list
+        await loadUsers();
+      } else {
+        toast({
+          title: "Error",
+          description: response.error || "Failed to update user",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred while updating the user",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
-  const handleDeleteUser = (userId: string, username: string) => {
+  const handleDeleteUser = async (userId: string, username: string) => {
     if (user?.id === userId) {
       toast({
         title: "Cannot Delete",
@@ -120,13 +194,35 @@ export const Settings = () => {
       return;
     }
 
-    deleteUser(userId);
-    setUsers(getAllUsers());
-    
-    toast({
-      title: "User Deleted",
-      description: `User "${username}" has been deleted`,
-    });
+    try {
+      setIsDeleting(userId);
+      
+      const response = await userService.deleteUser(userId);
+      
+      if (response.success) {
+        toast({
+          title: "User Deleted",
+          description: `User "${username}" has been deleted`,
+        });
+        
+        // Reload users list
+        await loadUsers();
+      } else {
+        toast({
+          title: "Error",
+          description: response.error || "Failed to delete user",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred while deleting the user",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(null);
+    }
   };
 
   const getRoleBadgeVariant = (role: string) => {
@@ -180,6 +276,7 @@ export const Settings = () => {
                           value={newUser.username}
                           onChange={(e) => setNewUser({...newUser, username: e.target.value})}
                           placeholder="Enter username"
+                          disabled={isCreating}
                         />
                       </div>
                       <div className="space-y-2">
@@ -190,6 +287,27 @@ export const Settings = () => {
                           value={newUser.email}
                           onChange={(e) => setNewUser({...newUser, email: e.target.value})}
                           placeholder="Enter email address"
+                          disabled={isCreating}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="firstName">First Name</Label>
+                        <Input
+                          id="firstName"
+                          value={newUser.firstName}
+                          onChange={(e) => setNewUser({...newUser, firstName: e.target.value})}
+                          placeholder="Enter first name"
+                          disabled={isCreating}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="lastName">Last Name</Label>
+                        <Input
+                          id="lastName"
+                          value={newUser.lastName}
+                          onChange={(e) => setNewUser({...newUser, lastName: e.target.value})}
+                          placeholder="Enter last name"
+                          disabled={isCreating}
                         />
                       </div>
                       <div className="space-y-2">
@@ -197,13 +315,15 @@ export const Settings = () => {
                         <Select 
                           value={newUser.role} 
                           onValueChange={(value) => setNewUser({...newUser, role: value as any})}
+                          disabled={isCreating}
                         >
                           <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="admin">Admin</SelectItem>
-                            <SelectItem value="integrator">Integrator</SelectItem>
+                            <SelectItem value="developer">Developer</SelectItem>
+                            <SelectItem value="operator">Operator</SelectItem>
                             <SelectItem value="viewer">Viewer</SelectItem>
                           </SelectContent>
                         </Select>
@@ -211,7 +331,7 @@ export const Settings = () => {
                       <div className="space-y-2">
                         <Label>Permissions</Label>
                         <div className="flex flex-wrap gap-1">
-                          {rolePermissions[newUser.role].map((permission) => (
+                          {userService.getRolePermissions(newUser.role).map((permission) => (
                             <Badge key={permission} variant="outline" className="text-xs">
                               {permission}
                             </Badge>
@@ -219,11 +339,11 @@ export const Settings = () => {
                         </div>
                       </div>
                       <div className="flex justify-end gap-2">
-                        <Button variant="outline" onClick={() => setIsCreateUserOpen(false)}>
+                        <Button variant="outline" onClick={() => setIsCreateUserOpen(false)} disabled={isCreating}>
                           Cancel
                         </Button>
-                        <Button onClick={handleCreateUser}>
-                          Create User
+                        <Button onClick={handleCreateUser} disabled={isCreating}>
+                          {isCreating ? 'Creating...' : 'Create User'}
                         </Button>
                       </div>
                     </div>
@@ -235,15 +355,29 @@ export const Settings = () => {
             <CardContent>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <Label className="text-sm font-medium">System Users ({users.length})</Label>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowPasswords(!showPasswords)}
-                  >
-                    {showPasswords ? <EyeOff className="h-4 w-4 mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
-                    {showPasswords ? 'Hide' : 'Show'} Passwords
-                  </Button>
+                  <Label className="text-sm font-medium">
+                    System Users ({users.length})
+                    {isLoading && <span className="text-muted-foreground"> - Loading...</span>}
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={loadUsers}
+                      disabled={isLoading}
+                    >
+                      <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                      Refresh
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowPasswords(!showPasswords)}
+                    >
+                      {showPasswords ? <EyeOff className="h-4 w-4 mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
+                      {showPasswords ? 'Hide' : 'Show'} Passwords
+                    </Button>
+                  </div>
                 </div>
                 
                 <div className="space-y-3">
@@ -305,49 +439,70 @@ export const Settings = () => {
                                     <Label>Username</Label>
                                     <Input value={selectedUser.username} disabled />
                                   </div>
-                                  <div className="space-y-2">
-                                    <Label htmlFor="edit-email">Email</Label>
-                                    <Input
-                                      id="edit-email"
-                                      type="email"
-                                      value={selectedUser.email}
-                                      onChange={(e) => setSelectedUser({...selectedUser, email: e.target.value})}
-                                    />
-                                  </div>
+                                   <div className="space-y-2">
+                                     <Label htmlFor="edit-email">Email</Label>
+                                     <Input
+                                       id="edit-email"
+                                       type="email"
+                                       value={selectedUser.email}
+                                       onChange={(e) => setSelectedUser({...selectedUser, email: e.target.value})}
+                                       disabled={isUpdating}
+                                     />
+                                   </div>
+                                   <div className="space-y-2">
+                                     <Label htmlFor="edit-firstName">First Name</Label>
+                                     <Input
+                                       id="edit-firstName"
+                                       value={selectedUser.firstName || ''}
+                                       onChange={(e) => setSelectedUser({...selectedUser, firstName: e.target.value})}
+                                       disabled={isUpdating}
+                                     />
+                                   </div>
+                                   <div className="space-y-2">
+                                     <Label htmlFor="edit-lastName">Last Name</Label>
+                                     <Input
+                                       id="edit-lastName"
+                                       value={selectedUser.lastName || ''}
+                                       onChange={(e) => setSelectedUser({...selectedUser, lastName: e.target.value})}
+                                       disabled={isUpdating}
+                                     />
+                                   </div>
                                   <div className="space-y-2">
                                     <Label htmlFor="edit-role">Role</Label>
-                                    <Select 
-                                      value={selectedUser.role} 
-                                      onValueChange={(value) => setSelectedUser({...selectedUser, role: value})}
-                                    >
-                                      <SelectTrigger>
-                                        <SelectValue />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        <SelectItem value="admin">Admin</SelectItem>
-                                        <SelectItem value="integrator">Integrator</SelectItem>
-                                        <SelectItem value="viewer">Viewer</SelectItem>
-                                      </SelectContent>
-                                    </Select>
+                                      <Select 
+                                        value={selectedUser.role} 
+                                        onValueChange={(value) => setSelectedUser({...selectedUser, role: value as 'admin' | 'developer' | 'operator' | 'viewer'})}
+                                        disabled={isUpdating}
+                                      >
+                                       <SelectTrigger>
+                                         <SelectValue />
+                                       </SelectTrigger>
+                                       <SelectContent>
+                                         <SelectItem value="admin">Admin</SelectItem>
+                                         <SelectItem value="developer">Developer</SelectItem>
+                                         <SelectItem value="operator">Operator</SelectItem>
+                                         <SelectItem value="viewer">Viewer</SelectItem>
+                                       </SelectContent>
+                                     </Select>
                                   </div>
                                   <div className="space-y-2">
                                     <Label>Permissions</Label>
-                                    <div className="flex flex-wrap gap-1">
-                                      {rolePermissions[selectedUser.role as keyof typeof rolePermissions].map((permission) => (
-                                        <Badge key={permission} variant="outline" className="text-xs">
-                                          {permission}
-                                        </Badge>
-                                      ))}
-                                    </div>
+                                     <div className="flex flex-wrap gap-1">
+                                       {userService.getRolePermissions(selectedUser.role).map((permission) => (
+                                         <Badge key={permission} variant="outline" className="text-xs">
+                                           {permission}
+                                         </Badge>
+                                       ))}
+                                     </div>
                                   </div>
-                                  <div className="flex justify-end gap-2">
-                                    <Button variant="outline" onClick={() => setIsEditUserOpen(false)}>
-                                      Cancel
-                                    </Button>
-                                    <Button onClick={handleEditUser}>
-                                      Update User
-                                    </Button>
-                                  </div>
+                                   <div className="flex justify-end gap-2">
+                                     <Button variant="outline" onClick={() => setIsEditUserOpen(false)} disabled={isUpdating}>
+                                       Cancel
+                                     </Button>
+                                     <Button onClick={handleEditUser} disabled={isUpdating}>
+                                       {isUpdating ? 'Updating...' : 'Update User'}
+                                     </Button>
+                                   </div>
                                 </div>
                               )}
                             </DialogContent>
@@ -357,9 +512,13 @@ export const Settings = () => {
                             size="sm"
                             className="text-destructive hover:text-destructive"
                             onClick={() => handleDeleteUser(userItem.id, userItem.username)}
-                            disabled={userItem.id === user?.id}
+                            disabled={userItem.id === user?.id || isDeleting === userItem.id}
                           >
-                            <Trash2 className="h-4 w-4" />
+                            {isDeleting === userItem.id ? (
+                              <RefreshCw className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-4 w-4" />
+                            )}
                           </Button>
                         </div>
                       </div>
