@@ -4,8 +4,11 @@
 
 USE integrixlab;
 
--- Insert test users with different roles
-INSERT INTO users (
+-- Clean up existing test users first (optional - uncomment if needed)
+-- DELETE FROM users WHERE username IN ('admin', 'integrator', 'viewer', 'testuser', 'inactive');
+
+-- Insert test users with different roles (ignore duplicates)
+INSERT IGNORE INTO users (
     id,
     username,
     email,
