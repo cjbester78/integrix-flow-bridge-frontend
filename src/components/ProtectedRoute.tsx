@@ -20,6 +20,14 @@ const roleRouteAccess = {
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRoles }) => {
   const { isAuthenticated, isLoading, user } = useAuth();
   const location = useLocation();
+  
+  console.log('🛡️ ProtectedRoute Debug:', {
+    path: location.pathname,
+    isAuthenticated,
+    isLoading,
+    userRole: user?.role,
+    userId: user?.id
+  });
 
   if (isLoading) {
     return (
