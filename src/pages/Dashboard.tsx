@@ -93,15 +93,17 @@ export const Dashboard = () => {
     ? customerData[selectedCustomer.id as keyof typeof customerData]?.channels || []
     : [];
 
+  console.log('Dashboard render - about to return JSX');
+  
   return (
-    <div className="p-6 space-y-6 animate-fade-in">
-      <div className="animate-slide-up">
+    <div className="p-6 space-y-6">
+      <div>
         <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
         <p className="text-muted-foreground">Monitor your integration platform performance</p>
       </div>
 
       {/* Customer Selection */}
-      <Card className="animate-scale-in">
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="h-5 w-5" />
@@ -138,7 +140,7 @@ export const Dashboard = () => {
       </Card>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-scale-in">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => (
           <Card 
             key={stat.title} 
