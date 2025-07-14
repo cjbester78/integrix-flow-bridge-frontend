@@ -37,9 +37,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const initAuth = async () => {
       try {
+        console.log('AuthContext: Initializing auth state...');
         if (authService.isAuthenticated()) {
+          console.log('AuthContext: Token exists, fetching profile...');
           const response = await authService.getProfile();
           if (response.success && response.data) {
+            console.log('AuthContext: Profile fetched successfully:', response.data);
             setUser(response.data);
             
             // Set token expiry based on JWT
@@ -53,14 +56,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               }
             }
           } else {
+            console.warn('AuthContext: Profile fetch failed, clearing auth data');
             // Token might be invalid, clear auth data
             await authService.logout();
           }
+        } else {
+          console.log('AuthContext: No valid token found');
         }
       } catch (error) {
         console.error('Auth initialization error:', error);
         await authService.logout();
       } finally {
+        console.log('AuthContext: Auth initialization complete');
         setIsLoading(false);
       }
     };
@@ -185,7 +192,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     user,
     login,
     logout,
-    isAuthenticated: authService.isAuthenticated(),
+    isAuthenticated: !!user && authService.isAuthenticated(),
     isLoading,
     tokenExpiry,
     getAllUsers,
