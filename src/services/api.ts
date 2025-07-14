@@ -76,7 +76,7 @@ export async function apiRequest<T = any>(
     'Content-Type': 'application/json',
   };
   
-  if (token && !endpoint.includes('/auth/')) {
+  if (token && !endpoint.includes('/auth/login') && !endpoint.includes('/auth/register') && !endpoint.includes('/auth/refresh')) {
     defaultHeaders['Authorization'] = `Bearer ${token}`;
   }
 
@@ -89,7 +89,7 @@ export async function apiRequest<T = any>(
     let response = await fetch(url, requestOptions);
 
     // Handle token expiration and retry with refreshed token
-    if (response.status === 401 && !endpoint.includes('/auth/')) {
+    if (response.status === 401 && !endpoint.includes('/auth/login') && !endpoint.includes('/auth/register') && !endpoint.includes('/auth/refresh')) {
       const refreshed = await refreshAuthToken();
       if (refreshed) {
         const newToken = getToken();
