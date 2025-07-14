@@ -1,15 +1,18 @@
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Plus, Edit, Trash2, Crown, Settings, UserCheck, Users } from 'lucide-react';
 import { User } from '@/types/admin';
+import { CreateUserDialog } from './CreateUserDialog';
 
 interface UserManagementProps {
   users: User[];
 }
 
 export const UserManagement = ({ users }: UserManagementProps) => {
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
   const getRoleIcon = (role: string) => {
     switch (role) {
       case 'administrator':
@@ -42,7 +45,10 @@ export const UserManagement = ({ users }: UserManagementProps) => {
             <CardTitle>User Management</CardTitle>
             <CardDescription>Manage system users and their access levels</CardDescription>
           </div>
-          <Button className="bg-gradient-primary">
+          <Button 
+            className="bg-gradient-primary"
+            onClick={() => setShowCreateDialog(true)}
+          >
             <Plus className="h-4 w-4 mr-2" />
             Add User
           </Button>
@@ -94,6 +100,16 @@ export const UserManagement = ({ users }: UserManagementProps) => {
           </Table>
         </div>
       </CardContent>
+      
+      <CreateUserDialog 
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
+        onUserCreated={() => {
+          // In a real app, you would refresh the user list here
+          // For now, we're just using mock data, so this is a placeholder
+          console.log('User created successfully - in real app, refresh user list');
+        }}
+      />
     </Card>
   );
 };
