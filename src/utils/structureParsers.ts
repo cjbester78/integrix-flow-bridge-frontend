@@ -113,7 +113,13 @@ export const extractWsdlNamespaceInfo = (wsdlString: string) => {
     
     const root = doc.documentElement;
     const targetNamespace = root.getAttribute('targetNamespace') || '';
-    const schemaLocation = root.getAttribute('schemaLocation') || '';
+    
+    // Extract WSDL location from soap:address location
+    const soapAddresses = doc.querySelectorAll('address, soap\\:address, soap12\\:address');
+    let schemaLocation = '';
+    if (soapAddresses.length > 0) {
+      schemaLocation = soapAddresses[0].getAttribute('location') || '';
+    }
     
     // Extract namespace prefix from xmlns attributes
     let prefix = '';
