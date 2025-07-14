@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { userService, CreateUserRequest, UpdateUserRequest } from '@/services/userService';
-import { User } from '@/services/authService';
+import { User } from '@/types/admin';
 import { 
   Settings as SettingsIcon, 
   Save, 
@@ -47,9 +47,9 @@ export const Settings = () => {
   const [newUser, setNewUser] = useState({
     username: '',
     email: '',
-    firstName: '',
-    lastName: '',
-    role: 'viewer' as 'admin' | 'developer' | 'operator' | 'viewer',
+    first_name: '',
+    last_name: '',
+    role: 'viewer' as 'admin' | 'integrator' | 'viewer',
   });
 
   // Load users on component mount
@@ -102,8 +102,8 @@ export const Settings = () => {
       const userData: CreateUserRequest = {
         username: newUser.username,
         email: newUser.email,
-        firstName: newUser.firstName || newUser.username,
-        lastName: newUser.lastName || '',
+        first_name: newUser.first_name || newUser.username,
+        last_name: newUser.last_name || '',
         role: newUser.role,
       };
 
@@ -116,7 +116,7 @@ export const Settings = () => {
         });
         
         // Reset form and close dialog
-        setNewUser({ username: '', email: '', firstName: '', lastName: '', role: 'viewer' });
+        setNewUser({ username: '', email: '', first_name: '', last_name: '', role: 'viewer' });
         setIsCreateUserOpen(false);
         
         // Reload users list
@@ -147,8 +147,8 @@ export const Settings = () => {
       
       const updates: UpdateUserRequest = {
         email: selectedUser.email,
-        firstName: selectedUser.firstName,
-        lastName: selectedUser.lastName,
+        first_name: selectedUser.first_name,
+        last_name: selectedUser.last_name,
         role: selectedUser.role,
         permissions: userService.getRolePermissions(selectedUser.role)
       };
@@ -291,21 +291,21 @@ export const Settings = () => {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="firstName">First Name</Label>
+                        <Label htmlFor="first_name">First Name</Label>
                         <Input
-                          id="firstName"
-                          value={newUser.firstName}
-                          onChange={(e) => setNewUser({...newUser, firstName: e.target.value})}
+                          id="first_name"
+                          value={newUser.first_name}
+                          onChange={(e) => setNewUser({...newUser, first_name: e.target.value})}
                           placeholder="Enter first name"
                           disabled={isCreating}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="lastName">Last Name</Label>
+                        <Label htmlFor="last_name">Last Name</Label>
                         <Input
-                          id="lastName"
-                          value={newUser.lastName}
-                          onChange={(e) => setNewUser({...newUser, lastName: e.target.value})}
+                          id="last_name"
+                          value={newUser.last_name}
+                          onChange={(e) => setNewUser({...newUser, last_name: e.target.value})}
                           placeholder="Enter last name"
                           disabled={isCreating}
                         />
@@ -322,8 +322,7 @@ export const Settings = () => {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="admin">Admin</SelectItem>
-                            <SelectItem value="developer">Developer</SelectItem>
-                            <SelectItem value="operator">Operator</SelectItem>
+                            <SelectItem value="integrator">Integrator</SelectItem>
                             <SelectItem value="viewer">Viewer</SelectItem>
                           </SelectContent>
                         </Select>
@@ -399,9 +398,9 @@ export const Settings = () => {
                             {showPasswords && (
                               <div>Password: <code className="bg-muted px-1 rounded">{getUserPassword(userItem.username)}</code></div>
                             )}
-                            <div>Created: {userItem.createdAt}</div>
-                            {userItem.lastLoginAt && (
-                              <div>Last Login: {new Date(userItem.lastLoginAt).toLocaleDateString()}</div>
+                            <div>Created: {userItem.created_at}</div>
+                            {userItem.last_login_at && (
+                              <div>Last Login: {new Date(userItem.last_login_at).toLocaleDateString()}</div>
                             )}
                           </div>
                           <div className="flex flex-wrap gap-1 mt-2">
@@ -450,20 +449,20 @@ export const Settings = () => {
                                      />
                                    </div>
                                    <div className="space-y-2">
-                                     <Label htmlFor="edit-firstName">First Name</Label>
+                                     <Label htmlFor="edit-first_name">First Name</Label>
                                      <Input
-                                       id="edit-firstName"
-                                       value={selectedUser.firstName || ''}
-                                       onChange={(e) => setSelectedUser({...selectedUser, firstName: e.target.value})}
+                                       id="edit-first_name"
+                                       value={selectedUser.first_name || ''}
+                                       onChange={(e) => setSelectedUser({...selectedUser, first_name: e.target.value})}
                                        disabled={isUpdating}
                                      />
                                    </div>
                                    <div className="space-y-2">
-                                     <Label htmlFor="edit-lastName">Last Name</Label>
+                                     <Label htmlFor="edit-last_name">Last Name</Label>
                                      <Input
-                                       id="edit-lastName"
-                                       value={selectedUser.lastName || ''}
-                                       onChange={(e) => setSelectedUser({...selectedUser, lastName: e.target.value})}
+                                       id="edit-last_name"
+                                       value={selectedUser.last_name || ''}
+                                       onChange={(e) => setSelectedUser({...selectedUser, last_name: e.target.value})}
                                        disabled={isUpdating}
                                      />
                                    </div>
@@ -471,7 +470,7 @@ export const Settings = () => {
                                     <Label htmlFor="edit-role">Role</Label>
                                       <Select 
                                         value={selectedUser.role} 
-                                        onValueChange={(value) => setSelectedUser({...selectedUser, role: value as 'admin' | 'developer' | 'operator' | 'viewer'})}
+                                        onValueChange={(value) => setSelectedUser({...selectedUser, role: value as 'admin' | 'integrator' | 'viewer'})}
                                         disabled={isUpdating}
                                       >
                                        <SelectTrigger>
@@ -479,8 +478,7 @@ export const Settings = () => {
                                        </SelectTrigger>
                                        <SelectContent>
                                          <SelectItem value="admin">Admin</SelectItem>
-                                         <SelectItem value="developer">Developer</SelectItem>
-                                         <SelectItem value="operator">Operator</SelectItem>
+                                         <SelectItem value="integrator">Integrator</SelectItem>
                                          <SelectItem value="viewer">Viewer</SelectItem>
                                        </SelectContent>
                                      </Select>

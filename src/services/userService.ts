@@ -1,20 +1,20 @@
 import { api, ApiResponse } from './api';
-import { User } from '@/services/authService';
+import { User } from '@/types/admin';
 
 export interface CreateUserRequest {
   username: string;
   email: string;
-  firstName: string;
-  lastName: string;
-  role: 'admin' | 'developer' | 'operator' | 'viewer';
+  first_name: string;
+  last_name: string;
+  role: 'admin' | 'integrator' | 'viewer';
   password?: string;
 }
 
 export interface UpdateUserRequest {
   email?: string;
-  firstName?: string;
-  lastName?: string;
-  role?: 'admin' | 'developer' | 'operator' | 'viewer';
+  first_name?: string;
+  last_name?: string;
+  role?: 'admin' | 'integrator' | 'viewer';
   status?: 'active' | 'inactive' | 'pending';
   permissions?: string[];
 }
@@ -114,13 +114,12 @@ class UserService {
   // Helper method to get role permissions
   getRolePermissions(role: string): string[] {
     const rolePermissions = {
-      admin: ['create', 'read', 'update', 'delete', 'manage_users', 'system_config'],
-      developer: ['create', 'read', 'update', 'delete'],
-      operator: ['create', 'read', 'update'],
-      viewer: ['read']
+      admin: ['flows:create', 'flows:read', 'flows:update', 'flows:delete', 'flows:execute', 'adapters:create', 'adapters:read', 'adapters:update', 'adapters:delete', 'adapters:test', 'structures:create', 'structures:read', 'structures:update', 'structures:delete', 'users:create', 'users:read', 'users:update', 'users:delete', 'system:admin'],
+      integrator: ['flows:create', 'flows:read', 'flows:update', 'flows:execute', 'adapters:create', 'adapters:read', 'adapters:update', 'adapters:test', 'structures:create', 'structures:read', 'structures:update'],
+      viewer: ['flows:read', 'adapters:read', 'structures:read']
     };
 
-    return rolePermissions[role as keyof typeof rolePermissions] || ['read'];
+    return rolePermissions[role as keyof typeof rolePermissions] || ['flows:read'];
   }
 }
 

@@ -4,17 +4,7 @@
 -- Set SQL mode for strict compliance
 SET SQL_MODE = 'STRICT_TRANS_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO';
 
--- Roles table for admin management
-CREATE TABLE roles (
-    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
-    name VARCHAR(50) UNIQUE NOT NULL,
-    description TEXT,
-    permissions JSON NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
--- Users and Authentication
+-- Users and Authentication (Simplified)
 CREATE TABLE users (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     username VARCHAR(50) UNIQUE NOT NULL,
@@ -22,18 +12,16 @@ CREATE TABLE users (
     password_hash VARCHAR(255) NOT NULL,
     first_name VARCHAR(100),
     last_name VARCHAR(100),
-    role_id CHAR(36),
-    role ENUM('administrator', 'integrator', 'viewer') NOT NULL DEFAULT 'viewer',
+    role ENUM('admin', 'integrator', 'viewer') NOT NULL DEFAULT 'viewer',
     status ENUM('active', 'inactive', 'pending') NOT NULL DEFAULT 'active',
-    permissions JSON, -- JSON array of permission strings
+    permissions JSON, -- Simple array of permission strings
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     last_login_at TIMESTAMP NULL,
     email_verified BOOLEAN DEFAULT FALSE,
     email_verification_token VARCHAR(255),
     password_reset_token VARCHAR(255),
-    password_reset_expires_at TIMESTAMP NULL,
-    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE SET NULL
+    password_reset_expires_at TIMESTAMP NULL
 );
 
 -- Certificates table for admin management
@@ -275,12 +263,9 @@ CREATE TABLE system_settings (
 );
 
 -- Indexes for better performance
-CREATE INDEX idx_roles_name ON roles(name);
-
 CREATE INDEX idx_users_username ON users(username);
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_role ON users(role);
-CREATE INDEX idx_users_role_id ON users(role_id);
 CREATE INDEX idx_users_status ON users(status);
 
 CREATE INDEX idx_certificates_status ON certificates(status);

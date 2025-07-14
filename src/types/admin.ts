@@ -2,10 +2,15 @@ export interface User {
   id: string;
   username: string;
   email: string;
-  role: string;
-  status: string;
-  lastLogin: string;
-  createdAt: string;
+  first_name: string;
+  last_name: string;
+  role: 'admin' | 'integrator' | 'viewer';
+  status: 'active' | 'inactive' | 'pending';
+  permissions: string[];
+  email_verified: boolean;
+  created_at: string;
+  updated_at: string;
+  last_login_at?: string;
 }
 
 export interface Role {

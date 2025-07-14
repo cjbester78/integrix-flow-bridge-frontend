@@ -1,21 +1,18 @@
 -- Seed Data for Integration Platform (MySQL)
 -- This file contains sample data for development and testing
 
--- Insert roles
-INSERT INTO roles (id, name, description, permissions) VALUES
-('440e8400-e29b-41d4-a716-446655440000', 'administrator', 'Full system access with user management capabilities', JSON_ARRAY('read', 'write', 'admin', 'user_management')),
-('440e8400-e29b-41d4-a716-446655440001', 'integrator', 'Can create and manage integration flows', JSON_ARRAY('read', 'write', 'execute')),
-('440e8400-e29b-41d4-a716-446655440002', 'viewer', 'Read-only access to monitoring and logs', JSON_ARRAY('read'));
-
--- Insert default admin users (password: admin123)
-INSERT INTO users (id, username, email, password_hash, first_name, last_name, role_id, role, status, permissions, email_verified, last_login_at) VALUES
-('550e8400-e29b-41d4-a716-446655440000', 'admin', 'admin@integrixlab.com', '$2b$10$rKjWJL8sZZ8fCLwn8yJLruN1.5HJLfMvKxWHNM3YzNHN1EpZUxzKu', 'System', 'Administrator', '440e8400-e29b-41d4-a716-446655440000', 'administrator', 'active', 
+-- Insert default users with simplified structure
+INSERT INTO users (id, username, email, password_hash, first_name, last_name, role, status, permissions, email_verified, last_login_at) VALUES
+-- Administrator user (password: admin123)
+('550e8400-e29b-41d4-a716-446655440000', 'admin', 'admin@integrixlab.com', '$2b$10$rKjWJL8sZZ8fCLwn8yJLruN1.5HJLfMvKxWHNM3YzNHN1EpZUxzKu', 'System', 'Administrator', 'admin', 'active', 
  JSON_ARRAY('flows:create', 'flows:read', 'flows:update', 'flows:delete', 'flows:execute', 'adapters:create', 'adapters:read', 'adapters:update', 'adapters:delete', 'adapters:test', 'structures:create', 'structures:read', 'structures:update', 'structures:delete', 'users:create', 'users:read', 'users:update', 'users:delete', 'system:admin'), TRUE, '2024-01-15 14:30:25'),
 
-('550e8400-e29b-41d4-a716-446655440001', 'integrator1', 'integrator1@company.com', '$2b$10$rKjWJL8sZZ8fCLwn8yJLruN1.5HJLfMvKxWHNM3YzNHN1EpZUxzKu', 'John', 'Integrator', '440e8400-e29b-41d4-a716-446655440001', 'integrator', 'active',
+-- Integrator user (password: integrator123)
+('550e8400-e29b-41d4-a716-446655440001', 'integrator1', 'integrator1@company.com', '$2b$10$rKjWJL8sZZ8fCLwn8yJLruN1.5HJLfMvKxWHNM3YzNHN1EpZUxzKu', 'John', 'Integrator', 'integrator', 'active',
  JSON_ARRAY('flows:create', 'flows:read', 'flows:update', 'flows:execute', 'adapters:create', 'adapters:read', 'adapters:update', 'adapters:test', 'structures:create', 'structures:read', 'structures:update'), TRUE, '2024-01-15 12:15:30'),
 
-('550e8400-e29b-41d4-a716-446655440002', 'viewer1', 'viewer1@company.com', '$2b$10$rKjWJL8sZZ8fCLwn8yJLruN1.5HJLfMvKxWHNM3YzNHN1EpZUxzKu', 'Jane', 'Viewer', '440e8400-e29b-41d4-a716-446655440002', 'viewer', 'inactive',
+-- Viewer user (password: viewer123)
+('550e8400-e29b-41d4-a716-446655440002', 'viewer1', 'viewer1@company.com', '$2b$10$rKjWJL8sZZ8fCLwn8yJLruN1.5HJLfMvKxWHNM3YzNHN1EpZUxzKu', 'Jane', 'Viewer', 'viewer', 'inactive',
  JSON_ARRAY('flows:read', 'adapters:read', 'structures:read'), TRUE, '2024-01-10 16:45:12');
 
 -- Insert certificates

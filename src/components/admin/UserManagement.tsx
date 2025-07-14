@@ -12,7 +12,7 @@ interface UserManagementProps {
 export const UserManagement = ({ users }: UserManagementProps) => {
   const getRoleIcon = (role: string) => {
     switch (role) {
-      case 'administrator':
+      case 'admin':
         return <Crown className="h-4 w-4 text-warning" />;
       case 'integrator':
         return <Settings className="h-4 w-4 text-info" />;
@@ -77,7 +77,7 @@ export const UserManagement = ({ users }: UserManagementProps) => {
                       {user.status}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-muted-foreground">{user.lastLogin}</TableCell>
+                  <TableCell className="text-muted-foreground">{user.last_login_at || 'Never'}</TableCell>
                   <TableCell>
                     <div className="flex gap-2">
                       <Button variant="ghost" size="sm">

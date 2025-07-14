@@ -14,28 +14,43 @@ const initialUsers: User[] = [
     id: '1',
     username: 'admin',
     email: 'admin@integrixlab.com',
-    role: 'administrator',
+    first_name: 'System',
+    last_name: 'Administrator',
+    role: 'admin',
     status: 'active',
-    lastLogin: '2024-01-15 14:30:25',
-    createdAt: '2024-01-01 09:00:00'
+    permissions: ['flows:create', 'flows:read', 'flows:update', 'flows:delete', 'flows:execute', 'adapters:create', 'adapters:read', 'adapters:update', 'adapters:delete', 'adapters:test', 'structures:create', 'structures:read', 'structures:update', 'structures:delete', 'users:create', 'users:read', 'users:update', 'users:delete', 'system:admin'],
+    email_verified: true,
+    created_at: '2024-01-01 09:00:00',
+    updated_at: '2024-01-01 09:00:00',
+    last_login_at: '2024-01-15 14:30:25'
   },
   {
     id: '2',
     username: 'integrator1',
     email: 'integrator1@company.com',
+    first_name: 'John',
+    last_name: 'Integrator',
     role: 'integrator',
     status: 'active',
-    lastLogin: '2024-01-15 12:15:30',
-    createdAt: '2024-01-05 10:30:00'
+    permissions: ['flows:create', 'flows:read', 'flows:update', 'flows:execute', 'adapters:create', 'adapters:read', 'adapters:update', 'adapters:test', 'structures:create', 'structures:read', 'structures:update'],
+    email_verified: true,
+    created_at: '2024-01-05 10:30:00',
+    updated_at: '2024-01-05 10:30:00',
+    last_login_at: '2024-01-15 12:15:30'
   },
   {
     id: '3',
     username: 'viewer1',
     email: 'viewer1@company.com',
+    first_name: 'Jane',
+    last_name: 'Viewer',
     role: 'viewer',
     status: 'inactive',
-    lastLogin: '2024-01-10 16:45:12',
-    createdAt: '2024-01-08 14:20:00'
+    permissions: ['flows:read', 'adapters:read', 'structures:read'],
+    email_verified: true,
+    created_at: '2024-01-08 14:20:00',
+    updated_at: '2024-01-08 14:20:00',
+    last_login_at: '2024-01-10 16:45:12'
   }
 ];
 
