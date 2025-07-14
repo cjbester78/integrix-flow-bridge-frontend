@@ -1,5 +1,5 @@
 // Base API configuration and utilities
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = 'http://localhost:8080/api';
 
 export interface ApiResponse<T = any> {
   success: boolean;
