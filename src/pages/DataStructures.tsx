@@ -69,6 +69,15 @@ export const DataStructures = () => {
     };
   }, [structureName, structureDescription, selectedStructureType, jsonInput, xsdInput, edmxInput, wsdlInput, customFields, namespaceConfig]);
 
+  const handleWsdlAnalyzed = (extractedName: string | null, namespaceInfo: any) => {
+    if (extractedName && !structureName) {
+      setStructureName(extractedName);
+    }
+    if (namespaceInfo) {
+      setNamespaceConfig(namespaceInfo);
+    }
+  };
+
   const handleSave = () => {
     if (!selectedCustomer) {
       // Handle validation - customer is required
@@ -148,6 +157,7 @@ export const DataStructures = () => {
             namespaceConfig={namespaceConfig}
             setNamespaceConfig={setNamespaceConfig}
             onSave={handleSave}
+            onWsdlAnalyzed={handleWsdlAnalyzed}
           />
 
           {previewStructure && (

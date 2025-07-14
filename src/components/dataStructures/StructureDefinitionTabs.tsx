@@ -28,6 +28,7 @@ interface StructureDefinitionTabsProps {
   namespaceConfig: any;
   setNamespaceConfig: (config: any) => void;
   onSave: () => void;
+  onWsdlAnalyzed?: (name: string | null, namespaceInfo: any) => void;
 }
 
 export const StructureDefinitionTabs: React.FC<StructureDefinitionTabsProps> = ({
@@ -45,7 +46,8 @@ export const StructureDefinitionTabs: React.FC<StructureDefinitionTabsProps> = (
   setSelectedStructureType,
   namespaceConfig,
   setNamespaceConfig,
-  onSave
+  onSave,
+  onWsdlAnalyzed
 }) => {
 
   return (
@@ -86,6 +88,7 @@ export const StructureDefinitionTabs: React.FC<StructureDefinitionTabsProps> = (
               setWsdlInput={setWsdlInput}
               namespaceConfig={namespaceConfig}
               setNamespaceConfig={setNamespaceConfig}
+              onWsdlAnalyzed={onWsdlAnalyzed}
             />
           </TabsContent>
           

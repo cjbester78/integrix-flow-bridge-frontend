@@ -4,6 +4,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { FileUploadZone } from '../FileUploadZone';
 import { NamespaceConfiguration } from '../NamespaceConfiguration';
 import { useToast } from '@/hooks/use-toast';
+import { extractWsdlPartName, extractWsdlNamespaceInfo } from '@/utils/structureParsers';
 import { FileCode } from 'lucide-react';
 
 interface WsdlStructureTabProps {
@@ -11,22 +12,38 @@ interface WsdlStructureTabProps {
   setWsdlInput: (input: string) => void;
   namespaceConfig: any;
   setNamespaceConfig: (config: any) => void;
+  onWsdlAnalyzed?: (name: string | null, namespaceInfo: any) => void;
 }
 
 export const WsdlStructureTab: React.FC<WsdlStructureTabProps> = ({
   wsdlInput,
   setWsdlInput,
   namespaceConfig,
-  setNamespaceConfig
+  setNamespaceConfig,
+  onWsdlAnalyzed
 }) => {
   const [dragOver, setDragOver] = useState(false);
   const { toast } = useToast();
+
+  const analyzeWsdlContent = (content: string) => {
+    const extractedName = extractWsdlPartName(content);
+    const namespaceInfo = extractWsdlNamespaceInfo(content);
+    
+    if (namespaceInfo) {
+      setNamespaceConfig(namespaceInfo);
+    }
+    
+    if (onWsdlAnalyzed) {
+      onWsdlAnalyzed(extractedName, namespaceInfo);
+    }
+  };
 
   const handleFileUpload = (file: File) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const content = e.target?.result as string;
       setWsdlInput(content);
+      analyzeWsdlContent(content);
       toast({
         title: "WSDL File Loaded",
         description: `Successfully loaded ${file.name}`,
@@ -71,7 +88,13 @@ export const WsdlStructureTab: React.FC<WsdlStructureTabProps> = ({
         <Textarea
           placeholder="Paste your WSDL definition here..."
           value={wsdlInput}
-          onChange={(e) => setWsdlInput(e.target.value)}
+          onChange={(e) => {
+            const content = e.target.value;
+            setWsdlInput(content);
+            if (content.trim()) {
+              analyzeWsdlContent(content);
+            }
+          }}
           className="font-mono text-sm"
           rows={8}
         />

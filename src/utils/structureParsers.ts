@@ -76,6 +76,66 @@ export const parseWsdlStructure = (wsdlString: string) => {
   }
 };
 
+export const extractWsdlPartName = (wsdlString: string): string | null => {
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(wsdlString, 'text/xml');
+    
+    // Check for parsing errors
+    const parserError = doc.querySelector('parsererror');
+    if (parserError) {
+      return null;
+    }
+    
+    // Look for wsdl:part elements
+    const parts = doc.querySelectorAll('part, wsdl\\:part');
+    if (parts.length > 0) {
+      const name = parts[0].getAttribute('name');
+      return name;
+    }
+    
+    return null;
+  } catch (error) {
+    return null;
+  }
+};
+
+export const extractWsdlNamespaceInfo = (wsdlString: string) => {
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(wsdlString, 'text/xml');
+    
+    // Check for parsing errors
+    const parserError = doc.querySelector('parsererror');
+    if (parserError) {
+      return null;
+    }
+    
+    const root = doc.documentElement;
+    const targetNamespace = root.getAttribute('targetNamespace') || '';
+    const schemaLocation = root.getAttribute('schemaLocation') || '';
+    
+    // Extract namespace prefix from xmlns attributes
+    let prefix = '';
+    for (let i = 0; i < root.attributes.length; i++) {
+      const attr = root.attributes[i];
+      if (attr.name.startsWith('xmlns:') && attr.value === targetNamespace) {
+        prefix = attr.name.replace('xmlns:', '');
+        break;
+      }
+    }
+    
+    return {
+      uri: targetNamespace,
+      prefix,
+      targetNamespace,
+      schemaLocation
+    };
+  } catch (error) {
+    return null;
+  }
+};
+
 export const buildNestedStructure = (fields: Field[]): any => {
   const structure: any = {};
   
