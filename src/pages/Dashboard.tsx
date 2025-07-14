@@ -78,8 +78,11 @@ const customerData = {
 };
 
 export const Dashboard = () => {
+  console.log('Dashboard component loading...');
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const { customers, loading } = useCustomerAdapters();
+  
+  console.log('Dashboard - customers:', customers, 'loading:', loading);
 
   // Get customer-specific data or default empty arrays
   const customerMessages = selectedCustomer 
