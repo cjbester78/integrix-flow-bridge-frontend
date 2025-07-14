@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
 import { FileUploadZone } from '../FileUploadZone';
 import { NamespaceConfiguration } from '../NamespaceConfiguration';
 import { useToast } from '@/hooks/use-toast';
-import { FileCode } from 'lucide-react';
+import { FileCode, X } from 'lucide-react';
 
 interface XsdStructureTabProps {
   xsdInput: string;
@@ -45,6 +46,15 @@ export const XsdStructureTab: React.FC<XsdStructureTabProps> = ({
     }
   };
 
+  const handleClearXsd = () => {
+    setXsdInput('');
+    setNamespaceConfig({});
+    toast({
+      title: "XSD Cleared",
+      description: "XSD content has been removed",
+    });
+  };
+
   return (
     <div className="space-y-4">
       <NamespaceConfiguration
@@ -52,22 +62,37 @@ export const XsdStructureTab: React.FC<XsdStructureTabProps> = ({
         namespaceConfig={namespaceConfig}
         setNamespaceConfig={setNamespaceConfig}
       />
-      <FileUploadZone
-        icon={FileCode}
-        title="XSD Upload"
-        description="Drag & drop XSD or WSDL files"
-        acceptTypes=".xsd,.wsdl,.xml"
-        dragOver={dragOver}
-        onDrop={handleDrop}
-        onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-        onDragLeave={() => setDragOver(false)}
-        onFileSelect={handleFileUpload}
-        uploadId="xsd-upload"
-        buttonText="Upload XSD/WSDL"
-      />
+      {!xsdInput.trim() && (
+        <FileUploadZone
+          icon={FileCode}
+          title="XSD Upload"
+          description="Drag & drop XSD or WSDL files"
+          acceptTypes=".xsd,.wsdl,.xml"
+          dragOver={dragOver}
+          onDrop={handleDrop}
+          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+          onDragLeave={() => setDragOver(false)}
+          onFileSelect={handleFileUpload}
+          uploadId="xsd-upload"
+          buttonText="Upload XSD/WSDL"
+        />
+      )}
       
       <div className="space-y-2">
-        <Label>XSD/SOAP Content</Label>
+        <div className="flex items-center justify-between">
+          <Label>XSD/SOAP Content</Label>
+          {xsdInput.trim() && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleClearXsd}
+              className="text-destructive hover:text-destructive"
+            >
+              <X className="h-4 w-4 mr-1" />
+              Clear XSD
+            </Button>
+          )}
+        </div>
         <Textarea
           placeholder="Paste your XSD or SOAP schema here..."
           value={xsdInput}

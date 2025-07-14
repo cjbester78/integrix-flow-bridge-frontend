@@ -4,9 +4,10 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FieldBuilder } from '@/components/FieldBuilder';
 import { Field } from '@/types/dataStructures';
-import { Plus, Database } from 'lucide-react';
+import { Plus, Database, X } from 'lucide-react';
 import { useCustomFields } from '@/hooks/useCustomFields';
 import { SchemaPreview } from '../SchemaPreview';
+import { useToast } from '@/hooks/use-toast';
 
 interface CustomStructureTabProps {
   customFields: Field[];
@@ -22,12 +23,22 @@ export const CustomStructureTab: React.FC<CustomStructureTabProps> = ({
   setSelectedStructureType
 }) => {
   const [customStructureType, setCustomStructureType] = useState<string>('');
+  const { toast } = useToast();
   const {
     addCustomField,
     updateFieldAtPath,
     removeFieldAtPath,
     addChildAtPath
   } = useCustomFields(customFields, setCustomFields);
+
+  const handleClearCustomFields = () => {
+    setCustomFields([]);
+    setCustomStructureType('');
+    toast({
+      title: "Custom Fields Cleared",
+      description: "All custom fields have been removed",
+    });
+  };
 
   return (
     <div className="space-y-4">
@@ -77,10 +88,21 @@ export const CustomStructureTab: React.FC<CustomStructureTabProps> = ({
         <>
           <div className="flex items-center justify-between">
             <Label>Structure Definition ({customStructureType.toUpperCase()})</Label>
-            <Button onClick={() => addCustomField()} size="sm" variant="outline">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Field
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={() => addCustomField()} size="sm" variant="outline">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Field
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleClearCustomFields}
+                className="text-destructive hover:text-destructive"
+              >
+                <X className="h-4 w-4 mr-1" />
+                Clear All
+              </Button>
+            </div>
           </div>
           
           {customFields.map((field, index) => (

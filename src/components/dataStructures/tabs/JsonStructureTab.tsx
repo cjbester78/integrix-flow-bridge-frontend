@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
 import { FileUploadZone } from '../FileUploadZone';
 import { useToast } from '@/hooks/use-toast';
-import { FileJson } from 'lucide-react';
+import { FileJson, X } from 'lucide-react';
 
 interface JsonStructureTabProps {
   jsonInput: string;
@@ -50,24 +51,47 @@ export const JsonStructureTab: React.FC<JsonStructureTabProps> = ({
     }
   };
 
+  const handleClearJson = () => {
+    setJsonInput('');
+    toast({
+      title: "JSON Cleared",
+      description: "JSON content has been removed",
+    });
+  };
+
   return (
     <div className="space-y-4">
-      <FileUploadZone
-        icon={FileJson}
-        title="JSON Upload"
-        description="Drag & drop a JSON file or paste JSON structure below"
-        acceptTypes=".json"
-        dragOver={dragOver}
-        onDrop={handleDrop}
-        onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-        onDragLeave={() => setDragOver(false)}
-        onFileSelect={handleFileUpload}
-        uploadId="json-upload"
-        buttonText="Upload JSON File"
-      />
+      {!jsonInput.trim() && (
+        <FileUploadZone
+          icon={FileJson}
+          title="JSON Upload"
+          description="Drag & drop a JSON file or paste JSON structure below"
+          acceptTypes=".json"
+          dragOver={dragOver}
+          onDrop={handleDrop}
+          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+          onDragLeave={() => setDragOver(false)}
+          onFileSelect={handleFileUpload}
+          uploadId="json-upload"
+          buttonText="Upload JSON File"
+        />
+      )}
       
       <div className="space-y-2">
-        <Label>JSON Structure</Label>
+        <div className="flex items-center justify-between">
+          <Label>JSON Structure</Label>
+          {jsonInput.trim() && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleClearJson}
+              className="text-destructive hover:text-destructive"
+            >
+              <X className="h-4 w-4 mr-1" />
+              Clear JSON
+            </Button>
+          )}
+        </div>
         <Textarea
           placeholder='{"orderId": "string", "amount": 100.50, "items": []}'
           value={jsonInput}
