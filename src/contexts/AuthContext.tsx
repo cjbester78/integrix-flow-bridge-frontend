@@ -57,15 +57,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
           } else {
             console.warn('AuthContext: Profile fetch failed, clearing auth data');
-            // Token might be invalid, clear auth data
-            await authService.logout();
+            // Token might be invalid, clear auth data silently
+            try {
+              await authService.logout();
+            } catch (logoutError) {
+              console.warn('Logout during init failed, clearing local data:', logoutError);
+              // Clear local storage directly if logout API fails
+              localStorage.removeItem('integration_platform_token');
+              localStorage.removeItem('integration_platform_refresh_token');
+              localStorage.removeItem('integration_platform_user');
+            }
           }
         } else {
           console.log('AuthContext: No valid token found');
         }
       } catch (error) {
         console.error('Auth initialization error:', error);
-        await authService.logout();
+        // Try to logout gracefully, but don't let it crash the app
+        try {
+          await authService.logout();
+        } catch (logoutError) {
+          console.warn('Logout during error handling failed, clearing local data:', logoutError);
+          // Clear local storage directly if logout API fails
+          localStorage.removeItem('integration_platform_token');
+          localStorage.removeItem('integration_platform_refresh_token');
+          localStorage.removeItem('integration_platform_user');
+        }
       } finally {
         console.log('AuthContext: Auth initialization complete');
         setIsLoading(false);
