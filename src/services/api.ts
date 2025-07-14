@@ -72,12 +72,21 @@ export async function apiRequest<T = any>(
   
   // Prepare headers with authorization if token exists
   const token = getToken();
+  console.log('API Request Debug:', {
+    endpoint,
+    hasToken: !!token,
+    tokenPreview: token ? `${token.substring(0, 20)}...` : 'null'
+  });
+  
   const defaultHeaders: Record<string, string> = {
     'Content-Type': 'application/json',
   };
   
   if (token && !endpoint.includes('/auth/login') && !endpoint.includes('/auth/register') && !endpoint.includes('/auth/refresh')) {
     defaultHeaders['Authorization'] = `Bearer ${token}`;
+    console.log('Adding Authorization header for endpoint:', endpoint);
+  } else {
+    console.log('NOT adding Authorization header for endpoint:', endpoint, { hasToken: !!token });
   }
 
   const requestOptions: RequestInit = {
