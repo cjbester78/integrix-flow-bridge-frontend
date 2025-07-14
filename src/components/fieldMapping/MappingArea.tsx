@@ -33,19 +33,28 @@ export function MappingArea({ mappings, onRemoveMapping, onEditJavaFunction }: M
             {mappings.map(mapping => (
               <div key={mapping.id} className="p-3 border rounded-lg bg-muted/30 animate-scale-in">
                 <div className="flex items-center justify-between mb-2">
-                  <Badge variant="outline" className="text-xs">
-                    {mapping.sourceFields.length > 1 ? 'Multi-Source Mapping' : 'Mapping'}
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs">
+                      {mapping.sourceFields.length > 1 ? 'Multi-Source Mapping' : 'Mapping'}
+                    </Badge>
+                    {mapping.requiresTransformation === false && (
+                      <Badge variant="secondary" className="text-xs">
+                        Pass-through
+                      </Badge>
+                    )}
+                  </div>
                   <div className="flex gap-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onEditJavaFunction(mapping.id)}
-                      className="h-6 w-6 p-0 hover-scale"
-                      title="Edit Java Function"
-                    >
-                      <Code className="h-3 w-3" />
-                    </Button>
+                    {mapping.requiresTransformation !== false && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onEditJavaFunction(mapping.id)}
+                        className="h-6 w-6 p-0 hover-scale"
+                        title="Edit Java Function"
+                      >
+                        <Code className="h-3 w-3" />
+                      </Button>
+                    )}
                     <Button
                       variant="ghost"
                       size="sm"
@@ -73,20 +82,29 @@ export function MappingArea({ mappings, onRemoveMapping, onEditJavaFunction }: M
                     <span className="font-medium">Target:</span>
                     <span className="text-muted-foreground">{mapping.targetField}</span>
                   </div>
-                  {mapping.javaFunction && (
-                    <div className="mt-2 p-2 bg-background rounded text-xs">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Code className="h-3 w-3" />
-                        <span className="font-medium">Java Function:</span>
-                      </div>
-                      <pre className="text-muted-foreground whitespace-pre-wrap text-xs font-mono">
-                        {mapping.javaFunction}
-                      </pre>
-                    </div>
+                  {mapping.requiresTransformation !== false && (
+                    <>
+                      {mapping.javaFunction && (
+                        <div className="mt-2 p-2 bg-background rounded text-xs">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Code className="h-3 w-3" />
+                            <span className="font-medium">Java Function:</span>
+                          </div>
+                          <pre className="text-muted-foreground whitespace-pre-wrap text-xs font-mono">
+                            {mapping.javaFunction}
+                          </pre>
+                        </div>
+                      )}
+                      {!mapping.javaFunction && (
+                        <div className="mt-2 text-xs text-muted-foreground italic">
+                          Click the code icon to add a custom Java function
+                        </div>
+                      )}
+                    </>
                   )}
-                  {!mapping.javaFunction && (
+                  {mapping.requiresTransformation === false && (
                     <div className="mt-2 text-xs text-muted-foreground italic">
-                      Click the code icon to add a custom Java function
+                      Direct field mapping - no transformation required
                     </div>
                   )}
                 </div>

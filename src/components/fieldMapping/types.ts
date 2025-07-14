@@ -15,6 +15,7 @@ export interface FieldMapping {
   sourcePaths: string[];
   targetPath: string;
   javaFunction?: string;
+  requiresTransformation?: boolean;
 }
 
 export interface WebserviceStructures {

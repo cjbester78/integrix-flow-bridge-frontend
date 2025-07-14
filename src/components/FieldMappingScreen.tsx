@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Trash2, X, CheckCircle } from 'lucide-react';
 import { FieldNode, FieldMapping } from './fieldMapping/types';
@@ -57,6 +58,7 @@ export function FieldMappingScreen({
   const [showJavaEditor, setShowJavaEditor] = useState<string | null>(null);
   const [tempJavaFunction, setTempJavaFunction] = useState('');
   const [mappingName, setMappingName] = useState(initialMappingName);
+  const [requiresTransformation, setRequiresTransformation] = useState(true);
   const { customers, loading, getStructuresForCustomer, getAdaptersForCustomer } = useCustomerAdapters();
 
   const [customerAdapters, setCustomerAdapters] = useState<string[]>([]);
@@ -67,6 +69,16 @@ export function FieldMappingScreen({
       loadCustomerData(sourceCustomer);
     }
   }, [sourceCustomer]);
+
+  // Auto-detect if transformation is required based on structure comparison
+  useEffect(() => {
+    if (sourceStructure && targetStructure) {
+      const areStructuresSame = sourceStructure === targetStructure;
+      if (areStructuresSame && requiresTransformation) {
+        setRequiresTransformation(false);
+      }
+    }
+  }, [sourceStructure, targetStructure]);
 
   const loadCustomerData = async (customerId: string) => {
     const adapters = await getAdaptersForCustomer(customerId);
@@ -137,7 +149,8 @@ export function FieldMappingScreen({
         targetField: targetField.name,
         sourcePaths: [draggedField.path],
         targetPath: targetField.path,
-        javaFunction: ''
+        javaFunction: requiresTransformation ? '' : undefined,
+        requiresTransformation
       };
       
       setMappings(prev => [...prev, newMapping]);
@@ -300,6 +313,16 @@ export function FieldMappingScreen({
                 onChange={(e) => setMappingName(e.target.value)}
                 className="w-64"
               />
+            </div>
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="requiresTransformation"
+                checked={requiresTransformation}
+                onCheckedChange={(checked) => setRequiresTransformation(checked as boolean)}
+              />
+              <Label htmlFor="requiresTransformation" className="text-sm font-medium">
+                Requires Transformation
+              </Label>
             </div>
           </div>
           
