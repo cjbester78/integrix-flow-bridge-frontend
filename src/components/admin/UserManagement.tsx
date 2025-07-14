@@ -12,7 +12,7 @@ interface UserManagementProps {
 export const UserManagement = ({ users }: UserManagementProps) => {
   const getRoleIcon = (role: string) => {
     switch (role) {
-      case 'admin':
+      case 'administrator':
         return <Crown className="h-4 w-4 text-warning" />;
       case 'integrator':
         return <Settings className="h-4 w-4 text-info" />;

@@ -76,10 +76,13 @@ export const JarFileManagement = ({ jarFiles, onJarFileAdded, onJarFileDeleted }
         name: formData.name,
         version: formData.version,
         description: formData.description,
-        fileName: selectedFile.name,
-        size: selectedFile.size,
-        uploadDate: new Date().toISOString().split('T')[0],
-        driverType: formData.driverType
+        file_name: selectedFile.name,
+        size_bytes: selectedFile.size,
+        upload_date: new Date().toISOString().split('T')[0],
+        driver_type: formData.driverType,
+        is_active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       };
 
       onJarFileAdded(newJarFile);
@@ -126,7 +129,7 @@ export const JarFileManagement = ({ jarFiles, onJarFileAdded, onJarFileDeleted }
     try {
       toast({
         title: "Download Started",
-        description: `Downloading ${jarFile.fileName}...`
+        description: `Downloading ${jarFile.file_name}...`
       });
     } catch (error) {
       toast({
@@ -147,8 +150,8 @@ export const JarFileManagement = ({ jarFiles, onJarFileAdded, onJarFileDeleted }
 
   const filteredJarFiles = jarFiles.filter(jar =>
     jar.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    jar.fileName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    jar.driverType.toLowerCase().includes(searchTerm.toLowerCase())
+    jar.file_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (jar.driver_type && jar.driver_type.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   return (
@@ -272,7 +275,7 @@ export const JarFileManagement = ({ jarFiles, onJarFileAdded, onJarFileDeleted }
                       <TableCell>
                         <div>
                           <div className="font-medium">{jarFile.name}</div>
-                          <div className="text-sm text-muted-foreground">{jarFile.fileName}</div>
+                          <div className="text-sm text-muted-foreground">{jarFile.file_name}</div>
                           {jarFile.description && (
                             <div className="text-xs text-muted-foreground mt-1 max-w-xs truncate">
                               {jarFile.description}
@@ -284,12 +287,12 @@ export const JarFileManagement = ({ jarFiles, onJarFileAdded, onJarFileDeleted }
                         <Badge variant="secondary">{jarFile.version}</Badge>
                       </TableCell>
                       <TableCell>
-                        {jarFile.driverType && (
-                          <Badge variant="outline">{jarFile.driverType}</Badge>
+                        {jarFile.driver_type && (
+                          <Badge variant="outline">{jarFile.driver_type}</Badge>
                         )}
                       </TableCell>
-                      <TableCell>{formatFileSize(jarFile.size)}</TableCell>
-                      <TableCell>{jarFile.uploadDate}</TableCell>
+                      <TableCell>{jarFile.size_bytes ? formatFileSize(jarFile.size_bytes) : 'N/A'}</TableCell>
+                      <TableCell>{jarFile.upload_date}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end space-x-2">
                           <Button

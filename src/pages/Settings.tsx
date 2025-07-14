@@ -49,7 +49,7 @@ export const Settings = () => {
     email: '',
     first_name: '',
     last_name: '',
-    role: 'viewer' as 'admin' | 'integrator' | 'viewer',
+    role: 'viewer' as 'administrator' | 'integrator' | 'viewer',
   });
 
   // Load users on component mount
@@ -227,7 +227,7 @@ export const Settings = () => {
 
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
-      case 'admin': return 'default';
+      case 'administrator': return 'default';
       case 'integrator': return 'secondary';
       case 'viewer': return 'outline';
       default: return 'outline';
@@ -321,7 +321,7 @@ export const Settings = () => {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="admin">Admin</SelectItem>
+                                          <SelectItem value="administrator">Administrator</SelectItem>
                             <SelectItem value="integrator">Integrator</SelectItem>
                             <SelectItem value="viewer">Viewer</SelectItem>
                           </SelectContent>
@@ -330,11 +330,13 @@ export const Settings = () => {
                       <div className="space-y-2">
                         <Label>Permissions</Label>
                         <div className="flex flex-wrap gap-1">
-                          {userService.getRolePermissions(newUser.role).map((permission) => (
-                            <Badge key={permission} variant="outline" className="text-xs">
-                              {permission}
-                            </Badge>
-                          ))}
+                          {Object.entries(userService.getRolePermissions(newUser.role)).map(([resource, actions]) => 
+                            actions.map(action => (
+                              <Badge key={`${resource}:${action}`} variant="outline" className="text-xs">
+                                {resource}:{action}
+                              </Badge>
+                            ))
+                          )}
                         </div>
                       </div>
                       <div className="flex justify-end gap-2">
@@ -404,11 +406,13 @@ export const Settings = () => {
                             )}
                           </div>
                           <div className="flex flex-wrap gap-1 mt-2">
-                            {userItem.permissions.map((permission) => (
-                              <Badge key={permission} variant="outline" className="text-xs">
-                                {permission}
-                              </Badge>
-                            ))}
+                            {userItem.permissions && Object.entries(userItem.permissions).map(([resource, actions]) => 
+                              actions.map(action => (
+                                <Badge key={`${resource}:${action}`} variant="outline" className="text-xs">
+                                  {resource}:{action}
+                                </Badge>
+                              ))
+                            )}
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -470,14 +474,14 @@ export const Settings = () => {
                                     <Label htmlFor="edit-role">Role</Label>
                                       <Select 
                                         value={selectedUser.role} 
-                                        onValueChange={(value) => setSelectedUser({...selectedUser, role: value as 'admin' | 'integrator' | 'viewer'})}
+                                        onValueChange={(value) => setSelectedUser({...selectedUser, role: value as 'administrator' | 'integrator' | 'viewer'})}
                                         disabled={isUpdating}
                                       >
                                        <SelectTrigger>
                                          <SelectValue />
                                        </SelectTrigger>
                                        <SelectContent>
-                                         <SelectItem value="admin">Admin</SelectItem>
+                                         <SelectItem value="administrator">Administrator</SelectItem>
                                          <SelectItem value="integrator">Integrator</SelectItem>
                                          <SelectItem value="viewer">Viewer</SelectItem>
                                        </SelectContent>
@@ -485,13 +489,15 @@ export const Settings = () => {
                                   </div>
                                   <div className="space-y-2">
                                     <Label>Permissions</Label>
-                                     <div className="flex flex-wrap gap-1">
-                                       {userService.getRolePermissions(selectedUser.role).map((permission) => (
-                                         <Badge key={permission} variant="outline" className="text-xs">
-                                           {permission}
-                                         </Badge>
-                                       ))}
-                                     </div>
+                                      <div className="flex flex-wrap gap-1">
+                                        {Object.entries(userService.getRolePermissions(selectedUser.role)).map(([resource, actions]) => 
+                                          actions.map(action => (
+                                            <Badge key={`${resource}:${action}`} variant="outline" className="text-xs">
+                                              {resource}:{action}
+                                            </Badge>
+                                          ))
+                                        )}
+                                      </div>
                                   </div>
                                    <div className="flex justify-end gap-2">
                                      <Button variant="outline" onClick={() => setIsEditUserOpen(false)} disabled={isUpdating}>

@@ -16,9 +16,15 @@ const initialUsers: User[] = [
     email: 'admin@integrixlab.com',
     first_name: 'System',
     last_name: 'Administrator',
-    role: 'admin',
+    role: 'administrator',
     status: 'active',
-    permissions: ['flows:create', 'flows:read', 'flows:update', 'flows:delete', 'flows:execute', 'adapters:create', 'adapters:read', 'adapters:update', 'adapters:delete', 'adapters:test', 'structures:create', 'structures:read', 'structures:update', 'structures:delete', 'users:create', 'users:read', 'users:update', 'users:delete', 'system:admin'],
+    permissions: {
+      flows: ['create', 'read', 'update', 'delete', 'execute'],
+      adapters: ['create', 'read', 'update', 'delete', 'test'],
+      structures: ['create', 'read', 'update', 'delete'],
+      users: ['create', 'read', 'update', 'delete'],
+      system: ['create', 'read', 'update', 'delete']
+    },
     email_verified: true,
     created_at: '2024-01-01 09:00:00',
     updated_at: '2024-01-01 09:00:00',
@@ -32,7 +38,11 @@ const initialUsers: User[] = [
     last_name: 'Integrator',
     role: 'integrator',
     status: 'active',
-    permissions: ['flows:create', 'flows:read', 'flows:update', 'flows:execute', 'adapters:create', 'adapters:read', 'adapters:update', 'adapters:test', 'structures:create', 'structures:read', 'structures:update'],
+    permissions: {
+      flows: ['create', 'read', 'update', 'execute'],
+      adapters: ['create', 'read', 'update', 'test'],
+      structures: ['create', 'read', 'update']
+    },
     email_verified: true,
     created_at: '2024-01-05 10:30:00',
     updated_at: '2024-01-05 10:30:00',
@@ -46,7 +56,11 @@ const initialUsers: User[] = [
     last_name: 'Viewer',
     role: 'viewer',
     status: 'inactive',
-    permissions: ['flows:read', 'adapters:read', 'structures:read'],
+    permissions: {
+      flows: ['read'],
+      adapters: ['read'],
+      structures: ['read']
+    },
     email_verified: true,
     created_at: '2024-01-08 14:20:00',
     updated_at: '2024-01-08 14:20:00',
@@ -117,30 +131,39 @@ const initialJarFiles: JarFile[] = [
     name: 'MySQL JDBC Driver',
     version: '8.0.33',
     description: 'MySQL Connector/J JDBC Driver for database connectivity',
-    fileName: 'mysql-connector-java-8.0.33.jar',
-    size: 2456789,
-    uploadDate: '2024-01-15',
-    driverType: 'Database'
+    file_name: 'mysql-connector-java-8.0.33.jar',
+    size_bytes: 2456789,
+    upload_date: '2024-01-15',
+    driver_type: 'Database',
+    is_active: true,
+    created_at: '2024-01-15 10:30:00',
+    updated_at: '2024-01-15 10:30:00'
   },
   {
     id: '2',
     name: 'PostgreSQL JDBC Driver',
     version: '42.6.0',
     description: 'PostgreSQL JDBC Driver for database operations',
-    fileName: 'postgresql-42.6.0.jar',
-    size: 1234567,
-    uploadDate: '2024-01-10',
-    driverType: 'Database'
+    file_name: 'postgresql-42.6.0.jar',
+    size_bytes: 1234567,
+    upload_date: '2024-01-10',
+    driver_type: 'Database',
+    is_active: true,
+    created_at: '2024-01-10 11:20:00',
+    updated_at: '2024-01-10 11:20:00'
   },
   {
     id: '3',
     name: 'ActiveMQ Client',
     version: '5.18.3',
     description: 'ActiveMQ JMS Client for message queue operations',
-    fileName: 'activemq-client-5.18.3.jar',
-    size: 987654,
-    uploadDate: '2024-01-08',
-    driverType: 'Message Queue'
+    file_name: 'activemq-client-5.18.3.jar',
+    size_bytes: 987654,
+    upload_date: '2024-01-08',
+    driver_type: 'Message Queue',
+    is_active: true,
+    created_at: '2024-01-08 09:15:00',
+    updated_at: '2024-01-08 09:15:00'
   }
 ];
 

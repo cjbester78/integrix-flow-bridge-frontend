@@ -6,7 +6,8 @@ export interface CreateUserRequest {
   email: string;
   first_name: string;
   last_name: string;
-  role: 'admin' | 'integrator' | 'viewer';
+  role: 'administrator' | 'integrator' | 'viewer';
+  role_id?: string;
   password?: string;
 }
 
@@ -14,9 +15,10 @@ export interface UpdateUserRequest {
   email?: string;
   first_name?: string;
   last_name?: string;
-  role?: 'admin' | 'integrator' | 'viewer';
+  role?: 'administrator' | 'integrator' | 'viewer';
+  role_id?: string;
   status?: 'active' | 'inactive' | 'pending';
-  permissions?: string[];
+  permissions?: Record<string, string[]>;
 }
 
 export interface UserListResponse {
@@ -69,17 +71,17 @@ class UserService {
   }
 
   // Assign role to user
-  async assignRole(userId: string, role: string, permissions: string[] = []): Promise<ApiResponse<User>> {
+  async assignRole(userId: string, role: string, permissions: Record<string, string[]> = {}): Promise<ApiResponse<User>> {
     return api.patch<User>(`/users/${userId}/role`, { role, permissions });
   }
 
   // Get user permissions
-  async getUserPermissions(userId: string): Promise<ApiResponse<{ permissions: string[] }>> {
-    return api.get<{ permissions: string[] }>(`/users/${userId}/permissions`);
+  async getUserPermissions(userId: string): Promise<ApiResponse<{ permissions: Record<string, string[]> }>> {
+    return api.get<{ permissions: Record<string, string[]> }>(`/users/${userId}/permissions`);
   }
 
   // Update user permissions
-  async updateUserPermissions(userId: string, permissions: string[]): Promise<ApiResponse<User>> {
+  async updateUserPermissions(userId: string, permissions: Record<string, string[]>): Promise<ApiResponse<User>> {
     return api.patch<User>(`/users/${userId}/permissions`, { permissions });
   }
 
@@ -112,14 +114,33 @@ class UserService {
   }
 
   // Helper method to get role permissions
-  getRolePermissions(role: string): string[] {
+  getRolePermissions(role: string): Record<string, string[]> {
     const rolePermissions = {
-      admin: ['flows:create', 'flows:read', 'flows:update', 'flows:delete', 'flows:execute', 'adapters:create', 'adapters:read', 'adapters:update', 'adapters:delete', 'adapters:test', 'structures:create', 'structures:read', 'structures:update', 'structures:delete', 'users:create', 'users:read', 'users:update', 'users:delete', 'system:admin'],
-      integrator: ['flows:create', 'flows:read', 'flows:update', 'flows:execute', 'adapters:create', 'adapters:read', 'adapters:update', 'adapters:test', 'structures:create', 'structures:read', 'structures:update'],
-      viewer: ['flows:read', 'adapters:read', 'structures:read']
+      administrator: {
+        flows: ['create', 'read', 'update', 'delete', 'execute'],
+        adapters: ['create', 'read', 'update', 'delete', 'test'],
+        structures: ['create', 'read', 'update', 'delete'],
+        users: ['create', 'read', 'update', 'delete'],
+        system: ['create', 'read', 'update', 'delete'],
+        certificates: ['create', 'read', 'update', 'delete']
+      },
+      integrator: {
+        flows: ['create', 'read', 'update', 'execute'],
+        adapters: ['create', 'read', 'update', 'test'],
+        structures: ['create', 'read', 'update'],
+        messages: ['read'],
+        channels: ['read']
+      },
+      viewer: {
+        flows: ['read'],
+        adapters: ['read'],
+        structures: ['read'],
+        messages: ['read'],
+        channels: ['read']
+      }
     };
 
-    return rolePermissions[role as keyof typeof rolePermissions] || ['flows:read'];
+    return rolePermissions[role as keyof typeof rolePermissions] || { flows: ['read'] };
   }
 }
 
