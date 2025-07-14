@@ -41,13 +41,14 @@ export const Settings = () => {
   const [newUser, setNewUser] = useState({
     username: '',
     email: '',
-    role: 'viewer' as 'admin' | 'integrator' | 'viewer',
+    role: 'viewer' as 'admin' | 'developer' | 'operator' | 'viewer',
     permissions: ['read']
   });
 
   const rolePermissions = {
     admin: ['create', 'read', 'update', 'delete', 'manage_users', 'system_config'],
-    integrator: ['create', 'read', 'update', 'delete'],
+    developer: ['create', 'read', 'update', 'delete'],
+    operator: ['create', 'read', 'update'],
     viewer: ['read']
   };
 
@@ -73,6 +74,9 @@ export const Settings = () => {
 
     const userData = {
       ...newUser,
+      firstName: newUser.username, // Use username as firstName for now
+      lastName: '', // Empty for now
+      status: 'active' as const,
       permissions: rolePermissions[newUser.role]
     };
 
@@ -262,8 +266,8 @@ export const Settings = () => {
                               <div>Password: <code className="bg-muted px-1 rounded">{getUserPassword(userItem.username)}</code></div>
                             )}
                             <div>Created: {userItem.createdAt}</div>
-                            {userItem.lastLogin && (
-                              <div>Last Login: {userItem.lastLogin}</div>
+                            {userItem.lastLoginAt && (
+                              <div>Last Login: {new Date(userItem.lastLoginAt).toLocaleDateString()}</div>
                             )}
                           </div>
                           <div className="flex flex-wrap gap-1 mt-2">

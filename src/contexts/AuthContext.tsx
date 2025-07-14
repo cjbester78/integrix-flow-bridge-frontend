@@ -1,15 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-
-interface User {
-  id: string;
-  username: string;
-  email: string;
-  role: 'admin' | 'integrator' | 'viewer';
-  permissions: string[];
-  createdAt: string;
-  lastLogin?: string;
-}
+import { useNavigate } from 'react-router-dom';
+import { authService, type User } from '../services/authService';
+import { toast } from 'sonner';
 
 interface AuthContextType {
   user: User | null;
@@ -19,48 +11,10 @@ interface AuthContextType {
   isLoading: boolean;
   tokenExpiry: number | null;
   getAllUsers: () => User[];
-  createUser: (userData: Omit<User, 'id' | 'createdAt'>) => void;
-  updateUser: (id: string, userData: Partial<User>) => void;
-  deleteUser: (id: string) => void;
+  createUser: (userData: Omit<User, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  updateUser: (id: string, userData: Partial<User>) => Promise<void>;
+  deleteUser: (id: string) => Promise<void>;
 }
-
-// Mock users database
-const mockUsers: User[] = [
-  {
-    id: '1',
-    username: 'admin',
-    email: 'admin@integrixlab.com',
-    role: 'admin',
-    permissions: ['create', 'read', 'update', 'delete', 'manage_users', 'system_config'],
-    createdAt: '2024-01-01',
-    lastLogin: '2024-01-15'
-  },
-  {
-    id: '2',
-    username: 'integrator1',
-    email: 'integrator1@integrixlab.com',
-    role: 'integrator',
-    permissions: ['create', 'read', 'update', 'delete'],
-    createdAt: '2024-01-02',
-    lastLogin: '2024-01-14'
-  },
-  {
-    id: '3',
-    username: 'viewer1',
-    email: 'viewer1@integrixlab.com',
-    role: 'viewer',
-    permissions: ['read'],
-    createdAt: '2024-01-03',
-    lastLogin: '2024-01-13'
-  }
-];
-
-// Mock credentials
-const mockCredentials = {
-  'admin': 'admin123',
-  'integrator1': 'integrator123',
-  'viewer1': 'viewer123'
-};
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -75,44 +29,43 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [users, setUsers] = useState<User[]>(mockUsers);
+  const [users, setUsers] = useState<User[]>([]);
   const [tokenExpiry, setTokenExpiry] = useState<number | null>(null);
   const navigate = useNavigate();
-  const location = useLocation();
 
-  // Token validation and auto-logout
-  const isTokenValid = () => {
-    const token = localStorage.getItem('integrixlab_token');
-    const expiry = localStorage.getItem('integrixlab_token_expiry');
-    
-    if (!token || !expiry) return false;
-    
-    const expiryTime = parseInt(expiry);
-    if (Date.now() >= expiryTime) {
-      // Token expired
-      localStorage.removeItem('integrixlab_token');
-      localStorage.removeItem('integrixlab_username');
-      localStorage.removeItem('integrixlab_token_expiry');
-      return false;
-    }
-    
-    return true;
-  };
-
+  // Initialize authentication state
   useEffect(() => {
-    // Check for existing token on app start
-    const token = localStorage.getItem('integrixlab_token');
-    const storedUsername = localStorage.getItem('integrixlab_username');
-    const expiry = localStorage.getItem('integrixlab_token_expiry');
-    
-    if (token && storedUsername && isTokenValid()) {
-      const foundUser = mockUsers.find(u => u.username === storedUsername);
-      if (foundUser) {
-        setUser(foundUser);
-        setTokenExpiry(expiry ? parseInt(expiry) : null);
+    const initAuth = async () => {
+      try {
+        if (authService.isAuthenticated()) {
+          const response = await authService.getProfile();
+          if (response.success && response.data) {
+            setUser(response.data);
+            
+            // Set token expiry based on JWT
+            const token = authService.getToken();
+            if (token) {
+              try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                setTokenExpiry(payload.exp * 1000); // Convert to milliseconds
+              } catch (error) {
+                console.warn('Failed to parse token expiry:', error);
+              }
+            }
+          } else {
+            // Token might be invalid, clear auth data
+            await authService.logout();
+          }
+        }
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+        await authService.logout();
+      } finally {
+        setIsLoading(false);
       }
-    }
-    setIsLoading(false);
+    };
+
+    initAuth();
   }, []);
 
   // Auto-logout when token expires
@@ -134,73 +87,105 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (username: string, password: string, redirectTo?: string): Promise<boolean> => {
     try {
-      // Check against mock credentials
-      if (mockCredentials[username as keyof typeof mockCredentials] === password) {
-        const foundUser = mockUsers.find(u => u.username === username);
-        if (foundUser) {
-          const updatedUser = { ...foundUser, lastLogin: new Date().toISOString().split('T')[0] };
-          
-          // Create token with 24-hour expiry
-          const expiryTime = Date.now() + (24 * 60 * 60 * 1000); // 24 hours
-          const mockToken = `mock-jwt-token-${username}-${Date.now()}`;
-          
-          localStorage.setItem('integrixlab_token', mockToken);
-          localStorage.setItem('integrixlab_username', username);
-          localStorage.setItem('integrixlab_token_expiry', expiryTime.toString());
-          
-          setUser(updatedUser);
-          setTokenExpiry(expiryTime);
-          
-          // Redirect to the intended page or dashboard
-          const destination = redirectTo || '/dashboard';
-          navigate(destination);
-          return true;
-        }
+      setIsLoading(true);
+      const response = await authService.login({ username, password });
+      
+      if (response.success && response.data) {
+        setUser(response.data.user);
+        
+        // Set token expiry
+        const expiryTime = Date.now() + (response.data.expiresIn * 1000);
+        setTokenExpiry(expiryTime);
+        
+        // Redirect to the intended page or dashboard
+        const destination = redirectTo || '/dashboard';
+        navigate(destination);
+        
+        toast.success('Login successful');
+        return true;
+      } else {
+        toast.error(response.error || 'Login failed');
+        return false;
       }
-      return false;
     } catch (error) {
       console.error('Login error:', error);
+      toast.error('Login failed. Please try again.');
       return false;
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('integrixlab_token');
-    localStorage.removeItem('integrixlab_username');
-    localStorage.removeItem('integrixlab_token_expiry');
-    setUser(null);
-    setTokenExpiry(null);
-    navigate('/login');
+  const logout = async () => {
+    try {
+      await authService.logout();
+      setUser(null);
+      setTokenExpiry(null);
+      navigate('/login');
+      toast.success('Logged out successfully');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Still clear local state even if API call fails
+      setUser(null);
+      setTokenExpiry(null);
+      navigate('/login');
+    }
   };
 
   const getAllUsers = () => {
     return users;
   };
 
-  const createUser = (userData: Omit<User, 'id' | 'createdAt'>) => {
-    const newUser: User = {
-      ...userData,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString().split('T')[0]
-    };
-    setUsers([...users, newUser]);
+  const createUser = async (userData: Omit<User, 'id' | 'createdAt' | 'updatedAt'>) => {
+    try {
+      const response = await authService.register({
+        ...userData,
+        password: 'temp123', // Temporary password, should be changed on first login
+      });
+      
+      if (response.success && response.data) {
+        setUsers(prev => [...prev, response.data]);
+        toast.success('User created successfully');
+      } else {
+        toast.error(response.error || 'Failed to create user');
+      }
+    } catch (error) {
+      console.error('Create user error:', error);
+      toast.error('Failed to create user');
+    }
   };
 
-  const updateUser = (id: string, userData: Partial<User>) => {
-    setUsers(users.map(user => 
-      user.id === id ? { ...user, ...userData } : user
-    ));
+  const updateUser = async (id: string, userData: Partial<User>) => {
+    try {
+      // Note: This would need a specific API endpoint for admin user updates
+      // For now, we'll update the local state
+      setUsers(prev => prev.map(user => 
+        user.id === id ? { ...user, ...userData } : user
+      ));
+      toast.success('User updated successfully');
+    } catch (error) {
+      console.error('Update user error:', error);
+      toast.error('Failed to update user');
+    }
   };
 
-  const deleteUser = (id: string) => {
-    setUsers(users.filter(user => user.id !== id));
+  const deleteUser = async (id: string) => {
+    try {
+      // Note: This would need a specific API endpoint for admin user deletion
+      // For now, we'll update the local state
+      setUsers(prev => prev.filter(user => user.id !== id));
+      toast.success('User deleted successfully');
+    } catch (error) {
+      console.error('Delete user error:', error);
+      toast.error('Failed to delete user');
+    }
   };
 
   const value = {
     user,
     login,
     logout,
-    isAuthenticated: !!user && isTokenValid(),
+    isAuthenticated: authService.isAuthenticated(),
     isLoading,
     tokenExpiry,
     getAllUsers,

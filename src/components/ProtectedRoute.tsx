@@ -7,12 +7,12 @@ interface ProtectedRouteProps {
 }
 
 const roleRouteAccess = {
-  '/dashboard': ['admin', 'integrator', 'viewer'],
-  '/create-flow': ['admin', 'integrator'],
-  '/data-structures': ['admin', 'integrator'],
-  '/create-communication-adapter': ['admin', 'integrator'],
-  '/messages': ['admin', 'integrator', 'viewer'],
-  '/channels': ['admin', 'integrator', 'viewer'],
+  '/dashboard': ['admin', 'developer', 'operator', 'viewer'],
+  '/create-flow': ['admin', 'developer'],
+  '/data-structures': ['admin', 'developer'],
+  '/create-communication-adapter': ['admin', 'developer'],
+  '/messages': ['admin', 'developer', 'operator', 'viewer'],
+  '/channels': ['admin', 'developer', 'operator', 'viewer'],
   '/admin': ['admin'],
   '/settings': ['admin']
 };

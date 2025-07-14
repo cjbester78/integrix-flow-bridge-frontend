@@ -1,5 +1,5 @@
 // Base API configuration and utilities
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+const API_BASE_URL = 'http://localhost:8080';
 
 export interface ApiResponse<T = any> {
   success: boolean;
@@ -19,6 +19,50 @@ export class ApiError extends Error {
   }
 }
 
+// Token management functions
+function getToken(): string | null {
+  return localStorage.getItem('integration_platform_token');
+}
+
+function getRefreshToken(): string | null {
+  return localStorage.getItem('integration_platform_refresh_token');
+}
+
+function removeTokens(): void {
+  localStorage.removeItem('integration_platform_token');
+  localStorage.removeItem('integration_platform_refresh_token');
+  localStorage.removeItem('integration_platform_user');
+}
+
+// Token refresh function
+async function refreshAuthToken(): Promise<boolean> {
+  const refreshToken = getRefreshToken();
+  if (!refreshToken) {
+    return false;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ refreshToken }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      localStorage.setItem('integration_platform_token', data.token);
+      return true;
+    }
+  } catch (error) {
+    console.warn('Token refresh failed:', error);
+  }
+
+  removeTokens();
+  return false;
+}
+
 // Generic API request function
 export async function apiRequest<T = any>(
   endpoint: string,
@@ -26,23 +70,54 @@ export async function apiRequest<T = any>(
 ): Promise<ApiResponse<T>> {
   const url = `${API_BASE_URL}${endpoint}`;
   
-  const defaultHeaders = {
+  // Prepare headers with authorization if token exists
+  const token = getToken();
+  const defaultHeaders: Record<string, string> = {
     'Content-Type': 'application/json',
-    // Add auth headers here when authentication is implemented
-    // 'Authorization': `Bearer ${getAuthToken()}`,
+  };
+  
+  if (token && !endpoint.includes('/auth/')) {
+    defaultHeaders['Authorization'] = `Bearer ${token}`;
+  }
+
+  const requestOptions: RequestInit = {
+    headers: { ...defaultHeaders, ...options.headers },
+    ...options,
   };
 
   try {
-    const response = await fetch(url, {
-      headers: { ...defaultHeaders, ...options.headers },
-      ...options,
-    });
+    let response = await fetch(url, requestOptions);
 
-    const data = await response.json();
+    // Handle token expiration and retry with refreshed token
+    if (response.status === 401 && !endpoint.includes('/auth/')) {
+      const refreshed = await refreshAuthToken();
+      if (refreshed) {
+        const newToken = getToken();
+        if (newToken) {
+          requestOptions.headers = {
+            ...requestOptions.headers,
+            'Authorization': `Bearer ${newToken}`,
+          };
+          response = await fetch(url, requestOptions);
+        }
+      } else {
+        // Redirect to login if refresh fails
+        window.location.href = '/login';
+        throw new ApiError('Authentication failed', 401);
+      }
+    }
+
+    let data;
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      data = await response.json();
+    } else {
+      data = await response.text();
+    }
 
     if (!response.ok) {
       throw new ApiError(
-        data.message || `HTTP ${response.status}: ${response.statusText}`,
+        data.message || data || `HTTP ${response.status}: ${response.statusText}`,
         response.status,
         data
       );
