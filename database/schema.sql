@@ -1,31 +1,47 @@
 -- Integration Platform Database Schema (MySQL)
 -- This schema supports the complete integration platform functionality
 
+-- Create schema if not exists and switch to it
+CREATE DATABASE IF NOT EXISTS integrixlab DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE integrixlab;
+
 -- Set SQL mode for strict compliance
 SET SQL_MODE = 'STRICT_TRANS_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO';
 
--- Users and Authentication (Simplified)
-CREATE TABLE users (
+-- Roles table for admin management
+CREATE TABLE IF NOT EXISTS roles (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    name VARCHAR(50) UNIQUE NOT NULL,
+    description TEXT,
+    permissions JSON NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Users and Authentication
+CREATE TABLE IF NOT EXISTS users (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     first_name VARCHAR(100),
     last_name VARCHAR(100),
-    role ENUM('admin', 'integrator', 'viewer') NOT NULL DEFAULT 'viewer',
+    role_id CHAR(36),
+    role ENUM('administrator', 'integrator', 'viewer') NOT NULL DEFAULT 'viewer',
     status ENUM('active', 'inactive', 'pending') NOT NULL DEFAULT 'active',
-    permissions JSON, -- Simple array of permission strings
+    permissions JSON,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     last_login_at TIMESTAMP NULL,
     email_verified BOOLEAN DEFAULT FALSE,
     email_verification_token VARCHAR(255),
     password_reset_token VARCHAR(255),
-    password_reset_expires_at TIMESTAMP NULL
+    password_reset_expires_at TIMESTAMP NULL,
+    CONSTRAINT fk_users_role_id FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE SET NULL
 );
 
 -- Certificates table for admin management
-CREATE TABLE certificates (
+CREATE TABLE IF NOT EXISTS certificates (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     name VARCHAR(255) NOT NULL,
     type VARCHAR(100) NOT NULL,
@@ -41,11 +57,11 @@ CREATE TABLE certificates (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     created_by CHAR(36),
-    FOREIGN KEY (created_by) REFERENCES users(id)
+    CONSTRAINT fk_certificates_created_by FOREIGN KEY (created_by) REFERENCES users(id)
 );
 
 -- JAR Files table for admin management
-CREATE TABLE jar_files (
+CREATE TABLE IF NOT EXISTS jar_files (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     name VARCHAR(255) NOT NULL,
     version VARCHAR(50),
@@ -60,24 +76,24 @@ CREATE TABLE jar_files (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     uploaded_by CHAR(36),
-    FOREIGN KEY (uploaded_by) REFERENCES users(id)
+    CONSTRAINT fk_jar_files_uploaded_by FOREIGN KEY (uploaded_by) REFERENCES users(id)
 );
 
 -- User Sessions/Tokens
-CREATE TABLE user_sessions (
+CREATE TABLE IF NOT EXISTS user_sessions (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     user_id CHAR(36) NOT NULL,
     refresh_token VARCHAR(500) UNIQUE NOT NULL,
     expires_at TIMESTAMP NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_used_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    ip_address VARCHAR(45), -- Supports IPv6
+    ip_address VARCHAR(45),
     user_agent TEXT,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    CONSTRAINT fk_user_sessions_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- Data Structures
-CREATE TABLE data_structures (
+CREATE TABLE IF NOT EXISTS data_structures (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     name VARCHAR(255) NOT NULL,
     type ENUM('json', 'xsd', 'wsdl', 'custom') NOT NULL,
@@ -93,11 +109,13 @@ CREATE TABLE data_structures (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     created_by CHAR(36),
-    FOREIGN KEY (created_by) REFERENCES users(id)
+    CONSTRAINT fk_data_structures_created_by
+        FOREIGN KEY (created_by) REFERENCES users(id)
+        ON DELETE SET NULL
 );
 
 -- Structure Versions (for version history)
-CREATE TABLE structure_versions (
+CREATE TABLE IF NOT EXISTS structure_versions (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     structure_id CHAR(36) NOT NULL,
     version INTEGER NOT NULL,
@@ -105,13 +123,15 @@ CREATE TABLE structure_versions (
     changes TEXT, -- Description of changes
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_by CHAR(36),
-    FOREIGN KEY (structure_id) REFERENCES data_structures(id) ON DELETE CASCADE,
-    FOREIGN KEY (created_by) REFERENCES users(id),
+    CONSTRAINT fk_structure_versions_structure
+        FOREIGN KEY (structure_id) REFERENCES data_structures(id) ON DELETE CASCADE,
+    CONSTRAINT fk_structure_versions_created_by
+        FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
     UNIQUE KEY unique_structure_version (structure_id, version)
 );
 
 -- Communication Adapters
-CREATE TABLE communication_adapters (
+CREATE TABLE IF NOT EXISTS communication_adapters (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     name VARCHAR(255) NOT NULL,
     type ENUM('rest', 'soap', 'file', 'database', 'sap', 'salesforce', 'email', 'sms') NOT NULL,
@@ -125,11 +145,12 @@ CREATE TABLE communication_adapters (
     created_by CHAR(36),
     last_test_at TIMESTAMP NULL,
     last_test_result JSON,
-    FOREIGN KEY (created_by) REFERENCES users(id)
+    CONSTRAINT fk_adapters_created_by
+        FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
 );
 
 -- Integration Flows
-CREATE TABLE integration_flows (
+CREATE TABLE IF NOT EXISTS integration_flows (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     name VARCHAR(255) NOT NULL,
     description TEXT,
@@ -138,7 +159,7 @@ CREATE TABLE integration_flows (
     source_structure_id CHAR(36),
     target_structure_id CHAR(36),
     status ENUM('draft', 'active', 'inactive', 'error') NOT NULL DEFAULT 'draft',
-    configuration JSON, -- Flow-specific configuration
+    configuration JSON,
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -147,42 +168,51 @@ CREATE TABLE integration_flows (
     execution_count INTEGER DEFAULT 0,
     success_count INTEGER DEFAULT 0,
     error_count INTEGER DEFAULT 0,
-    FOREIGN KEY (source_adapter_id) REFERENCES communication_adapters(id),
-    FOREIGN KEY (target_adapter_id) REFERENCES communication_adapters(id),
-    FOREIGN KEY (source_structure_id) REFERENCES data_structures(id),
-    FOREIGN KEY (target_structure_id) REFERENCES data_structures(id),
-    FOREIGN KEY (created_by) REFERENCES users(id)
+    CONSTRAINT fk_flows_source_adapter
+        FOREIGN KEY (source_adapter_id) REFERENCES communication_adapters(id) ON DELETE CASCADE,
+    CONSTRAINT fk_flows_target_adapter
+        FOREIGN KEY (target_adapter_id) REFERENCES communication_adapters(id) ON DELETE CASCADE,
+    CONSTRAINT fk_flows_source_structure
+        FOREIGN KEY (source_structure_id) REFERENCES data_structures(id) ON DELETE SET NULL,
+    CONSTRAINT fk_flows_target_structure
+        FOREIGN KEY (target_structure_id) REFERENCES data_structures(id) ON DELETE SET NULL,
+    CONSTRAINT fk_flows_created_by
+        FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
 );
 
 -- Flow Transformations
-CREATE TABLE flow_transformations (
+CREATE TABLE IF NOT EXISTS flow_transformations (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     flow_id CHAR(36) NOT NULL,
     type ENUM('field-mapping', 'custom-function', 'filter', 'enrichment', 'validation') NOT NULL,
-    configuration JSON NOT NULL, -- Transformation-specific configuration
+    configuration JSON NOT NULL,
     execution_order INTEGER NOT NULL,
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (flow_id) REFERENCES integration_flows(id) ON DELETE CASCADE
+    CONSTRAINT fk_transformations_flow
+        FOREIGN KEY (flow_id) REFERENCES integration_flows(id) ON DELETE CASCADE
 );
 
+
 -- Field Mappings
-CREATE TABLE field_mappings (
+CREATE TABLE IF NOT EXISTS field_mappings (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     transformation_id CHAR(36) NOT NULL,
     source_fields JSON NOT NULL, -- JSON array of source field paths
     target_field VARCHAR(500) NOT NULL,
-    java_function TEXT, -- Custom Java transformation function
-    mapping_rule TEXT, -- Simple mapping rule description
+    java_function TEXT,
+    mapping_rule TEXT,
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (transformation_id) REFERENCES flow_transformations(id) ON DELETE CASCADE
+    CONSTRAINT fk_field_mappings_transformation
+        FOREIGN KEY (transformation_id) REFERENCES flow_transformations(id) ON DELETE CASCADE
 );
 
+
 -- Flow Executions (Audit/History)
-CREATE TABLE flow_executions (
+CREATE TABLE IF NOT EXISTS flow_executions (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     flow_id CHAR(36) NOT NULL,
     status ENUM('success', 'error', 'warning', 'running') NOT NULL,
@@ -196,11 +226,13 @@ CREATE TABLE flow_executions (
     warnings JSON,
     processed_records INTEGER DEFAULT 0,
     failed_records INTEGER DEFAULT 0,
-    FOREIGN KEY (flow_id) REFERENCES integration_flows(id)
+    CONSTRAINT fk_flow_executions_flow
+        FOREIGN KEY (flow_id) REFERENCES integration_flows(id)
 );
 
+
 -- System Logs (enhanced for admin interface)
-CREATE TABLE system_logs (
+CREATE TABLE IF NOT EXISTS system_logs (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     level ENUM('info', 'warn', 'error', 'debug') NOT NULL,
@@ -210,14 +242,16 @@ CREATE TABLE system_logs (
     source_id VARCHAR(255),
     source_name VARCHAR(255),
     component VARCHAR(100), -- Legacy field for compatibility
-    component_id CHAR(36), -- Legacy field for compatibility
+    component_id CHAR(36),  -- Legacy field for compatibility
     user_id CHAR(36),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    CONSTRAINT fk_system_logs_user
+        FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+
 -- Adapter Statistics
-CREATE TABLE adapter_statistics (
+CREATE TABLE IF NOT EXISTS adapter_statistics (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     adapter_id CHAR(36) NOT NULL,
     date DATE NOT NULL,
@@ -228,12 +262,16 @@ CREATE TABLE adapter_statistics (
     min_response_time_ms INTEGER,
     max_response_time_ms INTEGER,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (adapter_id) REFERENCES communication_adapters(id) ON DELETE CASCADE,
+    CONSTRAINT fk_adapter_statistics_adapter
+        FOREIGN KEY (adapter_id) REFERENCES communication_adapters(id)
+        ON DELETE CASCADE,
     UNIQUE KEY unique_adapter_date (adapter_id, date)
 );
 
+
+
 -- Flow Statistics
-CREATE TABLE flow_statistics (
+CREATE TABLE IF NOT EXISTS flow_statistics (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     flow_id CHAR(36) NOT NULL,
     date DATE NOT NULL,
@@ -243,12 +281,16 @@ CREATE TABLE flow_statistics (
     total_execution_time_ms BIGINT DEFAULT 0,
     total_records_processed INTEGER DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (flow_id) REFERENCES integration_flows(id) ON DELETE CASCADE,
+    CONSTRAINT fk_flow_statistics_flow
+        FOREIGN KEY (flow_id) REFERENCES integration_flows(id)
+        ON DELETE CASCADE,
     UNIQUE KEY unique_flow_date (flow_id, date)
 );
 
+
+
 -- System Settings
-CREATE TABLE system_settings (
+CREATE TABLE IF NOT EXISTS system_settings (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     category VARCHAR(100) NOT NULL,
     `key` VARCHAR(100) NOT NULL,
@@ -258,55 +300,75 @@ CREATE TABLE system_settings (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     updated_by CHAR(36),
-    FOREIGN KEY (updated_by) REFERENCES users(id),
+    CONSTRAINT fk_system_settings_updated_by
+        FOREIGN KEY (updated_by) REFERENCES users(id),
     UNIQUE KEY unique_category_key (category, `key`)
 );
 
--- Indexes for better performance
+
+-- Indexes for Roles Table
+CREATE INDEX idx_roles_name ON roles(name);
+
+-- Indexes for Users Table
 CREATE INDEX idx_users_username ON users(username);
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_role ON users(role);
+CREATE INDEX idx_users_role_id ON users(role_id);
 CREATE INDEX idx_users_status ON users(status);
 
+-- Indexes for Certificates Table
 CREATE INDEX idx_certificates_status ON certificates(status);
 CREATE INDEX idx_certificates_valid_to ON certificates(valid_to);
 CREATE INDEX idx_certificates_type ON certificates(type);
 CREATE INDEX idx_certificates_issuer ON certificates(issuer);
 
+-- Indexes for JAR Files Table
 CREATE INDEX idx_jar_files_driver_type ON jar_files(driver_type);
 CREATE INDEX idx_jar_files_upload_date ON jar_files(upload_date);
 CREATE INDEX idx_jar_files_is_active ON jar_files(is_active);
 
+-- Indexes for User Sessions Table
 CREATE INDEX idx_user_sessions_user_id ON user_sessions(user_id);
 CREATE INDEX idx_user_sessions_refresh_token ON user_sessions(refresh_token);
 CREATE INDEX idx_user_sessions_expires_at ON user_sessions(expires_at);
 
+
+-- Indexes for Data Structures Table
 CREATE INDEX idx_data_structures_type ON data_structures(type);
 CREATE INDEX idx_data_structures_usage ON data_structures(`usage`);
 CREATE INDEX idx_data_structures_created_by ON data_structures(created_by);
 
+
+-- Indexes for Structure Versions Table
 CREATE INDEX idx_structure_versions_structure_id ON structure_versions(structure_id);
 
+-- Indexes for Communication Adapters Table
 CREATE INDEX idx_adapters_type ON communication_adapters(type);
 CREATE INDEX idx_adapters_mode ON communication_adapters(mode);
 CREATE INDEX idx_adapters_status ON communication_adapters(status);
 CREATE INDEX idx_adapters_is_active ON communication_adapters(is_active);
 CREATE INDEX idx_adapters_created_by ON communication_adapters(created_by);
 
+
+-- Indexes for Integration Flows Table
 CREATE INDEX idx_flows_source_adapter ON integration_flows(source_adapter_id);
 CREATE INDEX idx_flows_target_adapter ON integration_flows(target_adapter_id);
 CREATE INDEX idx_flows_status ON integration_flows(status);
 CREATE INDEX idx_flows_created_by ON integration_flows(created_by);
 
+-- Indexes for Flow Transformations Table
 CREATE INDEX idx_transformations_flow_id ON flow_transformations(flow_id);
 CREATE INDEX idx_transformations_type ON flow_transformations(type);
 
+-- Indexes for Field Mappings Table
 CREATE INDEX idx_field_mappings_transformation_id ON field_mappings(transformation_id);
 
+-- Indexes for Flow Executions Table
 CREATE INDEX idx_executions_flow_id ON flow_executions(flow_id);
 CREATE INDEX idx_executions_status ON flow_executions(status);
 CREATE INDEX idx_executions_started_at ON flow_executions(started_at);
 
+-- Indexes for System Logs Table
 CREATE INDEX idx_logs_timestamp ON system_logs(timestamp);
 CREATE INDEX idx_logs_level ON system_logs(level);
 CREATE INDEX idx_logs_source ON system_logs(source);
@@ -315,5 +377,10 @@ CREATE INDEX idx_logs_component ON system_logs(component);
 CREATE INDEX idx_logs_component_id ON system_logs(component_id);
 CREATE INDEX idx_logs_created_at ON system_logs(created_at);
 
+-- Indexes for Adapter Statistics Table
 CREATE INDEX idx_adapter_stats_adapter_date ON adapter_statistics(adapter_id, date);
+
+
+-- Indexes for Flow Statistics Table
 CREATE INDEX idx_flow_stats_flow_date ON flow_statistics(flow_id, date);
+
