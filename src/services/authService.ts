@@ -8,7 +8,7 @@ export interface User {
   lastName: string;
   role: 'administrator' | 'integrator' | 'viewer';
   status: 'active' | 'inactive' | 'pending';
-  permissions: string[];
+  permissions: string[] | string;
   createdAt: string;
   updatedAt: string;
   lastLoginAt?: string;
@@ -174,7 +174,22 @@ class AuthService {
   // Check user permissions
   hasPermission(permission: string): boolean {
     const user = this.getCurrentUser();
-    return user?.permissions?.includes(permission) || false;
+    if (!user?.permissions) return false;
+    
+    // Handle permissions as either string (JSON) or array
+    let permissionsArray: string[] = [];
+    if (typeof user.permissions === 'string') {
+      try {
+        const parsed = JSON.parse(user.permissions);
+        permissionsArray = Array.isArray(parsed) ? parsed : Object.keys(parsed);
+      } catch {
+        permissionsArray = [];
+      }
+    } else if (Array.isArray(user.permissions)) {
+      permissionsArray = user.permissions;
+    }
+    
+    return permissionsArray.includes(permission);
   }
 
   // Check user role
