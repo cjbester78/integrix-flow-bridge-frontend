@@ -39,11 +39,11 @@ const App = () => (
               <Route path="customers" element={<Customers />} />
               <Route path="messages" element={<Messages />} />
               <Route path="channels" element={<Channels />} />
-              
               <Route path="admin" element={<Admin />} />
               <Route path="settings" element={<Settings />} />
             </Route>
-            <Route path="*" element={<NotFound />} />
+            {/* All other routes (including 404) require authentication */}
+            <Route path="*" element={<ProtectedRoute><NotFound /></ProtectedRoute>} />
           </Routes>
         </AuthProvider>
       </BrowserRouter>
