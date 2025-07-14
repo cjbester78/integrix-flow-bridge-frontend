@@ -7,14 +7,14 @@ interface ProtectedRouteProps {
 }
 
 const roleRouteAccess = {
-  '/dashboard': ['admin', 'developer', 'operator', 'viewer'],
-  '/create-flow': ['admin', 'developer'],
-  '/data-structures': ['admin', 'developer'],
-  '/create-communication-adapter': ['admin', 'developer'],
-  '/messages': ['admin', 'developer', 'operator', 'viewer'],
-  '/channels': ['admin', 'developer', 'operator', 'viewer'],
-  '/admin': ['admin'],
-  '/settings': ['admin']
+  '/dashboard': ['administrator', 'integrator', 'viewer'],
+  '/create-flow': ['administrator', 'integrator'],
+  '/data-structures': ['administrator', 'integrator'],
+  '/create-communication-adapter': ['administrator', 'integrator'],
+  '/messages': ['administrator', 'integrator', 'viewer'],
+  '/channels': ['administrator', 'integrator', 'viewer'],
+  '/admin': ['administrator'],
+  '/settings': ['administrator']
 };
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRoles }) => {

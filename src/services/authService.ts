@@ -6,7 +6,7 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
-  role: 'admin' | 'developer' | 'operator' | 'viewer';
+  role: 'administrator' | 'integrator' | 'viewer';
   status: 'active' | 'inactive' | 'pending';
   permissions: string[];
   createdAt: string;
@@ -185,7 +185,7 @@ class AuthService {
 
   // Check if user is admin
   isAdmin(): boolean {
-    return this.hasRole('admin');
+    return this.hasRole('administrator');
   }
 }
 

@@ -23,55 +23,55 @@ const navigation = [
     name: 'Dashboard', 
     href: '/dashboard', 
     icon: LayoutDashboard, 
-    roles: ['admin', 'integrator', 'viewer'] 
+    roles: ['administrator', 'integrator', 'viewer'] 
   },
   { 
     name: 'Create Flow', 
     href: '/create-flow', 
     icon: Plus, 
-    roles: ['admin', 'integrator'] 
+    roles: ['administrator', 'integrator'] 
   },
   { 
     name: 'Create Data Structures', 
     href: '/data-structures', 
     icon: Layers, 
-    roles: ['admin', 'integrator'] 
+    roles: ['administrator', 'integrator'] 
   },
   { 
     name: 'Create Communication Adapter', 
     href: '/create-communication-adapter', 
     icon: Send, 
-    roles: ['admin', 'integrator'] 
+    roles: ['administrator', 'integrator'] 
   },
   { 
     name: 'Customers', 
     href: '/customers', 
     icon: Building2, 
-    roles: ['admin', 'integrator'] 
+    roles: ['administrator', 'integrator'] 
   },
   { 
     name: 'Message Monitor', 
     href: '/messages', 
     icon: MessageSquare, 
-    roles: ['admin', 'integrator', 'viewer'] 
+    roles: ['administrator', 'integrator', 'viewer'] 
   },
   { 
     name: 'Channel Monitor', 
     href: '/channels', 
     icon: Activity, 
-    roles: ['admin', 'integrator', 'viewer'] 
+    roles: ['administrator', 'integrator', 'viewer'] 
   },
   { 
     name: 'Admin Panel', 
     href: '/admin', 
     icon: Users, 
-    roles: ['admin'] 
+    roles: ['administrator'] 
   },
   { 
     name: 'Settings', 
     href: '/settings', 
     icon: Settings, 
-    roles: ['admin'] 
+    roles: ['administrator'] 
   },
 ];
 
