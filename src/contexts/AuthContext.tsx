@@ -37,19 +37,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const initAuth = async () => {
       try {
-        console.log('🔐 AuthContext: Starting initialization...');
-        console.log('🔐 Current location:', window.location.pathname);
-        
-        const token = authService.getToken();
-        console.log('🔐 Token check:', { hasToken: !!token, tokenStart: token ? token.substring(0, 20) + '...' : 'null' });
-        
         if (authService.isAuthenticated()) {
-          console.log('🔐 AuthContext: Token exists, fetching profile...');
           const response = await authService.getProfile();
-          console.log('🔐 Profile response:', { success: response.success, hasData: !!response.data, error: response.error });
-          
           if (response.success && response.data) {
-            console.log('🔐 AuthContext: Profile fetched successfully:', response.data);
             setUser(response.data);
             
             // Set token expiry based on JWT
