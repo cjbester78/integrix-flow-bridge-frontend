@@ -116,6 +116,24 @@ export const DataStructures = () => {
     }
   };
 
+  const handleResetAllFields = () => {
+    setStructureName('');
+    setStructureDescription('');
+    setSelectedCustomer(null);
+    setJsonInput('');
+    setXsdInput('');
+    setEdmxInput('');
+    setWsdlInput('');
+    setCustomFields([]);
+    setNamespaceConfig({
+      uri: '',
+      prefix: '',
+      targetNamespace: '',
+      schemaLocation: ''
+    });
+    setSelectedStructureType('json');
+  };
+
   return (
     <div className="p-6 space-y-6 animate-fade-in">
       <div className="animate-slide-up">
@@ -158,6 +176,7 @@ export const DataStructures = () => {
             setNamespaceConfig={setNamespaceConfig}
             onSave={handleSave}
             onWsdlAnalyzed={handleWsdlAnalyzed}
+            onResetAllFields={handleResetAllFields}
           />
 
           {previewStructure && (

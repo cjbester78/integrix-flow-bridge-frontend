@@ -14,6 +14,7 @@ interface WsdlStructureTabProps {
   namespaceConfig: any;
   setNamespaceConfig: (config: any) => void;
   onWsdlAnalyzed?: (name: string | null, namespaceInfo: any) => void;
+  onResetAllFields: () => void;
 }
 
 export const WsdlStructureTab: React.FC<WsdlStructureTabProps> = ({
@@ -21,7 +22,8 @@ export const WsdlStructureTab: React.FC<WsdlStructureTabProps> = ({
   setWsdlInput,
   namespaceConfig,
   setNamespaceConfig,
-  onWsdlAnalyzed
+  onWsdlAnalyzed,
+  onResetAllFields
 }) => {
   const [dragOver, setDragOver] = useState(false);
   const { toast } = useToast();
@@ -64,14 +66,10 @@ export const WsdlStructureTab: React.FC<WsdlStructureTabProps> = ({
   };
 
   const handleCancelWsdl = () => {
-    setWsdlInput('');
-    setNamespaceConfig({});
-    if (onWsdlAnalyzed) {
-      onWsdlAnalyzed(null, {});
-    }
+    onResetAllFields();
     toast({
-      title: "WSDL Cleared",
-      description: "WSDL content has been removed",
+      title: "All Fields Cleared",
+      description: "All form fields have been reset",
     });
   };
 

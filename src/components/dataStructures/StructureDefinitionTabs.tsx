@@ -29,6 +29,7 @@ interface StructureDefinitionTabsProps {
   setNamespaceConfig: (config: any) => void;
   onSave: () => void;
   onWsdlAnalyzed?: (name: string | null, namespaceInfo: any) => void;
+  onResetAllFields: () => void;
 }
 
 export const StructureDefinitionTabs: React.FC<StructureDefinitionTabsProps> = ({
@@ -47,7 +48,8 @@ export const StructureDefinitionTabs: React.FC<StructureDefinitionTabsProps> = (
   namespaceConfig,
   setNamespaceConfig,
   onSave,
-  onWsdlAnalyzed
+  onWsdlAnalyzed,
+  onResetAllFields
 }) => {
 
   return (
@@ -70,6 +72,7 @@ export const StructureDefinitionTabs: React.FC<StructureDefinitionTabsProps> = (
             <JsonStructureTab
               jsonInput={jsonInput}
               setJsonInput={setJsonInput}
+              onResetAllFields={onResetAllFields}
             />
           </TabsContent>
           
@@ -79,6 +82,7 @@ export const StructureDefinitionTabs: React.FC<StructureDefinitionTabsProps> = (
               setXsdInput={setXsdInput}
               namespaceConfig={namespaceConfig}
               setNamespaceConfig={setNamespaceConfig}
+              onResetAllFields={onResetAllFields}
             />
           </TabsContent>
           
@@ -89,6 +93,7 @@ export const StructureDefinitionTabs: React.FC<StructureDefinitionTabsProps> = (
               namespaceConfig={namespaceConfig}
               setNamespaceConfig={setNamespaceConfig}
               onWsdlAnalyzed={onWsdlAnalyzed}
+              onResetAllFields={onResetAllFields}
             />
           </TabsContent>
           
@@ -98,6 +103,7 @@ export const StructureDefinitionTabs: React.FC<StructureDefinitionTabsProps> = (
               setEdmxInput={setEdmxInput}
               namespaceConfig={namespaceConfig}
               setNamespaceConfig={setNamespaceConfig}
+              onResetAllFields={onResetAllFields}
             />
           </TabsContent>
           
@@ -107,6 +113,7 @@ export const StructureDefinitionTabs: React.FC<StructureDefinitionTabsProps> = (
               setCustomFields={setCustomFields}
               selectedStructureType={selectedStructureType}
               setSelectedStructureType={setSelectedStructureType}
+              onResetAllFields={onResetAllFields}
             />
           </TabsContent>
         </Tabs>

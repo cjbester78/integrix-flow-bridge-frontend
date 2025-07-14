@@ -12,13 +12,15 @@ interface EdmxStructureTabProps {
   setEdmxInput: (input: string) => void;
   namespaceConfig: any;
   setNamespaceConfig: (config: any) => void;
+  onResetAllFields: () => void;
 }
 
 export const EdmxStructureTab: React.FC<EdmxStructureTabProps> = ({
   edmxInput,
   setEdmxInput,
   namespaceConfig,
-  setNamespaceConfig
+  setNamespaceConfig,
+  onResetAllFields
 }) => {
   const [dragOver, setDragOver] = useState(false);
   const { toast } = useToast();
@@ -56,11 +58,10 @@ export const EdmxStructureTab: React.FC<EdmxStructureTabProps> = ({
   };
 
   const handleClearEdmx = () => {
-    setEdmxInput('');
-    setNamespaceConfig({});
+    onResetAllFields();
     toast({
-      title: "EDMX Cleared",
-      description: "EDMX content has been removed",
+      title: "All Fields Cleared",
+      description: "All form fields have been reset",
     });
   };
 

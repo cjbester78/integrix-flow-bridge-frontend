@@ -14,13 +14,15 @@ interface CustomStructureTabProps {
   setCustomFields: (fields: Field[]) => void;
   selectedStructureType: string;
   setSelectedStructureType: (type: string) => void;
+  onResetAllFields: () => void;
 }
 
 export const CustomStructureTab: React.FC<CustomStructureTabProps> = ({
   customFields,
   setCustomFields,
   selectedStructureType,
-  setSelectedStructureType
+  setSelectedStructureType,
+  onResetAllFields
 }) => {
   const [customStructureType, setCustomStructureType] = useState<string>('');
   const { toast } = useToast();
@@ -32,11 +34,10 @@ export const CustomStructureTab: React.FC<CustomStructureTabProps> = ({
   } = useCustomFields(customFields, setCustomFields);
 
   const handleClearCustomFields = () => {
-    setCustomFields([]);
-    setCustomStructureType('');
+    onResetAllFields();
     toast({
-      title: "Custom Fields Cleared",
-      description: "All custom fields have been removed",
+      title: "All Fields Cleared",
+      description: "All form fields have been reset",
     });
   };
 

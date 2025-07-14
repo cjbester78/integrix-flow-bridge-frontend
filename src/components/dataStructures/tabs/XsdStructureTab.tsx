@@ -12,13 +12,15 @@ interface XsdStructureTabProps {
   setXsdInput: (input: string) => void;
   namespaceConfig: any;
   setNamespaceConfig: (config: any) => void;
+  onResetAllFields: () => void;
 }
 
 export const XsdStructureTab: React.FC<XsdStructureTabProps> = ({
   xsdInput,
   setXsdInput,
   namespaceConfig,
-  setNamespaceConfig
+  setNamespaceConfig,
+  onResetAllFields
 }) => {
   const [dragOver, setDragOver] = useState(false);
   const { toast } = useToast();
@@ -47,11 +49,10 @@ export const XsdStructureTab: React.FC<XsdStructureTabProps> = ({
   };
 
   const handleClearXsd = () => {
-    setXsdInput('');
-    setNamespaceConfig({});
+    onResetAllFields();
     toast({
-      title: "XSD Cleared",
-      description: "XSD content has been removed",
+      title: "All Fields Cleared",
+      description: "All form fields have been reset",
     });
   };
 

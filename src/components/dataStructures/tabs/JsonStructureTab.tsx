@@ -9,11 +9,13 @@ import { FileJson, X } from 'lucide-react';
 interface JsonStructureTabProps {
   jsonInput: string;
   setJsonInput: (input: string) => void;
+  onResetAllFields: () => void;
 }
 
 export const JsonStructureTab: React.FC<JsonStructureTabProps> = ({
   jsonInput,
-  setJsonInput
+  setJsonInput,
+  onResetAllFields
 }) => {
   const [dragOver, setDragOver] = useState(false);
   const { toast } = useToast();
@@ -52,10 +54,10 @@ export const JsonStructureTab: React.FC<JsonStructureTabProps> = ({
   };
 
   const handleClearJson = () => {
-    setJsonInput('');
+    onResetAllFields();
     toast({
-      title: "JSON Cleared",
-      description: "JSON content has been removed",
+      title: "All Fields Cleared",
+      description: "All form fields have been reset",
     });
   };
 
