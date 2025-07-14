@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
 import { FileUploadZone } from '../FileUploadZone';
 import { NamespaceConfiguration } from '../NamespaceConfiguration';
 import { useToast } from '@/hooks/use-toast';
 import { extractWsdlPartName, extractWsdlNamespaceInfo } from '@/utils/structureParsers';
-import { FileCode } from 'lucide-react';
+import { FileCode, X } from 'lucide-react';
 
 interface WsdlStructureTabProps {
   wsdlInput: string;
@@ -62,6 +63,18 @@ export const WsdlStructureTab: React.FC<WsdlStructureTabProps> = ({
     }
   };
 
+  const handleCancelWsdl = () => {
+    setWsdlInput('');
+    setNamespaceConfig({});
+    if (onWsdlAnalyzed) {
+      onWsdlAnalyzed(null, {});
+    }
+    toast({
+      title: "WSDL Cleared",
+      description: "WSDL content has been removed",
+    });
+  };
+
   return (
     <div className="space-y-4">
       <NamespaceConfiguration
@@ -69,22 +82,37 @@ export const WsdlStructureTab: React.FC<WsdlStructureTabProps> = ({
         namespaceConfig={namespaceConfig}
         setNamespaceConfig={setNamespaceConfig}
       />
-      <FileUploadZone
-        icon={FileCode}
-        title="WSDL Upload"
-        description="Drag & drop a WSDL file or paste WSDL content below"
-        acceptTypes=".wsdl,.xml"
-        dragOver={dragOver}
-        onDrop={handleDrop}
-        onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-        onDragLeave={() => setDragOver(false)}
-        onFileSelect={handleFileUpload}
-        uploadId="wsdl-upload"
-        buttonText="Upload WSDL File"
-      />
+      {!wsdlInput.trim() && (
+        <FileUploadZone
+          icon={FileCode}
+          title="WSDL Upload"
+          description="Drag & drop a WSDL file or paste WSDL content below"
+          acceptTypes=".wsdl,.xml"
+          dragOver={dragOver}
+          onDrop={handleDrop}
+          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+          onDragLeave={() => setDragOver(false)}
+          onFileSelect={handleFileUpload}
+          uploadId="wsdl-upload"
+          buttonText="Upload WSDL File"
+        />
+      )}
       
       <div className="space-y-2">
-        <Label>WSDL Content</Label>
+        <div className="flex items-center justify-between">
+          <Label>WSDL Content</Label>
+          {wsdlInput.trim() && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleCancelWsdl}
+              className="text-destructive hover:text-destructive"
+            >
+              <X className="h-4 w-4 mr-1" />
+              Clear WSDL
+            </Button>
+          )}
+        </div>
         <Textarea
           placeholder="Paste your WSDL definition here..."
           value={wsdlInput}
