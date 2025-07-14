@@ -1,21 +1,8 @@
 // Base API configuration and utilities
 const API_BASE_URL = 'http://localhost:8080/api';
 
-// Mock data for development
+// Mock data for dashboard endpoints only (keep real auth)
 const mockData = {
-  '/auth/profile': {
-    success: true,
-    data: {
-      id: '1',
-      username: 'demo-user',
-      email: 'demo@integrixlab.com',
-      firstName: 'Demo',
-      lastName: 'User',
-      role: 'administrator',
-      status: 'active',
-      permissions: ['read', 'write', 'admin']
-    }
-  },
   '/customers': {
     success: true,
     data: [
@@ -46,6 +33,23 @@ const mockData = {
   '/flows': {
     success: true,
     data: []
+  },
+  '/channels': {
+    success: true,
+    data: []
+  },
+  '/messages': {
+    success: true,
+    data: []
+  },
+  '/system/stats': {
+    success: true,
+    data: {
+      totalUsers: 5,
+      activeFlows: 12,
+      totalMessages: 1523,
+      systemHealth: 'healthy'
+    }
   }
 };
 
