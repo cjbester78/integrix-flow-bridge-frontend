@@ -243,6 +243,8 @@ CREATE TABLE IF NOT EXISTS system_logs (
     source_name VARCHAR(255),
     component VARCHAR(100), -- Legacy field for compatibility
     component_id CHAR(36),  -- Legacy field for compatibility
+    domain_type VARCHAR(100),
+    domain_reference_id CHAR(36),
     user_id CHAR(36),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_system_logs_user
