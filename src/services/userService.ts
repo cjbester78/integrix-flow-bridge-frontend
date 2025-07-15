@@ -30,7 +30,7 @@ export interface UserListResponse {
 
 class UserService {
   // Get all users
-  async getAllUsers(page: number = 1, limit: number = 50): Promise<ApiResponse<UserListResponse>> {
+  async getAllUsers(page: number = 0, limit: number = 50): Promise<ApiResponse<UserListResponse>> {
     return api.get<UserListResponse>(`/users?page=${page}&limit=${limit}`);
   }
 
