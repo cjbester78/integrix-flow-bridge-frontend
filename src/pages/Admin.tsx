@@ -182,15 +182,21 @@ export const Admin = () => {
     try {
       setIsLoadingUsers(true);
       const response = await userService.getAllUsers();
+      console.log('User fetch response:', response); // Debug log
+      
       if (response.success && response.data) {
-        setUsers(response.data.users);
+        // Handle different possible response structures
+        const userData = Array.isArray(response.data) ? response.data : response.data.users;
+        setUsers(userData || []);
       } else {
-        toast.error('Failed to load users');
         console.error('Failed to fetch users:', response.error);
+        toast.error('Failed to load users');
+        setUsers([]); // Set empty array as fallback
       }
     } catch (error) {
       console.error('Error fetching users:', error);
       toast.error('Failed to load users');
+      setUsers([]); // Set empty array as fallback
     } finally {
       setIsLoadingUsers(false);
     }
