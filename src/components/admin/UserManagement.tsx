@@ -7,6 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Plus, Edit, Trash2, Crown, Settings, UserCheck, Users, RefreshCw } from 'lucide-react';
 import { User } from '@/types/admin';
 import { CreateUserDialog } from './CreateUserDialog';
+import { EditUserDialog } from './EditUserDialog';
 
 interface UserManagementProps {
   users: User[];
@@ -16,6 +17,8 @@ interface UserManagementProps {
 
 export const UserManagement = ({ users, isLoading = false, onRefresh }: UserManagementProps) => {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const getRoleIcon = (role: string) => {
     switch (role) {
       case 'administrator':
@@ -120,7 +123,14 @@ export const UserManagement = ({ users, isLoading = false, onRefresh }: UserMana
                     <TableCell className="text-muted-foreground">{user.last_login_at || 'Never'}</TableCell>
                     <TableCell>
                       <div className="flex gap-2">
-                        <Button variant="ghost" size="sm">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => {
+                            setSelectedUser(user);
+                            setShowEditDialog(true);
+                          }}
+                        >
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button variant="ghost" size="sm" className="text-destructive">
@@ -142,6 +152,17 @@ export const UserManagement = ({ users, isLoading = false, onRefresh }: UserMana
         onUserCreated={() => {
           setShowCreateDialog(false);
           onRefresh?.(); // Refresh the user list after creating a new user
+        }}
+      />
+      
+      <EditUserDialog
+        open={showEditDialog}
+        onOpenChange={setShowEditDialog}
+        user={selectedUser}
+        onUserUpdated={() => {
+          setShowEditDialog(false);
+          setSelectedUser(null);
+          onRefresh?.(); // Refresh the user list after updating a user
         }}
       />
     </Card>
