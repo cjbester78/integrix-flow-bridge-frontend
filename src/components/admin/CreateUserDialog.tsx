@@ -19,10 +19,11 @@ export const CreateUserDialog = ({ open, onOpenChange, onUserCreated }: CreateUs
   const [formData, setFormData] = useState<CreateUserRequest>({
     username: '',
     email: '',
-    first_name: '',
-    last_name: '',
+    firstName: '',
+    lastName: '',
     role: 'viewer',
-    password: ''
+    password: '',
+    status: 'active'
   });
   const { toast } = useToast();
 
@@ -44,10 +45,11 @@ export const CreateUserDialog = ({ open, onOpenChange, onUserCreated }: CreateUs
         setFormData({
           username: '',
           email: '',
-          first_name: '',
-          last_name: '',
+          firstName: '',
+          lastName: '',
           role: 'viewer',
-          password: ''
+          password: '',
+          status: 'active'
         });
         
         onOpenChange(false);
@@ -88,22 +90,22 @@ export const CreateUserDialog = ({ open, onOpenChange, onUserCreated }: CreateUs
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="first_name">First Name</Label>
+              <Label htmlFor="firstName">First Name</Label>
               <Input
-                id="first_name"
-                value={formData.first_name}
-                onChange={(e) => handleInputChange('first_name')(e.target.value)}
+                id="firstName"
+                value={formData.firstName}
+                onChange={(e) => handleInputChange('firstName')(e.target.value)}
                 placeholder="John"
                 required
                 disabled={isLoading}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="last_name">Last Name</Label>
+              <Label htmlFor="lastName">Last Name</Label>
               <Input
-                id="last_name"
-                value={formData.last_name}
-                onChange={(e) => handleInputChange('last_name')(e.target.value)}
+                id="lastName"
+                value={formData.lastName}
+                onChange={(e) => handleInputChange('lastName')(e.target.value)}
                 placeholder="Doe"
                 required
                 disabled={isLoading}
@@ -162,6 +164,24 @@ export const CreateUserDialog = ({ open, onOpenChange, onUserCreated }: CreateUs
                 <SelectItem value="administrator">Administrator</SelectItem>
                 <SelectItem value="integrator">Integrator</SelectItem>
                 <SelectItem value="viewer">Viewer</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="status">Status</Label>
+            <Select 
+              value={formData.status} 
+              onValueChange={handleInputChange('status')}
+              disabled={isLoading}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="inactive">Inactive</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
               </SelectContent>
             </Select>
           </div>

@@ -89,8 +89,8 @@ export const EditUserDialog = ({ open, onOpenChange, user, onUserUpdated }: Edit
     if (user) {
       setFormData({
         email: user.email,
-        first_name: user.first_name,
-        last_name: user.last_name,
+        firstName: user.first_name,
+        lastName: user.last_name,
         role: user.role,
         status: user.status
       });
@@ -202,26 +202,26 @@ export const EditUserDialog = ({ open, onOpenChange, user, onUserUpdated }: Edit
           <div className="space-y-4">
             <h3 className="text-lg font-medium">Basic Information</h3>
             
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="first_name">First Name</Label>
-                <Input
-                  id="first_name"
-                  value={formData.first_name || ''}
-                  onChange={(e) => handleInputChange('first_name')(e.target.value)}
-                  disabled={isLoading}
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName">First Name</Label>
+                  <Input
+                    id="firstName"
+                    value={formData.firstName || ''}
+                    onChange={(e) => handleInputChange('firstName')(e.target.value)}
+                    disabled={isLoading}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Last Name</Label>
+                  <Input
+                    id="lastName"
+                    value={formData.lastName || ''}
+                    onChange={(e) => handleInputChange('lastName')(e.target.value)}
+                    disabled={isLoading}
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="last_name">Last Name</Label>
-                <Input
-                  id="last_name"
-                  value={formData.last_name || ''}
-                  onChange={(e) => handleInputChange('last_name')(e.target.value)}
-                  disabled={isLoading}
-                />
-              </div>
-            </div>
 
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>

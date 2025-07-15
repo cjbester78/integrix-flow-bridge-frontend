@@ -102,9 +102,10 @@ export const Settings = () => {
       const userData: CreateUserRequest = {
         username: newUser.username,
         email: newUser.email,
-        first_name: newUser.first_name || newUser.username,
-        last_name: newUser.last_name || '',
+        firstName: newUser.first_name || newUser.username,
+        lastName: newUser.last_name || '',
         role: newUser.role,
+        status: 'active'
       };
 
       const response = await userService.createUser(userData);
@@ -147,8 +148,8 @@ export const Settings = () => {
       
       const updates: UpdateUserRequest = {
         email: selectedUser.email,
-        first_name: selectedUser.first_name,
-        last_name: selectedUser.last_name,
+        firstName: selectedUser.first_name,
+        lastName: selectedUser.last_name,
         role: selectedUser.role,
         permissions: userService.getRolePermissions(selectedUser.role)
       };
