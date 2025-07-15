@@ -102,10 +102,9 @@ export const Settings = () => {
       const userData: CreateUserRequest = {
         username: newUser.username,
         email: newUser.email,
-        firstName: newUser.first_name || newUser.username,
-        lastName: newUser.last_name || '',
+        first_name: newUser.first_name || newUser.username,
+        last_name: newUser.last_name || '',
         role: newUser.role,
-        status: 'active'
       };
 
       const response = await userService.createUser(userData);

@@ -4,11 +4,10 @@ import { User } from '@/types/admin';
 export interface CreateUserRequest {
   username: string;
   email: string;
-  firstName: string;
-  lastName: string;
+  first_name: string;
+  last_name: string;
   role: 'administrator' | 'integrator' | 'viewer';
   password?: string;
-  status: 'active' | 'inactive' | 'pending';
 }
 
 export interface UpdateUserRequest {
