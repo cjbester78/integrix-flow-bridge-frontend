@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Users, Shield, Key, FileArchive, ScrollText } from 'lucide-react';
 import { AdminStats } from '@/components/admin/AdminStats';
@@ -8,6 +8,8 @@ import { CertificateManagement } from '@/components/admin/CertificateManagement'
 import { JarFileManagement } from '@/components/admin/JarFileManagement';
 import { SystemLogs } from '@/components/admin/SystemLogs';
 import { User, Role, Certificate, JarFile } from '@/types/admin';
+import { userService } from '@/services/userService';
+import { toast } from 'sonner';
 
 const initialUsers: User[] = [
   {
@@ -168,11 +170,35 @@ const initialJarFiles: JarFile[] = [
 ];
 
 export const Admin = () => {
-  const [users] = useState<User[]>(initialUsers);
+  const [users, setUsers] = useState<User[]>([]);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(true);
   const [roles] = useState<Role[]>(initialRoles);
   const [certificates] = useState<Certificate[]>(initialCertificates);
   const [jarFiles, setJarFiles] = useState<JarFile[]>(initialJarFiles);
   const [activeTab, setActiveTab] = useState('users');
+
+  // Fetch users from backend
+  const fetchUsers = async () => {
+    try {
+      setIsLoadingUsers(true);
+      const response = await userService.getAllUsers();
+      if (response.success && response.data) {
+        setUsers(response.data.users);
+      } else {
+        toast.error('Failed to load users');
+        console.error('Failed to fetch users:', response.error);
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      toast.error('Failed to load users');
+    } finally {
+      setIsLoadingUsers(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   const handleJarFileAdded = (jarFile: JarFile) => {
     setJarFiles(prev => [...prev, jarFile]);
@@ -224,7 +250,7 @@ export const Admin = () => {
         </TabsList>
 
         <TabsContent value="users" className="space-y-4">
-          <UserManagement users={users} />
+          <UserManagement users={users} isLoading={isLoadingUsers} onRefresh={fetchUsers} />
         </TabsContent>
 
         <TabsContent value="roles" className="space-y-4">

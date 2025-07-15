@@ -3,15 +3,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus, Edit, Trash2, Crown, Settings, UserCheck, Users } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Plus, Edit, Trash2, Crown, Settings, UserCheck, Users, RefreshCw } from 'lucide-react';
 import { User } from '@/types/admin';
 import { CreateUserDialog } from './CreateUserDialog';
 
 interface UserManagementProps {
   users: User[];
+  isLoading?: boolean;
+  onRefresh?: () => void;
 }
 
-export const UserManagement = ({ users }: UserManagementProps) => {
+export const UserManagement = ({ users, isLoading = false, onRefresh }: UserManagementProps) => {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const getRoleIcon = (role: string) => {
     switch (role) {
@@ -45,13 +48,25 @@ export const UserManagement = ({ users }: UserManagementProps) => {
             <CardTitle>User Management</CardTitle>
             <CardDescription>Manage system users and their access levels</CardDescription>
           </div>
-          <Button 
-            className="bg-gradient-primary"
-            onClick={() => setShowCreateDialog(true)}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Add User
-          </Button>
+          <div className="flex gap-2">
+            {onRefresh && (
+              <Button 
+                variant="outline"
+                onClick={onRefresh}
+                disabled={isLoading}
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
+            )}
+            <Button 
+              className="bg-gradient-primary"
+              onClick={() => setShowCreateDialog(true)}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add User
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -68,34 +83,54 @@ export const UserManagement = ({ users }: UserManagementProps) => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.username}</TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      {getRoleIcon(user.role)}
-                      <span className="capitalize">{user.role}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={getStatusVariant(user.status)}>
-                      {user.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">{user.last_login_at || 'Never'}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button variant="ghost" size="sm">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" className="text-destructive">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+              {isLoading ? (
+                // Loading skeleton rows
+                Array.from({ length: 3 }).map((_, index) => (
+                  <TableRow key={`skeleton-${index}`}>
+                    <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                  </TableRow>
+                ))
+              ) : users.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                    No users found
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                users.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell className="font-medium">{user.username}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        {getRoleIcon(user.role)}
+                        <span className="capitalize">{user.role}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={getStatusVariant(user.status)}>
+                        {user.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">{user.last_login_at || 'Never'}</TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button variant="ghost" size="sm">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" className="text-destructive">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </div>
@@ -105,9 +140,8 @@ export const UserManagement = ({ users }: UserManagementProps) => {
         open={showCreateDialog}
         onOpenChange={setShowCreateDialog}
         onUserCreated={() => {
-          // In a real app, you would refresh the user list here
-          // For now, we're just using mock data, so this is a placeholder
-          console.log('User created successfully - in real app, refresh user list');
+          setShowCreateDialog(false);
+          onRefresh?.(); // Refresh the user list after creating a new user
         }}
       />
     </Card>
