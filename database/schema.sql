@@ -234,19 +234,19 @@ CREATE TABLE IF NOT EXISTS flow_executions (
 -- System Logs (enhanced for admin interface)
 CREATE TABLE IF NOT EXISTS system_logs (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
-    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    level ENUM('info', 'warn', 'error', 'debug') NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,         -- When the event occurred
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,        -- When inserted into DB
+    level VARCHAR(20) NOT NULL CHECK (level IN ('info', 'warn', 'error', 'debug')),
     message TEXT NOT NULL,
     details JSON,
-    source ENUM('adapter', 'system', 'channel', 'flow', 'api') NOT NULL,
+    source VARCHAR(100),                                   -- e.g., 'adapter', 'system', 'api'
     source_id VARCHAR(255),
     source_name VARCHAR(255),
-    component VARCHAR(100), -- Legacy field for compatibility
-    component_id CHAR(36),  -- Legacy field for compatibility
-    domain_type VARCHAR(100),
-    domain_reference_id CHAR(36),
+    component VARCHAR(100),                                -- Deprecated: legacy UI compatibility
+    component_id CHAR(36),
+    domain_type VARCHAR(100),                              -- e.g., 'UserManagement', 'FlowEngine'
+    domain_reference_id CHAR(36),                          -- UUID of related domain entity
     user_id CHAR(36),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_system_logs_user
         FOREIGN KEY (user_id) REFERENCES users(id)
 );
