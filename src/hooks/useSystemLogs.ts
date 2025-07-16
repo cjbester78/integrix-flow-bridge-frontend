@@ -23,6 +23,10 @@ interface UseSystemLogsParams {
   endDate?: string;
   autoRefresh?: boolean;
   refreshInterval?: number;
+  // Domain-specific filtering
+  domainType?: 'UserManagement' | 'FlowEngine' | 'AdapterManagement' | 'DataStructures' | 'ChannelManagement' | 'MessageProcessing';
+  domainReferenceId?: string;
+  includeUserFriendlyErrors?: boolean;
 }
 
 export const useSystemLogs = (params: UseSystemLogsParams = {}) => {
@@ -57,20 +61,47 @@ export const useSystemLogs = (params: UseSystemLogsParams = {}) => {
     setError(undefined);
 
     try {
-      // Get logs from the system error logger (includes sample data)
-      const systemLogs = systemErrorLogger.getFilteredLogs({
-        source: params.source,
-        sourceId: params.sourceId,
-        level: params.level,
-        search: params.search,
-      });
+      // Build query parameters for API call
+      const queryParams = new URLSearchParams();
+      if (params.source) queryParams.append('source', params.source);
+      if (params.sourceId) queryParams.append('sourceId', params.sourceId);
+      if (params.level) queryParams.append('level', params.level);
+      if (params.search) queryParams.append('search', params.search);
+      if (params.startDate) queryParams.append('startDate', params.startDate);
+      if (params.endDate) queryParams.append('endDate', params.endDate);
+      if (params.domainType) queryParams.append('domainType', params.domainType);
+      if (params.domainReferenceId) queryParams.append('domainReferenceId', params.domainReferenceId);
 
-      // If we have real API endpoints, we could also fetch from them
-      // For now, we'll use the mock system logger
-      setLogs(systemLogs);
+      // Try to fetch from API first
+      const endpoint = `/api/logs/system${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      const response = await api.get(endpoint);
+      
+      if (response.success && response.data) {
+        setLogs(response.data);
+      } else {
+        // Fallback to mock system logger
+        const systemLogs = systemErrorLogger.getFilteredLogs({
+          source: params.source,
+          sourceId: params.sourceId,
+          level: params.level,
+          search: params.search,
+        });
+        setLogs(systemLogs);
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch logs');
-      setLogs([]);
+      // Fallback to mock system logger on API error
+      try {
+        const systemLogs = systemErrorLogger.getFilteredLogs({
+          source: params.source,
+          sourceId: params.sourceId,
+          level: params.level,
+          search: params.search,
+        });
+        setLogs(systemLogs);
+      } catch (fallbackErr) {
+        setError(fallbackErr instanceof Error ? fallbackErr.message : 'Failed to fetch logs');
+        setLogs([]);
+      }
     } finally {
       setLoading(false);
     }

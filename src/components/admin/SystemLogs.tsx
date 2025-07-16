@@ -1,14 +1,17 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { useSystemLogs } from '@/hooks/useSystemLogs';
+import { useDomainLogs, DomainType } from '@/hooks/useDomainLogs';
 import { SystemLogViewer } from '@/components/SystemLogViewer';
+import { DomainLogViewer } from '@/components/DomainLogViewer';
 import { LogFilters } from '@/components/adapter/LogFilters';
 import { LogExport } from '@/components/adapter/LogExport';
-import { ScrollText, Search, Filter, Download, RefreshCw } from 'lucide-react';
+import { ScrollText, Search, Filter, Download, RefreshCw, Database, Workflow, Network, User, Settings, MessageSquare } from 'lucide-react';
 
 export const SystemLogs = () => {
   const [selectedSource, setSelectedSource] = useState<'adapter' | 'system' | 'channel' | 'flow' | 'api' | ''>('');
@@ -16,6 +19,7 @@ export const SystemLogs = () => {
   const [logLevel, setLogLevel] = useState<'info' | 'warn' | 'error' | 'debug' | ''>('');
   const [searchQuery, setSearchQuery] = useState('');
   const [dateRange, setDateRange] = useState<{ start?: string; end?: string }>({});
+  const [activeTab, setActiveTab] = useState('system');
 
   const { logs, loading, error, refetch, sources } = useSystemLogs({
     source: selectedSource || undefined,
@@ -26,13 +30,40 @@ export const SystemLogs = () => {
     endDate: dateRange.end,
   });
 
+  // Domain-specific log hooks
+  const userLogs = useDomainLogs({ domainType: 'UserManagement', includeSystemLogs: false });
+  const flowLogs = useDomainLogs({ domainType: 'FlowEngine', includeSystemLogs: false });
+  const adapterLogs = useDomainLogs({ domainType: 'AdapterManagement', includeSystemLogs: false });
+  const structureLogs = useDomainLogs({ domainType: 'DataStructures', includeSystemLogs: false });
+  const channelLogs = useDomainLogs({ domainType: 'ChannelManagement', includeSystemLogs: false });
+  const messageLogs = useDomainLogs({ domainType: 'MessageProcessing', includeSystemLogs: false });
+
   const handleRefresh = () => {
     refetch();
+    // Refetch domain logs as well
+    userLogs.refetch();
+    flowLogs.refetch();
+    adapterLogs.refetch();
+    structureLogs.refetch();
+    channelLogs.refetch();
+    messageLogs.refetch();
   };
 
   const handleFilterChange = (filters: any) => {
     setLogLevel(filters.level);
     setDateRange(filters.dateRange);
+  };
+
+  const getDomainTabIcon = (domainType: DomainType) => {
+    const iconMap = {
+      UserManagement: User,
+      FlowEngine: Workflow,
+      AdapterManagement: Network,
+      DataStructures: Database,
+      ChannelManagement: Settings,
+      MessageProcessing: MessageSquare,
+    };
+    return iconMap[domainType];
   };
 
   return (
@@ -192,13 +223,108 @@ export const SystemLogs = () => {
         </div>
       )}
 
-      {/* Log Viewer */}
-      <SystemLogViewer 
-        logs={logs} 
-        loading={loading} 
-        error={error}
-        selectedSource={selectedSource}
-      />
+      {/* Comprehensive Log Viewer with Domain Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-7">
+          <TabsTrigger value="system" className="flex items-center gap-2">
+            <ScrollText className="h-4 w-4" />
+            System Logs
+          </TabsTrigger>
+          <TabsTrigger value="user" className="flex items-center gap-2">
+            <User className="h-4 w-4" />
+            Users
+          </TabsTrigger>
+          <TabsTrigger value="flow" className="flex items-center gap-2">
+            <Workflow className="h-4 w-4" />
+            Flows
+          </TabsTrigger>
+          <TabsTrigger value="adapter" className="flex items-center gap-2">
+            <Network className="h-4 w-4" />
+            Adapters
+          </TabsTrigger>
+          <TabsTrigger value="structure" className="flex items-center gap-2">
+            <Database className="h-4 w-4" />
+            Structures
+          </TabsTrigger>
+          <TabsTrigger value="channel" className="flex items-center gap-2">
+            <Settings className="h-4 w-4" />
+            Channels
+          </TabsTrigger>
+          <TabsTrigger value="message" className="flex items-center gap-2">
+            <MessageSquare className="h-4 w-4" />
+            Messages
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="system">
+          <SystemLogViewer 
+            logs={logs} 
+            loading={loading} 
+            error={error}
+            selectedSource={selectedSource}
+          />
+        </TabsContent>
+
+        <TabsContent value="user">
+          <DomainLogViewer
+            domainType="UserManagement"
+            domainErrors={userLogs.domainErrors}
+            systemLogs={userLogs.systemLogs}
+            loading={userLogs.loading}
+            error={userLogs.error}
+          />
+        </TabsContent>
+
+        <TabsContent value="flow">
+          <DomainLogViewer
+            domainType="FlowEngine"
+            domainErrors={flowLogs.domainErrors}
+            systemLogs={flowLogs.systemLogs}
+            loading={flowLogs.loading}
+            error={flowLogs.error}
+          />
+        </TabsContent>
+
+        <TabsContent value="adapter">
+          <DomainLogViewer
+            domainType="AdapterManagement"
+            domainErrors={adapterLogs.domainErrors}
+            systemLogs={adapterLogs.systemLogs}
+            loading={adapterLogs.loading}
+            error={adapterLogs.error}
+          />
+        </TabsContent>
+
+        <TabsContent value="structure">
+          <DomainLogViewer
+            domainType="DataStructures"
+            domainErrors={structureLogs.domainErrors}
+            systemLogs={structureLogs.systemLogs}
+            loading={structureLogs.loading}
+            error={structureLogs.error}
+          />
+        </TabsContent>
+
+        <TabsContent value="channel">
+          <DomainLogViewer
+            domainType="ChannelManagement"
+            domainErrors={channelLogs.domainErrors}
+            systemLogs={channelLogs.systemLogs}
+            loading={channelLogs.loading}
+            error={channelLogs.error}
+          />
+        </TabsContent>
+
+        <TabsContent value="message">
+          <DomainLogViewer
+            domainType="MessageProcessing"
+            domainErrors={messageLogs.domainErrors}
+            systemLogs={messageLogs.systemLogs}
+            loading={messageLogs.loading}
+            error={messageLogs.error}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

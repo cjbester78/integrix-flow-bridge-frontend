@@ -251,6 +251,93 @@ CREATE TABLE IF NOT EXISTS system_logs (
         FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+-- Domain-specific error tables for user-friendly error messages
+
+-- User Management Errors
+CREATE TABLE IF NOT EXISTS user_management_errors (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    action VARCHAR(100) NOT NULL,               -- e.g., 'CreateUser', 'Login', 'UpdateUser'
+    description TEXT,                           -- human-readable description
+    payload TEXT NOT NULL,                      -- JSON string of request/input
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    system_log_id CHAR(36),                     -- FK to system_logs
+    user_id CHAR(36),                          -- Reference to affected user
+    FOREIGN KEY (system_log_id) REFERENCES system_logs(id) ON DELETE SET NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- Integration Flow Management Errors
+CREATE TABLE IF NOT EXISTS flow_management_errors (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    action VARCHAR(100) NOT NULL,               -- e.g., 'CreateFlow', 'UpdateFlow', 'TestFlow', 'DeployFlow'
+    description TEXT,                           -- human-readable description
+    payload TEXT NOT NULL,                      -- JSON of flow configuration
+    flow_id CHAR(36),                          -- Reference to the flow
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    system_log_id CHAR(36),                     -- FK to system_logs
+    user_id CHAR(36),                          -- User who performed the action
+    FOREIGN KEY (system_log_id) REFERENCES system_logs(id) ON DELETE SET NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- Adapter Management Errors  
+CREATE TABLE IF NOT EXISTS adapter_management_errors (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    action VARCHAR(100) NOT NULL,               -- e.g., 'CreateAdapter', 'TestConnection', 'Deploy', 'ConfigUpdate'
+    description TEXT,                           -- human-readable description
+    payload TEXT NOT NULL,                      -- JSON of adapter config
+    adapter_id CHAR(36),                       -- Reference to the adapter
+    adapter_type VARCHAR(50),                  -- 'source', 'target', 'bidirectional'
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    system_log_id CHAR(36),                     -- FK to system_logs
+    user_id CHAR(36),                          -- User who performed the action
+    FOREIGN KEY (system_log_id) REFERENCES system_logs(id) ON DELETE SET NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- Data Structure Management Errors
+CREATE TABLE IF NOT EXISTS structure_management_errors (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    action VARCHAR(100) NOT NULL,               -- e.g., 'CreateStructure', 'ValidateSchema', 'ParseXSD', 'GenerateMapping'
+    description TEXT,                           -- human-readable description
+    payload TEXT NOT NULL,                      -- JSON of structure config/schema
+    structure_id CHAR(36),                     -- Reference to the data structure
+    structure_type VARCHAR(50),                -- 'XSD', 'JSON', 'WSDL', 'EDMX', 'Custom'
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    system_log_id CHAR(36),                     -- FK to system_logs
+    user_id CHAR(36),                          -- User who performed the action
+    FOREIGN KEY (system_log_id) REFERENCES system_logs(id) ON DELETE SET NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- Channel Management Errors
+CREATE TABLE IF NOT EXISTS channel_management_errors (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    action VARCHAR(100) NOT NULL,               -- e.g., 'CreateChannel', 'StartChannel', 'StopChannel', 'ConfigUpdate'
+    description TEXT,                           -- human-readable description
+    payload TEXT NOT NULL,                      -- JSON of channel config
+    channel_id CHAR(36),                       -- Reference to the channel
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    system_log_id CHAR(36),                     -- FK to system_logs
+    user_id CHAR(36),                          -- User who performed the action
+    FOREIGN KEY (system_log_id) REFERENCES system_logs(id) ON DELETE SET NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- Message Processing Errors
+CREATE TABLE IF NOT EXISTS message_processing_errors (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    action VARCHAR(100) NOT NULL,               -- e.g., 'MessageTransform', 'MessageRoute', 'MessageValidation'
+    description TEXT,                           -- human-readable description
+    payload TEXT NOT NULL,                      -- JSON of message data
+    message_id CHAR(36),                       -- Reference to the message
+    flow_id CHAR(36),                          -- Related flow
+    channel_id CHAR(36),                       -- Related channel
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    system_log_id CHAR(36),                     -- FK to system_logs
+    FOREIGN KEY (system_log_id) REFERENCES system_logs(id) ON DELETE SET NULL
+);
+
 
 -- Adapter Statistics
 CREATE TABLE IF NOT EXISTS adapter_statistics (
