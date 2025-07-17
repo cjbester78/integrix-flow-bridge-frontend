@@ -128,14 +128,33 @@ CREATE TABLE IF NOT EXISTS webservice_files (
         FOREIGN KEY (uploaded_by) REFERENCES users(id) ON DELETE SET NULL
 );
 
--- Add indexes for better performance
-CREATE INDEX IF NOT EXISTS idx_data_structures_customer_id ON data_structures(customer_id);
-CREATE INDEX IF NOT EXISTS idx_communication_adapters_customer_id ON communication_adapters(customer_id);
-CREATE INDEX IF NOT EXISTS idx_integration_flows_customer_id ON integration_flows(customer_id);
-CREATE INDEX IF NOT EXISTS idx_flow_executions_customer_id ON flow_executions(customer_id);
-CREATE INDEX IF NOT EXISTS idx_channels_customer_id ON channels(customer_id);
-CREATE INDEX IF NOT EXISTS idx_messages_customer_id ON messages(customer_id);
-CREATE INDEX IF NOT EXISTS idx_webservice_files_customer_id ON webservice_files(customer_id);
-CREATE INDEX IF NOT EXISTS idx_certificates_customer_id ON certificates(customer_id);
-CREATE INDEX IF NOT EXISTS idx_user_sessions_customer_id ON user_sessions(customer_id);
-CREATE INDEX IF NOT EXISTS idx_system_logs_customer_id ON system_logs(customer_id);
+-- Add indexes for better performance (drop if exists first, then create)
+DROP INDEX IF EXISTS idx_data_structures_customer_id ON data_structures;
+CREATE INDEX idx_data_structures_customer_id ON data_structures(customer_id);
+
+DROP INDEX IF EXISTS idx_communication_adapters_customer_id ON communication_adapters;
+CREATE INDEX idx_communication_adapters_customer_id ON communication_adapters(customer_id);
+
+DROP INDEX IF EXISTS idx_integration_flows_customer_id ON integration_flows;
+CREATE INDEX idx_integration_flows_customer_id ON integration_flows(customer_id);
+
+DROP INDEX IF EXISTS idx_flow_executions_customer_id ON flow_executions;
+CREATE INDEX idx_flow_executions_customer_id ON flow_executions(customer_id);
+
+DROP INDEX IF EXISTS idx_channels_customer_id ON channels;
+CREATE INDEX idx_channels_customer_id ON channels(customer_id);
+
+DROP INDEX IF EXISTS idx_messages_customer_id ON messages;
+CREATE INDEX idx_messages_customer_id ON messages(customer_id);
+
+DROP INDEX IF EXISTS idx_webservice_files_customer_id ON webservice_files;
+CREATE INDEX idx_webservice_files_customer_id ON webservice_files(customer_id);
+
+DROP INDEX IF EXISTS idx_certificates_customer_id ON certificates;
+CREATE INDEX idx_certificates_customer_id ON certificates(customer_id);
+
+DROP INDEX IF EXISTS idx_user_sessions_customer_id ON user_sessions;
+CREATE INDEX idx_user_sessions_customer_id ON user_sessions(customer_id);
+
+DROP INDEX IF EXISTS idx_system_logs_customer_id ON system_logs;
+CREATE INDEX idx_system_logs_customer_id ON system_logs(customer_id);
