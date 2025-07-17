@@ -18,6 +18,17 @@ CREATE TABLE IF NOT EXISTS roles (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+-- Customers table
+CREATE TABLE IF NOT EXISTS customers (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    contact_email VARCHAR(255),
+    contact_phone VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
 -- Users and Authentication
 CREATE TABLE IF NOT EXISTS users (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
@@ -106,11 +117,15 @@ CREATE TABLE IF NOT EXISTS data_structures (
     tags JSON, -- JSON array of tags for categorization
     version INTEGER DEFAULT 1,
     is_active BOOLEAN DEFAULT TRUE,
+    customer_id CHAR(36),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     created_by CHAR(36),
     CONSTRAINT fk_data_structures_created_by
         FOREIGN KEY (created_by) REFERENCES users(id)
+        ON DELETE SET NULL,
+    CONSTRAINT fk_data_structures_customer
+        FOREIGN KEY (customer_id) REFERENCES customers(id)
         ON DELETE SET NULL
 );
 
@@ -140,13 +155,16 @@ CREATE TABLE IF NOT EXISTS communication_adapters (
     configuration JSON NOT NULL, -- Adapter-specific configuration
     status ENUM('active', 'inactive', 'error', 'testing') NOT NULL DEFAULT 'inactive',
     is_active BOOLEAN DEFAULT TRUE,
+    customer_id CHAR(36),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     created_by CHAR(36),
     last_test_at TIMESTAMP NULL,
     last_test_result JSON,
     CONSTRAINT fk_adapters_created_by
-        FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+        FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
+    CONSTRAINT fk_adapters_customer
+        FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL
 );
 
 -- Integration Flows
@@ -394,6 +412,10 @@ CREATE TABLE IF NOT EXISTS system_settings (
     UNIQUE KEY unique_category_key (category, `key`)
 );
 
+
+-- Indexes for Customers Table
+CREATE INDEX idx_customers_name ON customers(name);
+CREATE INDEX idx_customers_contact_email ON customers(contact_email);
 
 -- Indexes for Roles Table
 CREATE INDEX idx_roles_name ON roles(name);
