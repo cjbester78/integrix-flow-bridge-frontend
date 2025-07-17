@@ -65,10 +65,12 @@ CREATE TABLE IF NOT EXISTS certificates (
     `usage` TEXT,
     fingerprint VARCHAR(128),
     serial_number VARCHAR(100),
+    customer_id CHAR(36),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     created_by CHAR(36),
-    CONSTRAINT fk_certificates_created_by FOREIGN KEY (created_by) REFERENCES users(id)
+    CONSTRAINT fk_certificates_created_by FOREIGN KEY (created_by) REFERENCES users(id),
+    CONSTRAINT fk_certificates_customer FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL
 );
 
 -- JAR Files table for admin management
@@ -84,10 +86,12 @@ CREATE TABLE IF NOT EXISTS jar_files (
     upload_date DATE DEFAULT (CURDATE()),
     checksum VARCHAR(64),
     is_active BOOLEAN DEFAULT TRUE,
+    customer_id CHAR(36),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     uploaded_by CHAR(36),
-    CONSTRAINT fk_jar_files_uploaded_by FOREIGN KEY (uploaded_by) REFERENCES users(id)
+    CONSTRAINT fk_jar_files_uploaded_by FOREIGN KEY (uploaded_by) REFERENCES users(id),
+    CONSTRAINT fk_jar_files_customer FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL
 );
 
 -- User Sessions/Tokens
@@ -100,7 +104,9 @@ CREATE TABLE IF NOT EXISTS user_sessions (
     last_used_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     ip_address VARCHAR(45),
     user_agent TEXT,
-    CONSTRAINT fk_user_sessions_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    customer_id CHAR(36),
+    CONSTRAINT fk_user_sessions_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_user_sessions_customer FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL
 );
 
 -- Data Structures
@@ -179,6 +185,7 @@ CREATE TABLE IF NOT EXISTS integration_flows (
     status ENUM('draft', 'active', 'inactive', 'error') NOT NULL DEFAULT 'draft',
     configuration JSON,
     is_active BOOLEAN DEFAULT TRUE,
+    customer_id CHAR(36),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     created_by CHAR(36),
@@ -195,7 +202,9 @@ CREATE TABLE IF NOT EXISTS integration_flows (
     CONSTRAINT fk_flows_target_structure
         FOREIGN KEY (target_structure_id) REFERENCES data_structures(id) ON DELETE SET NULL,
     CONSTRAINT fk_flows_created_by
-        FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+        FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
+    CONSTRAINT fk_flows_customer
+        FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL
 );
 
 -- Flow Transformations
@@ -244,8 +253,85 @@ CREATE TABLE IF NOT EXISTS flow_executions (
     warnings JSON,
     processed_records INTEGER DEFAULT 0,
     failed_records INTEGER DEFAULT 0,
+    customer_id CHAR(36),
     CONSTRAINT fk_flow_executions_flow
-        FOREIGN KEY (flow_id) REFERENCES integration_flows(id)
+        FOREIGN KEY (flow_id) REFERENCES integration_flows(id),
+    CONSTRAINT fk_flow_executions_customer
+        FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL
+);
+
+-- Channels table (missing from schema but used extensively in code)
+CREATE TABLE IF NOT EXISTS channels (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    type ENUM('inbound', 'outbound', 'bidirectional') NOT NULL,
+    status ENUM('active', 'inactive', 'error', 'stopped') NOT NULL DEFAULT 'inactive',
+    configuration JSON NOT NULL,
+    customer_id CHAR(36),
+    flow_id CHAR(36),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_by CHAR(36),
+    last_started_at TIMESTAMP NULL,
+    last_stopped_at TIMESTAMP NULL,
+    message_count INTEGER DEFAULT 0,
+    error_count INTEGER DEFAULT 0,
+    CONSTRAINT fk_channels_customer
+        FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL,
+    CONSTRAINT fk_channels_flow
+        FOREIGN KEY (flow_id) REFERENCES integration_flows(id) ON DELETE SET NULL,
+    CONSTRAINT fk_channels_created_by
+        FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- Messages table (missing from schema but used extensively in code)
+CREATE TABLE IF NOT EXISTS messages (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    channel_id CHAR(36) NOT NULL,
+    flow_id CHAR(36),
+    customer_id CHAR(36),
+    direction ENUM('inbound', 'outbound') NOT NULL,
+    status ENUM('processing', 'success', 'error', 'warning') NOT NULL,
+    message_type VARCHAR(100),
+    content_type VARCHAR(100),
+    payload JSON,
+    headers JSON,
+    metadata JSON,
+    error_message TEXT,
+    error_details JSON,
+    processing_time_ms INTEGER,
+    received_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    processed_at TIMESTAMP NULL,
+    retries INTEGER DEFAULT 0,
+    max_retries INTEGER DEFAULT 3,
+    CONSTRAINT fk_messages_channel
+        FOREIGN KEY (channel_id) REFERENCES channels(id) ON DELETE CASCADE,
+    CONSTRAINT fk_messages_flow
+        FOREIGN KEY (flow_id) REFERENCES integration_flows(id) ON DELETE SET NULL,
+    CONSTRAINT fk_messages_customer
+        FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL
+);
+
+-- Webservice Files table (missing from schema but referenced in code)
+CREATE TABLE IF NOT EXISTS webservice_files (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    name VARCHAR(255) NOT NULL,
+    file_name VARCHAR(255) NOT NULL,
+    file_path VARCHAR(500),
+    file_type ENUM('wsdl', 'xsd', 'other') NOT NULL,
+    content TEXT,
+    customer_id CHAR(36),
+    size_bytes BIGINT,
+    upload_date DATE DEFAULT (CURDATE()),
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    uploaded_by CHAR(36),
+    CONSTRAINT fk_webservice_files_customer
+        FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL,
+    CONSTRAINT fk_webservice_files_uploaded_by
+        FOREIGN KEY (uploaded_by) REFERENCES users(id) ON DELETE SET NULL
 );
 
 
@@ -265,8 +351,11 @@ CREATE TABLE IF NOT EXISTS system_logs (
     domain_type VARCHAR(100),                              -- e.g., 'UserManagement', 'FlowEngine'
     domain_reference_id CHAR(36),                          -- UUID of related domain entity
     user_id CHAR(36),
+    customer_id CHAR(36),
     CONSTRAINT fk_system_logs_user
-        FOREIGN KEY (user_id) REFERENCES users(id)
+        FOREIGN KEY (user_id) REFERENCES users(id),
+    CONSTRAINT fk_system_logs_customer
+        FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL
 );
 
 -- Domain-specific error tables for user-friendly error messages
@@ -381,6 +470,7 @@ CREATE TABLE IF NOT EXISTS adapter_statistics (
 CREATE TABLE IF NOT EXISTS flow_statistics (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     flow_id CHAR(36) NOT NULL,
+    customer_id CHAR(36),
     date DATE NOT NULL,
     total_executions INTEGER DEFAULT 0,
     successful_executions INTEGER DEFAULT 0,
@@ -391,6 +481,8 @@ CREATE TABLE IF NOT EXISTS flow_statistics (
     CONSTRAINT fk_flow_statistics_flow
         FOREIGN KEY (flow_id) REFERENCES integration_flows(id)
         ON DELETE CASCADE,
+    CONSTRAINT fk_flow_statistics_customer
+        FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL,
     UNIQUE KEY unique_flow_date (flow_id, date)
 );
 
@@ -495,3 +587,36 @@ CREATE INDEX idx_adapter_stats_adapter_date ON adapter_statistics(adapter_id, da
 -- Indexes for Flow Statistics Table
 CREATE INDEX idx_flow_stats_flow_date ON flow_statistics(flow_id, date);
 
+-- Customer-related indexes
+CREATE INDEX idx_data_structures_customer_id ON data_structures(customer_id);
+CREATE INDEX idx_communication_adapters_customer_id ON communication_adapters(customer_id);
+CREATE INDEX idx_integration_flows_customer_id ON integration_flows(customer_id);
+CREATE INDEX idx_flow_executions_customer_id ON flow_executions(customer_id);
+CREATE INDEX idx_flow_statistics_customer_id ON flow_statistics(customer_id);
+CREATE INDEX idx_channels_customer_id ON channels(customer_id);
+CREATE INDEX idx_messages_customer_id ON messages(customer_id);
+CREATE INDEX idx_webservice_files_customer_id ON webservice_files(customer_id);
+CREATE INDEX idx_certificates_customer_id ON certificates(customer_id);
+CREATE INDEX idx_jar_files_customer_id ON jar_files(customer_id);
+CREATE INDEX idx_user_sessions_customer_id ON user_sessions(customer_id);
+CREATE INDEX idx_system_logs_customer_id ON system_logs(customer_id);
+
+-- Channel-related indexes
+CREATE INDEX idx_channels_status ON channels(status);
+CREATE INDEX idx_channels_type ON channels(type);
+CREATE INDEX idx_channels_flow_id ON channels(flow_id);
+CREATE INDEX idx_channels_created_by ON channels(created_by);
+
+-- Message-related indexes
+CREATE INDEX idx_messages_channel_id ON messages(channel_id);
+CREATE INDEX idx_messages_flow_id ON messages(flow_id);
+CREATE INDEX idx_messages_status ON messages(status);
+CREATE INDEX idx_messages_direction ON messages(direction);
+CREATE INDEX idx_messages_received_at ON messages(received_at);
+CREATE INDEX idx_messages_processed_at ON messages(processed_at);
+
+-- Webservice Files indexes
+CREATE INDEX idx_webservice_files_file_type ON webservice_files(file_type);
+CREATE INDEX idx_webservice_files_upload_date ON webservice_files(upload_date);
+CREATE INDEX idx_webservice_files_is_active ON webservice_files(is_active);
+CREATE INDEX idx_webservice_files_uploaded_by ON webservice_files(uploaded_by);
