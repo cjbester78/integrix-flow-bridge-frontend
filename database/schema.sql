@@ -86,12 +86,10 @@ CREATE TABLE IF NOT EXISTS jar_files (
     upload_date DATE DEFAULT (CURDATE()),
     checksum VARCHAR(64),
     is_active BOOLEAN DEFAULT TRUE,
-    customer_id CHAR(36),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     uploaded_by CHAR(36),
-    CONSTRAINT fk_jar_files_uploaded_by FOREIGN KEY (uploaded_by) REFERENCES users(id),
-    CONSTRAINT fk_jar_files_customer FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL
+    CONSTRAINT fk_jar_files_uploaded_by FOREIGN KEY (uploaded_by) REFERENCES users(id)
 );
 
 -- User Sessions/Tokens
@@ -597,7 +595,6 @@ CREATE INDEX idx_channels_customer_id ON channels(customer_id);
 CREATE INDEX idx_messages_customer_id ON messages(customer_id);
 CREATE INDEX idx_webservice_files_customer_id ON webservice_files(customer_id);
 CREATE INDEX idx_certificates_customer_id ON certificates(customer_id);
-CREATE INDEX idx_jar_files_customer_id ON jar_files(customer_id);
 CREATE INDEX idx_user_sessions_customer_id ON user_sessions(customer_id);
 CREATE INDEX idx_system_logs_customer_id ON system_logs(customer_id);
 
