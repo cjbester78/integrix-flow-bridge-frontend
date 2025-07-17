@@ -1,8 +1,45 @@
 // Base API configuration and utilities
 const API_BASE_URL = 'http://localhost:8080/api';
 
-// Mock data for dashboard endpoints only (keep real auth)
+// Mock data for dashboard endpoints and auth
 const mockData = {
+  '/auth/login': {
+    success: true,
+    data: {
+      user: {
+        id: 'mock-admin-1',
+        username: 'admin',
+        email: 'admin@integrixlab.com',
+        firstName: 'Admin',
+        lastName: 'User',
+        role: 'administrator',
+        status: 'active',
+        permissions: ['flows:read', 'flows:write', 'users:read', 'users:write', 'admin:read', 'admin:write'],
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-01T00:00:00Z',
+        lastLoginAt: new Date().toISOString()
+      },
+      token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtb2NrLWFkbWluLTEiLCJyb2xlIjoiYWRtaW5pc3RyYXRvciIsImV4cCI6OTk5OTk5OTk5OX0.mock',
+      refreshToken: 'mock-refresh-token-admin',
+      expiresIn: 3600
+    }
+  },
+  '/auth/profile': {
+    success: true,
+    data: {
+      id: 'mock-admin-1',
+      username: 'admin',
+      email: 'admin@integrixlab.com',
+      firstName: 'Admin',
+      lastName: 'User',
+      role: 'administrator',
+      status: 'active',
+      permissions: ['flows:read', 'flows:write', 'users:read', 'users:write', 'admin:read', 'admin:write'],
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z',
+      lastLoginAt: new Date().toISOString()
+    }
+  },
   '/customers': {
     success: true,
     data: [
