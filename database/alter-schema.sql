@@ -14,44 +14,44 @@ CREATE TABLE IF NOT EXISTS customers (
 
 -- Add customer_id to data_structures table
 ALTER TABLE data_structures 
-ADD COLUMN IF NOT EXISTS customer_id CHAR(36),
-ADD CONSTRAINT IF NOT EXISTS fk_data_structures_customer 
+ADD COLUMN customer_id CHAR(36),
+ADD CONSTRAINT fk_data_structures_customer 
     FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL;
 
 -- Add customer_id to communication_adapters table
 ALTER TABLE communication_adapters 
-ADD COLUMN IF NOT EXISTS customer_id CHAR(36),
-ADD CONSTRAINT IF NOT EXISTS fk_adapters_customer 
+ADD COLUMN customer_id CHAR(36),
+ADD CONSTRAINT fk_adapters_customer 
     FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL;
 
 -- Add customer_id to integration_flows table
 ALTER TABLE integration_flows 
-ADD COLUMN IF NOT EXISTS customer_id CHAR(36),
-ADD CONSTRAINT IF NOT EXISTS fk_flows_customer 
+ADD COLUMN customer_id CHAR(36),
+ADD CONSTRAINT fk_flows_customer 
     FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL;
 
 -- Add customer_id to flow_executions table
 ALTER TABLE flow_executions 
-ADD COLUMN IF NOT EXISTS customer_id CHAR(36),
-ADD CONSTRAINT IF NOT EXISTS fk_flow_executions_customer 
+ADD COLUMN customer_id CHAR(36),
+ADD CONSTRAINT fk_flow_executions_customer 
     FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL;
 
 -- Add customer_id to certificates table
 ALTER TABLE certificates 
-ADD COLUMN IF NOT EXISTS customer_id CHAR(36),
-ADD CONSTRAINT IF NOT EXISTS fk_certificates_customer 
+ADD COLUMN customer_id CHAR(36),
+ADD CONSTRAINT fk_certificates_customer 
     FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL;
 
 -- Add customer_id to user_sessions table
 ALTER TABLE user_sessions 
-ADD COLUMN IF NOT EXISTS customer_id CHAR(36),
-ADD CONSTRAINT IF NOT EXISTS fk_user_sessions_customer 
+ADD COLUMN customer_id CHAR(36),
+ADD CONSTRAINT fk_user_sessions_customer 
     FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL;
 
 -- Add customer_id to system_logs table
 ALTER TABLE system_logs 
-ADD COLUMN IF NOT EXISTS customer_id CHAR(36),
-ADD CONSTRAINT IF NOT EXISTS fk_system_logs_customer 
+ADD COLUMN customer_id CHAR(36),
+ADD CONSTRAINT fk_system_logs_customer 
     FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL;
 
 -- Create channels table if it doesn't exist
