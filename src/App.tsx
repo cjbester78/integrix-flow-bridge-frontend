@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,7 +12,7 @@ import { Dashboard } from "@/pages/Dashboard";
 import { CreateFlow } from "@/pages/CreateFlow";
 import { CreateCommunicationAdapter } from "@/pages/CreateCommunicationAdapter";
 import { DataStructures } from "@/pages/DataStructures";
-import { Customers } from "@/pages/Customers";
+import { BusinessComponents } from "@/pages/BusinessComponents";
 import { Messages } from "@/pages/Messages";
 import Channels from "@/pages/Channels";
 
@@ -36,7 +37,7 @@ const App = () => (
               <Route path="create-flow" element={<CreateFlow />} />
               <Route path="create-communication-adapter" element={<CreateCommunicationAdapter />} />
               <Route path="data-structures" element={<DataStructures />} />
-              <Route path="customers" element={<Customers />} />
+              <Route path="business-components" element={<BusinessComponents />} />
               <Route path="messages" element={<Messages />} />
               <Route path="channels" element={<Channels />} />
               <Route path="admin" element={<Admin />} />

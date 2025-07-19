@@ -40,7 +40,7 @@ const mockData = {
       lastLoginAt: new Date().toISOString()
     }
   },
-  '/customers': {
+  '/business-components': {
     success: true,
     data: [
       {

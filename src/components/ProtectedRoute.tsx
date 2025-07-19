@@ -1,3 +1,4 @@
+
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -13,6 +14,7 @@ const roleRouteAccess = {
   '/create-communication-adapter': ['administrator', 'integrator'],
   '/messages': ['administrator', 'integrator', 'viewer'],
   '/channels': ['administrator', 'integrator', 'viewer'],
+  '/business-components': ['administrator', 'integrator'],
   '/admin': ['administrator'],
   '/settings': ['administrator']
 };

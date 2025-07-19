@@ -1,3 +1,4 @@
+
 import { 
   LayoutDashboard, 
   MessageSquare, 
@@ -44,8 +45,8 @@ const navigation = [
     roles: ['administrator', 'integrator'] 
   },
   { 
-    name: 'Customers', 
-    href: '/customers', 
+    name: 'Business Components', 
+    href: '/business-components', 
     icon: Building2, 
     roles: ['administrator', 'integrator'] 
   },
