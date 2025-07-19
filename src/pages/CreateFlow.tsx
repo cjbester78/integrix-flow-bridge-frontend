@@ -90,8 +90,8 @@ export const CreateFlow = () => {
   const {
     flowName,
     description,
-    sourceCustomer,
-    targetCustomer,
+    sourceBusinessComponent,
+    targetBusinessComponent,
     sourceAdapter,
     targetAdapter,
     sourceAdapterActive,
@@ -107,8 +107,8 @@ export const CreateFlow = () => {
     mappingName,
     setFlowName,
     setDescription,
-    setSourceCustomer,
-    setTargetCustomer,
+    setSourceBusinessComponent,
+    setTargetBusinessComponent,
     setSourceAdapter,
     setTargetAdapter,
     setSourceAdapterActive,
@@ -239,13 +239,13 @@ export const CreateFlow = () => {
           onClose={() => setShowMappingScreen(false)}
           onSave={handleMappingSave}
           initialMappingName={mappingName}
-          sourceCustomer={sourceCustomer}
-          targetCustomer={targetCustomer}
+          sourceBusinessComponent={sourceBusinessComponent}
+          targetBusinessComponent={targetBusinessComponent}
           sourceStructure={sourceStructure}
           targetStructure={targetStructure}
           sampleStructures={sampleStructures}
-          onSourceCustomerChange={setSourceCustomer}
-          onTargetCustomerChange={setTargetCustomer}
+          onSourceBusinessComponentChange={setSourceBusinessComponent}
+          onTargetBusinessComponentChange={setTargetBusinessComponent}
           onSourceStructureChange={setSourceStructure}
           onTargetStructureChange={setTargetStructure}
         />
@@ -271,14 +271,14 @@ export const CreateFlow = () => {
 
             <AdapterConfigurationCard
               adapters={adapters}
-              sourceCustomer={sourceCustomer}
-              targetCustomer={targetCustomer}
+              sourceBusinessComponent={sourceBusinessComponent}
+              targetBusinessComponent={targetBusinessComponent}
               sourceAdapter={sourceAdapter}
               targetAdapter={targetAdapter}
               sourceAdapterActive={sourceAdapterActive}
               targetAdapterActive={targetAdapterActive}
-              onSourceCustomerChange={setSourceCustomer}
-              onTargetCustomerChange={setTargetCustomer}
+              onSourceBusinessComponentChange={setSourceBusinessComponent}
+              onTargetBusinessComponentChange={setTargetBusinessComponent}
               onSourceAdapterChange={setSourceAdapter}
               onTargetAdapterChange={setTargetAdapter}
               onSourceAdapterActiveChange={setSourceAdapterActive}
@@ -289,8 +289,8 @@ export const CreateFlow = () => {
               transformations={transformations}
               selectedTransformations={selectedTransformations}
               showFieldMapping={showFieldMapping}
-              sourceCustomer={sourceCustomer}
-              targetCustomer={targetCustomer}
+              sourceBusinessComponent={sourceBusinessComponent}
+              targetBusinessComponent={targetBusinessComponent}
               sourceStructure={sourceStructure}
               targetStructure={targetStructure}
               fieldMappings={fieldMappings}

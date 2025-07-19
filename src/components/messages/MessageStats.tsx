@@ -6,7 +6,7 @@ import { MessageStats as MessageStatsType } from '@/services/messageService';
 interface MessageStatsProps {
   messages: Message[];
   stats?: MessageStatsType | null;
-  isCustomerSelected: boolean;
+  isBusinessComponentSelected: boolean;
   onStatusFilter?: (status: string) => void;
   statusFilter?: string | null;
   loading?: boolean;
@@ -15,7 +15,7 @@ interface MessageStatsProps {
 export const MessageStats = ({ 
   messages, 
   stats,
-  isCustomerSelected, 
+  isBusinessComponentSelected, 
   onStatusFilter, 
   statusFilter,
   loading = false
@@ -40,8 +40,8 @@ export const MessageStats = ({
   })();
 
   const getSubtext = () => 
-    isCustomerSelected 
-      ? `of ${totalMessages} customer messages` 
+    isBusinessComponentSelected 
+      ? `of ${totalMessages} business component messages` 
       : 'across all messages';
 
   const handleCardClick = (status: string) => {

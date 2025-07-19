@@ -13,20 +13,20 @@ import { SourcePanel } from './fieldMapping/SourcePanel';
 import { TargetPanel } from './fieldMapping/TargetPanel';
 import { MappingArea } from './fieldMapping/MappingArea';
 import { JavaEditor } from './fieldMapping/JavaEditor';
-import { useCustomerAdapters } from '@/hooks/useCustomerAdapters';
+import { useBusinessComponentAdapters } from '@/hooks/useBusinessComponentAdapters';
 import { DataStructure } from '@/types/dataStructures';
 
 interface MappingScreenProps {
   onClose?: () => void;
   onSave?: (mappings: FieldMapping[], mappingName: string) => void;
   initialMappingName?: string;
-  sourceCustomer?: string;
-  targetCustomer?: string;
+  sourceBusinessComponent?: string;
+  targetBusinessComponent?: string;
   sourceStructure?: string;
   targetStructure?: string;
   sampleStructures?: DataStructure[];
-  onSourceCustomerChange?: (value: string) => void;
-  onTargetCustomerChange?: (value: string) => void;
+  onSourceBusinessComponentChange?: (value: string) => void;
+  onTargetBusinessComponentChange?: (value: string) => void;
   onSourceStructureChange?: (value: string) => void;
   onTargetStructureChange?: (value: string) => void;
 }
@@ -35,13 +35,13 @@ export function FieldMappingScreen({
   onClose, 
   onSave, 
   initialMappingName = '',
-  sourceCustomer = '',
-  targetCustomer = '',
+  sourceBusinessComponent = '',
+  targetBusinessComponent = '',
   sourceStructure = '',
   targetStructure = '',
   sampleStructures = [],
-  onSourceCustomerChange,
-  onTargetCustomerChange,
+  onSourceBusinessComponentChange,
+  onTargetBusinessComponentChange,
   onSourceStructureChange,
   onTargetStructureChange
 }: MappingScreenProps) {
@@ -59,16 +59,16 @@ export function FieldMappingScreen({
   const [tempJavaFunction, setTempJavaFunction] = useState('');
   const [mappingName, setMappingName] = useState(initialMappingName);
   const [requiresTransformation, setRequiresTransformation] = useState(true);
-  const { customers, loading, getStructuresForCustomer, getAdaptersForCustomer } = useCustomerAdapters();
+  const { businessComponents, loading, getStructuresForBusinessComponent, getAdaptersForBusinessComponent } = useBusinessComponentAdapters();
 
-  const [customerAdapters, setCustomerAdapters] = useState<string[]>([]);
-  const [customerStructures, setCustomerStructures] = useState<string[]>([]);
+  const [businessComponentAdapters, setBusinessComponentAdapters] = useState<string[]>([]);
+  const [businessComponentStructures, setBusinessComponentStructures] = useState<string[]>([]);
 
   useEffect(() => {
-    if (sourceCustomer) {
-      loadCustomerData(sourceCustomer);
+    if (sourceBusinessComponent) {
+      loadBusinessComponentData(sourceBusinessComponent);
     }
-  }, [sourceCustomer]);
+  }, [sourceBusinessComponent]);
 
   // Auto-detect if transformation is required based on structure comparison
   useEffect(() => {
@@ -80,17 +80,17 @@ export function FieldMappingScreen({
     }
   }, [sourceStructure, targetStructure]);
 
-  const loadCustomerData = async (customerId: string) => {
-    const adapters = await getAdaptersForCustomer(customerId);
-    const structures = await getStructuresForCustomer(customerId);
-    setCustomerAdapters(adapters);
-    setCustomerStructures(structures);
+  const loadBusinessComponentData = async (businessComponentId: string) => {
+    const adapters = await getAdaptersForBusinessComponent(businessComponentId);
+    const structures = await getStructuresForBusinessComponent(businessComponentId);
+    setBusinessComponentAdapters(adapters);
+    setBusinessComponentStructures(structures);
   };
 
-  const getFilteredStructures = (customerId: string, usage: 'source' | 'target') => {
-    if (!customerId) return sampleStructures.filter(s => s.usage === usage);
+  const getFilteredStructures = (businessComponentId: string, usage: 'source' | 'target') => {
+    if (!businessComponentId) return sampleStructures.filter(s => s.usage === usage);
     return sampleStructures.filter(s => 
-      customerStructures.includes(s.id) && s.usage === usage
+      businessComponentStructures.includes(s.id) && s.usage === usage
     );
   };
 
@@ -202,24 +202,24 @@ export function FieldMappingScreen({
     <div className="fixed inset-0 bg-background z-50 overflow-hidden animate-fade-in">
       {/* Header */}
       <div className="border-b">
-        {/* Customer and Structure Selection */}
+        {/* Business Component and Structure Selection */}
         <div className="px-6 py-4 bg-muted/20">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Source Customer & Structure */}
+            {/* Source Business Component & Structure */}
             <div className="space-y-3">
               <div>
-                <Label className="text-sm font-medium text-white">Source Customer</Label>
-                <Select value={sourceCustomer} onValueChange={onSourceCustomerChange} disabled={loading}>
+                <Label className="text-sm font-medium text-white">Source Business Component</Label>
+                <Select value={sourceBusinessComponent} onValueChange={onSourceBusinessComponentChange} disabled={loading}>
                   <SelectTrigger className="bg-card/50 border-border">
-                    <SelectValue placeholder="Select source customer" />
+                    <SelectValue placeholder="Select source business component" />
                   </SelectTrigger>
                   <SelectContent>
-                    {customers.map((customer) => (
-                      <SelectItem key={customer.id} value={customer.id}>
+                    {businessComponents.map((businessComponent) => (
+                      <SelectItem key={businessComponent.id} value={businessComponent.id}>
                         <div className="flex items-center gap-2">
-                          <span>{customer.name}</span>
-                          {customer.description && (
-                            <Badge variant="outline" className="text-xs">{customer.description}</Badge>
+                          <span>{businessComponent.name}</span>
+                          {businessComponent.description && (
+                            <Badge variant="outline" className="text-xs">{businessComponent.description}</Badge>
                           )}
                         </div>
                       </SelectItem>
@@ -233,13 +233,13 @@ export function FieldMappingScreen({
                 <Select 
                   value={sourceStructure} 
                   onValueChange={onSourceStructureChange}
-                  disabled={!sourceCustomer}
+                  disabled={!sourceBusinessComponent}
                 >
                   <SelectTrigger className="bg-card/50 border-border">
                     <SelectValue placeholder="Select source structure" />
                   </SelectTrigger>
                   <SelectContent>
-                    {getFilteredStructures(sourceCustomer, 'source').map((structure) => (
+                    {getFilteredStructures(sourceBusinessComponent, 'source').map((structure) => (
                       <SelectItem key={structure.id} value={structure.id}>
                         <div className="flex items-center gap-2">
                           <span>{structure.name}</span>
@@ -252,21 +252,21 @@ export function FieldMappingScreen({
               </div>
             </div>
             
-            {/* Target Customer & Structure */}
+            {/* Target Business Component & Structure */}
             <div className="space-y-3">
               <div>
-                <Label className="text-sm font-medium text-white">Target Customer</Label>
-                <Select value={targetCustomer} onValueChange={onTargetCustomerChange} disabled={loading}>
+                <Label className="text-sm font-medium text-white">Target Business Component</Label>
+                <Select value={targetBusinessComponent} onValueChange={onTargetBusinessComponentChange} disabled={loading}>
                   <SelectTrigger className="bg-card/50 border-border">
-                    <SelectValue placeholder="Select target customer" />
+                    <SelectValue placeholder="Select target business component" />
                   </SelectTrigger>
                   <SelectContent>
-                    {customers.map((customer) => (
-                      <SelectItem key={customer.id} value={customer.id}>
+                    {businessComponents.map((businessComponent) => (
+                      <SelectItem key={businessComponent.id} value={businessComponent.id}>
                         <div className="flex items-center gap-2">
-                          <span>{customer.name}</span>
-                          {customer.description && (
-                            <Badge variant="outline" className="text-xs">{customer.description}</Badge>
+                          <span>{businessComponent.name}</span>
+                          {businessComponent.description && (
+                            <Badge variant="outline" className="text-xs">{businessComponent.description}</Badge>
                           )}
                         </div>
                       </SelectItem>
@@ -280,13 +280,13 @@ export function FieldMappingScreen({
                 <Select 
                   value={targetStructure} 
                   onValueChange={onTargetStructureChange}
-                  disabled={!targetCustomer}
+                  disabled={!targetBusinessComponent}
                 >
                   <SelectTrigger className="bg-card/50 border-border">
                     <SelectValue placeholder="Select target structure" />
                   </SelectTrigger>
                   <SelectContent>
-                    {getFilteredStructures(targetCustomer, 'target').map((structure) => (
+                    {getFilteredStructures(targetBusinessComponent, 'target').map((structure) => (
                       <SelectItem key={structure.id} value={structure.id}>
                         <div className="flex items-center gap-2">
                           <span>{structure.name}</span>

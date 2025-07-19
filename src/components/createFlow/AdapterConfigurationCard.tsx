@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ArrowRight } from 'lucide-react';
-import { useCustomerAdapters } from '@/hooks/useCustomerAdapters';
+import { useBusinessComponentAdapters } from '@/hooks/useBusinessComponentAdapters';
 
 interface Adapter {
   id: string;
@@ -16,14 +16,14 @@ interface Adapter {
 
 interface AdapterConfigurationCardProps {
   adapters: Adapter[];
-  sourceCustomer: string;
-  targetCustomer: string;
+  sourceBusinessComponent: string;
+  targetBusinessComponent: string;
   sourceAdapter: string;
   targetAdapter: string;
   sourceAdapterActive: boolean;
   targetAdapterActive: boolean;
-  onSourceCustomerChange: (value: string) => void;
-  onTargetCustomerChange: (value: string) => void;
+  onSourceBusinessComponentChange: (value: string) => void;
+  onTargetBusinessComponentChange: (value: string) => void;
   onSourceAdapterChange: (value: string) => void;
   onTargetAdapterChange: (value: string) => void;
   onSourceAdapterActiveChange: (active: boolean) => void;
@@ -32,20 +32,20 @@ interface AdapterConfigurationCardProps {
 
 export const AdapterConfigurationCard = ({
   adapters,
-  sourceCustomer,
-  targetCustomer,
+  sourceBusinessComponent,
+  targetBusinessComponent,
   sourceAdapter,
   targetAdapter,
   sourceAdapterActive,
   targetAdapterActive,
-  onSourceCustomerChange,
-  onTargetCustomerChange,
+  onSourceBusinessComponentChange,
+  onTargetBusinessComponentChange,
   onSourceAdapterChange,
   onTargetAdapterChange,
   onSourceAdapterActiveChange,
   onTargetAdapterActiveChange,
 }: AdapterConfigurationCardProps) => {
-  const { customers, loading, getAdaptersForCustomer } = useCustomerAdapters();
+  const { businessComponents, loading, getAdaptersForBusinessComponent } = useBusinessComponentAdapters();
   
   const getAdapterById = (id: string) => adapters.find(adapter => adapter.id === id);
 

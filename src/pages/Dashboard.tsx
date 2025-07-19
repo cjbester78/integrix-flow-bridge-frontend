@@ -4,8 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { useCustomerAdapters } from '@/hooks/useCustomerAdapters';
-import { Customer } from '@/types/customer';
+import { useBusinessComponentAdapters } from '@/hooks/useBusinessComponentAdapters';
+import { BusinessComponent } from '@/types/businessComponent';
 import { 
   Activity, 
   MessageSquare, 
@@ -49,8 +49,8 @@ const stats = [
   }
 ];
 
-// Customer-specific mock data
-const customerData = {
+// Business Component-specific mock data
+const businessComponentData = {
   '1': { // ACME Corporation
     messages: [
       { id: '1', source: 'SAP ERP', target: 'Salesforce', status: 'success', time: '2 min ago' },
@@ -79,18 +79,18 @@ const customerData = {
 
 export const Dashboard = () => {
   console.log('Dashboard component loading...');
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
-  const { customers, loading } = useCustomerAdapters();
+  const [selectedBusinessComponent, setSelectedBusinessComponent] = useState<BusinessComponent | null>(null);
+  const { businessComponents, loading } = useBusinessComponentAdapters();
   
-  console.log('Dashboard - customers:', customers, 'loading:', loading);
+  console.log('Dashboard - business components:', businessComponents, 'loading:', loading);
 
-  // Get customer-specific data or default empty arrays
-  const customerMessages = selectedCustomer 
-    ? customerData[selectedCustomer.id as keyof typeof customerData]?.messages || []
+  // Get business component-specific data or default empty arrays
+  const businessComponentMessages = selectedBusinessComponent 
+    ? businessComponentData[selectedBusinessComponent.id as keyof typeof businessComponentData]?.messages || []
     : [];
   
-  const customerChannels = selectedCustomer 
-    ? customerData[selectedCustomer.id as keyof typeof customerData]?.channels || []
+  const businessComponentChannels = selectedBusinessComponent 
+    ? businessComponentData[selectedBusinessComponent.id as keyof typeof businessComponentData]?.channels || []
     : [];
 
   console.log('Dashboard render - about to return JSX');
@@ -102,35 +102,35 @@ export const Dashboard = () => {
         <p className="text-muted-foreground">Monitor your integration platform performance</p>
       </div>
 
-      {/* Customer Selection */}
+      {/* Business Component Selection */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="h-5 w-5" />
-            Customer Filter
+            Business Component Filter
           </CardTitle>
           <CardDescription>
-            Filter dashboard data by customer
+            Filter dashboard data by business component
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            <Label htmlFor="customer">Customer</Label>
+            <Label htmlFor="businessComponent">Business Component</Label>
             <Select
-              value={selectedCustomer?.id || ''}
-              onValueChange={(customerId) => {
-                const customer = customers.find(c => c.id === customerId) || null;
-                setSelectedCustomer(customer);
+              value={selectedBusinessComponent?.id || ''}
+              onValueChange={(businessComponentId) => {
+                const businessComponent = businessComponents.find(c => c.id === businessComponentId) || null;
+                setSelectedBusinessComponent(businessComponent);
               }}
               disabled={loading}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select a customer to filter data" />
+                <SelectValue placeholder="Select a business component to filter data" />
               </SelectTrigger>
               <SelectContent>
-                {customers.map((customer) => (
-                  <SelectItem key={customer.id} value={customer.id}>
-                    {customer.name}
+                {businessComponents.map((businessComponent) => (
+                  <SelectItem key={businessComponent.id} value={businessComponent.id}>
+                    {businessComponent.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -174,8 +174,8 @@ export const Dashboard = () => {
             <CardDescription>Latest integration message flows</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {selectedCustomer && customerMessages.length > 0 ? (
-              customerMessages.map((message) => (
+            {selectedBusinessComponent && businessComponentMessages.length > 0 ? (
+              businessComponentMessages.map((message) => (
                 <div key={message.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 transition-all duration-300 hover:bg-muted/70 group">
                   <div className="flex items-center space-x-3">
                     <div className="flex items-center space-x-2">
@@ -198,7 +198,7 @@ export const Dashboard = () => {
               ))
             ) : (
               <div className="text-center text-muted-foreground py-8">
-                {selectedCustomer ? 'No recent messages for this customer' : 'Select a customer to view messages'}
+                {selectedBusinessComponent ? 'No recent messages for this business component' : 'Select a business component to view messages'}
               </div>
             )}
           </CardContent>
@@ -214,8 +214,8 @@ export const Dashboard = () => {
             <CardDescription>Integration channel performance</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {selectedCustomer && customerChannels.length > 0 ? (
-              customerChannels.map((channel) => (
+            {selectedBusinessComponent && businessComponentChannels.length > 0 ? (
+              businessComponentChannels.map((channel) => (
                 <div key={channel.name} className="space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
@@ -239,7 +239,7 @@ export const Dashboard = () => {
               ))
             ) : (
               <div className="text-center text-muted-foreground py-8">
-                {selectedCustomer ? 'No channels for this customer' : 'Select a customer to view channels'}
+                {selectedBusinessComponent ? 'No channels for this business component' : 'Select a business component to view channels'}
               </div>
             )}
           </CardContent>

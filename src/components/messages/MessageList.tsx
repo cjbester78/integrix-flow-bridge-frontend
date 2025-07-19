@@ -10,12 +10,12 @@ import { MessageCard } from './components/MessageCard';
 
 interface MessageListProps {
   messages: Message[];
-  isCustomerSelected: boolean;
+  isBusinessComponentSelected: boolean;
   statusFilter?: string | null;
   loading?: boolean;
 }
 
-export const MessageList = ({ messages, isCustomerSelected, statusFilter, loading = false }: MessageListProps) => {
+export const MessageList = ({ messages, isBusinessComponentSelected, statusFilter, loading = false }: MessageListProps) => {
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('today');
 
   // Apply filters with safe messages array

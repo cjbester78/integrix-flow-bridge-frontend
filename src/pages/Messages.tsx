@@ -1,25 +1,25 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useCustomerAdapters } from '@/hooks/useCustomerAdapters';
+import { useBusinessComponentAdapters } from '@/hooks/useBusinessComponentAdapters';
 import { useMessageMonitoring } from '@/hooks/useMessageMonitoring';
-import { Customer } from '@/types/customer';
+import { BusinessComponent } from '@/types/businessComponent';
 import { MessageSquare, RefreshCw, Wifi, WifiOff } from 'lucide-react';
 import { MessageStats } from '@/components/messages/MessageStats';
 import { MessageList } from '@/components/messages/MessageList';
-import { CustomerFilter } from '@/components/channels/CustomerFilter';
+import { BusinessComponentFilter } from '@/components/channels/BusinessComponentFilter';
 
 export const Messages = () => {
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [selectedBusinessComponent, setSelectedBusinessComponent] = useState<BusinessComponent | null>(null);
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
-  const { customers, loading } = useCustomerAdapters();
+  const { businessComponents, loading } = useBusinessComponentAdapters();
   const { 
     messages, 
     stats, 
     loading: messagesLoading, 
     connected, 
     refreshData 
-  } = useMessageMonitoring(selectedCustomer?.id);
+  } = useMessageMonitoring(selectedBusinessComponent?.id);
 
   // Apply status filter to messages
   const displayMessages = statusFilter 
@@ -34,9 +34,9 @@ export const Messages = () => {
     setStatusFilter(statusFilter === status ? null : status);
   };
 
-  const handleCustomerChange = (customer: Customer | null) => {
-    setSelectedCustomer(customer);
-    setStatusFilter(null); // Reset status filter when changing customer
+  const handleBusinessComponentChange = (businessComponent: BusinessComponent | null) => {
+    setSelectedBusinessComponent(businessComponent);
+    setStatusFilter(null); // Reset status filter when changing business component
   };
 
   return (
@@ -71,24 +71,24 @@ export const Messages = () => {
       <MessageStats 
         messages={displayMessages} 
         stats={stats}
-        isCustomerSelected={!!selectedCustomer}
+        isBusinessComponentSelected={!!selectedBusinessComponent}
         onStatusFilter={handleStatusFilter}
         statusFilter={statusFilter}
         loading={messagesLoading}
       />
 
-      {/* Customer Selection */}
-      <CustomerFilter
-        selectedCustomer={selectedCustomer}
-        customers={customers}
+      {/* Business Component Selection */}
+      <BusinessComponentFilter
+        selectedBusinessComponent={selectedBusinessComponent}
+        businessComponents={businessComponents}
         loading={loading}
-        onCustomerChange={handleCustomerChange}
+        onBusinessComponentChange={handleBusinessComponentChange}
       />
 
       {/* Message List */}
       <MessageList 
         messages={displayMessages} 
-        isCustomerSelected={!!selectedCustomer}
+        isBusinessComponentSelected={!!selectedBusinessComponent}
         statusFilter={statusFilter}
         loading={messagesLoading}
       />

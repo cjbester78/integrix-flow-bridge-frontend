@@ -11,8 +11,8 @@ export interface FieldMapping {
 export interface FlowState {
   flowName: string;
   description: string;
-  sourceCustomer: string;
-  targetCustomer: string;
+  sourceBusinessComponent: string;
+  targetBusinessComponent: string;
   sourceAdapter: string;
   targetAdapter: string;
   sourceAdapterActive: boolean;
@@ -33,8 +33,8 @@ export interface FlowState {
 export const useFlowState = () => {
   const [flowName, setFlowName] = useState('');
   const [description, setDescription] = useState('');
-  const [sourceCustomer, setSourceCustomer] = useState('');
-  const [targetCustomer, setTargetCustomer] = useState('');
+  const [sourceBusinessComponent, setSourceBusinessComponent] = useState('');
+  const [targetBusinessComponent, setTargetBusinessComponent] = useState('');
   const [sourceAdapter, setSourceAdapter] = useState('');
   const [targetAdapter, setTargetAdapter] = useState('');
   const [sourceAdapterActive, setSourceAdapterActive] = useState(true);
@@ -54,8 +54,8 @@ export const useFlowState = () => {
   const resetForm = () => {
     setFlowName('');
     setDescription('');
-    setSourceCustomer('');
-    setTargetCustomer('');
+    setSourceBusinessComponent('');
+    setTargetBusinessComponent('');
     setSourceAdapter('');
     setTargetAdapter('');
     setSourceAdapterActive(true);
@@ -72,8 +72,8 @@ export const useFlowState = () => {
     // State values
     flowName,
     description,
-    sourceCustomer,
-    targetCustomer,
+    sourceBusinessComponent,
+    targetBusinessComponent,
     sourceAdapter,
     targetAdapter,
     sourceAdapterActive,
@@ -93,8 +93,8 @@ export const useFlowState = () => {
     // Setters
     setFlowName,
     setDescription,
-    setSourceCustomer,
-    setTargetCustomer,
+    setSourceBusinessComponent,
+    setTargetBusinessComponent,
     setSourceAdapter,
     setTargetAdapter,
     setSourceAdapterActive,
