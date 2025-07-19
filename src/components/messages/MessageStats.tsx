@@ -20,14 +20,17 @@ export const MessageStats = ({
   statusFilter,
   loading = false
 }: MessageStatsProps) => {
+  // Ensure messages is an array
+  const safeMessages = messages || [];
+  
   // Use API stats if available, otherwise calculate from messages
-  const successfulMessages = stats?.successful ?? messages.filter(msg => msg.status === 'success').length;
-  const processingMessages = stats?.processing ?? messages.filter(msg => msg.status === 'processing').length;
-  const failedMessages = stats?.failed ?? messages.filter(msg => msg.status === 'failed').length;
-  const totalMessages = stats?.total ?? messages.length;
+  const successfulMessages = stats?.successful ?? safeMessages.filter(msg => msg.status === 'success').length;
+  const processingMessages = stats?.processing ?? safeMessages.filter(msg => msg.status === 'processing').length;
+  const failedMessages = stats?.failed ?? safeMessages.filter(msg => msg.status === 'failed').length;
+  const totalMessages = stats?.total ?? safeMessages.length;
   const successRate = stats?.successRate ?? (totalMessages > 0 ? ((successfulMessages / totalMessages) * 100) : 0);
   const avgProcessingTime = stats?.avgProcessingTime ?? (() => {
-    const completedMessages = messages.filter(msg => msg.status !== 'processing' && msg.processingTime !== '-');
+    const completedMessages = safeMessages.filter(msg => msg.status !== 'processing' && msg.processingTime !== '-');
     return completedMessages.length > 0 
       ? Math.round(completedMessages.reduce((sum, msg) => {
           const time = parseFloat(msg.processingTime.replace(/[^\d.]/g, ''));

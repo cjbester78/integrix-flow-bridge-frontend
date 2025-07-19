@@ -2,6 +2,11 @@ import { Message, MessageStatus } from '@/services/messageService';
 import { TimeFilter } from '../types/timeFilter';
 
 export const filterMessagesByTime = (messages: Message[], filter: TimeFilter): Message[] => {
+  // Handle undefined/null messages
+  if (!messages || !Array.isArray(messages)) {
+    return [];
+  }
+  
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   

@@ -18,8 +18,8 @@ interface MessageListProps {
 export const MessageList = ({ messages, isCustomerSelected, statusFilter, loading = false }: MessageListProps) => {
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('today');
 
-  // Apply filters
-  let filteredMessages = filterMessagesByTime(messages, timeFilter);
+  // Apply filters with safe messages array
+  let filteredMessages = filterMessagesByTime(messages || [], timeFilter);
   
   if (statusFilter) {
     filteredMessages = filteredMessages.filter(msg => msg.status === statusFilter);
