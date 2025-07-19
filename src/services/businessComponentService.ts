@@ -1,4 +1,3 @@
-
 import { BusinessComponent, CreateBusinessComponentRequest, UpdateBusinessComponentRequest } from '@/types/businessComponent';
 
 class BusinessComponentService {

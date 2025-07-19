@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Building2, Mail, Phone } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -159,9 +158,9 @@ export const BusinessComponents = () => {
         <div>
           <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
             <Building2 className="h-8 w-8" />
-            Business Components Management
+            Business Component Management
           </h1>
-          <p className="text-muted-foreground">Manage your integration business components</p>
+          <p className="text-muted-foreground">Manage your business components and organizations</p>
         </div>
         
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>

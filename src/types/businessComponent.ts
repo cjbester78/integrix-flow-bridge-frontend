@@ -1,4 +1,3 @@
-
 export interface BusinessComponent {
   id: string;
   name: string;
