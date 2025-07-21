@@ -733,20 +733,20 @@ export const SftpAdapterConfiguration = ({ mode, onConfigChange }: SftpAdapterCo
                   <div className="space-y-4">
                     <div className="flex items-center space-x-2">
                       <Checkbox
-                        id="overwriteExistingFile"
-                        checked={config.overwriteExistingFile}
-                        onCheckedChange={(checked) => updateConfig({ overwriteExistingFile: checked === true })}
-                      />
-                      <Label htmlFor="overwriteExistingFile">Overwrite Existing File</Label>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
                         id="createFileDirectory"
                         checked={config.createFileDirectory}
                         onCheckedChange={(checked) => updateConfig({ createFileDirectory: checked === true })}
                       />
                       <Label htmlFor="createFileDirectory">Create File Directory</Label>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="overwriteExistingFile"
+                        checked={config.overwriteExistingFile}
+                        onCheckedChange={(checked) => updateConfig({ overwriteExistingFile: checked === true })}
+                      />
+                      <Label htmlFor="overwriteExistingFile">Overwrite Existing File</Label>
                     </div>
                   </div>
                 </div>
