@@ -677,6 +677,26 @@ export const SftpAdapterConfiguration = ({ mode, onConfigChange }: SftpAdapterCo
                 </div>
               ) : (
                 <div className="space-y-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="createFileDirectory"
+                        checked={config.createFileDirectory}
+                        onCheckedChange={(checked) => updateConfig({ createFileDirectory: checked === true })}
+                      />
+                      <Label htmlFor="createFileDirectory">Create File Directory</Label>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="overwriteExistingFile"
+                        checked={config.overwriteExistingFile}
+                        onCheckedChange={(checked) => updateConfig({ overwriteExistingFile: checked === true })}
+                      />
+                      <Label htmlFor="overwriteExistingFile">Overwrite Existing File</Label>
+                    </div>
+                  </div>
+                  
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="fileConstructionMode">File Construction Mode *</Label>
@@ -730,25 +750,6 @@ export const SftpAdapterConfiguration = ({ mode, onConfigChange }: SftpAdapterCo
                     </div>
                   </div>
                   
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="createFileDirectory"
-                        checked={config.createFileDirectory}
-                        onCheckedChange={(checked) => updateConfig({ createFileDirectory: checked === true })}
-                      />
-                      <Label htmlFor="createFileDirectory">Create File Directory</Label>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="overwriteExistingFile"
-                        checked={config.overwriteExistingFile}
-                        onCheckedChange={(checked) => updateConfig({ overwriteExistingFile: checked === true })}
-                      />
-                      <Label htmlFor="overwriteExistingFile">Overwrite Existing File</Label>
-                    </div>
-                  </div>
                 </div>
               )}
             </div>
