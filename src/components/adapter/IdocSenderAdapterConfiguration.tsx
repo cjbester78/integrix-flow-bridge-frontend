@@ -221,39 +221,23 @@ export function IdocSenderAdapterConfiguration({
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="idocType">IDoc Type</Label>
-                  <Select 
-                    value={configuration.idocType || ''} 
-                    onValueChange={(value) => onConfigurationChange('idocType', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select IDoc type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {idocTypeOptions.map((option) => (
-                        <SelectItem key={option} value={option}>
-                          {option}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Input
+                    id="idocType"
+                    type="text"
+                    placeholder="Enter IDoc type (e.g., ORDERS05)"
+                    value={configuration.idocType || ''}
+                    onChange={(e) => onConfigurationChange('idocType', e.target.value)}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="messageType">Message Type</Label>
-                  <Select 
-                    value={configuration.messageType || ''} 
-                    onValueChange={(value) => onConfigurationChange('messageType', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select message type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {messageTypeOptions.map((option) => (
-                        <SelectItem key={option} value={option}>
-                          {option}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Input
+                    id="messageType"
+                    type="text"
+                    placeholder="Enter message type (e.g., ORDERS)"
+                    value={configuration.messageType || ''}
+                    onChange={(e) => onConfigurationChange('messageType', e.target.value)}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="processCode">Process Code</Label>
