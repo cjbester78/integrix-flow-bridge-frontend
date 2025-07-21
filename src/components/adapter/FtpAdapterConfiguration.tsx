@@ -22,6 +22,7 @@ interface FtpAdapterConfig {
   sourceDirectory: string;
   fileName: string;
   advancedSelection: boolean;
+  exclusionMask: string;
   advancedEntries: FileAccessAdvancedEntry[];
   
   // Source Tab - Connection Parameters
@@ -49,6 +50,7 @@ export const FtpAdapterConfiguration = ({ onConfigChange }: FtpAdapterConfigurat
     sourceDirectory: '',
     fileName: '',
     advancedSelection: false,
+    exclusionMask: '',
     advancedEntries: [{ directory: '', fileName: '', exclusionMask: '' }],
     serverAddress: '',
     port: '',
@@ -144,6 +146,16 @@ export const FtpAdapterConfiguration = ({ onConfigChange }: FtpAdapterConfigurat
 
                 {config.advancedSelection && (
                   <div className="space-y-4 p-4 border rounded-lg bg-muted/20">
+                    <div className="space-y-2">
+                      <Label htmlFor="exclusionMask">Exclusion Mask</Label>
+                      <Input
+                        id="exclusionMask"
+                        value={config.exclusionMask}
+                        onChange={(e) => updateConfig({ exclusionMask: e.target.value })}
+                        placeholder="Enter exclusion pattern (e.g., *.tmp, backup_*)"
+                      />
+                    </div>
+                    
                     <div className="flex justify-between items-center">
                       <Label className="text-sm font-medium">Multiple File Selection</Label>
                       <button
