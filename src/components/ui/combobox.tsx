@@ -20,7 +20,7 @@ import {
 interface ComboboxOption {
   value: string
   label: string
-  icon?: React.ComponentType<any>
+  icon?: any
   category?: string
   description?: string
 }
@@ -75,7 +75,7 @@ export function Combobox({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+      <PopoverContent className="w-full p-0 z-50" style={{ width: 'var(--radix-popover-trigger-width)' }}>
         <Command>
           <CommandInput placeholder={searchPlaceholder} />
           <CommandList>
@@ -84,9 +84,9 @@ export function Combobox({
               {options.map((option) => (
                 <CommandItem
                   key={option.value}
-                  value={option.value}
-                  onSelect={(currentValue) => {
-                    onValueChange?.(currentValue === value ? "" : currentValue)
+                  value={`${option.label} ${option.category || ''} ${option.description || ''}`}
+                  onSelect={() => {
+                    onValueChange?.(option.value)
                     setOpen(false)
                   }}
                 >
