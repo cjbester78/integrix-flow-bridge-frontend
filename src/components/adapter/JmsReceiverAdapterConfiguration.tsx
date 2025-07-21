@@ -257,14 +257,6 @@ export function JmsReceiverAdapterConfiguration({
                 </div>
               )}
 
-              <div className="flex gap-4 pt-4">
-                <Button type="button" variant="outline" onClick={handleTestConnection}>
-                  Test Connection
-                </Button>
-                <Button type="submit">
-                  Save Configuration
-                </Button>
-              </div>
             </CardContent>
           </Card>
         </TabsContent>
