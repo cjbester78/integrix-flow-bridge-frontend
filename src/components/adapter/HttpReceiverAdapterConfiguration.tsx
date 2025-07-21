@@ -171,6 +171,38 @@ export function HttpReceiverAdapterConfiguration({
               <h3 className="text-lg font-medium">Connection Details</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
+                  <Label htmlFor="protocol">Protocol</Label>
+                  <Select 
+                    value={configuration.protocol || ''} 
+                    onValueChange={(value) => onConfigurationChange('protocol', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select protocol" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="HTTP">HTTP</SelectItem>
+                      <SelectItem value="HTTPS">HTTPS</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="contentType">Content Type</Label>
+                  <Select 
+                    value={configuration.contentType || ''} 
+                    onValueChange={(value) => onConfigurationChange('contentType', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select content type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="application/json">application/json</SelectItem>
+                      <SelectItem value="application/xml">application/xml</SelectItem>
+                      <SelectItem value="application/x-www-form-urlencoded">application/x-www-form-urlencoded</SelectItem>
+                      <SelectItem value="text/plain">text/plain</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="host">Host</Label>
                   <Input
                     id="host"
