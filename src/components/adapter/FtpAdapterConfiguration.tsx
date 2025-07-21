@@ -48,6 +48,7 @@ interface FtpAdapterConfig {
   targetFileName: string;
   fileConstructionMode: string;
   overwriteExistingFile: boolean;
+  createFileDirectory: boolean;
   filePlacement: string;
   emptyMessageHandling_receiver: string;
   maxConcurrentConnections: string;
@@ -83,6 +84,7 @@ export const FtpAdapterConfiguration = ({ mode, onConfigChange }: FtpAdapterConf
     targetFileName: '',
     fileConstructionMode: '',
     overwriteExistingFile: false,
+    createFileDirectory: false,
     filePlacement: '',
     emptyMessageHandling_receiver: '',
     maxConcurrentConnections: '',
@@ -520,6 +522,27 @@ export const FtpAdapterConfiguration = ({ mode, onConfigChange }: FtpAdapterConf
                   </div>
                 </div>
               ) : (
+                <div className="space-y-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="createFileDirectory"
+                        checked={config.createFileDirectory}
+                        onCheckedChange={(checked) => updateConfig({ createFileDirectory: checked === true })}
+                      />
+                      <Label htmlFor="createFileDirectory">Create File Directory</Label>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="overwriteExistingFile"
+                        checked={config.overwriteExistingFile}
+                        onCheckedChange={(checked) => updateConfig({ overwriteExistingFile: checked === true })}
+                      />
+                      <Label htmlFor="overwriteExistingFile">Overwrite Existing File</Label>
+                    </div>
+                  </div>
+                  
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="fileConstructionMode">File Construction Mode *</Label>
@@ -571,14 +594,6 @@ export const FtpAdapterConfiguration = ({ mode, onConfigChange }: FtpAdapterConf
                       type="number"
                     />
                   </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="overwriteExistingFile"
-                      checked={config.overwriteExistingFile}
-                      onCheckedChange={(checked) => updateConfig({ overwriteExistingFile: checked === true })}
-                    />
-                    <Label htmlFor="overwriteExistingFile">Overwrite Existing File</Label>
                   </div>
                 </div>
               )}
