@@ -128,30 +128,26 @@ export const SftpAdapterConfiguration = ({ mode, onConfigChange }: SftpAdapterCo
         return (
           <>
             <div className="space-y-2">
-              <Label htmlFor="publicKey">Public Key *</Label>
-              <textarea
-                id="publicKey"
-                value={config.publicKey}
-                onChange={(e) => updateConfig({ publicKey: e.target.value })}
-                placeholder="Enter public key"
-                className="min-h-[100px] w-full px-3 py-2 border border-input bg-background text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 rounded-md"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="privateKey">Private Key *</Label>
-              <textarea
-                id="privateKey"
-                value={config.privateKey}
-                onChange={(e) => updateConfig({ privateKey: e.target.value })}
-                placeholder="Enter private key"
-                className="min-h-[100px] w-full px-3 py-2 border border-input bg-background text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 rounded-md"
-              />
+              <Label htmlFor="keyPairSelection">Key Pair Selection *</Label>
+              <Select value={config.publicKey} onValueChange={(value) => updateConfig({ publicKey: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a key pair from system" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="rsa-key-prod-01">RSA Production Key 01</SelectItem>
+                  <SelectItem value="rsa-key-dev-01">RSA Development Key 01</SelectItem>
+                  <SelectItem value="ecdsa-key-prod-01">ECDSA Production Key 01</SelectItem>
+                  <SelectItem value="ed25519-key-prod-01">Ed25519 Production Key 01</SelectItem>
+                  <SelectItem value="rsa-key-staging-01">RSA Staging Key 01</SelectItem>
+                  <SelectItem value="custom-key-pair-01">Custom Key Pair 01</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="md:col-span-2">
               <PasswordConfirmation
                 name="passphrase"
                 label="Passphrase (optional)"
-                placeholder="Enter passphrase for private key"
+                placeholder="Enter passphrase for selected key pair"
                 required={false}
                 value={config.passphrase}
                 onValueChange={(value) => updateConfig({ passphrase: value })}
@@ -206,30 +202,26 @@ export const SftpAdapterConfiguration = ({ mode, onConfigChange }: SftpAdapterCo
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="publicKey">Public Key *</Label>
-              <textarea
-                id="publicKey"
-                value={config.publicKey}
-                onChange={(e) => updateConfig({ publicKey: e.target.value })}
-                placeholder="Enter public key"
-                className="min-h-[100px] w-full px-3 py-2 border border-input bg-background text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 rounded-md"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="privateKey">Private Key *</Label>
-              <textarea
-                id="privateKey"
-                value={config.privateKey}
-                onChange={(e) => updateConfig({ privateKey: e.target.value })}
-                placeholder="Enter private key"
-                className="min-h-[100px] w-full px-3 py-2 border border-input bg-background text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 rounded-md"
-              />
+              <Label htmlFor="keyPairSelection">Key Pair Selection *</Label>
+              <Select value={config.publicKey} onValueChange={(value) => updateConfig({ publicKey: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a key pair from system" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="rsa-key-prod-01">RSA Production Key 01</SelectItem>
+                  <SelectItem value="rsa-key-dev-01">RSA Development Key 01</SelectItem>
+                  <SelectItem value="ecdsa-key-prod-01">ECDSA Production Key 01</SelectItem>
+                  <SelectItem value="ed25519-key-prod-01">Ed25519 Production Key 01</SelectItem>
+                  <SelectItem value="rsa-key-staging-01">RSA Staging Key 01</SelectItem>
+                  <SelectItem value="custom-key-pair-01">Custom Key Pair 01</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="md:col-span-2">
               <PasswordConfirmation
                 name="passphrase"
                 label="Passphrase (optional)"
-                placeholder="Enter passphrase for private key"
+                placeholder="Enter passphrase for selected key pair"
                 required={false}
                 value={config.passphrase}
                 onValueChange={(value) => updateConfig({ passphrase: value })}
