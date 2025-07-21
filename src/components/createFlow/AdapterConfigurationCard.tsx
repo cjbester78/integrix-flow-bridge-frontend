@@ -49,38 +49,38 @@ export const AdapterConfigurationCard = ({
   
   const getAdapterById = (id: string) => adapters.find(adapter => adapter.id === id);
 
-  const [customerAdapters, setCustomerAdapters] = useState<string[]>([]);
+  const [businessComponentAdapters, setBusinessComponentAdapters] = useState<string[]>([]);
 
   useEffect(() => {
-    if (sourceCustomer) {
-      loadCustomerAdapters(sourceCustomer);
+    if (sourceBusinessComponent) {
+      loadBusinessComponentAdapters(sourceBusinessComponent);
     }
-  }, [sourceCustomer]);
+  }, [sourceBusinessComponent]);
 
-  const loadCustomerAdapters = async (customerId: string) => {
-    const allowedAdapterIds = await getAdaptersForCustomer(customerId);
-    setCustomerAdapters(allowedAdapterIds);
+  const loadBusinessComponentAdapters = async (businessComponentId: string) => {
+    const allowedAdapterIds = await getAdaptersForBusinessComponent(businessComponentId);
+    setBusinessComponentAdapters(allowedAdapterIds);
   };
 
-  const getFilteredAdapters = (customerId: string) => {
-    if (!customerId) return adapters;
-    return adapters.filter(adapter => customerAdapters.includes(adapter.id));
+  const getFilteredAdapters = (businessComponentId: string) => {
+    if (!businessComponentId) return adapters;
+    return adapters.filter(adapter => businessComponentAdapters.includes(adapter.id));
   };
 
-  const handleSourceCustomerChange = async (customerId: string) => {
-    onSourceCustomerChange(customerId);
-    // Reset source adapter if it's not available for the new customer
-    const adaptersForCustomer = await getAdaptersForCustomer(customerId);
-    if (sourceAdapter && !adaptersForCustomer.includes(sourceAdapter)) {
+  const handleSourceBusinessComponentChange = async (businessComponentId: string) => {
+    onSourceBusinessComponentChange(businessComponentId);
+    // Reset source adapter if it's not available for the new business component
+    const adaptersForBusinessComponent = await getAdaptersForBusinessComponent(businessComponentId);
+    if (sourceAdapter && !adaptersForBusinessComponent.includes(sourceAdapter)) {
       onSourceAdapterChange('');
     }
   };
 
-  const handleTargetCustomerChange = async (customerId: string) => {
-    onTargetCustomerChange(customerId);
-    // Reset target adapter if it's not available for the new customer
-    const adaptersForCustomer = await getAdaptersForCustomer(customerId);
-    if (targetAdapter && !adaptersForCustomer.includes(targetAdapter)) {
+  const handleTargetBusinessComponentChange = async (businessComponentId: string) => {
+    onTargetBusinessComponentChange(businessComponentId);
+    // Reset target adapter if it's not available for the new business component
+    const adaptersForBusinessComponent = await getAdaptersForBusinessComponent(businessComponentId);
+    if (targetAdapter && !adaptersForBusinessComponent.includes(targetAdapter)) {
       onTargetAdapterChange('');
     }
   };
@@ -93,21 +93,21 @@ export const AdapterConfigurationCard = ({
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Source Customer & Adapter */}
+          {/* Source Business Component & Adapter */}
           <div className="space-y-4">
             <div className="space-y-3">
-              <Label>Source Customer *</Label>
-              <Select value={sourceCustomer} onValueChange={handleSourceCustomerChange} disabled={loading}>
+              <Label>Source Business Component *</Label>
+              <Select value={sourceBusinessComponent} onValueChange={handleSourceBusinessComponentChange} disabled={loading}>
                 <SelectTrigger className="transition-all duration-300 hover:bg-accent/50">
-                  <SelectValue placeholder="Select source customer" />
+                  <SelectValue placeholder="Select source business component" />
                 </SelectTrigger>
                 <SelectContent>
-                  {customers.map((customer) => (
-                    <SelectItem key={customer.id} value={customer.id}>
+                  {businessComponents.map((businessComponent) => (
+                    <SelectItem key={businessComponent.id} value={businessComponent.id}>
                       <div className="flex items-center gap-2">
-                        <span>{customer.name}</span>
-                        {customer.description && (
-                          <Badge variant="outline" className="text-xs">{customer.description}</Badge>
+                        <span>{businessComponent.name}</span>
+                        {businessComponent.description && (
+                          <Badge variant="outline" className="text-xs">{businessComponent.description}</Badge>
                         )}
                       </div>
                     </SelectItem>
@@ -121,13 +121,13 @@ export const AdapterConfigurationCard = ({
               <Select 
                 value={sourceAdapter} 
                 onValueChange={onSourceAdapterChange}
-                disabled={!sourceCustomer}
+                disabled={!sourceBusinessComponent}
               >
                 <SelectTrigger className="transition-all duration-300 hover:bg-accent/50">
                   <SelectValue placeholder="Select source system" />
                 </SelectTrigger>
                 <SelectContent>
-                  {getFilteredAdapters(sourceCustomer).map((adapter) => (
+                  {getFilteredAdapters(sourceBusinessComponent).map((adapter) => (
                     <SelectItem key={adapter.id} value={adapter.id}>
                       <div className="flex items-center gap-2">
                         <adapter.icon className="h-4 w-4" />
@@ -178,21 +178,21 @@ export const AdapterConfigurationCard = ({
             )}
           </div>
 
-          {/* Target Customer & Adapter */}
+          {/* Target Business Component & Adapter */}
           <div className="space-y-4">
             <div className="space-y-3">
-              <Label>Target Customer *</Label>
-              <Select value={targetCustomer} onValueChange={handleTargetCustomerChange} disabled={loading}>
+              <Label>Target Business Component *</Label>
+              <Select value={targetBusinessComponent} onValueChange={handleTargetBusinessComponentChange} disabled={loading}>
                 <SelectTrigger className="transition-all duration-300 hover:bg-accent/50">
-                  <SelectValue placeholder="Select target customer" />
+                  <SelectValue placeholder="Select target business component" />
                 </SelectTrigger>
                 <SelectContent>
-                  {customers.map((customer) => (
-                    <SelectItem key={customer.id} value={customer.id}>
+                  {businessComponents.map((businessComponent) => (
+                    <SelectItem key={businessComponent.id} value={businessComponent.id}>
                       <div className="flex items-center gap-2">
-                        <span>{customer.name}</span>
-                        {customer.description && (
-                          <Badge variant="outline" className="text-xs">{customer.description}</Badge>
+                        <span>{businessComponent.name}</span>
+                        {businessComponent.description && (
+                          <Badge variant="outline" className="text-xs">{businessComponent.description}</Badge>
                         )}
                       </div>
                     </SelectItem>
@@ -206,13 +206,13 @@ export const AdapterConfigurationCard = ({
               <Select 
                 value={targetAdapter} 
                 onValueChange={onTargetAdapterChange}
-                disabled={!targetCustomer}
+                disabled={!targetBusinessComponent}
               >
                 <SelectTrigger className="transition-all duration-300 hover:bg-accent/50">
                   <SelectValue placeholder="Select target system" />
                 </SelectTrigger>
                 <SelectContent>
-                  {getFilteredAdapters(targetCustomer).map((adapter) => (
+                  {getFilteredAdapters(targetBusinessComponent).map((adapter) => (
                     <SelectItem key={adapter.id} value={adapter.id}>
                       <div className="flex items-center gap-2">
                         <adapter.icon className="h-4 w-4" />

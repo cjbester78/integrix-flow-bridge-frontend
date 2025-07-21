@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { DataStructure } from '@/types/dataStructures';
 import { FieldMapping } from '@/hooks/useFlowState';
-import { useCustomerAdapters } from '@/hooks/useCustomerAdapters';
+import { useBusinessComponentAdapters } from '@/hooks/useBusinessComponentAdapters';
 
 interface Transformation {
   id: string;
@@ -30,8 +30,8 @@ interface TransformationConfigurationCardProps {
   transformations: Transformation[];
   selectedTransformations: string[];
   showFieldMapping: boolean;
-  sourceCustomer: string;
-  targetCustomer: string;
+  sourceBusinessComponent: string;
+  targetBusinessComponent: string;
   sourceStructure: string;
   targetStructure: string;
   fieldMappings: FieldMapping[];
@@ -59,8 +59,8 @@ export const TransformationConfigurationCard = ({
   transformations,
   selectedTransformations,
   showFieldMapping,
-  sourceCustomer,
-  targetCustomer,
+  sourceBusinessComponent,
+  targetBusinessComponent,
   sourceStructure,
   targetStructure,
   fieldMappings,
@@ -83,26 +83,26 @@ export const TransformationConfigurationCard = ({
   onSaveJavaFunction,
   onCloseJavaEditor,
 }: TransformationConfigurationCardProps) => {
-  const { customers, loading, getStructuresForCustomer } = useCustomerAdapters();
-  const [customerStructures, setCustomerStructures] = useState<string[]>([]);
+  const { businessComponents, loading, getStructuresForBusinessComponent } = useBusinessComponentAdapters();
+  const [businessComponentStructures, setBusinessComponentStructures] = useState<string[]>([]);
 
   useEffect(() => {
-    if (sourceCustomer) {
-      loadCustomerStructures(sourceCustomer);
+    if (sourceBusinessComponent) {
+      loadBusinessComponentStructures(sourceBusinessComponent);
     }
-  }, [sourceCustomer]);
+  }, [sourceBusinessComponent]);
 
-  const loadCustomerStructures = async (customerId: string) => {
-    const allowedStructureIds = await getStructuresForCustomer(customerId);
-    setCustomerStructures(allowedStructureIds);
+  const loadBusinessComponentStructures = async (businessComponentId: string) => {
+    const allowedStructureIds = await getStructuresForBusinessComponent(businessComponentId);
+    setBusinessComponentStructures(allowedStructureIds);
   };
 
   const getStructureById = (id: string) => sampleStructures.find(s => s.id === id);
 
-  const getFilteredStructures = (customerId: string, usage: 'source' | 'target') => {
-    if (!customerId) return sampleStructures.filter(s => s.usage === usage);
+  const getFilteredStructures = (businessComponentId: string, usage: 'source' | 'target') => {
+    if (!businessComponentId) return sampleStructures.filter(s => s.usage === usage);
     return sampleStructures.filter(s => 
-      customerStructures.includes(s.id) && s.usage === usage
+      businessComponentStructures.includes(s.id) && s.usage === usage
     );
   };
 
@@ -197,15 +197,15 @@ export const TransformationConfigurationCard = ({
                   <div className="text-center py-8 text-muted-foreground">
                     <Link className="h-12 w-12 mx-auto mb-4 opacity-50" />
                     <p className="mb-2">Open the graphical mapping interface to configure field mappings</p>
-                    {(!sourceCustomer || !targetCustomer) && (
+                    {(!sourceBusinessComponent || !targetBusinessComponent) && (
                       <p className="text-xs text-amber-600 mb-4">
-                        Please select both source and target customers above to enable mapping
+                        Please select both source and target business components above to enable mapping
                       </p>
                     )}
                     <Button 
                       onClick={onShowMappingScreen}
                       className="bg-gradient-primary hover:opacity-90 transition-all duration-300"
-                      disabled={!sourceCustomer || !targetCustomer}
+                      disabled={!sourceBusinessComponent || !targetBusinessComponent}
                     >
                       <Plus className="h-4 w-4 mr-2" />
                       Create Mapping
