@@ -20,6 +20,8 @@ import { HttpSenderAdapterConfiguration } from '@/components/adapter/HttpSenderA
 import { HttpReceiverAdapterConfiguration } from '@/components/adapter/HttpReceiverAdapterConfiguration';
 import { IdocSenderAdapterConfiguration } from '@/components/adapter/IdocSenderAdapterConfiguration';
 import { IdocReceiverAdapterConfiguration } from '@/components/adapter/IdocReceiverAdapterConfiguration';
+import { JmsSenderAdapterConfiguration } from '@/components/adapter/JmsSenderAdapterConfiguration';
+import { JmsReceiverAdapterConfiguration } from '@/components/adapter/JmsReceiverAdapterConfiguration';
 import { useToast } from '@/hooks/use-toast';
 import { adapterService } from '@/services/adapter';
 import { 
@@ -662,6 +664,28 @@ export const CreateCommunicationAdapter = () => {
                 <IdocReceiverAdapterConfiguration 
                   configuration={configuration} 
                   onConfigurationChange={(field, value) => handleConfigurationChange(field, value)} 
+                />
+              ) : selectedAdapter === 'jms' && adapterMode === 'sender' ? (
+                <JmsSenderAdapterConfiguration 
+                  adapter={{
+                    name: '',
+                    type: 'jms',
+                    mode: 'outbound',
+                    configuration: configuration,
+                    status: 'inactive'
+                  }}
+                  onUpdate={(adapter) => setConfiguration(adapter.configuration)} 
+                />
+              ) : selectedAdapter === 'jms' && adapterMode === 'receiver' ? (
+                <JmsReceiverAdapterConfiguration 
+                  adapter={{
+                    name: '',
+                    type: 'jms',
+                    mode: 'inbound',
+                    configuration: configuration,
+                    status: 'inactive'
+                  }}
+                  onUpdate={(adapter) => setConfiguration(adapter.configuration)} 
                 />
               ) : (
                 <Card className="animate-scale-in" style={{ animationDelay: '0.2s' }}>

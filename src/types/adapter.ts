@@ -1,7 +1,7 @@
 export interface CommunicationAdapter {
   id?: string;
   name: string;
-  type: 'rest' | 'soap' | 'file' | 'database' | 'sap' | 'salesforce' | 'email' | 'sms';
+  type: 'rest' | 'soap' | 'file' | 'database' | 'sap' | 'salesforce' | 'email' | 'sms' | 'jms';
   mode: 'inbound' | 'outbound' | 'bidirectional';
   description?: string;
   configuration: AdapterConfiguration;
@@ -73,6 +73,24 @@ export interface AdapterConfiguration {
   smtpHost?: string;
   smtpPort?: number;
   encryption?: 'none' | 'ssl' | 'tls';
+  
+  // JMS Configuration
+  queueManager?: string;
+  host?: string;
+  port?: number;
+  channel?: string;
+  connectionFactory?: string;
+  queueName?: string;
+  transportType?: 'CLIENT' | 'BINDINGS';
+  username?: string;
+  password?: string;
+  useSSL?: boolean;
+  sslKeystore?: string;
+  sslPassword?: string;
+  destinationType?: 'Queue' | 'Topic';
+  messageSelector?: string;
+  clientId?: string;
+  ackMode?: 'AUTO_ACKNOWLEDGE' | 'CLIENT_ACKNOWLEDGE';
   
   // Custom properties
   properties?: { [key: string]: any };
