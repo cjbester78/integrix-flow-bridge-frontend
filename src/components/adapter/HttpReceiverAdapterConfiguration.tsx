@@ -5,10 +5,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface HttpReceiverAdapterConfigurationProps {
   configuration: any;
-  onConfigurationChange: (field: string, value: string | number) => void;
+  onConfigurationChange: (field: string, value: string | number | boolean) => void;
 }
 
 export function HttpReceiverAdapterConfiguration({
@@ -86,15 +87,60 @@ export function HttpReceiverAdapterConfiguration({
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="proxySettings">Proxy Settings</Label>
-                <Textarea
-                  id="proxySettings"
-                  placeholder="Optional proxy host and port if applicable"
-                  value={configuration.proxySettings || ''}
-                  onChange={(e) => onConfigurationChange('proxySettings', e.target.value)}
-                  className="min-h-[80px]"
-                />
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="useProxy"
+                    checked={configuration.useProxy || false}
+                    onCheckedChange={(checked) => onConfigurationChange('useProxy', checked)}
+                  />
+                  <Label htmlFor="useProxy">Use Proxy Settings</Label>
+                </div>
+
+                {configuration.useProxy && (
+                  <div className="grid grid-cols-2 gap-4 ml-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="proxyServer">Server</Label>
+                      <Input
+                        id="proxyServer"
+                        type="text"
+                        placeholder="Proxy server address"
+                        value={configuration.proxyServer || ''}
+                        onChange={(e) => onConfigurationChange('proxyServer', e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="proxyPort">Port</Label>
+                      <Input
+                        id="proxyPort"
+                        type="number"
+                        placeholder="Proxy port"
+                        value={configuration.proxyPort || ''}
+                        onChange={(e) => onConfigurationChange('proxyPort', parseInt(e.target.value) || 0)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="proxyUsername">User Name</Label>
+                      <Input
+                        id="proxyUsername"
+                        type="text"
+                        placeholder="Proxy username"
+                        value={configuration.proxyUsername || ''}
+                        onChange={(e) => onConfigurationChange('proxyUsername', e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="proxyPassword">Password</Label>
+                      <Input
+                        id="proxyPassword"
+                        type="password"
+                        placeholder="Proxy password"
+                        value={configuration.proxyPassword || ''}
+                        onChange={(e) => onConfigurationChange('proxyPassword', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </TabsContent>
