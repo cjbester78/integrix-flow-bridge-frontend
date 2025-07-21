@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Shield, Key, FileArchive, ScrollText } from 'lucide-react';
+import { Users, Shield, Key, FileArchive, ScrollText, Network } from 'lucide-react';
 import { AdminStats } from '@/components/admin/AdminStats';
 import { UserManagement } from '@/components/admin/UserManagement';
 import { RoleManagement } from '@/components/admin/RoleManagement';
 import { CertificateManagement } from '@/components/admin/CertificateManagement';
 import { JarFileManagement } from '@/components/admin/JarFileManagement';
 import { SystemLogs } from '@/components/admin/SystemLogs';
+import { AdapterTypesManagement } from '@/components/admin/AdapterTypesManagement';
 import { User, Role, Certificate, JarFile } from '@/types/admin';
 import { userService } from '@/services/userService';
 import { toast } from 'sonner';
@@ -232,7 +233,7 @@ export const Admin = () => {
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="users" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             Users
@@ -248,6 +249,10 @@ export const Admin = () => {
           <TabsTrigger value="jar-files" className="flex items-center gap-2">
             <FileArchive className="h-4 w-4" />
             JAR Files
+          </TabsTrigger>
+          <TabsTrigger value="adapter-types" className="flex items-center gap-2">
+            <Network className="h-4 w-4" />
+            Adapter Types
           </TabsTrigger>
           <TabsTrigger value="system-logs" className="flex items-center gap-2">
             <ScrollText className="h-4 w-4" />
@@ -273,6 +278,10 @@ export const Admin = () => {
             onJarFileAdded={handleJarFileAdded}
             onJarFileDeleted={handleJarFileDeleted}
           />
+        </TabsContent>
+
+        <TabsContent value="adapter-types" className="space-y-4">
+          <AdapterTypesManagement />
         </TabsContent>
 
         <TabsContent value="system-logs" className="space-y-4">
