@@ -13,6 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { JarSelector } from '@/components/JarSelector';
 import { CustomerSelectionAdapterCard } from '@/components/adapter/CustomerSelectionAdapterCard';
 import { FieldMappingScreen } from '@/components/FieldMappingScreen';
+import { FtpAdapterConfiguration } from '@/components/adapter/FtpAdapterConfiguration';
 import { useToast } from '@/hooks/use-toast';
 import { adapterService } from '@/services/adapter';
 import { 
@@ -631,151 +632,157 @@ export const CreateCommunicationAdapter = () => {
           </Card>
 
           {selectedAdapterConfig && adapterMode && (
-            <Card className="animate-scale-in" style={{ animationDelay: '0.2s' }}>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <selectedAdapterConfig.icon className="h-5 w-5" />
-                  {selectedAdapterConfig.name} Configuration
-                </CardTitle>
-                <CardDescription>Configure the connection parameters and authentication</CardDescription>
-              </CardHeader>
-              <CardContent>
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                   {selectedAdapterConfig.fields
-                     .filter((field: any) => {
-                       // Filter fields based on adapter mode
-                       if (field.conditionalField === 'receiver' && adapterMode === 'sender') {
-                         return false;
-                       }
-                       if (field.conditionalField === 'sender' && adapterMode === 'receiver') {
-                         return false;
-                       }
-                       
-                       // Filter fields based on parent field values (for authentication)
-                       if (field.parentField && field.parentValue) {
-                         const parentFieldValue = configuration[field.parentField];
-                         if (parentFieldValue !== field.parentValue) {
-                           return false;
-                         }
-                       }
-                       
-                       return true;
-                     })
-                    .map((field) => (
-                    <div key={field.name} className={field.name === 'url' || field.name === 'webhookUrl' || field.name === 'customHeaders' ? 'md:col-span-2' : ''}>
-                      <Label htmlFor={field.name} className="flex items-center gap-1">
-                        {field.label}
-                        {field.required && <span className="text-destructive">*</span>}
-                        {field.type === 'password' && <Key className="h-3 w-3 text-muted-foreground" />}
-                      </Label>
-                      {field.type === 'jar-selector' ? (
-                        <JarSelector
-                          selectedJarId={configuration[field.name] || ''}
-                          onJarSelect={(jarId) => handleConfigurationChange(field.name, jarId)}
-                          label=""
-                          placeholder={`Choose ${field.label}`}
-                          driverTypeFilter={field.driverTypeFilter || undefined}
-                        />
-                      ) : field.type === 'select' ? (
-                        <Select 
-                          value={configuration[field.name] || ''} 
-                          onValueChange={(value) => handleConfigurationChange(field.name, value)}
-                        >
-                          <SelectTrigger className="transition-all duration-300 hover:bg-accent/50">
-                            <SelectValue placeholder={`Select ${field.label}`} />
-                          </SelectTrigger>
-                          <SelectContent className="bg-card border-border shadow-lg z-50">
-                            {field.options?.map((option) => (
-                              <SelectItem key={option} value={option}>
-                                {option}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      ) : field.type === 'textarea' ? (
-                        <Textarea
-                          id={field.name}
-                          placeholder={field.placeholder}
-                          value={configuration[field.name] || ''}
-                          onChange={(e) => handleConfigurationChange(field.name, e.target.value)}
-                          className="transition-all duration-300 focus:scale-[1.01]"
-                          rows={3}
-                        />
-                      ) : field.type === 'checkbox' ? (
-                        <div className="flex items-center space-x-2">
-                          <input
-                            id={field.name}
-                            type="checkbox"
-                            checked={configuration[field.name] === 'true' || configuration[field.name] === true || configuration[field.name] === 'on'}
-                            onChange={(e) => handleConfigurationChange(field.name, e.target.checked.toString())}
-                            className="h-4 w-4 rounded border-border"
-                          />
-                          <Label htmlFor={field.name} className="text-sm font-normal">
+            <>
+              {selectedAdapter === 'ftp' && adapterMode === 'sender' ? (
+                <FtpAdapterConfiguration onConfigChange={setConfiguration} />
+              ) : (
+                <Card className="animate-scale-in" style={{ animationDelay: '0.2s' }}>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <selectedAdapterConfig.icon className="h-5 w-5" />
+                      {selectedAdapterConfig.name} Configuration
+                    </CardTitle>
+                    <CardDescription>Configure the connection parameters and authentication</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                       {selectedAdapterConfig.fields
+                         .filter((field: any) => {
+                           // Filter fields based on adapter mode
+                           if (field.conditionalField === 'receiver' && adapterMode === 'sender') {
+                             return false;
+                           }
+                           if (field.conditionalField === 'sender' && adapterMode === 'receiver') {
+                             return false;
+                           }
+                           
+                           // Filter fields based on parent field values (for authentication)
+                           if (field.parentField && field.parentValue) {
+                             const parentFieldValue = configuration[field.parentField];
+                             if (parentFieldValue !== field.parentValue) {
+                               return false;
+                             }
+                           }
+                           
+                           return true;
+                         })
+                        .map((field) => (
+                        <div key={field.name} className={field.name === 'url' || field.name === 'webhookUrl' || field.name === 'customHeaders' ? 'md:col-span-2' : ''}>
+                          <Label htmlFor={field.name} className="flex items-center gap-1">
                             {field.label}
+                            {field.required && <span className="text-destructive">*</span>}
+                            {field.type === 'password' && <Key className="h-3 w-3 text-muted-foreground" />}
                           </Label>
-                        </div>
-                      ) : (
-                        <Input
-                          id={field.name}
-                          type={field.type}
-                          placeholder={field.placeholder}
-                          value={configuration[field.name] || ''}
-                          onChange={(e) => handleConfigurationChange(field.name, e.target.value)}
-                          className="transition-all duration-300 focus:scale-[1.01]"
-                        />
-                      )}
-                    </div>
-                  ))}
-                  
-                  {/* Dynamic Authentication Fields */}
-                  {configuration.authType && configuration.authType !== 'None' && (
-                    <>
-                      <div className="md:col-span-2">
-                        <Separator className="my-4" />
-                        <h4 className="font-medium text-sm text-muted-foreground mb-4">
-                          {configuration.authType} Configuration
-                        </h4>
-                      </div>
-                      {getAuthFields(configuration.authType).map((authField) => (
-                        <div key={authField.name} className={authField.name.includes('Url') || authField.name.includes('url') ? 'md:col-span-2' : ''}>
-                          <Label htmlFor={authField.name} className="flex items-center gap-1">
-                            {authField.label}
-                            {authField.required && <span className="text-destructive">*</span>}
-                            {authField.type === 'password' && <Key className="h-3 w-3 text-muted-foreground" />}
-                          </Label>
-                          {authField.type === 'select' ? (
+                          {field.type === 'jar-selector' ? (
+                            <JarSelector
+                              selectedJarId={configuration[field.name] || ''}
+                              onJarSelect={(jarId) => handleConfigurationChange(field.name, jarId)}
+                              label=""
+                              placeholder={`Choose ${field.label}`}
+                              driverTypeFilter={field.driverTypeFilter || undefined}
+                            />
+                          ) : field.type === 'select' ? (
                             <Select 
-                              value={configuration[authField.name] || ''} 
-                              onValueChange={(value) => handleConfigurationChange(authField.name, value)}
+                              value={configuration[field.name] || ''} 
+                              onValueChange={(value) => handleConfigurationChange(field.name, value)}
                             >
                               <SelectTrigger className="transition-all duration-300 hover:bg-accent/50">
-                                <SelectValue placeholder={`Select ${authField.label}`} />
+                                <SelectValue placeholder={`Select ${field.label}`} />
                               </SelectTrigger>
                               <SelectContent className="bg-card border-border shadow-lg z-50">
-                                {authField.options?.map((option) => (
+                                {field.options?.map((option) => (
                                   <SelectItem key={option} value={option}>
                                     {option}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
+                          ) : field.type === 'textarea' ? (
+                            <Textarea
+                              id={field.name}
+                              placeholder={field.placeholder}
+                              value={configuration[field.name] || ''}
+                              onChange={(e) => handleConfigurationChange(field.name, e.target.value)}
+                              className="transition-all duration-300 focus:scale-[1.01]"
+                              rows={3}
+                            />
+                          ) : field.type === 'checkbox' ? (
+                            <div className="flex items-center space-x-2">
+                              <input
+                                id={field.name}
+                                type="checkbox"
+                                checked={configuration[field.name] === 'true' || configuration[field.name] === true || configuration[field.name] === 'on'}
+                                onChange={(e) => handleConfigurationChange(field.name, e.target.checked.toString())}
+                                className="h-4 w-4 rounded border-border"
+                              />
+                              <Label htmlFor={field.name} className="text-sm font-normal">
+                                {field.label}
+                              </Label>
+                            </div>
                           ) : (
                             <Input
-                              id={authField.name}
-                              type={authField.type}
-                              placeholder={authField.placeholder}
-                              value={configuration[authField.name] || ''}
-                              onChange={(e) => handleConfigurationChange(authField.name, e.target.value)}
+                              id={field.name}
+                              type={field.type}
+                              placeholder={field.placeholder}
+                              value={configuration[field.name] || ''}
+                              onChange={(e) => handleConfigurationChange(field.name, e.target.value)}
                               className="transition-all duration-300 focus:scale-[1.01]"
                             />
                           )}
                         </div>
                       ))}
-                    </>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+                      
+                      {/* Dynamic Authentication Fields */}
+                      {configuration.authType && configuration.authType !== 'None' && (
+                        <>
+                          <div className="md:col-span-2">
+                            <Separator className="my-4" />
+                            <h4 className="font-medium text-sm text-muted-foreground mb-4">
+                              {configuration.authType} Configuration
+                            </h4>
+                          </div>
+                          {getAuthFields(configuration.authType).map((authField) => (
+                            <div key={authField.name} className={authField.name.includes('Url') || authField.name.includes('url') ? 'md:col-span-2' : ''}>
+                              <Label htmlFor={authField.name} className="flex items-center gap-1">
+                                {authField.label}
+                                {authField.required && <span className="text-destructive">*</span>}
+                                {authField.type === 'password' && <Key className="h-3 w-3 text-muted-foreground" />}
+                              </Label>
+                              {authField.type === 'select' ? (
+                                <Select 
+                                  value={configuration[authField.name] || ''} 
+                                  onValueChange={(value) => handleConfigurationChange(authField.name, value)}
+                                >
+                                  <SelectTrigger className="transition-all duration-300 hover:bg-accent/50">
+                                    <SelectValue placeholder={`Select ${authField.label}`} />
+                                  </SelectTrigger>
+                                  <SelectContent className="bg-card border-border shadow-lg z-50">
+                                    {authField.options?.map((option) => (
+                                      <SelectItem key={option} value={option}>
+                                        {option}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              ) : (
+                                <Input
+                                  id={authField.name}
+                                  type={authField.type}
+                                  placeholder={authField.placeholder}
+                                  value={configuration[authField.name] || ''}
+                                  onChange={(e) => handleConfigurationChange(authField.name, e.target.value)}
+                                  className="transition-all duration-300 focus:scale-[1.01]"
+                                />
+                              )}
+                            </div>
+                          ))}
+                        </>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </>
           )}
         </div>
 
