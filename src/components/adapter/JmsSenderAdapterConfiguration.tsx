@@ -48,6 +48,26 @@ export function JmsSenderAdapterConfiguration({
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
+                  <Label htmlFor="connectionFactoryClass">Connection Factory class</Label>
+                  <Input
+                    id="connectionFactoryClass"
+                    placeholder="com.ibm.mq.jms.MQConnectionFactory"
+                    value={adapter.configuration.connectionFactoryClass || ''}
+                    onChange={(e) => handleInputChange('connectionFactoryClass', e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="queueClass">Queue class</Label>
+                  <Input
+                    id="queueClass"
+                    placeholder="com.ibm.mq.jms.MQQueue"
+                    value={adapter.configuration.queueClass || ''}
+                    onChange={(e) => handleInputChange('queueClass', e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
                   <Label htmlFor="queueManager">Queue Manager Name *</Label>
                   <Input
                     id="queueManager"

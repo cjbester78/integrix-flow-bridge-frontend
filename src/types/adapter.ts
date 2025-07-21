@@ -75,6 +75,8 @@ export interface AdapterConfiguration {
   encryption?: 'none' | 'ssl' | 'tls';
   
   // JMS Configuration
+  connectionFactoryClass?: string;
+  queueClass?: string;
   queueManager?: string;
   host?: string;
   port?: number;
