@@ -32,6 +32,7 @@ interface FtpAdapterConfig {
   // Sender-specific fields
   sourceDirectory: string;
   fileName: string;
+  sorting: string;
   advancedSelection: boolean;
   exclusionMask: string;
   advancedEntries: FileAccessAdvancedEntry[];
@@ -66,6 +67,7 @@ export const FtpAdapterConfiguration = ({ mode, onConfigChange }: FtpAdapterConf
     // Sender-specific fields
     sourceDirectory: '',
     fileName: '',
+    sorting: '',
     advancedSelection: false,
     exclusionMask: '',
     advancedEntries: [{ directory: '', fileName: '', exclusionMask: '' }],
@@ -154,6 +156,22 @@ export const FtpAdapterConfiguration = ({ mode, onConfigChange }: FtpAdapterConf
                       onChange={(e) => updateConfig({ fileName: e.target.value })}
                       placeholder="Enter file name pattern"
                     />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="sorting">Sorting</Label>
+                    <Select value={config.sorting} onValueChange={(value) => updateConfig({ sorting: value })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select sorting option" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">None</SelectItem>
+                        <SelectItem value="timestamp-ascending">Timestamp Ascending</SelectItem>
+                        <SelectItem value="timestamp-descending">Timestamp Descending</SelectItem>
+                        <SelectItem value="file-size">File Size</SelectItem>
+                        <SelectItem value="file-name">File Name</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 
