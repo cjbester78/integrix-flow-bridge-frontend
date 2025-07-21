@@ -15,6 +15,7 @@ import { JarSelector } from '@/components/JarSelector';
 import { CustomerSelectionAdapterCard } from '@/components/adapter/CustomerSelectionAdapterCard';
 import { FieldMappingScreen } from '@/components/FieldMappingScreen';
 import { FtpAdapterConfiguration } from '@/components/adapter/FtpAdapterConfiguration';
+import { SftpAdapterConfiguration } from '@/components/adapter/SftpAdapterConfiguration';
 import { useToast } from '@/hooks/use-toast';
 import { adapterService } from '@/services/adapter';
 import { 
@@ -636,6 +637,8 @@ export const CreateCommunicationAdapter = () => {
             <>
               {selectedAdapter === 'ftp' ? (
                 <FtpAdapterConfiguration mode={adapterMode as 'sender' | 'receiver'} onConfigChange={setConfiguration} />
+              ) : selectedAdapter === 'sftp' ? (
+                <SftpAdapterConfiguration mode={adapterMode as 'sender' | 'receiver'} onConfigChange={setConfiguration} />
               ) : (
                 <Card className="animate-scale-in" style={{ animationDelay: '0.2s' }}>
                   <CardHeader>
