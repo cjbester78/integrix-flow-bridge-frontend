@@ -12,25 +12,8 @@ interface IdocSenderAdapterConfigurationProps {
 }
 
 const connectionTypeOptions = [
-  'Direct Application Server',
-  'Load Balancing',
-  'Message Server'
-];
-
-const idocTypeOptions = [
-  'ORDERS05',
-  'INVOIC02',
-  'DELFOR03',
-  'DESADV01',
-  'MATMAS05'
-];
-
-const messageTypeOptions = [
-  'ORDERS',
-  'INVOIC',
-  'DELFOR',
-  'DESADV',
-  'MATMAS'
+  'TCP/IP',
+  'Gateway'
 ];
 
 export function IdocSenderAdapterConfiguration({
@@ -45,84 +28,95 @@ export function IdocSenderAdapterConfiguration({
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="source" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="source">Source</TabsTrigger>
             <TabsTrigger value="processing">Processing</TabsTrigger>
-            <TabsTrigger value="security">Security / Encryption</TabsTrigger>
           </TabsList>
 
           <TabsContent value="source" className="space-y-6">
-            {/* SAP System Identification */}
+            {/* SAP System Identification Section */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium">SAP System Identification</h3>
+              <h3 className="text-lg font-medium border-b pb-2">SAP System Identification</h3>
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="sapSystemId">SAP System ID</Label>
+                  <Label htmlFor="sapSystemId">SAP System ID (SID)</Label>
                   <Input
                     id="sapSystemId"
                     type="text"
-                    placeholder="Enter SAP System ID"
+                    placeholder="e.g., PRD, DEV"
                     value={configuration.sapSystemId || ''}
                     onChange={(e) => onConfigurationChange('sapSystemId', e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="clientNumber">Client Number</Label>
+                  <Label htmlFor="sapClientNumber">SAP Client Number</Label>
                   <Input
-                    id="clientNumber"
+                    id="sapClientNumber"
                     type="text"
-                    placeholder="Enter client number"
-                    value={configuration.clientNumber || ''}
-                    onChange={(e) => onConfigurationChange('clientNumber', e.target.value)}
+                    placeholder="Client number within SAP system"
+                    value={configuration.sapClientNumber || ''}
+                    onChange={(e) => onConfigurationChange('sapClientNumber', e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="systemNumber">System Number</Label>
+                  <Label htmlFor="sapSystemNumber">SAP System Number</Label>
                   <Input
-                    id="systemNumber"
+                    id="sapSystemNumber"
                     type="text"
-                    placeholder="Enter system number"
-                    value={configuration.systemNumber || ''}
-                    onChange={(e) => onConfigurationChange('systemNumber', e.target.value)}
+                    placeholder="Two-digit SAP system number"
+                    value={configuration.sapSystemNumber || ''}
+                    onChange={(e) => onConfigurationChange('sapSystemNumber', e.target.value)}
                   />
                 </div>
               </div>
             </div>
 
-            {/* Connection Details */}
+            {/* Connection Details Section */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium">Connection Details</h3>
+              <h3 className="text-lg font-medium border-b pb-2">Connection Details</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="sapAppServerHost">SAP App Server Host</Label>
+                  <Label htmlFor="sapApplicationServerHost">SAP Application Server Host</Label>
                   <Input
-                    id="sapAppServerHost"
+                    id="sapApplicationServerHost"
                     type="text"
-                    placeholder="Enter SAP application server host"
-                    value={configuration.sapAppServerHost || ''}
-                    onChange={(e) => onConfigurationChange('sapAppServerHost', e.target.value)}
+                    placeholder="Hostname or IP of SAP application server"
+                    value={configuration.sapApplicationServerHost || ''}
+                    onChange={(e) => onConfigurationChange('sapApplicationServerHost', e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="gatewayHostService">Gateway Host/Service</Label>
+                  <Label htmlFor="sapGatewayHost">SAP Gateway Host</Label>
                   <Input
-                    id="gatewayHostService"
+                    id="sapGatewayHost"
                     type="text"
-                    placeholder="Enter gateway host/service"
-                    value={configuration.gatewayHostService || ''}
-                    onChange={(e) => onConfigurationChange('gatewayHostService', e.target.value)}
+                    placeholder="Hostname/IP of SAP gateway (optional)"
+                    value={configuration.sapGatewayHost || ''}
+                    onChange={(e) => onConfigurationChange('sapGatewayHost', e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="port">Port</Label>
+                  <Label htmlFor="sapGatewayService">SAP Gateway Service</Label>
                   <Input
-                    id="port"
+                    id="sapGatewayService"
+                    type="text"
+                    placeholder="Gateway service/port (optional)"
+                    value={configuration.sapGatewayService || ''}
+                    onChange={(e) => onConfigurationChange('sapGatewayService', e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="portNumber">Port Number</Label>
+                  <Input
+                    id="portNumber"
                     type="number"
-                    placeholder="Enter port number"
-                    value={configuration.port || ''}
-                    onChange={(e) => onConfigurationChange('port', parseInt(e.target.value) || 0)}
+                    placeholder="Network port if applicable"
+                    value={configuration.portNumber || ''}
+                    onChange={(e) => onConfigurationChange('portNumber', parseInt(e.target.value) || 0)}
                   />
                 </div>
+              </div>
+              <div className="grid grid-cols-1 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="connectionType">Connection Type</Label>
                   <Select 
@@ -144,16 +138,16 @@ export function IdocSenderAdapterConfiguration({
               </div>
             </div>
 
-            {/* Authentication */}
+            {/* Authentication Section */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium">Authentication</h3>
+              <h3 className="text-lg font-medium border-b pb-2">Authentication</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="sapUser">SAP User</Label>
                   <Input
                     id="sapUser"
                     type="text"
-                    placeholder="Enter SAP username"
+                    placeholder="User ID for RFC connection"
                     value={configuration.sapUser || ''}
                     onChange={(e) => onConfigurationChange('sapUser', e.target.value)}
                   />
@@ -163,7 +157,7 @@ export function IdocSenderAdapterConfiguration({
                   <Input
                     id="sapPassword"
                     type="password"
-                    placeholder="Enter SAP password"
+                    placeholder="Password for RFC user"
                     value={configuration.sapPassword || ''}
                     onChange={(e) => onConfigurationChange('sapPassword', e.target.value)}
                   />
@@ -171,33 +165,35 @@ export function IdocSenderAdapterConfiguration({
               </div>
             </div>
 
-            {/* RFC Destination */}
+            {/* RFC Destination Section */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium">RFC Destination</h3>
-              <div className="space-y-2">
-                <Label htmlFor="rfcDestinationName">RFC Destination Name</Label>
-                <Input
-                  id="rfcDestinationName"
-                  type="text"
-                  placeholder="Enter RFC destination name"
-                  value={configuration.rfcDestinationName || ''}
-                  onChange={(e) => onConfigurationChange('rfcDestinationName', e.target.value)}
-                />
+              <h3 className="text-lg font-medium border-b pb-2">RFC Destination</h3>
+              <div className="grid grid-cols-1 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="rfcDestinationName">RFC Destination Name</Label>
+                  <Input
+                    id="rfcDestinationName"
+                    type="text"
+                    placeholder="SAP RFC destination (optional)"
+                    value={configuration.rfcDestinationName || ''}
+                    onChange={(e) => onConfigurationChange('rfcDestinationName', e.target.value)}
+                  />
+                </div>
               </div>
             </div>
           </TabsContent>
 
           <TabsContent value="processing" className="space-y-6">
-            {/* IDoc Routing */}
+            {/* IDoc Transmission Section */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium">IDoc Routing</h3>
+              <h3 className="text-lg font-medium border-b pb-2">IDoc Transmission</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="idocPort">IDoc Port</Label>
                   <Input
                     id="idocPort"
                     type="text"
-                    placeholder="Enter IDoc port"
+                    placeholder="Logical port configured in SAP for receiving IDocs from middleware"
                     value={configuration.idocPort || ''}
                     onChange={(e) => onConfigurationChange('idocPort', e.target.value)}
                   />
@@ -207,7 +203,7 @@ export function IdocSenderAdapterConfiguration({
                   <Input
                     id="listenerServiceName"
                     type="text"
-                    placeholder="Enter listener service name"
+                    placeholder="Middleware service or process name sending the IDoc"
                     value={configuration.listenerServiceName || ''}
                     onChange={(e) => onConfigurationChange('listenerServiceName', e.target.value)}
                   />
@@ -215,16 +211,16 @@ export function IdocSenderAdapterConfiguration({
               </div>
             </div>
 
-            {/* IDoc Identification */}
+            {/* IDoc Identification Section */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium">IDoc Identification</h3>
+              <h3 className="text-lg font-medium border-b pb-2">IDoc Identification</h3>
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="idocType">IDoc Type</Label>
                   <Input
                     id="idocType"
                     type="text"
-                    placeholder="Enter IDoc type (e.g., ORDERS05)"
+                    placeholder="e.g., ORDERS05"
                     value={configuration.idocType || ''}
                     onChange={(e) => onConfigurationChange('idocType', e.target.value)}
                   />
@@ -234,7 +230,7 @@ export function IdocSenderAdapterConfiguration({
                   <Input
                     id="messageType"
                     type="text"
-                    placeholder="Enter message type (e.g., ORDERS)"
+                    placeholder="e.g., ORDERS"
                     value={configuration.messageType || ''}
                     onChange={(e) => onConfigurationChange('messageType', e.target.value)}
                   />
@@ -244,66 +240,27 @@ export function IdocSenderAdapterConfiguration({
                   <Input
                     id="processCode"
                     type="text"
-                    placeholder="Enter process code"
+                    placeholder="SAP process code used for sending the IDoc"
                     value={configuration.processCode || ''}
                     onChange={(e) => onConfigurationChange('processCode', e.target.value)}
                   />
                 </div>
               </div>
             </div>
-          </TabsContent>
 
-          <TabsContent value="security" className="space-y-6">
-            {/* SNC / Security Settings */}
+            {/* Security / Encryption Section */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium">SNC / Security Settings</h3>
-              <div className="space-y-4">
+              <h3 className="text-lg font-medium border-b pb-2">Security / Encryption</h3>
+              <div className="grid grid-cols-1 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="sncSettings">SNC Settings</Label>
+                  <Label htmlFor="sncSecuritySettings">SNC / Security Settings</Label>
                   <Textarea
-                    id="sncSettings"
-                    placeholder="Configure SNC (Secure Network Communications) settings"
-                    value={configuration.sncSettings || ''}
-                    onChange={(e) => onConfigurationChange('sncSettings', e.target.value)}
-                    className="min-h-[100px]"
+                    id="sncSecuritySettings"
+                    placeholder="Secure Network Communications parameters (optional)"
+                    value={configuration.sncSecuritySettings || ''}
+                    onChange={(e) => onConfigurationChange('sncSecuritySettings', e.target.value)}
+                    rows={4}
                   />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="sncMode">SNC Mode</Label>
-                    <Select 
-                      value={configuration.sncMode || ''} 
-                      onValueChange={(value) => onConfigurationChange('sncMode', value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select SNC mode" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="0">Disabled</SelectItem>
-                        <SelectItem value="1">Authentication only</SelectItem>
-                        <SelectItem value="2">Integrity protection</SelectItem>
-                        <SelectItem value="3">Privacy protection</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="sncQoP">SNC Quality of Protection</Label>
-                    <Select 
-                      value={configuration.sncQoP || ''} 
-                      onValueChange={(value) => onConfigurationChange('sncQoP', value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select QoP level" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="1">Authentication</SelectItem>
-                        <SelectItem value="2">Integrity</SelectItem>
-                        <SelectItem value="3">Privacy</SelectItem>
-                        <SelectItem value="8">Use SNC's default</SelectItem>
-                        <SelectItem value="9">Use maximum available</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
                 </div>
               </div>
             </div>
