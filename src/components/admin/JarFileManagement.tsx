@@ -270,70 +270,73 @@ export const JarFileManagement = ({ jarFiles, onJarFileAdded, onJarFileDeleted }
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredJarFiles.map((jarFile) => (
-                    <TableRow key={jarFile.id}>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium">{jarFile.name}</div>
-                          <div className="text-sm text-muted-foreground">{jarFile.file_name}</div>
-                          {jarFile.description && (
-                            <div className="text-xs text-muted-foreground mt-1 max-w-xs truncate">
-                              {jarFile.description}
-                            </div>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="secondary">{jarFile.version}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        {jarFile.driver_type && (
-                          <Badge variant="outline">{jarFile.driver_type}</Badge>
-                        )}
-                      </TableCell>
-                      <TableCell>{jarFile.size_bytes ? formatFileSize(jarFile.size_bytes) : 'N/A'}</TableCell>
-                      <TableCell>{jarFile.upload_date}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end space-x-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDownload(jarFile)}
-                          >
-                            <Download className="h-4 w-4" />
-                          </Button>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="outline" size="sm">
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Delete JAR File</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Are you sure you want to delete "{jarFile.name}"? This action cannot be undone.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDeleteJar(jarFile.id)}>
-                                  Delete
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
+                  {filteredJarFiles.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                        No JAR files found. Click "Upload JAR File" to add your first JAR file.
                       </TableCell>
                     </TableRow>
-                  ))}
+                  ) : (
+                    filteredJarFiles.map((jarFile) => (
+                      <TableRow key={jarFile.id}>
+                        <TableCell>
+                          <div>
+                            <div className="font-medium">{jarFile.name}</div>
+                            <div className="text-sm text-muted-foreground">{jarFile.file_name}</div>
+                            {jarFile.description && (
+                              <div className="text-xs text-muted-foreground mt-1 max-w-xs truncate">
+                                {jarFile.description}
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="secondary">{jarFile.version}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          {jarFile.driver_type && (
+                            <Badge variant="outline">{jarFile.driver_type}</Badge>
+                          )}
+                        </TableCell>
+                        <TableCell>{jarFile.size_bytes ? formatFileSize(jarFile.size_bytes) : 'N/A'}</TableCell>
+                        <TableCell>{jarFile.upload_date}</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end space-x-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleDownload(jarFile)}
+                            >
+                              <Download className="h-4 w-4" />
+                            </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="outline" size="sm">
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Delete JAR File</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Are you sure you want to delete "{jarFile.name}"? This action cannot be undone.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleDeleteJar(jarFile.id)}>
+                                    Delete
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
-              {filteredJarFiles.length === 0 && (
-                <div className="text-center py-6 text-muted-foreground">
-                  {searchTerm ? 'No JAR files match your search.' : 'No JAR files uploaded yet.'}
-                </div>
-              )}
             </div>
           </CardContent>
         </Card>

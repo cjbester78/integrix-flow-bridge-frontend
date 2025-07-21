@@ -52,32 +52,40 @@ export const CertificateManagement = ({ certificates }: CertificateManagementPro
               </TableRow>
             </TableHeader>
             <TableBody>
-              {certificates.map((cert) => (
-                <TableRow key={cert.id}>
-                  <TableCell className="font-medium">{cert.name}</TableCell>
-                  <TableCell>{cert.type}</TableCell>
-                  <TableCell>{cert.issuer}</TableCell>
-                  <TableCell className="text-sm">
-                    {cert.validFrom} to {cert.validTo}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={getStatusVariant(cert.status)}>
-                      {cert.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground text-sm">{cert.usage}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button variant="ghost" size="sm">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" className="text-destructive">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+              {certificates.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                    No certificates found. Click "Add Certificate" to upload your first certificate.
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                certificates.map((cert) => (
+                  <TableRow key={cert.id}>
+                    <TableCell className="font-medium">{cert.name}</TableCell>
+                    <TableCell>{cert.type}</TableCell>
+                    <TableCell>{cert.issuer}</TableCell>
+                    <TableCell className="text-sm">
+                      {cert.validFrom} to {cert.validTo}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={getStatusVariant(cert.status)}>
+                        {cert.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground text-sm">{cert.usage}</TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button variant="ghost" size="sm">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" className="text-destructive">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </div>

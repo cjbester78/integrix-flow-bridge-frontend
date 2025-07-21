@@ -17,7 +17,7 @@ export const ChannelList = ({ channels }: ChannelListProps) => {
         <Card className="bg-gradient-secondary border-border/50 animate-fade-in">
           <CardContent className="text-center py-12">
             <div className="text-muted-foreground">
-              No channels found matching the current filters
+              No channels found. Channels will appear here once your integration flows are configured and deployed.
             </div>
           </CardContent>
         </Card>

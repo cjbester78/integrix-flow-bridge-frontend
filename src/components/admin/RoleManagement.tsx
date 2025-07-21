@@ -38,39 +38,47 @@ export const RoleManagement = ({ roles }: RoleManagementProps) => {
       </CardHeader>
       <CardContent>
         <div className="grid gap-4">
-          {roles.map((role) => (
-            <Card key={role.id} className="bg-gradient-secondary border-border/50">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    {getRoleIcon(role.name)}
-                    <div>
-                      <CardTitle className="text-lg capitalize">{role.name}</CardTitle>
-                      <CardDescription>{role.description}</CardDescription>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline">{role.userCount} users</Badge>
-                    <Button variant="outline" size="sm">
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div>
-                  <div className="text-sm font-medium mb-2">Permissions:</div>
-                  <div className="flex flex-wrap gap-2">
-                    {role.permissions.map((permission) => (
-                      <Badge key={permission} variant="secondary" className="text-xs">
-                        {permission.replace('_', ' ')}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
+          {roles.length === 0 ? (
+            <Card className="bg-gradient-secondary border-border/50">
+              <CardContent className="text-center py-8 text-muted-foreground">
+                No roles found. Click "Add Role" to create your first role.
               </CardContent>
             </Card>
-          ))}
+          ) : (
+            roles.map((role) => (
+              <Card key={role.id} className="bg-gradient-secondary border-border/50">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      {getRoleIcon(role.name)}
+                      <div>
+                        <CardTitle className="text-lg capitalize">{role.name}</CardTitle>
+                        <CardDescription>{role.description}</CardDescription>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">{role.userCount} users</Badge>
+                      <Button variant="outline" size="sm">
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div>
+                    <div className="text-sm font-medium mb-2">Permissions:</div>
+                    <div className="flex flex-wrap gap-2">
+                      {role.permissions.map((permission) => (
+                        <Badge key={permission} variant="secondary" className="text-xs">
+                          {permission.replace('_', ' ')}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
         </div>
       </CardContent>
     </Card>

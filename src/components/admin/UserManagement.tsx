@@ -100,8 +100,8 @@ export const UserManagement = ({ users, isLoading = false, onRefresh }: UserMana
                 ))
               ) : users.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
-                    No users found
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                    No users found. Click "Add User" to create your first user.
                   </TableCell>
                 </TableRow>
               ) : (

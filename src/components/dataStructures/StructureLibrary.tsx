@@ -98,7 +98,7 @@ export const StructureLibrary: React.FC<StructureLibraryProps> = ({
         {structures.length === 0 && (
           <div className="text-center py-8 text-muted-foreground">
             <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>No data structures created yet</p>
+            <p>No data structures created yet. Create your first data structure using the tabs above.</p>
           </div>
         )}
       </CardContent>
