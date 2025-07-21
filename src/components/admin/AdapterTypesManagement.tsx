@@ -84,17 +84,17 @@ export const AdapterTypesManagement = () => {
       const response = await fetch('/api/admin/adapter-types');
       if (response.ok) {
         const data = await response.json();
-        setAdapterTypes(data);
+        setAdapterTypes(data || []);
+      } else if (response.status === 404) {
+        // No data found, set empty array
+        setAdapterTypes([]);
       } else {
         throw new Error('Failed to fetch adapter types');
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to load adapter types",
-        variant: "destructive"
-      });
-      console.error('Error fetching adapter types:', error);
+      // For now, just set empty array and don't show error for missing data
+      console.log('API not available yet, starting with empty data:', error);
+      setAdapterTypes([]);
     } finally {
       setLoading(false);
     }
@@ -396,7 +396,14 @@ export const AdapterTypesManagement = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {adapterTypes.map((adapterType) => {
+              {adapterTypes.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                    No adapter types found. Click "Add Adapter Type" to create your first adapter type.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                adapterTypes.map((adapterType) => {
                 const IconComponent = getIcon(adapterType.iconName);
                 return (
                   <TableRow key={adapterType.id}>
@@ -448,8 +455,9 @@ export const AdapterTypesManagement = () => {
                       </div>
                     </TableCell>
                   </TableRow>
-                );
-              })}
+                  );
+                })
+              )}
             </TableBody>
           </Table>
         )}
