@@ -633,8 +633,8 @@ export const CreateCommunicationAdapter = () => {
 
           {selectedAdapterConfig && adapterMode && (
             <>
-              {selectedAdapter === 'ftp' && adapterMode === 'sender' ? (
-                <FtpAdapterConfiguration onConfigChange={setConfiguration} />
+              {selectedAdapter === 'ftp' ? (
+                <FtpAdapterConfiguration mode={adapterMode as 'sender' | 'receiver'} onConfigChange={setConfiguration} />
               ) : (
                 <Card className="animate-scale-in" style={{ animationDelay: '0.2s' }}>
                   <CardHeader>
