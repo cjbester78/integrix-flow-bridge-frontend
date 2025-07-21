@@ -225,13 +225,13 @@ export function JmsSenderAdapterConfiguration({
                   </div>
 
                   <div className="space-y-2">
-                    <PasswordConfirmation
-                      name="sslPassword"
-                      label="SSL Keystore Password"
+                    <Label htmlFor="sslPassword">SSL Keystore Password</Label>
+                    <Input
+                      id="sslPassword"
+                      type="password"
                       placeholder="Keystore Password"
-                      required={false}
                       value={adapter.configuration.sslPassword || ''}
-                      onValueChange={(value) => handleInputChange('sslPassword', value)}
+                      onChange={(e) => handleInputChange('sslPassword', e.target.value)}
                     />
                   </div>
                 </div>
