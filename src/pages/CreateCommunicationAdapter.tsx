@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
+import { PasswordConfirmation } from '@/components/ui/password-confirmation';
 import { JarSelector } from '@/components/JarSelector';
 import { CustomerSelectionAdapterCard } from '@/components/adapter/CustomerSelectionAdapterCard';
 import { FieldMappingScreen } from '@/components/FieldMappingScreen';
@@ -667,69 +668,97 @@ export const CreateCommunicationAdapter = () => {
                            return true;
                          })
                         .map((field) => (
-                        <div key={field.name} className={field.name === 'url' || field.name === 'webhookUrl' || field.name === 'customHeaders' ? 'md:col-span-2' : ''}>
-                          <Label htmlFor={field.name} className="flex items-center gap-1">
-                            {field.label}
-                            {field.required && <span className="text-destructive">*</span>}
-                            {field.type === 'password' && <Key className="h-3 w-3 text-muted-foreground" />}
-                          </Label>
-                          {field.type === 'jar-selector' ? (
-                            <JarSelector
-                              selectedJarId={configuration[field.name] || ''}
-                              onJarSelect={(jarId) => handleConfigurationChange(field.name, jarId)}
-                              label=""
-                              placeholder={`Choose ${field.label}`}
-                              driverTypeFilter={field.driverTypeFilter || undefined}
-                            />
-                          ) : field.type === 'select' ? (
-                            <Select 
-                              value={configuration[field.name] || ''} 
-                              onValueChange={(value) => handleConfigurationChange(field.name, value)}
-                            >
-                              <SelectTrigger className="transition-all duration-300 hover:bg-accent/50">
-                                <SelectValue placeholder={`Select ${field.label}`} />
-                              </SelectTrigger>
-                              <SelectContent className="bg-card border-border shadow-lg z-50">
-                                {field.options?.map((option) => (
-                                  <SelectItem key={option} value={option}>
-                                    {option}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          ) : field.type === 'textarea' ? (
-                            <Textarea
-                              id={field.name}
-                              placeholder={field.placeholder}
-                              value={configuration[field.name] || ''}
-                              onChange={(e) => handleConfigurationChange(field.name, e.target.value)}
-                              className="transition-all duration-300 focus:scale-[1.01]"
-                              rows={3}
-                            />
-                          ) : field.type === 'checkbox' ? (
-                            <div className="flex items-center space-x-2">
-                              <input
-                                id={field.name}
-                                type="checkbox"
-                                checked={configuration[field.name] === 'true' || configuration[field.name] === true || configuration[field.name] === 'on'}
-                                onChange={(e) => handleConfigurationChange(field.name, e.target.checked.toString())}
-                                className="h-4 w-4 rounded border-border"
-                              />
-                              <Label htmlFor={field.name} className="text-sm font-normal">
-                                {field.label}
-                              </Label>
-                            </div>
-                          ) : (
-                            <Input
-                              id={field.name}
-                              type={field.type}
-                              placeholder={field.placeholder}
-                              value={configuration[field.name] || ''}
-                              onChange={(e) => handleConfigurationChange(field.name, e.target.value)}
-                              className="transition-all duration-300 focus:scale-[1.01]"
-                            />
-                          )}
-                        </div>
+                         <div key={field.name} className={field.name === 'url' || field.name === 'webhookUrl' || field.name === 'customHeaders' || field.type === 'password' ? 'md:col-span-2' : ''}>
+                           {field.type === 'jar-selector' ? (
+                             <>
+                               <Label htmlFor={field.name} className="flex items-center gap-1">
+                                 {field.label}
+                                 {field.required && <span className="text-destructive">*</span>}
+                               </Label>
+                               <JarSelector
+                                 selectedJarId={configuration[field.name] || ''}
+                                 onJarSelect={(jarId) => handleConfigurationChange(field.name, jarId)}
+                                 label=""
+                                 placeholder={`Choose ${field.label}`}
+                                 driverTypeFilter={field.driverTypeFilter || undefined}
+                               />
+                             </>
+                           ) : field.type === 'select' ? (
+                             <>
+                               <Label htmlFor={field.name} className="flex items-center gap-1">
+                                 {field.label}
+                                 {field.required && <span className="text-destructive">*</span>}
+                               </Label>
+                               <Select 
+                                 value={configuration[field.name] || ''} 
+                                 onValueChange={(value) => handleConfigurationChange(field.name, value)}
+                               >
+                                 <SelectTrigger className="transition-all duration-300 hover:bg-accent/50">
+                                   <SelectValue placeholder={`Select ${field.label}`} />
+                                 </SelectTrigger>
+                                 <SelectContent className="bg-card border-border shadow-lg z-50">
+                                   {field.options?.map((option) => (
+                                     <SelectItem key={option} value={option}>
+                                       {option}
+                                     </SelectItem>
+                                   ))}
+                                 </SelectContent>
+                               </Select>
+                             </>
+                           ) : field.type === 'textarea' ? (
+                             <>
+                               <Label htmlFor={field.name} className="flex items-center gap-1">
+                                 {field.label}
+                                 {field.required && <span className="text-destructive">*</span>}
+                               </Label>
+                               <Textarea
+                                 id={field.name}
+                                 placeholder={field.placeholder}
+                                 value={configuration[field.name] || ''}
+                                 onChange={(e) => handleConfigurationChange(field.name, e.target.value)}
+                                 className="transition-all duration-300 focus:scale-[1.01]"
+                                 rows={3}
+                               />
+                             </>
+                           ) : field.type === 'checkbox' ? (
+                             <div className="flex items-center space-x-2">
+                               <input
+                                 id={field.name}
+                                 type="checkbox"
+                                 checked={configuration[field.name] === 'true' || configuration[field.name] === true || configuration[field.name] === 'on'}
+                                 onChange={(e) => handleConfigurationChange(field.name, e.target.checked.toString())}
+                                 className="h-4 w-4 rounded border-border"
+                               />
+                               <Label htmlFor={field.name} className="text-sm font-normal">
+                                 {field.label}
+                               </Label>
+                             </div>
+                           ) : field.type === 'password' ? (
+                             <PasswordConfirmation
+                               name={field.name}
+                               label={field.label}
+                               placeholder={field.placeholder}
+                               required={field.required}
+                               value={configuration[field.name] || ''}
+                               onValueChange={(value) => handleConfigurationChange(field.name, value)}
+                             />
+                           ) : (
+                             <>
+                               <Label htmlFor={field.name} className="flex items-center gap-1">
+                                 {field.label}
+                                 {field.required && <span className="text-destructive">*</span>}
+                               </Label>
+                               <Input
+                                 id={field.name}
+                                 type={field.type}
+                                 placeholder={field.placeholder}
+                                 value={configuration[field.name] || ''}
+                                 onChange={(e) => handleConfigurationChange(field.name, e.target.value)}
+                                 className="transition-all duration-300 focus:scale-[1.01]"
+                               />
+                             </>
+                           )}
+                         </div>
                       ))}
                       
                       {/* Dynamic Authentication Fields */}
@@ -741,41 +770,57 @@ export const CreateCommunicationAdapter = () => {
                               {configuration.authType} Configuration
                             </h4>
                           </div>
-                          {getAuthFields(configuration.authType).map((authField) => (
-                            <div key={authField.name} className={authField.name.includes('Url') || authField.name.includes('url') ? 'md:col-span-2' : ''}>
-                              <Label htmlFor={authField.name} className="flex items-center gap-1">
-                                {authField.label}
-                                {authField.required && <span className="text-destructive">*</span>}
-                                {authField.type === 'password' && <Key className="h-3 w-3 text-muted-foreground" />}
-                              </Label>
-                              {authField.type === 'select' ? (
-                                <Select 
-                                  value={configuration[authField.name] || ''} 
-                                  onValueChange={(value) => handleConfigurationChange(authField.name, value)}
-                                >
-                                  <SelectTrigger className="transition-all duration-300 hover:bg-accent/50">
-                                    <SelectValue placeholder={`Select ${authField.label}`} />
-                                  </SelectTrigger>
-                                  <SelectContent className="bg-card border-border shadow-lg z-50">
-                                    {authField.options?.map((option) => (
-                                      <SelectItem key={option} value={option}>
-                                        {option}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              ) : (
-                                <Input
-                                  id={authField.name}
-                                  type={authField.type}
-                                  placeholder={authField.placeholder}
-                                  value={configuration[authField.name] || ''}
-                                  onChange={(e) => handleConfigurationChange(authField.name, e.target.value)}
-                                  className="transition-all duration-300 focus:scale-[1.01]"
-                                />
-                              )}
-                            </div>
-                          ))}
+                           {getAuthFields(configuration.authType).map((authField) => (
+                             <div key={authField.name} className={authField.name.includes('Url') || authField.name.includes('url') || authField.type === 'password' ? 'md:col-span-2' : ''}>
+                               {authField.type === 'select' ? (
+                                 <>
+                                   <Label htmlFor={authField.name} className="flex items-center gap-1">
+                                     {authField.label}
+                                     {authField.required && <span className="text-destructive">*</span>}
+                                   </Label>
+                                   <Select 
+                                     value={configuration[authField.name] || ''} 
+                                     onValueChange={(value) => handleConfigurationChange(authField.name, value)}
+                                   >
+                                     <SelectTrigger className="transition-all duration-300 hover:bg-accent/50">
+                                       <SelectValue placeholder={`Select ${authField.label}`} />
+                                     </SelectTrigger>
+                                     <SelectContent className="bg-card border-border shadow-lg z-50">
+                                       {authField.options?.map((option) => (
+                                         <SelectItem key={option} value={option}>
+                                           {option}
+                                         </SelectItem>
+                                       ))}
+                                     </SelectContent>
+                                   </Select>
+                                 </>
+                               ) : authField.type === 'password' ? (
+                                 <PasswordConfirmation
+                                   name={authField.name}
+                                   label={authField.label}
+                                   placeholder={authField.placeholder}
+                                   required={authField.required}
+                                   value={configuration[authField.name] || ''}
+                                   onValueChange={(value) => handleConfigurationChange(authField.name, value)}
+                                 />
+                               ) : (
+                                 <>
+                                   <Label htmlFor={authField.name} className="flex items-center gap-1">
+                                     {authField.label}
+                                     {authField.required && <span className="text-destructive">*</span>}
+                                   </Label>
+                                   <Input
+                                     id={authField.name}
+                                     type={authField.type}
+                                     placeholder={authField.placeholder}
+                                     value={configuration[authField.name] || ''}
+                                     onChange={(e) => handleConfigurationChange(authField.name, e.target.value)}
+                                     className="transition-all duration-300 focus:scale-[1.01]"
+                                   />
+                                 </>
+                               )}
+                             </div>
+                           ))}
                         </>
                       )}
                     </div>

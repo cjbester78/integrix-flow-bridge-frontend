@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { PasswordConfirmation } from '@/components/ui/password-confirmation';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 
@@ -298,16 +299,16 @@ export const FtpAdapterConfiguration = ({ mode, onConfigChange }: FtpAdapterConf
                     />
                   </div>
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Password *</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      value={config.password}
-                      onChange={(e) => updateConfig({ password: e.target.value })}
-                      placeholder="Enter password"
-                    />
-                  </div>
+                   <div className="md:col-span-2">
+                     <PasswordConfirmation
+                       name="password"
+                       label="Password"
+                       placeholder="Enter password"
+                       required={true}
+                       value={config.password}
+                       onValueChange={(value) => updateConfig({ password: value })}
+                     />
+                   </div>
                   
                   <div className="space-y-2 md:col-span-2">
                     <Label htmlFor="connectionMode">Connection Mode *</Label>
@@ -423,16 +424,16 @@ export const FtpAdapterConfiguration = ({ mode, onConfigChange }: FtpAdapterConf
                     />
                   </div>
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Password *</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      value={config.password}
-                      onChange={(e) => updateConfig({ password: e.target.value })}
-                      placeholder="Enter password"
-                    />
-                  </div>
+                   <div className="md:col-span-2">
+                     <PasswordConfirmation
+                       name="password"
+                       label="Password"
+                       placeholder="Enter password"
+                       required={true}
+                       value={config.password}
+                       onValueChange={(value) => updateConfig({ password: value })}
+                     />
+                   </div>
                   
                   <div className="space-y-2 md:col-span-2">
                     <Label htmlFor="connectionMode">Connection Mode *</Label>
