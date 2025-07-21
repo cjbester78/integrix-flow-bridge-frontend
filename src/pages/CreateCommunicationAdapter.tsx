@@ -538,18 +538,6 @@ export const CreateCommunicationAdapter = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="adapterMode">Adapter Mode *</Label>
-                <Select value={adapterMode} onValueChange={setAdapterMode}>
-                  <SelectTrigger className="transition-all duration-300 hover:bg-accent/50">
-                    <SelectValue placeholder="Select adapter mode" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="sender">Sender</SelectItem>
-                    <SelectItem value="receiver">Receiver</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
                 <Label htmlFor="description">Description</Label>
                 <Textarea
                   id="description"
@@ -609,16 +597,35 @@ export const CreateCommunicationAdapter = () => {
               </div>
               
               {selectedAdapterConfig && (
-                <div className="p-3 bg-muted/50 rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <selectedAdapterConfig.icon className="h-4 w-4 text-primary" />
-                    <span className="font-medium">{selectedAdapterConfig.name}</span>
-                    <Badge variant="outline" className="text-xs">{selectedAdapterConfig.category}</Badge>
+                <>
+                  <div className="p-3 bg-muted/50 rounded-lg">
+                    <div className="flex items-center gap-2 mb-2">
+                      <selectedAdapterConfig.icon className="h-4 w-4 text-primary" />
+                      <span className="font-medium">{selectedAdapterConfig.name}</span>
+                      <Badge variant="outline" className="text-xs">{selectedAdapterConfig.category}</Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {selectedAdapterConfig.description}
+                    </p>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    {selectedAdapterConfig.description}
-                  </p>
-                </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="adapterMode">Adapter Mode *</Label>
+                    <Select value={adapterMode} onValueChange={(value) => {
+                      setAdapterMode(value);
+                      // Clear configuration when mode changes as fields might change
+                      setConfiguration({});
+                    }}>
+                      <SelectTrigger className="transition-all duration-300 hover:bg-accent/50">
+                        <SelectValue placeholder="Select adapter mode" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="sender">Sender</SelectItem>
+                        <SelectItem value="receiver">Receiver</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </>
               )}
             </CardContent>
           </Card>
