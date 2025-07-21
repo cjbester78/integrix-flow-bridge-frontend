@@ -209,7 +209,7 @@ export function JmsSenderAdapterConfiguration({
                 <div className="space-y-2">
                   <Label htmlFor="ackMode">Acknowledgement Mode *</Label>
                   <Select
-                    value={adapter.configuration.ackMode || ''}
+                    value={adapter.configuration.ackMode || 'AUTO_ACKNOWLEDGE'}
                     onValueChange={(value) => handleInputChange('ackMode', value)}
                   >
                     <SelectTrigger>
