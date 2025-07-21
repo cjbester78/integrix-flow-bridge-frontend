@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { PasswordConfirmation } from '@/components/ui/password-confirmation';
 import { Button } from '@/components/ui/button';
 import { CommunicationAdapter } from '@/types/adapter';
 
@@ -139,13 +140,13 @@ export function JmsReceiverAdapterConfiguration({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
+                  <PasswordConfirmation
+                    name="password"
+                    label="Password"
                     placeholder="MQ Password"
+                    required={false}
                     value={adapter.configuration.password || ''}
-                    onChange={(e) => handleInputChange('password', e.target.value)}
+                    onValueChange={(value) => handleInputChange('password', value)}
                   />
                 </div>
 
@@ -224,13 +225,13 @@ export function JmsReceiverAdapterConfiguration({
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="sslPassword">SSL Keystore Password</Label>
-                    <Input
-                      id="sslPassword"
-                      type="password"
+                    <PasswordConfirmation
+                      name="sslPassword"
+                      label="SSL Keystore Password"
                       placeholder="Keystore Password"
+                      required={false}
                       value={adapter.configuration.sslPassword || ''}
-                      onChange={(e) => handleInputChange('sslPassword', e.target.value)}
+                      onValueChange={(value) => handleInputChange('sslPassword', value)}
                     />
                   </div>
                 </div>
