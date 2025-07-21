@@ -16,6 +16,8 @@ import { CustomerSelectionAdapterCard } from '@/components/adapter/CustomerSelec
 import { FieldMappingScreen } from '@/components/FieldMappingScreen';
 import { FtpAdapterConfiguration } from '@/components/adapter/FtpAdapterConfiguration';
 import { SftpAdapterConfiguration } from '@/components/adapter/SftpAdapterConfiguration';
+import { HttpSenderAdapterConfiguration } from '@/components/adapter/HttpSenderAdapterConfiguration';
+import { HttpReceiverAdapterConfiguration } from '@/components/adapter/HttpReceiverAdapterConfiguration';
 import { useToast } from '@/hooks/use-toast';
 import { adapterService } from '@/services/adapter';
 import { 
@@ -398,7 +400,7 @@ export const CreateCommunicationAdapter = () => {
   };
 
 
-  const handleConfigurationChange = (fieldName: string, value: string) => {
+  const handleConfigurationChange = (fieldName: string, value: string | number | boolean) => {
     setConfiguration(prev => ({
       ...prev,
       [fieldName]: value
@@ -639,6 +641,16 @@ export const CreateCommunicationAdapter = () => {
                 <FtpAdapterConfiguration mode={adapterMode as 'sender' | 'receiver'} onConfigChange={setConfiguration} />
               ) : selectedAdapter === 'sftp' ? (
                 <SftpAdapterConfiguration mode={adapterMode as 'sender' | 'receiver'} onConfigChange={setConfiguration} />
+              ) : selectedAdapter === 'http' && adapterMode === 'sender' ? (
+                <HttpSenderAdapterConfiguration 
+                  configuration={configuration} 
+                  onConfigurationChange={(field, value) => handleConfigurationChange(field, value)} 
+                />
+              ) : selectedAdapter === 'http' && adapterMode === 'receiver' ? (
+                <HttpReceiverAdapterConfiguration 
+                  configuration={configuration} 
+                  onConfigurationChange={(field, value) => handleConfigurationChange(field, value)} 
+                />
               ) : (
                 <Card className="animate-scale-in" style={{ animationDelay: '0.2s' }}>
                   <CardHeader>
