@@ -143,8 +143,8 @@ export function JmsSenderAdapterConfiguration({
                       <SelectValue placeholder="Select transport type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="CLIENT">CLIENT</SelectItem>
-                      <SelectItem value="BINDINGS">BINDINGS</SelectItem>
+                      <SelectItem value="CLIENT">Remote TCP/IP</SelectItem>
+                      <SelectItem value="BINDINGS">Local (in-memory)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
