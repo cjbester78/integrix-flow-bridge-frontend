@@ -4,201 +4,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 
 interface HttpReceiverAdapterConfigurationProps {
   configuration: any;
-  onConfigurationChange: (field: string, value: string | number | boolean) => void;
+  onConfigurationChange: (field: string, value: string | number) => void;
 }
-
-const methodOptions = [
-  'Dynamic', 'Get', 'Post', 'Put', 'Delete', 'Head', 'Trace', 'Patch'
-];
-
-const httpAuthenticationOptions = [
-  'None', 'Basic', 'Bearer Token', 'API Key'
-];
-
-const httpsAuthenticationOptions = [
-  'None', 'Basic', 'OAuth2 Client Credentials', 'OAuth2 SAML Bearer Assertion', 'Client Certificate'
-];
 
 export function HttpReceiverAdapterConfiguration({
   configuration,
   onConfigurationChange
 }: HttpReceiverAdapterConfigurationProps) {
-  const getAuthenticationOptions = () => {
-    return configuration.protocol === 'HTTPS' ? httpsAuthenticationOptions : httpAuthenticationOptions;
-  };
-
-  const renderAuthenticationFields = () => {
-    const authType = configuration.authenticationType;
-    
-    switch (authType) {
-      case 'Basic':
-        return (
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
-              <Input
-                id="username"
-                type="text"
-                placeholder="Enter username"
-                value={configuration.username || ''}
-                onChange={(e) => onConfigurationChange('username', e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Enter password"
-                value={configuration.password || ''}
-                onChange={(e) => onConfigurationChange('password', e.target.value)}
-              />
-            </div>
-          </div>
-        );
-      case 'OAuth2 Client Credentials':
-        return (
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="clientId">Client ID</Label>
-              <Input
-                id="clientId"
-                type="text"
-                placeholder="Enter client ID"
-                value={configuration.clientId || ''}
-                onChange={(e) => onConfigurationChange('clientId', e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="clientSecret">Client Secret</Label>
-              <Input
-                id="clientSecret"
-                type="password"
-                placeholder="Enter client secret"
-                value={configuration.clientSecret || ''}
-                onChange={(e) => onConfigurationChange('clientSecret', e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="tokenUrl">Token URL</Label>
-              <Input
-                id="tokenUrl"
-                type="text"
-                placeholder="Enter token URL"
-                value={configuration.tokenUrl || ''}
-                onChange={(e) => onConfigurationChange('tokenUrl', e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="scope">Scope</Label>
-              <Input
-                id="scope"
-                type="text"
-                placeholder="Enter scope"
-                value={configuration.scope || ''}
-                onChange={(e) => onConfigurationChange('scope', e.target.value)}
-              />
-            </div>
-          </div>
-        );
-      case 'OAuth2 SAML Bearer Assertion':
-        return (
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="assertionToken">Assertion Token</Label>
-              <Input
-                id="assertionToken"
-                type="text"
-                placeholder="Enter assertion token"
-                value={configuration.assertionToken || ''}
-                onChange={(e) => onConfigurationChange('assertionToken', e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="tokenUrl">Token URL</Label>
-              <Input
-                id="tokenUrl"
-                type="text"
-                placeholder="Enter token URL"
-                value={configuration.tokenUrl || ''}
-                onChange={(e) => onConfigurationChange('tokenUrl', e.target.value)}
-              />
-            </div>
-          </div>
-        );
-      case 'Bearer Token':
-        return (
-          <div className="space-y-2">
-            <Label htmlFor="bearerToken">Bearer Token</Label>
-            <Input
-              id="bearerToken"
-              type="password"
-              placeholder="Enter bearer token"
-              value={configuration.bearerToken || ''}
-              onChange={(e) => onConfigurationChange('bearerToken', e.target.value)}
-            />
-          </div>
-        );
-      case 'API Key':
-        return (
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="apiKeyName">API Key Name</Label>
-              <Input
-                id="apiKeyName"
-                type="text"
-                placeholder="Enter API key name"
-                value={configuration.apiKeyName || ''}
-                onChange={(e) => onConfigurationChange('apiKeyName', e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="apiKeyValue">API Key Value</Label>
-              <Input
-                id="apiKeyValue"
-                type="password"
-                placeholder="Enter API key value"
-                value={configuration.apiKeyValue || ''}
-                onChange={(e) => onConfigurationChange('apiKeyValue', e.target.value)}
-              />
-            </div>
-          </div>
-        );
-      case 'Client Certificate':
-        return (
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="certificatePath">Certificate Path</Label>
-              <Input
-                id="certificatePath"
-                type="text"
-                placeholder="Enter certificate path"
-                value={configuration.certificatePath || ''}
-                onChange={(e) => onConfigurationChange('certificatePath', e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="keyPath">Key Path</Label>
-              <Input
-                id="keyPath"
-                type="text"
-                placeholder="Enter key path"
-                value={configuration.keyPath || ''}
-                onChange={(e) => onConfigurationChange('keyPath', e.target.value)}
-              />
-            </div>
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
-
   return (
     <Card>
       <CardHeader>
@@ -207,188 +23,242 @@ export function HttpReceiverAdapterConfiguration({
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="target" className="w-full">
-          <TabsList className="grid w-full grid-cols-1">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="target">Target</TabsTrigger>
+            <TabsTrigger value="processing">Processing</TabsTrigger>
           </TabsList>
 
           <TabsContent value="target" className="space-y-6">
-            {/* Connection Details Section */}
+            {/* Connection Section */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium">Connection Details</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="protocol">Protocol</Label>
-                  <Select 
-                    value={configuration.protocol || ''} 
-                    onValueChange={(value) => onConfigurationChange('protocol', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select protocol" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="HTTP">HTTP</SelectItem>
-                      <SelectItem value="HTTPS">HTTPS</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="contentType">Content Type</Label>
-                  <Select 
-                    value={configuration.contentType || ''} 
-                    onValueChange={(value) => onConfigurationChange('contentType', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select content type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="application/json">application/json</SelectItem>
-                      <SelectItem value="application/xml">application/xml</SelectItem>
-                      <SelectItem value="application/x-www-form-urlencoded">application/x-www-form-urlencoded</SelectItem>
-                      <SelectItem value="text/plain">text/plain</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="host">Host</Label>
-                  <Input
-                    id="host"
-                    type="text"
-                    placeholder="Enter host"
-                    value={configuration.host || ''}
-                    onChange={(e) => onConfigurationChange('host', e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="port">Port</Label>
-                  <Input
-                    id="port"
-                    type="number"
-                    placeholder="Enter port"
-                    value={configuration.port || ''}
-                    onChange={(e) => onConfigurationChange('port', parseInt(e.target.value) || 0)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="path">Path</Label>
-                  <Input
-                    id="path"
-                    type="text"
-                    placeholder="Enter path"
-                    value={configuration.path || ''}
-                    onChange={(e) => onConfigurationChange('path', e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="query">Query</Label>
-                  <Input
-                    id="query"
-                    type="text"
-                    placeholder="Enter query parameters"
-                    value={configuration.query || ''}
-                    onChange={(e) => onConfigurationChange('query', e.target.value)}
-                  />
-                </div>
-              </div>
+              <h3 className="text-lg font-medium">Connection</h3>
               
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="method">Method</Label>
-                  <Select 
-                    value={configuration.method || ''} 
-                    onValueChange={(value) => onConfigurationChange('method', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select method" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {methodOptions.map((method) => (
-                        <SelectItem key={method} value={method}>
-                          {method}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="timeout">Timeout (in ms)</Label>
-                  <Input
-                    id="timeout"
-                    type="number"
-                    placeholder="Enter timeout in milliseconds"
-                    value={configuration.timeout || ''}
-                    onChange={(e) => onConfigurationChange('timeout', parseInt(e.target.value) || 0)}
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="targetEndpointUrl">Target Endpoint URL</Label>
+                <Input
+                  id="targetEndpointUrl"
+                  type="text"
+                  placeholder="Full URL of the 3rd party API endpoint"
+                  value={configuration.targetEndpointUrl || ''}
+                  onChange={(e) => onConfigurationChange('targetEndpointUrl', e.target.value)}
+                />
               </div>
 
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="authenticationType">Authentication</Label>
-                  <Select 
-                    value={configuration.authenticationType || 'None'} 
-                    onValueChange={(value) => onConfigurationChange('authenticationType', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select authentication method" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {getAuthenticationOptions().map((auth) => (
-                        <SelectItem key={auth} value={auth}>
-                          {auth}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                {renderAuthenticationFields()}
+              <div className="space-y-2">
+                <Label htmlFor="httpMethod">HTTP Method</Label>
+                <Select
+                  value={configuration.httpMethod || ''}
+                  onValueChange={(value) => onConfigurationChange('httpMethod', value)}
+                >
+                  <SelectTrigger className="bg-background">
+                    <SelectValue placeholder="Select HTTP method" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border z-50">
+                    <SelectItem value="GET">GET</SelectItem>
+                    <SelectItem value="POST">POST</SelectItem>
+                    <SelectItem value="PUT">PUT</SelectItem>
+                    <SelectItem value="DELETE">DELETE</SelectItem>
+                    <SelectItem value="PATCH">PATCH</SelectItem>
+                    <SelectItem value="HEAD">HEAD</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
-              <div className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="throwExceptionOnFailure"
-                    checked={configuration.throwExceptionOnFailure || false}
-                    onCheckedChange={(checked) => onConfigurationChange('throwExceptionOnFailure', checked)}
-                  />
-                  <Label htmlFor="throwExceptionOnFailure">Throw Exception on Failure</Label>
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="attachErrorDetailsOnFailure"
-                    checked={configuration.attachErrorDetailsOnFailure || false}
-                    onCheckedChange={(checked) => onConfigurationChange('attachErrorDetailsOnFailure', checked)}
-                  />
-                  <Label htmlFor="attachErrorDetailsOnFailure">Attach Error Details on Failure</Label>
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="connectionTimeout">Connection Timeout</Label>
+                <Input
+                  id="connectionTimeout"
+                  type="number"
+                  placeholder="Max time to wait to establish connection (seconds)"
+                  value={configuration.connectionTimeout || ''}
+                  onChange={(e) => onConfigurationChange('connectionTimeout', parseInt(e.target.value) || 0)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="readTimeout">Read Timeout</Label>
+                <Input
+                  id="readTimeout"
+                  type="number"
+                  placeholder="Max time to wait for response (seconds)"
+                  value={configuration.readTimeout || ''}
+                  onChange={(e) => onConfigurationChange('readTimeout', parseInt(e.target.value) || 0)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="proxySettings">Proxy Settings</Label>
+                <Textarea
+                  id="proxySettings"
+                  placeholder="Optional proxy host and port if applicable"
+                  value={configuration.proxySettings || ''}
+                  onChange={(e) => onConfigurationChange('proxySettings', e.target.value)}
+                  className="min-h-[80px]"
+                />
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="processing" className="space-y-6">
+            {/* Security Section */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Security</h3>
+              
+              <div className="space-y-2">
+                <Label htmlFor="authenticationType">Authentication Type</Label>
+                <Select
+                  value={configuration.authenticationType || ''}
+                  onValueChange={(value) => onConfigurationChange('authenticationType', value)}
+                >
+                  <SelectTrigger className="bg-background">
+                    <SelectValue placeholder="Select authentication method" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border z-50">
+                    <SelectItem value="none">None</SelectItem>
+                    <SelectItem value="basic">Basic</SelectItem>
+                    <SelectItem value="oauth2-client-credentials">OAuth2 Client Credentials</SelectItem>
+                    <SelectItem value="client-certificate">Client Certificate</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {configuration.authenticationType === 'basic' && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="basicUsername">Username</Label>
+                    <Input
+                      id="basicUsername"
+                      type="text"
+                      placeholder="Basic auth username"
+                      value={configuration.basicUsername || ''}
+                      onChange={(e) => onConfigurationChange('basicUsername', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="basicPassword">Password</Label>
+                    <Input
+                      id="basicPassword"
+                      type="password"
+                      placeholder="Basic auth password"
+                      value={configuration.basicPassword || ''}
+                      onChange={(e) => onConfigurationChange('basicPassword', e.target.value)}
+                    />
+                  </div>
+                </>
+              )}
+
+              {configuration.authenticationType === 'oauth2-client-credentials' && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="clientId">Client ID</Label>
+                    <Input
+                      id="clientId"
+                      type="text"
+                      placeholder="OAuth2 client ID"
+                      value={configuration.clientId || ''}
+                      onChange={(e) => onConfigurationChange('clientId', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="clientSecret">Client Secret</Label>
+                    <Input
+                      id="clientSecret"
+                      type="password"
+                      placeholder="OAuth2 client secret"
+                      value={configuration.clientSecret || ''}
+                      onChange={(e) => onConfigurationChange('clientSecret', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="tokenUrl">Token URL</Label>
+                    <Input
+                      id="tokenUrl"
+                      type="text"
+                      placeholder="OAuth2 token endpoint URL"
+                      value={configuration.tokenUrl || ''}
+                      onChange={(e) => onConfigurationChange('tokenUrl', e.target.value)}
+                    />
+                  </div>
+                </>
+              )}
+
+              {configuration.authenticationType === 'client-certificate' && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="certificatePath">Certificate Path</Label>
+                    <Input
+                      id="certificatePath"
+                      type="text"
+                      placeholder="Path to client certificate"
+                      value={configuration.certificatePath || ''}
+                      onChange={(e) => onConfigurationChange('certificatePath', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="privateKeyPath">Private Key Path</Label>
+                    <Input
+                      id="privateKeyPath"
+                      type="text"
+                      placeholder="Path to private key"
+                      value={configuration.privateKeyPath || ''}
+                      onChange={(e) => onConfigurationChange('privateKeyPath', e.target.value)}
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Request Section */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Request</h3>
+              
+              <div className="space-y-2">
+                <Label htmlFor="requestHeaders">Request Headers</Label>
+                <Textarea
+                  id="requestHeaders"
+                  placeholder="Headers to send with the HTTP request"
+                  value={configuration.requestHeaders || ''}
+                  onChange={(e) => onConfigurationChange('requestHeaders', e.target.value)}
+                  className="min-h-[80px]"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="requestPayloadFormat">Request Payload Format</Label>
+                <Textarea
+                  id="requestPayloadFormat"
+                  placeholder="Expected format/schema for request body"
+                  value={configuration.requestPayloadFormat || ''}
+                  onChange={(e) => onConfigurationChange('requestPayloadFormat', e.target.value)}
+                  className="min-h-[80px]"
+                />
               </div>
             </div>
 
-            {/* Header Details Section */}
+            {/* Response Section */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium">Header Details</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="requestHeaders">Request Headers</Label>
-                  <Textarea
-                    id="requestHeaders"
-                    placeholder="Enter request headers (key: value format, one per line)"
-                    value={configuration.requestHeaders || ''}
-                    onChange={(e) => onConfigurationChange('requestHeaders', e.target.value)}
-                    rows={4}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="responseHeaders">Response Headers</Label>
-                  <Textarea
-                    id="responseHeaders"
-                    placeholder="Enter response headers (key: value format, one per line)"
-                    value={configuration.responseHeaders || ''}
-                    onChange={(e) => onConfigurationChange('responseHeaders', e.target.value)}
-                    rows={4}
-                  />
-                </div>
+              <h3 className="text-lg font-medium">Response</h3>
+              
+              <div className="space-y-2">
+                <Label htmlFor="responseHandling">Response Handling</Label>
+                <Textarea
+                  id="responseHandling"
+                  placeholder="Expected response format and handling logic"
+                  value={configuration.responseHandling || ''}
+                  onChange={(e) => onConfigurationChange('responseHandling', e.target.value)}
+                  className="min-h-[80px]"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="retryPolicy">Retry Policy</Label>
+                <Textarea
+                  id="retryPolicy"
+                  placeholder="Rules for retrying failed requests"
+                  value={configuration.retryPolicy || ''}
+                  onChange={(e) => onConfigurationChange('retryPolicy', e.target.value)}
+                  className="min-h-[80px]"
+                />
               </div>
             </div>
           </TabsContent>
