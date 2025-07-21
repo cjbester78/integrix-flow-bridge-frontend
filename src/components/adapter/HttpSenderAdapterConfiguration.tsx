@@ -229,7 +229,6 @@ export function HttpSenderAdapterConfiguration({
                     <SelectValue placeholder="Select authentication method" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">None</SelectItem>
                     <SelectItem value="basic">Basic Auth</SelectItem>
                     <SelectItem value="oauth2-bearer">OAuth2 Bearer Token</SelectItem>
                     <SelectItem value="api-key">API Key</SelectItem>
