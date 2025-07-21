@@ -136,7 +136,7 @@ export function JmsReceiverAdapterConfiguration({
                 <div className="space-y-2">
                   <Label htmlFor="transportType">Transport Type *</Label>
                   <Select
-                    value={adapter.configuration.transportType || ''}
+                    value={adapter.configuration.transportType || 'CLIENT'}
                     onValueChange={(value) => handleInputChange('transportType', value)}
                   >
                     <SelectTrigger>
