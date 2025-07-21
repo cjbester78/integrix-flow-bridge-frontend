@@ -596,7 +596,7 @@ export const CreateCommunicationAdapter = () => {
                 </Select>
               </div>
               
-          {selectedAdapterConfig && adapterMode && (
+          {selectedAdapterConfig && (
                 <>
                   <div className="p-3 bg-muted/50 rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
@@ -630,7 +630,7 @@ export const CreateCommunicationAdapter = () => {
             </CardContent>
           </Card>
 
-          {selectedAdapterConfig && (
+          {selectedAdapterConfig && adapterMode && (
             <Card className="animate-scale-in" style={{ animationDelay: '0.2s' }}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
