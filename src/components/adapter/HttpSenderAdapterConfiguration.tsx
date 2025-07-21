@@ -164,14 +164,14 @@ export function HttpSenderAdapterConfiguration({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="sourceStructure">Source Structure</Label>
+                <Label htmlFor="requestPayloadFormat">Request Payload Format</Label>
                 <Select
-                  value={configuration.sourceStructureId || ''}
-                  onValueChange={(value) => onConfigurationChange('sourceStructureId', value)}
+                  value={configuration.requestPayloadFormat || ''}
+                  onValueChange={(value) => onConfigurationChange('requestPayloadFormat', value)}
                   disabled={!selectedBusinessComponentId || sourceStructures.length === 0}
                 >
                   <SelectTrigger className="bg-background">
-                    <SelectValue placeholder="Select source structure" />
+                    <SelectValue placeholder="Select request structure" />
                   </SelectTrigger>
                   <SelectContent className="bg-background border z-50">
                     {sourceStructures.map((structure) => (
@@ -182,27 +182,25 @@ export function HttpSenderAdapterConfiguration({
                   </SelectContent>
                 </Select>
               </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="requestPayloadFormat">Request Payload Format</Label>
-                <Textarea
-                  id="requestPayloadFormat"
-                  placeholder="Expected format and schema of the incoming data"
-                  value={configuration.requestPayloadFormat || ''}
-                  onChange={(e) => onConfigurationChange('requestPayloadFormat', e.target.value)}
-                  className="min-h-[80px]"
-                />
-              </div>
 
               <div className="space-y-2">
                 <Label htmlFor="responseFormat">Response Format</Label>
-                <Textarea
-                  id="responseFormat"
-                  placeholder="Format and schema of the response sent back"
+                <Select
                   value={configuration.responseFormat || ''}
-                  onChange={(e) => onConfigurationChange('responseFormat', e.target.value)}
-                  className="min-h-[80px]"
-                />
+                  onValueChange={(value) => onConfigurationChange('responseFormat', value)}
+                  disabled={!selectedBusinessComponentId || sourceStructures.length === 0}
+                >
+                  <SelectTrigger className="bg-background">
+                    <SelectValue placeholder="Select response structure" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border z-50">
+                    {sourceStructures.map((structure) => (
+                      <SelectItem key={structure.id} value={structure.id}>
+                        {structure.name} ({structure.type})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-2">
