@@ -1,0 +1,393 @@
+import { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
+
+interface FtpAdapterConfigurationProps {
+  onConfigChange?: (config: FtpAdapterConfig) => void;
+}
+
+interface FileAccessAdvancedEntry {
+  directory: string;
+  fileName: string;
+  exclusionMask: string;
+}
+
+interface FtpAdapterConfig {
+  // Source Tab - File Access Parameters
+  sourceDirectory: string;
+  fileName: string;
+  advancedSelection: boolean;
+  advancedEntries: FileAccessAdvancedEntry[];
+  
+  // Source Tab - Connection Parameters
+  serverAddress: string;
+  port: string;
+  timeout: string;
+  connectionSecurity: string;
+  userName: string;
+  password: string;
+  connectionMode: string;
+  
+  // Processing Tab - Processing Parameters
+  pollingInterval: string;
+  processingMode: string;
+  emptyFileHandling: string;
+  
+  // Processing Tab - Duplicate Handling
+  enableDuplicateHandling: boolean;
+  duplicateMessageAlertThreshold: string;
+  disableChannelOnExceed: boolean;
+}
+
+export const FtpAdapterConfiguration = ({ onConfigChange }: FtpAdapterConfigurationProps) => {
+  const [config, setConfig] = useState<FtpAdapterConfig>({
+    sourceDirectory: '',
+    fileName: '',
+    advancedSelection: false,
+    advancedEntries: [{ directory: '', fileName: '', exclusionMask: '' }],
+    serverAddress: '',
+    port: '',
+    timeout: '',
+    connectionSecurity: '',
+    userName: '',
+    password: '',
+    connectionMode: '',
+    pollingInterval: '',
+    processingMode: '',
+    emptyFileHandling: '',
+    enableDuplicateHandling: false,
+    duplicateMessageAlertThreshold: '',
+    disableChannelOnExceed: false,
+  });
+
+  const updateConfig = (updates: Partial<FtpAdapterConfig>) => {
+    const newConfig = { ...config, ...updates };
+    setConfig(newConfig);
+    onConfigChange?.(newConfig);
+  };
+
+  const addAdvancedEntry = () => {
+    const newEntries = [...config.advancedEntries, { directory: '', fileName: '', exclusionMask: '' }];
+    updateConfig({ advancedEntries: newEntries });
+  };
+
+  const updateAdvancedEntry = (index: number, field: keyof FileAccessAdvancedEntry, value: string) => {
+    const newEntries = [...config.advancedEntries];
+    newEntries[index] = { ...newEntries[index], [field]: value };
+    updateConfig({ advancedEntries: newEntries });
+  };
+
+  const removeAdvancedEntry = (index: number) => {
+    if (config.advancedEntries.length > 1) {
+      const newEntries = config.advancedEntries.filter((_, i) => i !== index);
+      updateConfig({ advancedEntries: newEntries });
+    }
+  };
+
+  return (
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle>FTP Sender Adapter Configuration</CardTitle>
+        <CardDescription>Configure your FTP sender adapter settings</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Tabs defaultValue="source" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="source">Source</TabsTrigger>
+            <TabsTrigger value="processing">Processing</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="source" className="space-y-6 mt-6">
+            {/* File Access Parameters Section */}
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-semibold mb-4">File Access Parameters</h3>
+                <Separator className="mb-4" />
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="sourceDirectory">Source Directory *</Label>
+                  <Input
+                    id="sourceDirectory"
+                    value={config.sourceDirectory}
+                    onChange={(e) => updateConfig({ sourceDirectory: e.target.value })}
+                    placeholder="Enter source directory path"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="fileName">File Name *</Label>
+                  <Input
+                    id="fileName"
+                    value={config.fileName}
+                    onChange={(e) => updateConfig({ fileName: e.target.value })}
+                    placeholder="Enter file name pattern"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="advancedSelection"
+                    checked={config.advancedSelection}
+                    onCheckedChange={(checked) => updateConfig({ advancedSelection: checked === true })}
+                  />
+                  <Label htmlFor="advancedSelection">Advanced selection for Source files</Label>
+                </div>
+
+                {config.advancedSelection && (
+                  <div className="space-y-4 p-4 border rounded-lg bg-muted/20">
+                    <div className="flex justify-between items-center">
+                      <Label className="text-sm font-medium">Multiple File Selection</Label>
+                      <button
+                        type="button"
+                        onClick={addAdvancedEntry}
+                        className="text-sm text-primary hover:underline"
+                      >
+                        + Add Entry
+                      </button>
+                    </div>
+                    
+                    {config.advancedEntries.map((entry, index) => (
+                      <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
+                        <div className="space-y-1">
+                          <Label className="text-xs">Directory</Label>
+                          <Input
+                            value={entry.directory}
+                            onChange={(e) => updateAdvancedEntry(index, 'directory', e.target.value)}
+                            placeholder="Directory path"
+                            className="text-sm"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">File Name</Label>
+                          <Input
+                            value={entry.fileName}
+                            onChange={(e) => updateAdvancedEntry(index, 'fileName', e.target.value)}
+                            placeholder="File name pattern"
+                            className="text-sm"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Exclusion Mask</Label>
+                          <Input
+                            value={entry.exclusionMask}
+                            onChange={(e) => updateAdvancedEntry(index, 'exclusionMask', e.target.value)}
+                            placeholder="Exclusion pattern"
+                            className="text-sm"
+                          />
+                        </div>
+                        {config.advancedEntries.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removeAdvancedEntry(index)}
+                            className="text-xs text-destructive hover:underline self-end pb-2"
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Connection Parameters Section */}
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Connection Parameters</h3>
+                <Separator className="mb-4" />
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="serverAddress">Server Address *</Label>
+                  <Input
+                    id="serverAddress"
+                    value={config.serverAddress}
+                    onChange={(e) => updateConfig({ serverAddress: e.target.value })}
+                    placeholder="Enter server address"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="port">Port *</Label>
+                  <Input
+                    id="port"
+                    value={config.port}
+                    onChange={(e) => updateConfig({ port: e.target.value })}
+                    placeholder="Enter port number"
+                    type="number"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="timeout">Timeout</Label>
+                  <Input
+                    id="timeout"
+                    value={config.timeout}
+                    onChange={(e) => updateConfig({ timeout: e.target.value })}
+                    placeholder="Timeout in seconds"
+                    type="number"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="connectionSecurity">Connection Security *</Label>
+                  <Select value={config.connectionSecurity} onValueChange={(value) => updateConfig({ connectionSecurity: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select connection security" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="explicit-ftps">Explicit FTPS</SelectItem>
+                      <SelectItem value="implicit-ftps">Implicit FTPS</SelectItem>
+                      <SelectItem value="plain-ftp">Plain FTP - no encryption</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="userName">User Name *</Label>
+                  <Input
+                    id="userName"
+                    value={config.userName}
+                    onChange={(e) => updateConfig({ userName: e.target.value })}
+                    placeholder="Enter username"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password *</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={config.password}
+                    onChange={(e) => updateConfig({ password: e.target.value })}
+                    placeholder="Enter password"
+                  />
+                </div>
+                
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="connectionMode">Connection Mode *</Label>
+                  <Select value={config.connectionMode} onValueChange={(value) => updateConfig({ connectionMode: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select connection mode" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="permanently">Permanently</SelectItem>
+                      <SelectItem value="per-file-transfer">Per File Transfer</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="processing" className="space-y-6 mt-6">
+            {/* Processing Parameters Section */}
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Processing Parameters</h3>
+                <Separator className="mb-4" />
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="pollingInterval">Polling Interval (Secs) *</Label>
+                  <Input
+                    id="pollingInterval"
+                    value={config.pollingInterval}
+                    onChange={(e) => updateConfig({ pollingInterval: e.target.value })}
+                    placeholder="Enter polling interval in seconds"
+                    type="number"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="processingMode">Processing Mode *</Label>
+                  <Select value={config.processingMode} onValueChange={(value) => updateConfig({ processingMode: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select processing mode" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="archive">Archive</SelectItem>
+                      <SelectItem value="delete">Delete</SelectItem>
+                      <SelectItem value="test">Test</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="emptyFileHandling">Empty File Handling *</Label>
+                  <Select value={config.emptyFileHandling} onValueChange={(value) => updateConfig({ emptyFileHandling: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select empty file handling" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="do-not-create">Do not create message</SelectItem>
+                      <SelectItem value="process-empty">Process empty files</SelectItem>
+                      <SelectItem value="skip-empty">Skip empty files</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
+            {/* Duplicate Handling Section */}
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Duplicate Handling</h3>
+                <Separator className="mb-4" />
+              </div>
+              
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="enableDuplicateHandling"
+                    checked={config.enableDuplicateHandling}
+                    onCheckedChange={(checked) => updateConfig({ enableDuplicateHandling: checked === true })}
+                  />
+                  <Label htmlFor="enableDuplicateHandling">Enable Duplicate Handling</Label>
+                </div>
+
+                {config.enableDuplicateHandling && (
+                  <div className="space-y-4 p-4 border rounded-lg bg-muted/20">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="duplicateThreshold">Duplicate Message Alert Threshold *</Label>
+                        <Input
+                          id="duplicateThreshold"
+                          value={config.duplicateMessageAlertThreshold}
+                          onChange={(e) => updateConfig({ duplicateMessageAlertThreshold: e.target.value })}
+                          placeholder="Enter threshold value"
+                          type="number"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="disableChannelOnExceed"
+                        checked={config.disableChannelOnExceed}
+                        onCheckedChange={(checked) => updateConfig({ disableChannelOnExceed: checked === true })}
+                      />
+                      <Label htmlFor="disableChannelOnExceed">Disable Channel if Duplicate threshold has been exceeded</Label>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
+  );
+};
