@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { useBusinessComponentAdapters } from '@/hooks/useBusinessComponentAdapters';
+import { useDataStructures } from '@/hooks/useDataStructures';
 
 interface HttpSenderAdapterConfigurationProps {
   configuration: any;
@@ -15,6 +17,22 @@ export function HttpSenderAdapterConfiguration({
   configuration,
   onConfigurationChange
 }: HttpSenderAdapterConfigurationProps) {
+  const { businessComponents, loading } = useBusinessComponentAdapters();
+  const { structures } = useDataStructures();
+  const [selectedBusinessComponentId, setSelectedBusinessComponentId] = useState<string>('');
+  const [sourceStructures, setSourceStructures] = useState<any[]>([]);
+
+  // Filter structures based on selected business component
+  useEffect(() => {
+    if (selectedBusinessComponentId) {
+      const filteredStructures = structures.filter(
+        structure => structure.usage === 'source'
+      );
+      setSourceStructures(filteredStructures);
+    } else {
+      setSourceStructures([]);
+    }
+  }, [selectedBusinessComponentId, structures]);
   return (
     <Card>
       <CardHeader>
@@ -121,6 +139,49 @@ export function HttpSenderAdapterConfiguration({
             {/* Data Handling Section */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Data Handling</h3>
+              
+              <div className="space-y-2">
+                <Label htmlFor="businessComponent">Business Component</Label>
+                <Select
+                  value={selectedBusinessComponentId}
+                  onValueChange={(value) => {
+                    setSelectedBusinessComponentId(value);
+                    onConfigurationChange('businessComponentId', value);
+                  }}
+                  disabled={loading}
+                >
+                  <SelectTrigger className="bg-background">
+                    <SelectValue placeholder="Select a business component" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border z-50">
+                    {businessComponents.map((businessComponent) => (
+                      <SelectItem key={businessComponent.id} value={businessComponent.id}>
+                        {businessComponent.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="sourceStructure">Source Structure</Label>
+                <Select
+                  value={configuration.sourceStructureId || ''}
+                  onValueChange={(value) => onConfigurationChange('sourceStructureId', value)}
+                  disabled={!selectedBusinessComponentId || sourceStructures.length === 0}
+                >
+                  <SelectTrigger className="bg-background">
+                    <SelectValue placeholder="Select source structure" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border z-50">
+                    {sourceStructures.map((structure) => (
+                      <SelectItem key={structure.id} value={structure.id}>
+                        {structure.name} ({structure.type})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               
               <div className="space-y-2">
                 <Label htmlFor="requestPayloadFormat">Request Payload Format</Label>
