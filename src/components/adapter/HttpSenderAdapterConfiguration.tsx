@@ -171,10 +171,10 @@ export function HttpSenderAdapterConfiguration({
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">None</SelectItem>
-                    <SelectItem value="basic">Basic</SelectItem>
-                    <SelectItem value="oauth2-client-credentials">OAuth2 Client Credentials</SelectItem>
-                    <SelectItem value="oauth2-saml-bearer">OAuth2 SAML Bearer Assertion</SelectItem>
-                    <SelectItem value="client-certificate">Client Certificate</SelectItem>
+                    <SelectItem value="basic">Basic Auth</SelectItem>
+                    <SelectItem value="oauth2-bearer">OAuth2 Bearer Token</SelectItem>
+                    <SelectItem value="api-key">API Key</SelectItem>
+                    <SelectItem value="jwt">JWT</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -204,62 +204,74 @@ export function HttpSenderAdapterConfiguration({
                 </>
               )}
 
-              {configuration.authenticationType === 'oauth2-client-credentials' && (
+              {configuration.authenticationType === 'oauth2-bearer' && (
+                <div className="space-y-2">
+                  <Label htmlFor="bearerToken">Bearer Token</Label>
+                  <Input
+                    id="bearerToken"
+                    type="password"
+                    placeholder="OAuth2 bearer token"
+                    value={configuration.bearerToken || ''}
+                    onChange={(e) => onConfigurationChange('bearerToken', e.target.value)}
+                  />
+                </div>
+              )}
+
+              {configuration.authenticationType === 'api-key' && (
                 <>
                   <div className="space-y-2">
-                    <Label htmlFor="clientId">Client ID</Label>
+                    <Label htmlFor="apiKeyName">API Key Name</Label>
                     <Input
-                      id="clientId"
+                      id="apiKeyName"
                       type="text"
-                      placeholder="OAuth2 client ID"
-                      value={configuration.clientId || ''}
-                      onChange={(e) => onConfigurationChange('clientId', e.target.value)}
+                      placeholder="API key header name (e.g., X-API-Key)"
+                      value={configuration.apiKeyName || ''}
+                      onChange={(e) => onConfigurationChange('apiKeyName', e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="clientSecret">Client Secret</Label>
+                    <Label htmlFor="apiKeyValue">API Key Value</Label>
                     <Input
-                      id="clientSecret"
+                      id="apiKeyValue"
                       type="password"
-                      placeholder="OAuth2 client secret"
-                      value={configuration.clientSecret || ''}
-                      onChange={(e) => onConfigurationChange('clientSecret', e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="tokenUrl">Token URL</Label>
-                    <Input
-                      id="tokenUrl"
-                      type="text"
-                      placeholder="OAuth2 token endpoint URL"
-                      value={configuration.tokenUrl || ''}
-                      onChange={(e) => onConfigurationChange('tokenUrl', e.target.value)}
+                      placeholder="API key value"
+                      value={configuration.apiKeyValue || ''}
+                      onChange={(e) => onConfigurationChange('apiKeyValue', e.target.value)}
                     />
                   </div>
                 </>
               )}
 
-              {configuration.authenticationType === 'client-certificate' && (
+              {configuration.authenticationType === 'jwt' && (
                 <>
                   <div className="space-y-2">
-                    <Label htmlFor="certificatePath">Certificate Path</Label>
-                    <Input
-                      id="certificatePath"
-                      type="text"
-                      placeholder="Path to client certificate"
-                      value={configuration.certificatePath || ''}
-                      onChange={(e) => onConfigurationChange('certificatePath', e.target.value)}
+                    <Label htmlFor="jwtToken">JWT Token</Label>
+                    <Textarea
+                      id="jwtToken"
+                      placeholder="JWT token or signing key"
+                      value={configuration.jwtToken || ''}
+                      onChange={(e) => onConfigurationChange('jwtToken', e.target.value)}
+                      className="min-h-[80px]"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="privateKeyPath">Private Key Path</Label>
-                    <Input
-                      id="privateKeyPath"
-                      type="text"
-                      placeholder="Path to private key"
-                      value={configuration.privateKeyPath || ''}
-                      onChange={(e) => onConfigurationChange('privateKeyPath', e.target.value)}
-                    />
+                    <Label htmlFor="jwtAlgorithm">JWT Algorithm</Label>
+                    <Select
+                      value={configuration.jwtAlgorithm || ''}
+                      onValueChange={(value) => onConfigurationChange('jwtAlgorithm', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select JWT algorithm" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="HS256">HS256</SelectItem>
+                        <SelectItem value="HS384">HS384</SelectItem>
+                        <SelectItem value="HS512">HS512</SelectItem>
+                        <SelectItem value="RS256">RS256</SelectItem>
+                        <SelectItem value="RS384">RS384</SelectItem>
+                        <SelectItem value="RS512">RS512</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </>
               )}
