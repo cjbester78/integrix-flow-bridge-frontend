@@ -596,7 +596,7 @@ export const CreateCommunicationAdapter = () => {
                 </Select>
               </div>
               
-              {selectedAdapterConfig && (
+          {selectedAdapterConfig && adapterMode && (
                 <>
                   <div className="p-3 bg-muted/50 rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
