@@ -18,6 +18,8 @@ import { FtpAdapterConfiguration } from '@/components/adapter/FtpAdapterConfigur
 import { SftpAdapterConfiguration } from '@/components/adapter/SftpAdapterConfiguration';
 import { HttpSenderAdapterConfiguration } from '@/components/adapter/HttpSenderAdapterConfiguration';
 import { HttpReceiverAdapterConfiguration } from '@/components/adapter/HttpReceiverAdapterConfiguration';
+import { IdocSenderAdapterConfiguration } from '@/components/adapter/IdocSenderAdapterConfiguration';
+import { IdocReceiverAdapterConfiguration } from '@/components/adapter/IdocReceiverAdapterConfiguration';
 import { useToast } from '@/hooks/use-toast';
 import { adapterService } from '@/services/adapter';
 import { 
@@ -648,6 +650,16 @@ export const CreateCommunicationAdapter = () => {
                 />
               ) : selectedAdapter === 'http' && adapterMode === 'receiver' ? (
                 <HttpReceiverAdapterConfiguration 
+                  configuration={configuration} 
+                  onConfigurationChange={(field, value) => handleConfigurationChange(field, value)} 
+                />
+              ) : selectedAdapter === 'idoc' && adapterMode === 'sender' ? (
+                <IdocSenderAdapterConfiguration 
+                  configuration={configuration} 
+                  onConfigurationChange={(field, value) => handleConfigurationChange(field, value)} 
+                />
+              ) : selectedAdapter === 'idoc' && adapterMode === 'receiver' ? (
+                <IdocReceiverAdapterConfiguration 
                   configuration={configuration} 
                   onConfigurationChange={(field, value) => handleConfigurationChange(field, value)} 
                 />
