@@ -16,7 +16,11 @@ const methodOptions = [
   'Dynamic', 'Get', 'Post', 'Put', 'Delete', 'Head', 'Trace', 'Patch'
 ];
 
-const authenticationOptions = [
+const httpAuthenticationOptions = [
+  'None', 'Basic', 'Bearer Token', 'API Key'
+];
+
+const httpsAuthenticationOptions = [
   'None', 'Basic', 'OAuth2 Client Credentials', 'OAuth2 SAML Bearer Assertion', 'Client Certificate'
 ];
 
@@ -24,6 +28,10 @@ export function HttpReceiverAdapterConfiguration({
   configuration,
   onConfigurationChange
 }: HttpReceiverAdapterConfigurationProps) {
+  const getAuthenticationOptions = () => {
+    return configuration.protocol === 'HTTPS' ? httpsAuthenticationOptions : httpAuthenticationOptions;
+  };
+
   const renderAuthenticationFields = () => {
     const authType = configuration.authenticationType;
     
@@ -119,6 +127,44 @@ export function HttpReceiverAdapterConfiguration({
                 placeholder="Enter token URL"
                 value={configuration.tokenUrl || ''}
                 onChange={(e) => onConfigurationChange('tokenUrl', e.target.value)}
+              />
+            </div>
+          </div>
+        );
+      case 'Bearer Token':
+        return (
+          <div className="space-y-2">
+            <Label htmlFor="bearerToken">Bearer Token</Label>
+            <Input
+              id="bearerToken"
+              type="password"
+              placeholder="Enter bearer token"
+              value={configuration.bearerToken || ''}
+              onChange={(e) => onConfigurationChange('bearerToken', e.target.value)}
+            />
+          </div>
+        );
+      case 'API Key':
+        return (
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="apiKeyName">API Key Name</Label>
+              <Input
+                id="apiKeyName"
+                type="text"
+                placeholder="Enter API key name"
+                value={configuration.apiKeyName || ''}
+                onChange={(e) => onConfigurationChange('apiKeyName', e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="apiKeyValue">API Key Value</Label>
+              <Input
+                id="apiKeyValue"
+                type="password"
+                placeholder="Enter API key value"
+                value={configuration.apiKeyValue || ''}
+                onChange={(e) => onConfigurationChange('apiKeyValue', e.target.value)}
               />
             </div>
           </div>
@@ -286,7 +332,7 @@ export function HttpReceiverAdapterConfiguration({
                       <SelectValue placeholder="Select authentication method" />
                     </SelectTrigger>
                     <SelectContent>
-                      {authenticationOptions.map((auth) => (
+                      {getAuthenticationOptions().map((auth) => (
                         <SelectItem key={auth} value={auth}>
                           {auth}
                         </SelectItem>
