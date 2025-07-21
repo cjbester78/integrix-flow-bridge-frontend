@@ -36,8 +36,9 @@ export function JmsReceiverAdapterConfiguration({
   return (
     <div className="space-y-6">
       <Tabs defaultValue="source" className="w-full">
-        <TabsList className="grid w-full grid-cols-1">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="source">Source</TabsTrigger>
+          <TabsTrigger value="processing">Processing Details</TabsTrigger>
         </TabsList>
 
         <TabsContent value="source" className="space-y-6">
@@ -123,17 +124,6 @@ export function JmsReceiverAdapterConfiguration({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="queueName">Queue Name *</Label>
-                  <Input
-                    id="queueName"
-                    placeholder="INBOUND.FILE.QUEUE"
-                    value={adapter.configuration.queueName || ''}
-                    onChange={(e) => handleInputChange('queueName', e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
                   <Label htmlFor="transportType">Transport Type *</Label>
                   <Select
                     value={adapter.configuration.transportType || 'CLIENT'}
@@ -167,6 +157,62 @@ export function JmsReceiverAdapterConfiguration({
                     required={false}
                     value={adapter.configuration.password || ''}
                     onValueChange={(value) => handleInputChange('password', value)}
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="useSSL"
+                  checked={adapter.configuration.useSSL || false}
+                  onCheckedChange={(checked) => handleInputChange('useSSL', checked)}
+                />
+                <Label htmlFor="useSSL">Use SSL/TLS</Label>
+              </div>
+
+              {adapter.configuration.useSSL && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="sslKeystore">SSL Keystore Path</Label>
+                    <Input
+                      id="sslKeystore"
+                      placeholder="/path/to/keystore"
+                      value={adapter.configuration.sslKeystore || ''}
+                      onChange={(e) => handleInputChange('sslKeystore', e.target.value)}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="sslPassword">SSL Keystore Password</Label>
+                    <Input
+                      id="sslPassword"
+                      type="password"
+                      placeholder="Keystore Password"
+                      value={adapter.configuration.sslPassword || ''}
+                      onChange={(e) => handleInputChange('sslPassword', e.target.value)}
+                    />
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="processing" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Processing Details</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="queueName">Queue Name *</Label>
+                  <Input
+                    id="queueName"
+                    placeholder="INBOUND.FILE.QUEUE"
+                    value={adapter.configuration.queueName || ''}
+                    onChange={(e) => handleInputChange('queueName', e.target.value)}
+                    required
                   />
                 </div>
 
@@ -222,41 +268,6 @@ export function JmsReceiverAdapterConfiguration({
                   </Select>
                 </div>
               </div>
-
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="useSSL"
-                  checked={adapter.configuration.useSSL || false}
-                  onCheckedChange={(checked) => handleInputChange('useSSL', checked)}
-                />
-                <Label htmlFor="useSSL">Use SSL/TLS</Label>
-              </div>
-
-              {adapter.configuration.useSSL && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="sslKeystore">SSL Keystore Path</Label>
-                    <Input
-                      id="sslKeystore"
-                      placeholder="/path/to/keystore"
-                      value={adapter.configuration.sslKeystore || ''}
-                      onChange={(e) => handleInputChange('sslKeystore', e.target.value)}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="sslPassword">SSL Keystore Password</Label>
-                    <Input
-                      id="sslPassword"
-                      type="password"
-                      placeholder="Keystore Password"
-                      value={adapter.configuration.sslPassword || ''}
-                      onChange={(e) => handleInputChange('sslPassword', e.target.value)}
-                    />
-                  </div>
-                </div>
-              )}
-
             </CardContent>
           </Card>
         </TabsContent>
