@@ -46,11 +46,9 @@ export const PasswordConfirmation = React.forwardRef<
     }
   }
 
-  console.log('PasswordConfirmation rendering:', { name, label, value, password, confirmPassword });
   
   return (
-    <div ref={ref} className={cn("space-y-3 border-2 border-red-500 p-4", className)}>
-      <div className="text-red-500 font-bold">PASSWORD CONFIRMATION COMPONENT</div>
+    <div ref={ref} className={cn("space-y-3", className)}>
       <div className="space-y-2">
         <Label htmlFor={name} className="flex items-center gap-1">
           {label}
