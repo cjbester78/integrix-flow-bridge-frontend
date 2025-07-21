@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Combobox } from '@/components/ui/combobox';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -581,28 +582,25 @@ export const CreateCommunicationAdapter = () => {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="adapterType">Adapter Type *</Label>
-                <Select value={selectedAdapter} onValueChange={(value) => {
-                  setSelectedAdapter(value);
-                  // Clear configuration including auth methods when adapter changes
-                  setConfiguration({});
-                }}>
-                  <SelectTrigger className="transition-all duration-300 hover:bg-accent/50">
-                    <SelectValue placeholder="Select communication adapter type" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-card border-border shadow-lg max-h-60">
-                    {communicationAdapters.map((adapter) => (
-                      <SelectItem key={adapter.id} value={adapter.id}>
-                        <div className="flex items-center gap-3 py-1">
-                          <adapter.icon className="h-4 w-4 text-primary" />
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">{adapter.name}</span>
-                            <Badge variant="outline" className="text-xs">{adapter.category}</Badge>
-                          </div>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Combobox
+                  options={communicationAdapters.map((adapter) => ({
+                    value: adapter.id,
+                    label: adapter.name,
+                    icon: adapter.icon,
+                    category: adapter.category,
+                    description: adapter.description
+                  }))}
+                  value={selectedAdapter}
+                  onValueChange={(value) => {
+                    setSelectedAdapter(value);
+                    // Clear configuration including auth methods when adapter changes
+                    setConfiguration({});
+                  }}
+                  placeholder="Select communication adapter type"
+                  searchPlaceholder="Search adapters..."
+                  emptyMessage="No adapter found."
+                  className="transition-all duration-300 hover:bg-accent/50"
+                />
               </div>
               
           {selectedAdapterConfig && (
