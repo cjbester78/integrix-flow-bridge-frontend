@@ -15,6 +15,8 @@ interface VisualMappingCanvasProps {
   onCreateMapping: (mapping: FieldMapping) => void;
   onRemoveMapping: (mappingId: string) => void;
   onDragEnd: () => void;
+  currentTargetField?: FieldNode; // Field currently being mapped
+  selectedSourceStructure?: string; // Selected source structure name
 }
 
 interface Connection {
@@ -43,7 +45,9 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
   onUpdateMapping,
   onCreateMapping,
   onRemoveMapping,
-  onDragEnd
+  onDragEnd,
+  currentTargetField,
+  selectedSourceStructure
 }) => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -58,7 +62,16 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
   });
   const [dropTargets, setDropTargets] = useState<Set<string>>(new Set());
 
-  // Function management
+  // Filter fields based on current context
+  const filteredSourceFields = currentTargetField && selectedSourceStructure 
+    ? sourceFields 
+    : sourceFields;
+  
+  const filteredTargetFields = currentTargetField 
+    ? [currentTargetField] 
+    : targetFields;
+
+  // Function management - Fixed to prevent disappearing during drag
   const addFunctionNode = useCallback((functionName: string) => {
     console.log('Adding function node:', functionName);
     const allFunctions = Object.values(functionsByCategory).flat();
@@ -86,7 +99,7 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
       console.log('Updated function nodes:', updated);
       return updated;
     });
-  }, [functionNodes.length]);
+  }, [functionNodes]);
 
   const removeFunctionNode = useCallback((nodeId: string) => {
     setFunctionNodes(prev => prev.filter(n => n.id !== nodeId));
@@ -100,38 +113,44 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
     });
   }, [mappings, onRemoveMapping]);
 
-  // Drag and drop handlers
+  // Drag and drop handlers - Fixed to not interfere with function nodes
   const handleSourceFieldDragStart = useCallback((field: FieldNode, event: React.DragEvent) => {
-    setDragState({
+    console.log('Starting drag for field:', field.name);
+    event.stopPropagation(); // Prevent event bubbling
+    
+    setDragState(prev => ({
+      ...prev,
       isDragging: true,
       draggedItem: field,
       dragType: 'source',
       startPosition: { x: event.clientX, y: event.clientY }
-    });
+    }));
     
     // Highlight potential drop targets
     const targets = new Set<string>();
-    targetFields.forEach(tf => targets.add(`target-${tf.id}`));
+    filteredTargetFields.forEach(tf => targets.add(`target-${tf.id}`));
     functionNodes.forEach(fn => {
       const func = getAllFunctions().find(f => f.name === fn.functionName);
       func?.parameters.forEach(param => targets.add(`param-${fn.id}-${param.name}`));
     });
     setDropTargets(targets);
-  }, [targetFields, functionNodes]);
+  }, [filteredTargetFields, functionNodes]);
 
   const handleFunctionOutputDragStart = useCallback((functionNode: FunctionNodeData, event: React.DragEvent) => {
-    setDragState({
+    event.stopPropagation();
+    setDragState(prev => ({
+      ...prev,
       isDragging: true,
       draggedItem: functionNode,
       dragType: 'function-output',
       startPosition: { x: event.clientX, y: event.clientY }
-    });
+    }));
     
     // Highlight target fields
     const targets = new Set<string>();
-    targetFields.forEach(tf => targets.add(`target-${tf.id}`));
+    filteredTargetFields.forEach(tf => targets.add(`target-${tf.id}`));
     setDropTargets(targets);
-  }, [targetFields]);
+  }, [filteredTargetFields]);
 
   const handleDragEnd = useCallback(() => {
     setDragState({
@@ -342,9 +361,11 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
         {/* Source fields panel */}
         <div className="absolute left-4 top-4 w-60 h-full overflow-y-auto">
           <div className="bg-card border rounded-lg p-3 shadow-sm">
-            <h3 className="font-semibold text-sm mb-3 text-primary">Source Fields</h3>
+            <h3 className="font-semibold text-sm mb-3 text-primary">
+              Source Fields {selectedSourceStructure && `(${selectedSourceStructure})`}
+            </h3>
             <div className="space-y-2">
-              {sourceFields.map(field => (
+              {filteredSourceFields.map(field => (
                 <div
                   key={field.id}
                   className={cn(
@@ -436,9 +457,11 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
         {/* Target fields panel */}
         <div className="absolute right-4 top-4 w-60 h-full overflow-y-auto">
           <div className="bg-card border rounded-lg p-3 shadow-sm">
-            <h3 className="font-semibold text-sm mb-3 text-primary">Target Fields</h3>
+            <h3 className="font-semibold text-sm mb-3 text-primary">
+              Target Field {currentTargetField && `(${currentTargetField.name})`}
+            </h3>
             <div className="space-y-2">
-              {targetFields.map(field => (
+              {filteredTargetFields.map(field => (
                 <div
                   key={field.id}
                   className={cn(
