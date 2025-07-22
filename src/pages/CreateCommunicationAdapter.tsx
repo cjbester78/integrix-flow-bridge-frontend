@@ -28,6 +28,8 @@ import { RestSenderAdapterConfiguration } from '@/components/adapter/RestSenderA
 import { RestReceiverAdapterConfiguration } from '@/components/adapter/RestReceiverAdapterConfiguration';
 import { SoapSenderAdapterConfiguration } from '@/components/adapter/SoapSenderAdapterConfiguration';
 import { SoapReceiverAdapterConfiguration } from '@/components/adapter/SoapReceiverAdapterConfiguration';
+import { OdataReceiverAdapterConfiguration } from '@/components/adapter/OdataReceiverAdapterConfiguration';
+import { OdataSenderAdapterConfiguration } from '@/components/adapter/OdataSenderAdapterConfiguration';
 import { useToast } from '@/hooks/use-toast';
 import { adapterService } from '@/services/adapter';
 import { 
@@ -709,6 +711,16 @@ export const CreateCommunicationAdapter = () => {
                 />
               ) : selectedAdapter === 'soap' && adapterMode === 'receiver' ? (
                 <SoapReceiverAdapterConfiguration 
+                  configuration={configuration} 
+                  onConfigurationChange={(field, value) => handleConfigurationChange(field, value)} 
+                />
+              ) : selectedAdapter === 'odata' && adapterMode === 'sender' ? (
+                <OdataSenderAdapterConfiguration 
+                  configuration={configuration} 
+                  onConfigurationChange={(field, value) => handleConfigurationChange(field, value)} 
+                />
+              ) : selectedAdapter === 'odata' && adapterMode === 'receiver' ? (
+                <OdataReceiverAdapterConfiguration 
                   configuration={configuration} 
                   onConfigurationChange={(field, value) => handleConfigurationChange(field, value)} 
                 />
