@@ -47,7 +47,7 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
     functionName: selectedFunction,
     parameters: {},
     sourceConnections: {},
-    position: { x: 350, y: 150 } // Better centered position
+    position: { x: 450, y: 120 } // Better centered position between panels
   });
   
   const [connections, setConnections] = useState<Connection[]>([]);
@@ -192,20 +192,20 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
             <span>Function Mapping: {func.name}</span>
             <div className="flex items-center gap-2">
               <Button 
-                variant="outline"
-                onClick={onClose}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <X className="h-4 w-4 mr-2" />
-                Cancel
-              </Button>
-              <Button 
                 onClick={handleApplyFunction}
                 disabled={!outputConnected || Object.keys(functionNode.sourceConnections).length === 0}
                 className="bg-primary text-primary-foreground"
               >
                 <Check className="h-4 w-4 mr-2" />
                 Apply Function
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={onClose}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-4 w-4 mr-2" />
+                Cancel
               </Button>
             </div>
           </DialogTitle>
