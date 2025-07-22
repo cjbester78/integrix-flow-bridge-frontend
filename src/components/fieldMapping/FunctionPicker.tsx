@@ -53,13 +53,22 @@ export const FunctionPicker: React.FC<FunctionPickerProps> = ({
   };
 
   const handleApplyFunction = () => {
-    if (!selectedFunction) return;
+    console.log('🔍 FunctionPicker: handleApplyFunction called');
+    console.log('🔍 FunctionPicker: selectedFunction:', selectedFunction);
+    
+    if (!selectedFunction) {
+      console.log('❌ FunctionPicker: No function selected');
+      return;
+    }
 
     const paramValues = selectedFunction.parameters.map(param => 
       parameters[param.name] || (param.type === 'number' ? 0 : '')
     );
 
     const javaCode = generateJavaFunctionCall(selectedFunction.name, paramValues);
+    console.log('🔍 FunctionPicker: Generated Java code:', javaCode);
+    console.log('🔍 FunctionPicker: Calling onFunctionSelect with:', selectedFunction.name, javaCode);
+    
     onFunctionSelect(selectedFunction.name, javaCode);
     setOpen(false);
     setSelectedFunction(null);

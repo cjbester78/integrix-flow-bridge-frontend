@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -38,14 +38,30 @@ export function MappingArea({
     targetField: null
   });
 
+  useEffect(() => {
+    console.log('🔍 Modal state changed:', functionMappingModal);
+  }, [functionMappingModal]);
+
   const handleQuickFunction = (mappingId: string, functionName: string, javaCode: string) => {
+    console.log('🔍 handleQuickFunction called with:', { mappingId, functionName, javaCode });
+    
     // Find the existing mapping to get the target field
     const existingMapping = mappings.find(m => m.id === mappingId);
-    if (!existingMapping) return;
+    console.log('🔍 Found existing mapping:', existingMapping);
+    
+    if (!existingMapping) {
+      console.log('❌ No existing mapping found for ID:', mappingId);
+      return;
+    }
 
     // Find the target field node
     const targetField = targetFields.find(field => field.name === existingMapping.targetField);
+    console.log('🔍 Looking for target field:', existingMapping.targetField);
+    console.log('🔍 Available target fields:', targetFields.map(f => f.name));
+    console.log('🔍 Found target field:', targetField);
+    
     if (!targetField) {
+      console.log('❌ Target field not found, falling back to simple function update');
       // Fallback to simple function update if target field not found
       if (onUpdateMapping) {
         onUpdateMapping(mappingId, { javaFunction: javaCode });
@@ -53,6 +69,12 @@ export function MappingArea({
       return;
     }
 
+    console.log('✅ Opening visual mapping modal with:', {
+      functionName,
+      targetField: targetField.name,
+      mappingId
+    });
+    
     // Open the visual mapping modal
     setFunctionMappingModal({
       open: true,
@@ -60,6 +82,8 @@ export function MappingArea({
       targetField,
       existingMappingId: mappingId
     });
+    
+    console.log('🔍 Modal state after setting:', functionMappingModal);
   };
 
   const handleApplyFunctionMapping = (newMapping: FieldMapping) => {
