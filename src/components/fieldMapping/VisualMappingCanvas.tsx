@@ -60,9 +60,14 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
 
   // Function management
   const addFunctionNode = useCallback((functionName: string) => {
+    console.log('Adding function node:', functionName);
     const allFunctions = Object.values(functionsByCategory).flat();
     const func = allFunctions.find(f => f.name === functionName);
-    if (!func) return;
+    console.log('Found function:', func);
+    if (!func) {
+      console.error('Function not found:', functionName);
+      return;
+    }
 
     const newFunctionNode: FunctionNodeData = {
       id: `function_${Date.now()}`,
@@ -75,7 +80,12 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
       }
     };
 
-    setFunctionNodes(prev => [...prev, newFunctionNode]);
+    console.log('Creating new function node:', newFunctionNode);
+    setFunctionNodes(prev => {
+      const updated = [...prev, newFunctionNode];
+      console.log('Updated function nodes:', updated);
+      return updated;
+    });
   }, [functionNodes.length]);
 
   const removeFunctionNode = useCallback((nodeId: string) => {
@@ -254,7 +264,10 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
       <div className="flex items-center justify-between p-3 border-b bg-muted/30">
         <div className="flex items-center gap-2">
           <FunctionPicker
-            onFunctionSelect={addFunctionNode}
+            onFunctionSelect={(functionName, javaCode) => {
+              console.log('Function selected from picker:', functionName, javaCode);
+              addFunctionNode(functionName);
+            }}
             trigger={
               <Button variant="outline" size="sm" className="h-8">
                 <Plus className="h-4 w-4 mr-1" />
