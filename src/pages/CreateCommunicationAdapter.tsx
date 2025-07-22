@@ -30,6 +30,8 @@ import { SoapSenderAdapterConfiguration } from '@/components/adapter/SoapSenderA
 import { SoapReceiverAdapterConfiguration } from '@/components/adapter/SoapReceiverAdapterConfiguration';
 import { OdataReceiverAdapterConfiguration } from '@/components/adapter/OdataReceiverAdapterConfiguration';
 import { OdataSenderAdapterConfiguration } from '@/components/adapter/OdataSenderAdapterConfiguration';
+import { RfcReceiverAdapterConfiguration } from '@/components/adapter/RfcReceiverAdapterConfiguration';
+import { RfcSenderAdapterConfiguration } from '@/components/adapter/RfcSenderAdapterConfiguration';
 import { useToast } from '@/hooks/use-toast';
 import { adapterService } from '@/services/adapter';
 import { 
@@ -310,6 +312,22 @@ const communicationAdapters: CommunicationAdapter[] = [
       { name: 'certificatePassword', label: 'Certificate Password', type: 'password', required: true, placeholder: 'Certificate Password' },
       { name: 'encryptionAlgorithm', label: 'Encryption Algorithm', type: 'select', required: false, options: ['3DES', 'AES128', 'AES192', 'AES256'] },
       { name: 'authType', label: 'Authentication', type: 'select', required: false, options: ['None', 'Basic Auth', 'Bearer Token', 'API Key', 'OAuth', 'OAuth 2.0', 'SSL Certificate'] }
+    ]
+  },
+  {
+    id: 'rfc',
+    name: 'RFC',
+    icon: ArrowLeftRight,
+    description: 'SAP Remote Function Call protocol',
+    category: 'SAP',
+    fields: [
+      { name: 'sapSystemId', label: 'SAP System ID (SID)', type: 'text', required: true, placeholder: 'PRD, DEV' },
+      { name: 'sapClientNumber', label: 'SAP Client Number', type: 'text', required: true, placeholder: '100' },
+      { name: 'sapSystemNumber', label: 'SAP System Number', type: 'text', required: true, placeholder: '00' },
+      { name: 'sapApplicationServerHost', label: 'SAP Application Server Host', type: 'text', required: true, placeholder: 'sapserver.example.com' },
+      { name: 'sapUser', label: 'SAP User', type: 'text', required: true, placeholder: 'sapuser' },
+      { name: 'sapPassword', label: 'SAP Password', type: 'password', required: true, placeholder: 'secret' },
+      { name: 'rfcDestinationName', label: 'RFC Destination Name', type: 'text', required: true, placeholder: 'MIDDLEWARE_DEST' }
     ]
   },
   {
@@ -721,6 +739,16 @@ export const CreateCommunicationAdapter = () => {
                 />
               ) : selectedAdapter === 'odata' && adapterMode === 'receiver' ? (
                 <OdataReceiverAdapterConfiguration 
+                  configuration={configuration} 
+                  onConfigurationChange={(field, value) => handleConfigurationChange(field, value)} 
+                />
+              ) : selectedAdapter === 'rfc' && adapterMode === 'sender' ? (
+                <RfcSenderAdapterConfiguration 
+                  configuration={configuration} 
+                  onConfigurationChange={(field, value) => handleConfigurationChange(field, value)} 
+                />
+              ) : selectedAdapter === 'rfc' && adapterMode === 'receiver' ? (
+                <RfcReceiverAdapterConfiguration 
                   configuration={configuration} 
                   onConfigurationChange={(field, value) => handleConfigurationChange(field, value)} 
                 />

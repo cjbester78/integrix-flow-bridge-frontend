@@ -1,7 +1,7 @@
 export interface CommunicationAdapter {
   id?: string;
   name: string;
-  type: 'rest' | 'soap' | 'file' | 'database' | 'sap' | 'salesforce' | 'email' | 'sms' | 'jms' | 'odata';
+  type: 'rest' | 'soap' | 'file' | 'database' | 'sap' | 'salesforce' | 'email' | 'sms' | 'jms' | 'odata' | 'rfc';
   mode: 'inbound' | 'outbound' | 'bidirectional';
   description?: string;
   configuration: AdapterConfiguration;
@@ -104,6 +104,22 @@ export interface AdapterConfiguration {
   loggingLevel?: string;
   wsSecurityPolicies?: string;
   wsSecurityPolicyType?: string;
+  
+  // RFC Configuration
+  sapSystemId?: string;
+  sapClientNumber?: string;
+  sapSystemNumber?: string;
+  sapApplicationServerHost?: string;
+  sapGatewayHost?: string;
+  sapGatewayService?: string;
+  portNumber?: string;
+  connectionType?: string;
+  sapUser?: string;
+  sapPassword?: string;
+  rfcDestinationName?: string;
+  listenerServiceName?: string;
+  callerServiceName?: string;
+  validationRules?: string;
   
   // Custom properties
   properties?: { [key: string]: any };
