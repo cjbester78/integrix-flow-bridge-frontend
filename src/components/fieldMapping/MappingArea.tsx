@@ -113,6 +113,10 @@ export function MappingArea({
     });
   };
 
+  // Debug logging for render
+  console.log('🔍 MappingArea render - mappings count:', mappings.length);
+  console.log('🔍 MappingArea render - mappings:', mappings);
+
   return (
     <div className="w-1/3 relative bg-background animate-fade-in">
       <div className="p-4 border-b">
