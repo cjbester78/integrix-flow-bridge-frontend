@@ -70,6 +70,10 @@ export function FieldMappingScreen({
     setDraggedField(field);
   };
 
+  const handleDragEnd = () => {
+    setDraggedField(null);
+  };
+
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
   };
@@ -306,6 +310,7 @@ export function FieldMappingScreen({
                 onSelectService={(service) => selectDataStructure(service, true)}
                 onToggleExpanded={toggleExpanded}
                 onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
               />
             </div>
             
@@ -318,6 +323,7 @@ export function FieldMappingScreen({
                 onUpdateMapping={updateMapping}
                 onCreateMapping={createMapping}
                 onRemoveMapping={removeMapping}
+                onDragEnd={handleDragEnd}
               />
             </div>
             

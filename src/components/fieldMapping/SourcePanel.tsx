@@ -17,6 +17,7 @@ interface SourcePanelProps {
   onSelectService: (service: string) => void;
   onToggleExpanded: (nodeId: string, isSource: boolean) => void;
   onDragStart: (field: FieldNode) => void;
+  onDragEnd?: () => void;
 }
 
 export function SourcePanel({ 
@@ -29,7 +30,8 @@ export function SourcePanel({
   onShowSelectorChange,
   onSelectService,
   onToggleExpanded,
-  onDragStart
+  onDragStart,
+  onDragEnd
 }: SourcePanelProps) {
   return (
     <div className="w-1/3 border-r bg-muted/20 animate-fade-in">
@@ -75,6 +77,7 @@ export function SourcePanel({
             side="source"
             onToggleExpanded={onToggleExpanded}
             onDragStart={onDragStart}
+            onDragEnd={onDragEnd}
           />
         )}
       </div>

@@ -10,6 +10,7 @@ interface FieldTreeProps {
   side: 'source' | 'target';
   onToggleExpanded: (nodeId: string, isSource: boolean) => void;
   onDragStart?: (field: FieldNode) => void;
+  onDragEnd?: () => void;
   onDragOver?: (e: React.DragEvent) => void;
   onDrop?: (field: FieldNode) => void;
 }
@@ -20,6 +21,7 @@ export function FieldTree({
   side, 
   onToggleExpanded,
   onDragStart,
+  onDragEnd,
   onDragOver,
   onDrop
 }: FieldTreeProps) {
@@ -39,7 +41,18 @@ export function FieldTree({
           }`}
           style={{ marginLeft: `${level * 16}px` }}
           draggable={isLeaf && side === 'source'}
-          onDragStart={() => isLeaf && side === 'source' && onDragStart?.(field)}
+          onDragStart={(e) => {
+            if (isLeaf && side === 'source' && onDragStart) {
+              e.dataTransfer.effectAllowed = 'copy';
+              e.dataTransfer.setData('application/json', JSON.stringify(field));
+              onDragStart(field);
+            }
+          }}
+          onDragEnd={(e) => {
+            if (isLeaf && side === 'source' && onDragEnd) {
+              onDragEnd();
+            }
+          }}
           onDragOver={isLeaf && side === 'target' ? onDragOver : undefined}
           onDrop={(e) => {
             if (isLeaf && side === 'target') {
@@ -81,7 +94,7 @@ export function FieldTree({
         )}
       </div>
     );
-  }, [mappings, side, onToggleExpanded, onDragStart, onDragOver, onDrop]);
+  }, [mappings, side, onToggleExpanded, onDragStart, onDragEnd, onDragOver, onDrop]);
 
   return (
     <div className="space-y-2">

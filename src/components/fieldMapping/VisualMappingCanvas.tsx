@@ -15,6 +15,7 @@ interface VisualMappingCanvasProps {
   onUpdateMapping: (mappingId: string, updates: Partial<FieldMapping>) => void;
   onCreateMapping: (mapping: FieldMapping) => void;
   onRemoveMapping: (mappingId: string) => void;
+  onDragEnd: () => void;
 }
 
 export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
@@ -24,7 +25,8 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
   draggedField,
   onUpdateMapping,
   onCreateMapping,
-  onRemoveMapping
+  onRemoveMapping,
+  onDragEnd
 }) => {
   const [functionNodes, setFunctionNodes] = useState<FunctionNodeData[]>([]);
   const [draggedFromFunction, setDraggedFromFunction] = useState<string | null>(null);
@@ -81,6 +83,8 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
           }
         : node
     ));
+    
+    onDragEnd();
   };
 
   const handleDropOnTarget = (targetField: FieldNode) => {
@@ -190,7 +194,26 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
               stroke="hsl(var(--success))"
               strokeWidth="2"
               markerEnd="url(#arrowhead)"
-              className="animate-draw-line"
+              className="animate-fade-in"
+            />
+          ))
+        }
+        
+        {/* Render direct field mappings (no functions) */}
+        {mappings
+          .filter(mapping => !mapping.functionNode)
+          .map(mapping => (
+            <line
+              key={`direct-${mapping.id}`}
+              x1="200"
+              y1="50"
+              x2="800"
+              y2="50"
+              stroke="hsl(var(--primary))"
+              strokeWidth="2"
+              markerEnd="url(#arrowhead)"
+              className="animate-fade-in"
+              strokeDasharray="5,5"
             />
           ))
         }
@@ -272,6 +295,7 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
             onDrop={(e) => {
               e.preventDefault();
               handleDropOnTarget(field);
+              onDragEnd();
             }}
           >
             <div className="text-sm font-medium">{field.name}</div>
