@@ -35,13 +35,13 @@ export function JmsReceiverAdapterConfiguration({
 
   return (
     <div className="space-y-6">
-      <Tabs defaultValue="source" className="w-full">
+      <Tabs defaultValue="target" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="source">Source</TabsTrigger>
+          <TabsTrigger value="target">Target</TabsTrigger>
           <TabsTrigger value="processing">Processing Details</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="source" className="space-y-6">
+        <TabsContent value="target" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Connection Details</CardTitle>

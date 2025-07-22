@@ -41,13 +41,13 @@ export function RestReceiverAdapterConfiguration({
         <CardDescription>Configure your REST receiver adapter settings</CardDescription>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="source" className="w-full">
+        <Tabs defaultValue="target" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="source">Source</TabsTrigger>
+            <TabsTrigger value="target">Target</TabsTrigger>
             <TabsTrigger value="processing">Processing</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="source" className="space-y-6">
+          <TabsContent value="target" className="space-y-6">
             {/* Endpoint Information Section */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Endpoint Information</h3>
