@@ -440,27 +440,18 @@ export function SoapReceiverAdapterConfiguration({
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="ws-security-policies">WS-Security Policies:</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="ws-security-policies"
-                      value={configuration.wsSecurityPolicies || ''}
-                      onChange={(e) => onConfigurationChange('wsSecurityPolicies', e.target.value)}
-                      placeholder=""
-                      className="flex-1"
-                    />
-                    <Select 
-                      value={configuration.wsSecurityPolicyType || ''} 
-                      onValueChange={(value) => onConfigurationChange('wsSecurityPolicyType', value)}
-                    >
-                      <SelectTrigger className="w-[200px]">
-                        <SelectValue placeholder="Define Parameter" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="none">None</SelectItem>
-                        <SelectItem value="manual">Via Manual Configuration in Channel</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <Select 
+                    value={configuration.wsSecurityPolicyType || ''} 
+                    onValueChange={(value) => onConfigurationChange('wsSecurityPolicyType', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Define Parameter" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">None</SelectItem>
+                      <SelectItem value="manual">Via Manual Configuration in Channel</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <p className="text-sm text-muted-foreground">Security policies applied</p>
                 </div>
                 {renderAuthFields()}
