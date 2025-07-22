@@ -41,8 +41,10 @@ export const FunctionPicker: React.FC<FunctionPickerProps> = ({
   }, {} as Record<string, TransformationFunction[]>);
 
   const handleFunctionClick = (func: TransformationFunction) => {
-    setSelectedFunction(func);
-    setParameters({});
+    console.log('🔍 FunctionPicker: Function clicked:', func.name);
+    // For visual mapper, immediately call onFunctionSelect when function is clicked
+    onFunctionSelect(func.name, '');
+    setOpen(false);
   };
 
   const handleParameterChange = (paramName: string, value: any) => {
