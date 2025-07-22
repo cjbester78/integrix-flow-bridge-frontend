@@ -77,15 +77,22 @@ export const FunctionNode: React.FC<FunctionNodeProps> = ({
               {sourceConnections[param.name]?.length > 0 ? (
                 <div className="space-y-1 mb-2">
                   {sourceConnections[param.name].map((sourcePath, index) => (
-                    <div key={index} className="flex items-center gap-2 p-1 bg-primary/10 rounded text-xs">
+                    <div key={index} className="flex items-center gap-2 p-2 bg-primary/10 rounded text-xs border border-primary/20">
                       <div className="w-2 h-2 bg-primary rounded-full"></div>
                       <span className="text-primary font-medium">{sourcePath.split('.').pop()}</span>
                     </div>
                   ))}
+                  {/* Additional drop zone to add more fields */}
+                  <div className="h-8 border-2 border-dashed border-primary/40 rounded text-xs flex items-center justify-center text-primary/60 hover:border-primary/60 transition-colors bg-primary/5">
+                    + Drop another field
+                  </div>
                 </div>
               ) : (
-                <div className="h-8 border-2 border-dashed border-muted-foreground/30 rounded text-xs flex items-center justify-center text-muted-foreground hover:border-primary/50 transition-colors">
-                  Drop field here
+                <div className="h-10 border-2 border-dashed border-primary/40 rounded text-xs flex items-center justify-center text-primary/60 hover:border-primary/60 transition-colors bg-primary/5 hover:bg-primary/10">
+                  <div className="text-center">
+                    <div className="font-medium">Drop source field here</div>
+                    <div className="text-xs opacity-70">or enter value below</div>
+                  </div>
                 </div>
               )}
               
@@ -96,7 +103,7 @@ export const FunctionNode: React.FC<FunctionNodeProps> = ({
                   placeholder={param.description || `Enter ${param.name}`}
                   value={parameterValues[param.name] || ''}
                   onChange={(e) => onParameterChange(param.name, e.target.value)}
-                  className="h-8 text-xs"
+                  className="h-8 text-xs mt-2"
                 />
               )}
             </div>
