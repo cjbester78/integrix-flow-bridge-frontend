@@ -298,50 +298,6 @@ export const OdataReceiverAdapterConfiguration: React.FC<OdataReceiverAdapterCon
               </div>
             </CardContent>
           </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Error Handling & Logging</CardTitle>
-              <CardDescription>Configure error handling and logging behavior</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="errorHandling">Error Handling</Label>
-                <Select 
-                  value={configuration.errorHandling || ''} 
-                  onValueChange={(value) => onConfigurationChange('errorHandling', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select error handling strategy" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="retry">Retry</SelectItem>
-                    <SelectItem value="alert">Alert</SelectItem>
-                    <SelectItem value="skip">Skip</SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-sm text-muted-foreground">Actions on HTTP or data errors</p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="loggingLevel">Logging Level</Label>
-                <Select 
-                  value={configuration.loggingLevel || ''} 
-                  onValueChange={(value) => onConfigurationChange('loggingLevel', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select logging level" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ERROR">ERROR</SelectItem>
-                    <SelectItem value="INFO">INFO</SelectItem>
-                    <SelectItem value="DEBUG">DEBUG</SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-sm text-muted-foreground">Level of log details</p>
-              </div>
-            </CardContent>
-          </Card>
         </TabsContent>
       </Tabs>
     </div>

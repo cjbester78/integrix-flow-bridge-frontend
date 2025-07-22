@@ -286,50 +286,6 @@ export const OdataSenderAdapterConfiguration: React.FC<OdataSenderAdapterConfigu
               </div>
             </CardContent>
           </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Error Handling & Logging</CardTitle>
-              <CardDescription>Configure error handling and logging behavior</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="errorHandling">Error Handling</Label>
-                <Select 
-                  value={configuration.errorHandling || ''} 
-                  onValueChange={(value) => onConfigurationChange('errorHandling', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select error handling strategy" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="retry">Retry</SelectItem>
-                    <SelectItem value="alert">Alert</SelectItem>
-                    <SelectItem value="dead-letter">Dead-letter Queue</SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-sm text-muted-foreground">Actions on HTTP or service errors</p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="loggingLevel">Logging Level</Label>
-                <Select 
-                  value={configuration.loggingLevel || ''} 
-                  onValueChange={(value) => onConfigurationChange('loggingLevel', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select logging level" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ERROR">ERROR</SelectItem>
-                    <SelectItem value="WARN">WARN</SelectItem>
-                    <SelectItem value="INFO">INFO</SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-sm text-muted-foreground">Log verbosity level</p>
-              </div>
-            </CardContent>
-          </Card>
         </TabsContent>
       </Tabs>
     </div>

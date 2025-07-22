@@ -222,51 +222,6 @@ export const MailReceiverAdapterConfiguration: React.FC<MailReceiverAdapterConfi
               </div>
             </CardContent>
           </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Error Handling & Logging</CardTitle>
-              <CardDescription>Configure error handling and logging behavior</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="errorHandling">Error Handling</Label>
-                <Select 
-                  value={configuration.errorHandling || ''} 
-                  onValueChange={(value) => onConfigurationChange('errorHandling', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select error handling strategy" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="retry-3">Retry 3 times</SelectItem>
-                    <SelectItem value="retry-5">Retry 5 times</SelectItem>
-                    <SelectItem value="error-folder">Move to error folder</SelectItem>
-                    <SelectItem value="retry-and-error-folder">Retry and move to error folder</SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-sm text-muted-foreground">Retry logic, dead letter mailbox</p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="loggingLevel">Logging Level</Label>
-                <Select 
-                  value={configuration.loggingLevel || ''} 
-                  onValueChange={(value) => onConfigurationChange('loggingLevel', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select logging level" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ERROR">ERROR</SelectItem>
-                    <SelectItem value="DEBUG">DEBUG</SelectItem>
-                    <SelectItem value="INFO">INFO</SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-sm text-muted-foreground">Log verbosity</p>
-              </div>
-            </CardContent>
-          </Card>
         </TabsContent>
       </Tabs>
     </div>

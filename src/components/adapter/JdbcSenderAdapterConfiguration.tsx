@@ -212,44 +212,6 @@ export const JdbcSenderAdapterConfiguration: React.FC<JdbcSenderAdapterConfigura
               </div>
             </CardContent>
           </Card>
-
-          {/* Error Handling and Logging Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Error Handling and Logging</CardTitle>
-              <CardDescription>
-                Configure error handling and logging settings
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="errorHandling">Error Handling</Label>
-                <Textarea
-                  id="errorHandling"
-                  placeholder="Retry 3 times, send alert email"
-                  value={getProperty('errorHandling')}
-                  onChange={(e) => updateProperties('errorHandling', e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="loggingLevel">Logging Level</Label>
-                <Select
-                  value={getProperty('loggingLevel')}
-                  onValueChange={(value) => updateProperties('loggingLevel', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select logging level" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ERROR">ERROR</SelectItem>
-                    <SelectItem value="WARN">WARN</SelectItem>
-                    <SelectItem value="INFO">INFO</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </CardContent>
-          </Card>
         </TabsContent>
       </Tabs>
     </div>
