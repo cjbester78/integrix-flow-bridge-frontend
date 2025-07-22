@@ -47,7 +47,7 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
     functionName: selectedFunction,
     parameters: {},
     sourceConnections: {},
-    position: { x: 400, y: 200 }
+    position: { x: 350, y: 150 } // Better centered position
   });
   
   const [connections, setConnections] = useState<Connection[]>([]);
@@ -275,7 +275,8 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
             style={{
               left: functionNode.position.x,
               top: functionNode.position.y,
-              width: '280px'
+              width: '200px',
+              zIndex: 5
             }}
           >
             {/* Function header */}
