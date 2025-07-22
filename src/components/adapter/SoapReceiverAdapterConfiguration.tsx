@@ -445,15 +445,15 @@ export function SoapReceiverAdapterConfiguration({
                       id="ws-security-policies"
                       value={configuration.wsSecurityPolicies || ''}
                       onChange={(e) => onConfigurationChange('wsSecurityPolicies', e.target.value)}
-                      placeholder="Define Parameter"
+                      placeholder=""
                       className="flex-1"
                     />
                     <Select 
-                      value={configuration.wsSecurityPolicyType || 'none'} 
+                      value={configuration.wsSecurityPolicyType || ''} 
                       onValueChange={(value) => onConfigurationChange('wsSecurityPolicyType', value)}
                     >
                       <SelectTrigger className="w-[200px]">
-                        <SelectValue />
+                        <SelectValue placeholder="Define Parameter" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="none">None</SelectItem>
