@@ -178,6 +178,7 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
     };
 
     onApplyMapping(newMapping);
+    console.log('Applying function mapping and closing modal');
     onClose();
   }, [func, outputConnected, functionNode, selectedFunction, targetField, onApplyMapping, onClose]);
 
