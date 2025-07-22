@@ -17,6 +17,7 @@ import { CustomerSelectionAdapterCard } from '@/components/adapter/CustomerSelec
 import { FieldMappingScreen } from '@/components/FieldMappingScreen';
 import { FtpAdapterConfiguration } from '@/components/adapter/FtpAdapterConfiguration';
 import { SftpAdapterConfiguration } from '@/components/adapter/SftpAdapterConfiguration';
+import { FileAdapterConfiguration } from '@/components/adapter/FileAdapterConfiguration';
 import { HttpSenderAdapterConfiguration } from '@/components/adapter/HttpSenderAdapterConfiguration';
 import { HttpReceiverAdapterConfiguration } from '@/components/adapter/HttpReceiverAdapterConfiguration';
 import { IdocSenderAdapterConfiguration } from '@/components/adapter/IdocSenderAdapterConfiguration';
@@ -643,6 +644,8 @@ export const CreateCommunicationAdapter = () => {
                 <FtpAdapterConfiguration mode={adapterMode as 'sender' | 'receiver'} onConfigChange={setConfiguration} />
               ) : selectedAdapter === 'sftp' ? (
                 <SftpAdapterConfiguration mode={adapterMode as 'sender' | 'receiver'} onConfigChange={setConfiguration} />
+              ) : selectedAdapter === 'file' ? (
+                <FileAdapterConfiguration mode={adapterMode as 'sender' | 'receiver'} onConfigChange={setConfiguration} />
               ) : selectedAdapter === 'http' && adapterMode === 'sender' ? (
                 <HttpSenderAdapterConfiguration 
                   configuration={configuration} 
