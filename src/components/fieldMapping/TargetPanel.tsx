@@ -44,6 +44,7 @@ export function TargetPanel({
             selectedService={selectedService}
             onSelectService={onSelectService}
             title="Select Target Message"
+            usage="target"
           />
         </div>
         
@@ -66,7 +67,7 @@ export function TargetPanel({
         {fields.length === 0 ? (
           <Alert>
             <AlertDescription>
-              Select a target webservice to view fields
+              Select a target data structure to view fields
             </AlertDescription>
           </Alert>
         ) : (

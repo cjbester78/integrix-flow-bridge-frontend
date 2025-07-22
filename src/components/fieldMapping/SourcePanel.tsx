@@ -42,6 +42,7 @@ export function SourcePanel({
             selectedService={selectedService}
             onSelectService={onSelectService}
             title="Select Source Message"
+            usage="source"
           />
         </div>
         
@@ -64,7 +65,7 @@ export function SourcePanel({
         {fields.length === 0 ? (
           <Alert>
             <AlertDescription>
-              Select a source webservice to view fields
+              Select a source data structure to view fields
             </AlertDescription>
           </Alert>
         ) : (

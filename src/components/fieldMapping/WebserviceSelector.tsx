@@ -1,8 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, Settings } from 'lucide-react';
-import { useWebservices } from '@/hooks/useWebservices';
+import { useDataStructures } from '@/hooks/useDataStructures';
+import { DataStructure } from '@/types/dataStructures';
 
 interface WebserviceSelectorProps {
   isOpen: boolean;
@@ -10,6 +12,8 @@ interface WebserviceSelectorProps {
   selectedService: string;
   onSelectService: (service: string) => void;
   title: string;
+  usage: 'source' | 'target';
+  businessComponentId?: string;
 }
 
 export function WebserviceSelector({ 
@@ -17,8 +21,18 @@ export function WebserviceSelector({
   onOpenChange, 
   selectedService, 
   onSelectService, 
-  title 
+  title,
+  usage,
+  businessComponentId
 }: WebserviceSelectorProps) {
+  const { structures } = useDataStructures();
+  
+  // Filter structures by usage type and optionally by business component
+  const filteredStructures = structures.filter(structure => {
+    const usageMatch = structure.usage === usage;
+    const businessComponentMatch = !businessComponentId || structure.customerId === businessComponentId;
+    return usageMatch && businessComponentMatch;
+  });
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
@@ -32,22 +46,43 @@ export function WebserviceSelector({
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
-          <div className="flex gap-2">
-            <Button variant="outline" className="bg-primary/10 border-primary">Local Resources</Button>
-            <Button variant="outline">Global Resources</Button>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Select Data Structure</label>
+            <Select onValueChange={onSelectService} value={selectedService}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Choose a data structure..." />
+              </SelectTrigger>
+              <SelectContent className="bg-background border shadow-lg z-50">
+                {filteredStructures.map((structure) => (
+                  <SelectItem key={structure.id} value={structure.name}>
+                    <div className="flex flex-col">
+                      <span className="font-medium">{structure.name}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {structure.type.toUpperCase()} • {structure.description || 'No description'}
+                      </span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          <p className="text-sm text-muted-foreground">
-            List of demo webservice files available for mapping.
-          </p>
-          <div className="relative">
-            <Search className="h-4 w-4 absolute left-3 top-3 text-muted-foreground" />
-            <Input placeholder="Search" className="pl-10" />
-          </div>
-          <div className="border rounded-md p-3 space-y-2">
-            <div className="text-sm text-muted-foreground">
-              Please use the Data Structures page to upload webservice files first.
+          
+          {filteredStructures.length === 0 && (
+            <div className="border rounded-md p-3 space-y-2">
+              <div className="text-sm text-muted-foreground">
+                No data structures found for {usage} usage. Please create data structures on the Data Structures page first.
+              </div>
             </div>
-          </div>
+          )}
+          
+          {selectedService && (
+            <div className="border rounded-md p-3 space-y-2 bg-muted/20">
+              <div className="text-sm font-medium">Selected Structure</div>
+              <div className="text-sm text-muted-foreground">
+                {filteredStructures.find(s => s.name === selectedService)?.description || selectedService}
+              </div>
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>
