@@ -346,7 +346,7 @@ export const CreateCommunicationAdapter = () => {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [selectedAdapter, setSelectedAdapter] = useState('');
   const [adapterName, setAdapterName] = useState('');
-  const [adapterMode, setAdapterMode] = useState('');
+  const [adapterMode, setAdapterMode] = useState('sender');
   const [description, setDescription] = useState('');
   const [isActive, setIsActive] = useState(true);
   const [configuration, setConfiguration] = useState<Record<string, any>>({});
