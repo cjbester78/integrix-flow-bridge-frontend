@@ -36,7 +36,7 @@ export const JarFileManagement = ({ jarFiles, onJarFileAdded, onJarFileDeleted }
       if (!file.name.endsWith('.jar')) {
         toast({
           title: "Invalid File Type",
-          description: "Please select a valid JAR file.",
+          description: "Please select a valid connection driver file.",
           variant: "destructive"
         });
         return;
@@ -98,7 +98,7 @@ export const JarFileManagement = ({ jarFiles, onJarFileAdded, onJarFileDeleted }
     } catch (error) {
       toast({
         title: "Upload Failed",
-        description: "Failed to upload JAR file. Please try again.",
+        description: "Failed to upload connection driver. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -114,12 +114,12 @@ export const JarFileManagement = ({ jarFiles, onJarFileAdded, onJarFileDeleted }
       
       toast({
         title: "File Deleted",
-        description: "JAR file has been deleted successfully."
+        description: "Connection driver has been deleted successfully."
       });
     } catch (error) {
       toast({
         title: "Delete Failed",
-        description: "Failed to delete JAR file. Please try again.",
+        description: "Failed to delete connection driver. Please try again.",
         variant: "destructive"
       });
     }
@@ -134,7 +134,7 @@ export const JarFileManagement = ({ jarFiles, onJarFileAdded, onJarFileDeleted }
     } catch (error) {
       toast({
         title: "Download Failed",
-        description: "Failed to download JAR file. Please try again.",
+        description: "Failed to download connection driver. Please try again.",
         variant: "destructive"
       });
     }
@@ -162,15 +162,15 @@ export const JarFileManagement = ({ jarFiles, onJarFileAdded, onJarFileDeleted }
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Plus className="h-5 w-5" />
-              Upload JAR File
+              Upload Connection Driver
             </CardTitle>
             <CardDescription>
-              Upload new adapter driver JAR files
+              Upload new adapter connection drivers
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="jar-file">JAR File *</Label>
+              <Label htmlFor="jar-file">Connection Driver *</Label>
               <Input
                 id="jar-file"
                 type="file"
@@ -232,7 +232,7 @@ export const JarFileManagement = ({ jarFiles, onJarFileAdded, onJarFileDeleted }
               className="w-full bg-gradient-primary hover:opacity-90"
             >
               <Upload className="h-4 w-4 mr-2" />
-              {uploading ? 'Uploading...' : 'Upload JAR File'}
+              {uploading ? 'Uploading...' : 'Upload Connection Driver'}
             </Button>
           </CardContent>
         </Card>
@@ -242,14 +242,14 @@ export const JarFileManagement = ({ jarFiles, onJarFileAdded, onJarFileDeleted }
       <div className="lg:col-span-2">
         <Card className="animate-scale-in" style={{ animationDelay: '0.1s' }}>
           <CardHeader>
-            <CardTitle>Uploaded JAR Files</CardTitle>
+            <CardTitle>Uploaded Connection Drivers</CardTitle>
             <CardDescription>
               Manage your adapter driver files
             </CardDescription>
             <div className="flex items-center space-x-2">
               <Search className="h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search JAR files..."
+                placeholder="Search connection drivers..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="max-w-sm"
@@ -273,7 +273,7 @@ export const JarFileManagement = ({ jarFiles, onJarFileAdded, onJarFileDeleted }
                   {filteredJarFiles.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                        No JAR files found. Click "Upload JAR File" to add your first JAR file.
+                        No connection drivers found. Click "Upload Connection Driver" to add your first connection driver.
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -317,7 +317,7 @@ export const JarFileManagement = ({ jarFiles, onJarFileAdded, onJarFileDeleted }
                               </AlertDialogTrigger>
                               <AlertDialogContent>
                                 <AlertDialogHeader>
-                                  <AlertDialogTitle>Delete JAR File</AlertDialogTitle>
+                                  <AlertDialogTitle>Delete Connection Driver</AlertDialogTitle>
                                   <AlertDialogDescription>
                                     Are you sure you want to delete "{jarFile.name}"? This action cannot be undone.
                                   </AlertDialogDescription>

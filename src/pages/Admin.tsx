@@ -248,7 +248,7 @@ export const Admin = () => {
           </TabsTrigger>
           <TabsTrigger value="jar-files" className="flex items-center gap-2">
             <FileArchive className="h-4 w-4" />
-            JAR Files
+            Connection Drivers
           </TabsTrigger>
           <TabsTrigger value="adapter-types" className="flex items-center gap-2">
             <Network className="h-4 w-4" />

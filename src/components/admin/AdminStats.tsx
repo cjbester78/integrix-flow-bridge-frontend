@@ -55,7 +55,7 @@ export const AdminStats = ({ users, roles, certificates, jarFiles }: AdminStatsP
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium flex items-center gap-2">
             <FileArchive className="h-4 w-4" />
-            JAR Files
+            Connection Drivers
           </CardTitle>
         </CardHeader>
         <CardContent>
