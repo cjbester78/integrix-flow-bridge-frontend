@@ -22,7 +22,7 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
   sourceFields,
   targetFields,
   mappings,
-  draggedField,
+  draggedField: externalDraggedField,
   onUpdateMapping,
   onCreateMapping,
   onRemoveMapping,
@@ -30,7 +30,11 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
 }) => {
   const [functionNodes, setFunctionNodes] = useState<FunctionNodeData[]>([]);
   const [draggedFromFunction, setDraggedFromFunction] = useState<string | null>(null);
+  const [internalDraggedField, setInternalDraggedField] = useState<FieldNode | null>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
+
+  // Use internal dragged field if available, otherwise external
+  const draggedField = internalDraggedField || externalDraggedField;
 
   const addFunctionNode = (functionName: string) => {
     const allFunctions = Object.values(functionsByCategory).flat();
@@ -84,6 +88,7 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
         : node
     ));
     
+    setInternalDraggedField(null);
     onDragEnd();
   };
 
@@ -320,8 +325,32 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
         </div>
       ))}
 
+      {/* Source field drag sources */}
+      <div className="absolute left-4 top-16 space-y-2 z-10">
+        <div className="text-sm font-semibold mb-2 text-muted-foreground">Source Fields</div>
+        {sourceFields.map(field => (
+          <div
+            key={field.id}
+            className="bg-primary/10 border border-primary/20 rounded p-3 min-w-[120px] cursor-grab hover:bg-primary/20 transition-colors animate-fade-in"
+            draggable
+            onDragStart={(e) => {
+              e.dataTransfer.setData('application/reactflow', JSON.stringify(field));
+              setInternalDraggedField(field);
+            }}
+            onDragEnd={() => {
+              setInternalDraggedField(null);
+              onDragEnd();
+            }}
+          >
+            <div className="text-sm font-medium text-primary">{field.name}</div>
+            <div className="text-xs text-primary/70">{field.type}</div>
+          </div>
+        ))}
+      </div>
+
       {/* Target field drop zones */}
-      <div className="absolute right-4 top-4 space-y-2 z-10">
+      <div className="absolute right-4 top-16 space-y-2 z-10">
+        <div className="text-sm font-semibold mb-2 text-muted-foreground">Target Fields</div>
         {targetFields.map(field => (
           <div
             key={field.id}
@@ -330,6 +359,7 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
             onDrop={(e) => {
               e.preventDefault();
               handleDropOnTarget(field);
+              setInternalDraggedField(null);
               onDragEnd();
             }}
           >
