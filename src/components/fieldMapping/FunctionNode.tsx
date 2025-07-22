@@ -2,8 +2,10 @@ import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { X, Calculator } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { X, Calculator, Link, Unlink } from 'lucide-react';
 import { TransformationFunction } from '@/services/transformationFunctions';
+import { FieldNode } from './types';
 
 interface FunctionNodeProps {
   id: string;
@@ -11,7 +13,10 @@ interface FunctionNodeProps {
   parameterValues: Record<string, string>;
   sourceConnections: Record<string, string[]>; // paramName -> sourceFieldPaths[]
   position: { x: number; y: number };
+  availableFields: FieldNode[]; // Available source fields for selection
   onParameterChange: (paramName: string, value: string) => void;
+  onParameterFieldSelect: (paramName: string, fieldPath: string) => void;
+  onParameterFieldRemove: (paramName: string, fieldPath: string) => void;
   onRemove: () => void;
   onDragOver: (e: React.DragEvent) => void;
   onDropOnParameter: (paramName: string) => void;
@@ -23,7 +28,10 @@ export const FunctionNode: React.FC<FunctionNodeProps> = ({
   parameterValues,
   sourceConnections,
   position,
+  availableFields,
   onParameterChange,
+  onParameterFieldSelect,
+  onParameterFieldRemove,
   onRemove,
   onDragOver,
   onDropOnParameter
@@ -78,8 +86,16 @@ export const FunctionNode: React.FC<FunctionNodeProps> = ({
                 <div className="space-y-1 mb-2">
                   {sourceConnections[param.name].map((sourcePath, index) => (
                     <div key={index} className="flex items-center gap-2 p-2 bg-primary/10 rounded text-xs border border-primary/20">
-                      <div className="w-2 h-2 bg-primary rounded-full"></div>
-                      <span className="text-primary font-medium">{sourcePath.split('.').pop()}</span>
+                      <Link className="w-3 h-3 text-primary" />
+                      <span className="flex-1 text-primary font-medium">{sourcePath.split('.').pop()}</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onParameterFieldRemove(param.name, sourcePath)}
+                        className="h-4 w-4 p-0 text-destructive hover:text-destructive"
+                      >
+                        <Unlink className="h-2 w-2" />
+                      </Button>
                     </div>
                   ))}
                   {/* Additional drop zone to add more fields */}
@@ -88,22 +104,39 @@ export const FunctionNode: React.FC<FunctionNodeProps> = ({
                   </div>
                 </div>
               ) : (
-                <div className="h-10 border-2 border-dashed border-primary/40 rounded text-xs flex items-center justify-center text-primary/60 hover:border-primary/60 transition-colors bg-primary/5 hover:bg-primary/10">
-                  <div className="text-center">
-                    <div className="font-medium">Drop source field here</div>
-                    <div className="text-xs opacity-70">or enter value below</div>
+                <div className="space-y-2">
+                  {/* Drop zone */}
+                  <div className="h-10 border-2 border-dashed border-primary/40 rounded text-xs flex items-center justify-center text-primary/60 hover:border-primary/60 transition-colors bg-primary/5 hover:bg-primary/10">
+                    <div className="text-center">
+                      <div className="font-medium">Drop source field here</div>
+                      <div className="text-xs opacity-70">or select below</div>
+                    </div>
                   </div>
+                  
+                  {/* Field selector */}
+                  <Select onValueChange={(value) => onParameterFieldSelect(param.name, value)}>
+                    <SelectTrigger className="h-8 text-xs">
+                      <SelectValue placeholder="Select source field" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableFields.map((field) => (
+                        <SelectItem key={field.path} value={field.path} className="text-xs">
+                          {field.name} ({field.type})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               )}
               
-              {/* Manual input for constants */}
+              {/* Manual input for constants - only show if no fields connected */}
               {!sourceConnections[param.name]?.length && (
                 <Input
                   type={param.type === 'number' ? 'number' : 'text'}
                   placeholder={param.description || `Enter ${param.name}`}
                   value={parameterValues[param.name] || ''}
                   onChange={(e) => onParameterChange(param.name, e.target.value)}
-                  className="h-8 text-xs mt-2"
+                  className="h-8 text-xs"
                 />
               )}
             </div>

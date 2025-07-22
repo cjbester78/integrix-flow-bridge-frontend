@@ -87,6 +87,34 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
     onDragEnd();
   };
 
+  const handleParameterFieldSelect = (nodeId: string, paramName: string, fieldPath: string) => {
+    setFunctionNodes(prev => prev.map(node =>
+      node.id === nodeId
+        ? {
+            ...node,
+            sourceConnections: {
+              ...node.sourceConnections,
+              [paramName]: [...(node.sourceConnections[paramName] || []), fieldPath]
+            }
+          }
+        : node
+    ));
+  };
+
+  const handleParameterFieldRemove = (nodeId: string, paramName: string, fieldPath: string) => {
+    setFunctionNodes(prev => prev.map(node =>
+      node.id === nodeId
+        ? {
+            ...node,
+            sourceConnections: {
+              ...node.sourceConnections,
+              [paramName]: (node.sourceConnections[paramName] || []).filter(path => path !== fieldPath)
+            }
+          }
+        : node
+    ));
+  };
+
   const handleDropOnTarget = (targetField: FieldNode) => {
     if (!draggedFromFunction && !draggedField) return;
 
@@ -252,8 +280,15 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
             parameterValues={functionNode.parameters}
             sourceConnections={functionNode.sourceConnections}
             position={functionNode.position}
+            availableFields={sourceFields}
             onParameterChange={(paramName, value) => 
               updateFunctionNodeParameter(functionNode.id, paramName, value)
+            }
+            onParameterFieldSelect={(paramName, fieldPath) =>
+              handleParameterFieldSelect(functionNode.id, paramName, fieldPath)
+            }
+            onParameterFieldRemove={(paramName, fieldPath) =>
+              handleParameterFieldRemove(functionNode.id, paramName, fieldPath)
             }
             onRemove={() => removeFunctionNode(functionNode.id)}
             onDragOver={handleDragOver}

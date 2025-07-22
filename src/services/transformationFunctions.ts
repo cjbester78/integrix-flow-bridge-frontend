@@ -68,10 +68,14 @@ const textFunctions: TransformationFunction[] = [
     category: 'text',
     description: 'Concatenate multiple strings',
     parameters: [
-      { name: 'strings', type: 'array', required: true, description: 'Array of strings to join' }
+      { name: 'string1', type: 'string', required: true, description: 'First string to concatenate' },
+      { name: 'string2', type: 'string', required: true, description: 'Second string to concatenate' },
+      { name: 'string3', type: 'string', required: false, description: 'Optional third string' }
     ],
-    execute: (...strings: string[]) => strings.join(''),
-    javaTemplate: 'concat({0})'
+    execute: (string1: string, string2: string, string3?: string) => {
+      return string1 + string2 + (string3 || '');
+    },
+    javaTemplate: 'concat({0}, {1}, {2})'
   },
   {
     name: 'substring',
