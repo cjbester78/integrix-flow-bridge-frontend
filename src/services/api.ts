@@ -79,6 +79,72 @@ const mockData = {
     success: true,
     data: []
   },
+  '/users': {
+    success: true,
+    data: {
+      users: [
+        {
+          id: '1',
+          username: 'admin',
+          email: 'admin@integrixlab.com',
+          first_name: 'System',
+          last_name: 'Administrator',
+          role: 'administrator',
+          status: 'active',
+          permissions: {
+            flows: ['create', 'read', 'update', 'delete', 'execute'],
+            adapters: ['create', 'read', 'update', 'delete', 'test'],
+            structures: ['create', 'read', 'update', 'delete'],
+            users: ['create', 'read', 'update', 'delete'],
+            system: ['create', 'read', 'update', 'delete']
+          },
+          email_verified: true,
+          created_at: '2024-01-01 09:00:00',
+          updated_at: '2024-01-01 09:00:00',
+          last_login_at: '2024-01-15 14:30:25'
+        },
+        {
+          id: '2',
+          username: 'integrator1',
+          email: 'integrator1@company.com',
+          first_name: 'John',
+          last_name: 'Integrator',
+          role: 'integrator',
+          status: 'active',
+          permissions: {
+            flows: ['create', 'read', 'update', 'execute'],
+            adapters: ['create', 'read', 'update', 'test'],
+            structures: ['create', 'read', 'update']
+          },
+          email_verified: true,
+          created_at: '2024-01-05 10:30:00',
+          updated_at: '2024-01-05 10:30:00',
+          last_login_at: '2024-01-15 12:15:30'
+        },
+        {
+          id: '3',
+          username: 'viewer1',
+          email: 'viewer1@company.com',
+          first_name: 'Jane',
+          last_name: 'Viewer',
+          role: 'viewer',
+          status: 'inactive',
+          permissions: {
+            flows: ['read'],
+            adapters: ['read'],
+            structures: ['read']
+          },
+          email_verified: true,
+          created_at: '2024-01-08 14:20:00',
+          updated_at: '2024-01-08 14:20:00',
+          last_login_at: '2024-01-10 16:45:12'
+        }
+      ],
+      total: 3,
+      page: 0,
+      limit: 50
+    }
+  },
   '/system/stats': {
     success: true,
     data: {
@@ -219,9 +285,16 @@ export async function apiRequest<T = any>(
     };
   } catch (error) {
     // Fall back to mock data if API is not available
-    if (mockData[endpoint as keyof typeof mockData]) {
-      console.log(`Using mock data for ${endpoint}`);
-      return mockData[endpoint as keyof typeof mockData] as ApiResponse<T>;
+    // Check for exact endpoint match first, then check if endpoint starts with a mock path
+    const mockKey = Object.keys(mockData).find(key => {
+      if (endpoint === key) return true;
+      if (endpoint.startsWith(key) && endpoint.includes('?')) return true;
+      return false;
+    });
+    
+    if (mockKey) {
+      console.log(`API not available, using mock data for ${endpoint}`);
+      return mockData[mockKey as keyof typeof mockData] as ApiResponse<T>;
     }
 
     if (error instanceof ApiError) {

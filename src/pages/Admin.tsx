@@ -191,13 +191,17 @@ export const Admin = () => {
         setUsers(userData || []);
       } else {
         console.error('Failed to fetch users:', response.error);
-        toast.error('Failed to load users');
-        setUsers([]); // Set empty array as fallback
+        // Use initial mock users as fallback when API fails
+        console.log('API not available, using fallback user data');
+        setUsers(initialUsers);
+        toast.error('API temporarily unavailable - showing offline data');
       }
     } catch (error) {
       console.error('Error fetching users:', error);
-      toast.error('Failed to load users');
-      setUsers([]); // Set empty array as fallback
+      // Use initial mock users as fallback when API fails
+      console.log('API error, using fallback user data');
+      setUsers(initialUsers);
+      toast.error('API temporarily unavailable - showing offline data');
     } finally {
       setIsLoadingUsers(false);
     }
