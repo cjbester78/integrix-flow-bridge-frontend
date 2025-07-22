@@ -1,7 +1,7 @@
 export interface CommunicationAdapter {
   id?: string;
   name: string;
-  type: 'rest' | 'soap' | 'file' | 'database' | 'sap' | 'salesforce' | 'email' | 'sms' | 'jms';
+  type: 'rest' | 'soap' | 'file' | 'database' | 'sap' | 'salesforce' | 'email' | 'sms' | 'jms' | 'odata';
   mode: 'inbound' | 'outbound' | 'bidirectional';
   description?: string;
   configuration: AdapterConfiguration;
@@ -93,6 +93,17 @@ export interface AdapterConfiguration {
   messageSelector?: string;
   clientId?: string;
   ackMode?: 'AUTO_ACKNOWLEDGE' | 'CLIENT_ACKNOWLEDGE';
+  
+  // OData Configuration
+  entitySetName?: string;
+  apiVersion?: string;
+  queryOptions?: string;
+  dataMappingRules?: string;
+  dataValidationRules?: string;
+  errorHandling?: string;
+  loggingLevel?: string;
+  wsSecurityPolicies?: string;
+  wsSecurityPolicyType?: string;
   
   // Custom properties
   properties?: { [key: string]: any };
