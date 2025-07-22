@@ -4,7 +4,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Search } from 'lucide-react';
 import { FieldNode, FieldMapping } from './types';
 import { FieldTree } from './FieldTree';
-import { WebserviceSelector } from './WebserviceSelector';
+import { DataStructureSelector } from './DataStructureSelector';
 
 interface SourcePanelProps {
   fields: FieldNode[];
@@ -36,7 +36,7 @@ export function SourcePanel({
       <div className="p-4 border-b bg-background">
         <div className="flex items-center justify-between mb-3">
           <Label className="font-semibold">Source Message</Label>
-          <WebserviceSelector
+          <DataStructureSelector
             isOpen={showSelector}
             onOpenChange={onShowSelectorChange}
             selectedService={selectedService}

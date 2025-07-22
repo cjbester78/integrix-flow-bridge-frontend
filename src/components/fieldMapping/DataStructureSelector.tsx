@@ -6,7 +6,7 @@ import { Search, Settings } from 'lucide-react';
 import { useDataStructures } from '@/hooks/useDataStructures';
 import { DataStructure } from '@/types/dataStructures';
 
-interface WebserviceSelectorProps {
+interface DataStructureSelectorProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   selectedService: string;
@@ -16,7 +16,7 @@ interface WebserviceSelectorProps {
   businessComponentId?: string;
 }
 
-export function WebserviceSelector({ 
+export function DataStructureSelector({ 
   isOpen, 
   onOpenChange, 
   selectedService, 
@@ -24,7 +24,7 @@ export function WebserviceSelector({
   title,
   usage,
   businessComponentId
-}: WebserviceSelectorProps) {
+}: DataStructureSelectorProps) {
   const { structures } = useDataStructures();
   
   // Filter structures by usage type and optionally by business component
