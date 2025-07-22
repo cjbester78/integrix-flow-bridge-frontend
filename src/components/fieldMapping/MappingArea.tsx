@@ -1,24 +1,94 @@
 
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ArrowRight, Code, X, Zap } from 'lucide-react';
-import { FieldMapping } from './types';
+import { FieldMapping, FieldNode } from './types';
 import { FunctionPicker } from './FunctionPicker';
+import { FunctionMappingModal } from './FunctionMappingModal';
 
 interface MappingAreaProps {
   mappings: FieldMapping[];
+  sourceFields?: FieldNode[];
+  targetFields?: FieldNode[];
   onRemoveMapping: (mappingId: string) => void;
   onEditJavaFunction: (mappingId: string) => void;
   onUpdateMapping?: (mappingId: string, updates: Partial<FieldMapping>) => void;
+  onCreateMapping?: (mapping: FieldMapping) => void;
 }
 
-export function MappingArea({ mappings, onRemoveMapping, onEditJavaFunction, onUpdateMapping }: MappingAreaProps) {
+export function MappingArea({ 
+  mappings, 
+  sourceFields = [], 
+  targetFields = [], 
+  onRemoveMapping, 
+  onEditJavaFunction, 
+  onUpdateMapping,
+  onCreateMapping
+}: MappingAreaProps) {
+  const [functionMappingModal, setFunctionMappingModal] = useState<{
+    open: boolean;
+    selectedFunction: string;
+    targetField: FieldNode | null;
+    existingMappingId?: string;
+  }>({
+    open: false,
+    selectedFunction: '',
+    targetField: null
+  });
+
   const handleQuickFunction = (mappingId: string, functionName: string, javaCode: string) => {
-    if (onUpdateMapping) {
-      onUpdateMapping(mappingId, { javaFunction: javaCode });
+    // Find the existing mapping to get the target field
+    const existingMapping = mappings.find(m => m.id === mappingId);
+    if (!existingMapping) return;
+
+    // Find the target field node
+    const targetField = targetFields.find(field => field.name === existingMapping.targetField);
+    if (!targetField) {
+      // Fallback to simple function update if target field not found
+      if (onUpdateMapping) {
+        onUpdateMapping(mappingId, { javaFunction: javaCode });
+      }
+      return;
     }
+
+    // Open the visual mapping modal
+    setFunctionMappingModal({
+      open: true,
+      selectedFunction: functionName,
+      targetField,
+      existingMappingId: mappingId
+    });
   };
+
+  const handleApplyFunctionMapping = (newMapping: FieldMapping) => {
+    if (functionMappingModal.existingMappingId) {
+      // Update existing mapping
+      if (onUpdateMapping) {
+        onUpdateMapping(functionMappingModal.existingMappingId, {
+          functionNode: newMapping.functionNode,
+          javaFunction: newMapping.javaFunction,
+          sourceFields: newMapping.sourceFields,
+          sourcePaths: newMapping.sourcePaths,
+          requiresTransformation: true
+        });
+      }
+    } else {
+      // Create new mapping
+      if (onCreateMapping) {
+        onCreateMapping(newMapping);
+      }
+    }
+
+    // Close the modal
+    setFunctionMappingModal({
+      open: false,
+      selectedFunction: '',
+      targetField: null
+    });
+  };
+
   return (
     <div className="w-1/3 relative bg-background animate-fade-in">
       <div className="p-4 border-b">
@@ -49,6 +119,11 @@ export function MappingArea({ mappings, onRemoveMapping, onEditJavaFunction, onU
                         Pass-through
                       </Badge>
                     )}
+                    {mapping.functionNode && (
+                      <Badge variant="default" className="text-xs">
+                        Function: {mapping.functionNode.functionName}
+                      </Badge>
+                    )}
                   </div>
                   <div className="flex gap-1">
                     {mapping.requiresTransformation !== false && (
@@ -60,7 +135,7 @@ export function MappingArea({ mappings, onRemoveMapping, onEditJavaFunction, onU
                               variant="ghost"
                               size="sm"
                               className="h-6 w-6 p-0 hover-scale"
-                              title="Quick Functions"
+                              title="Visual Function Mapping"
                             >
                               <Zap className="h-3 w-3" />
                             </Button>
@@ -106,7 +181,18 @@ export function MappingArea({ mappings, onRemoveMapping, onEditJavaFunction, onU
                   </div>
                   {mapping.requiresTransformation !== false && (
                     <>
-                      {mapping.javaFunction && (
+                      {mapping.functionNode && (
+                        <div className="mt-2 p-2 bg-primary/10 rounded text-xs">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Zap className="h-3 w-3 text-primary" />
+                            <span className="font-medium text-primary">Function Mapping:</span>
+                          </div>
+                          <div className="text-muted-foreground">
+                            {mapping.functionNode.functionName} with {Object.keys(mapping.functionNode.sourceConnections).length} parameter(s) connected
+                          </div>
+                        </div>
+                      )}
+                      {mapping.javaFunction && !mapping.functionNode && (
                         <div className="mt-2 p-2 bg-background rounded text-xs">
                           <div className="flex items-center gap-2 mb-1">
                             <Code className="h-3 w-3" />
@@ -117,9 +203,9 @@ export function MappingArea({ mappings, onRemoveMapping, onEditJavaFunction, onU
                           </pre>
                         </div>
                       )}
-                      {!mapping.javaFunction && (
+                      {!mapping.javaFunction && !mapping.functionNode && (
                         <div className="mt-2 text-xs text-muted-foreground italic">
-                          Click the code icon to add a custom Java function
+                          Click the lightning icon for visual function mapping or code icon for custom Java
                         </div>
                       )}
                     </>
@@ -135,6 +221,22 @@ export function MappingArea({ mappings, onRemoveMapping, onEditJavaFunction, onU
           </div>
         )}
       </div>
+
+      {/* Function Mapping Modal */}
+      {functionMappingModal.open && functionMappingModal.targetField && (
+        <FunctionMappingModal
+          open={functionMappingModal.open}
+          onClose={() => setFunctionMappingModal({
+            open: false,
+            selectedFunction: '',
+            targetField: null
+          })}
+          selectedFunction={functionMappingModal.selectedFunction}
+          sourceFields={sourceFields}
+          targetField={functionMappingModal.targetField}
+          onApplyMapping={handleApplyFunctionMapping}
+        />
+      )}
     </div>
   );
 }

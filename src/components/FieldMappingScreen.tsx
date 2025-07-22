@@ -12,7 +12,6 @@ import { SourcePanel } from './fieldMapping/SourcePanel';
 import { TargetPanel } from './fieldMapping/TargetPanel';
 import { MappingArea } from './fieldMapping/MappingArea';
 import { JavaEditor } from './fieldMapping/JavaEditor';
-import { VisualMappingCanvas } from './fieldMapping/VisualMappingCanvas';
 import { DataStructure } from '@/types/dataStructures';
 
 interface MappingScreenProps {
@@ -42,8 +41,7 @@ export function FieldMappingScreen({
   const [tempJavaFunction, setTempJavaFunction] = useState('');
   const [mappingName, setMappingName] = useState(initialMappingName);
   const [requiresTransformation, setRequiresTransformation] = useState(true);
-  const [viewMode, setViewMode] = useState<'traditional' | 'visual'>('visual');
-  const [selectedTargetField, setSelectedTargetField] = useState<FieldNode | null>(null);
+  // Remove viewMode - always use traditional view
   
   const { structures } = useDataStructures();
 
@@ -217,18 +215,6 @@ export function FieldMappingScreen({
           </div>
           
           <div className="flex items-center gap-2">
-            <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as 'traditional' | 'visual')}>
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="visual" className="flex items-center gap-2">
-                  <Workflow className="h-4 w-4" />
-                  Visual
-                </TabsTrigger>
-                <TabsTrigger value="traditional" className="flex items-center gap-2">
-                  <List className="h-4 w-4" />
-                  Traditional
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
             <Button 
               variant="outline" 
               onClick={clearAllMappings} 
@@ -259,96 +245,44 @@ export function FieldMappingScreen({
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Main Content - Always Traditional View */}
       <div className="flex h-[calc(100vh-8rem)]">
-        {viewMode === 'traditional' ? (
-          <>
-            <SourcePanel
-              fields={sourceFields}
-              mappings={mappings}
-              selectedService={selectedSource}
-              searchValue={searchSource}
-              showSelector={showSourceSelector}
-              onSearchChange={setSearchSource}
-              onShowSelectorChange={setShowSourceSelector}
-              onSelectService={(service) => selectDataStructure(service, true)}
-              onToggleExpanded={toggleExpanded}
-              onDragStart={handleDragStart}
-            />
+        <SourcePanel
+          fields={sourceFields}
+          mappings={mappings}
+          selectedService={selectedSource}
+          searchValue={searchSource}
+          showSelector={showSourceSelector}
+          onSearchChange={setSearchSource}
+          onShowSelectorChange={setShowSourceSelector}
+          onSelectService={(service) => selectDataStructure(service, true)}
+          onToggleExpanded={toggleExpanded}
+          onDragStart={handleDragStart}
+        />
 
-            <MappingArea
-              mappings={mappings}
-              onRemoveMapping={removeMapping}
-              onEditJavaFunction={handleEditJavaFunction}
-              onUpdateMapping={updateMapping}
-            />
+        <MappingArea
+          mappings={mappings}
+          sourceFields={sourceFields}
+          targetFields={targetFields}
+          onRemoveMapping={removeMapping}
+          onEditJavaFunction={handleEditJavaFunction}
+          onUpdateMapping={updateMapping}
+          onCreateMapping={createMapping}
+        />
 
-            <TargetPanel
-              fields={targetFields}
-              mappings={mappings}
-              selectedService={selectedTarget}
-              searchValue={searchTarget}
-              showSelector={showTargetSelector}
-              onSearchChange={setSearchTarget}
-              onShowSelectorChange={setShowTargetSelector}
-              onSelectService={(service) => selectDataStructure(service, false)}
-              onToggleExpanded={toggleExpanded}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-            />
-          </>
-        ) : (
-          <div className="flex flex-1">
-            <div className="w-1/4 border-r">
-              <SourcePanel
-                fields={sourceFields}
-                mappings={mappings}
-                selectedService={selectedSource}
-                searchValue={searchSource}
-                showSelector={showSourceSelector}
-                onSearchChange={setSearchSource}
-                onShowSelectorChange={setShowSourceSelector}
-                onSelectService={(service) => selectDataStructure(service, true)}
-                onToggleExpanded={toggleExpanded}
-                onDragStart={handleDragStart}
-                onDragEnd={handleDragEnd}
-              />
-            </div>
-            
-            <div className="flex-1">
-                <VisualMappingCanvas
-                  sourceFields={sourceFields}
-                  targetFields={targetFields}
-                  mappings={mappings}
-                  draggedField={draggedField}
-                  onUpdateMapping={updateMapping}
-                  onCreateMapping={createMapping}
-                  onRemoveMapping={removeMapping}
-                  onDragEnd={handleDragEnd}
-                  currentTargetField={selectedTargetField}
-                  selectedSourceStructure={selectedSource}
-                />
-            </div>
-            
-            <div className="w-1/4 border-l">
-              <TargetPanel
-                fields={targetFields}
-                mappings={mappings}
-                selectedService={selectedTarget}
-                searchValue={searchTarget}
-                showSelector={showTargetSelector}
-                selectedField={selectedTargetField}
-                onSearchChange={setSearchTarget}
-                onShowSelectorChange={setShowTargetSelector}
-                onSelectService={(service) => selectDataStructure(service, false)}
-                onToggleExpanded={toggleExpanded}
-                onDragOver={handleDragOver}
-                onDrop={handleDrop}
-                onSelectField={setSelectedTargetField}
-              />
-            </div>
-          </div>
-        )}
+        <TargetPanel
+          fields={targetFields}
+          mappings={mappings}
+          selectedService={selectedTarget}
+          searchValue={searchTarget}
+          showSelector={showTargetSelector}
+          onSearchChange={setSearchTarget}
+          onShowSelectorChange={setShowTargetSelector}
+          onSelectService={(service) => selectDataStructure(service, false)}
+          onToggleExpanded={toggleExpanded}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+        />
       </div>
 
       <JavaEditor
