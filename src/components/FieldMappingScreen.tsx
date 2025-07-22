@@ -2,10 +2,8 @@ import { useState, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Trash2, X, CheckCircle } from 'lucide-react';
 import { FieldNode, FieldMapping } from './fieldMapping/types';
 import { useWebservices } from '@/hooks/useWebservices';
@@ -13,37 +11,20 @@ import { SourcePanel } from './fieldMapping/SourcePanel';
 import { TargetPanel } from './fieldMapping/TargetPanel';
 import { MappingArea } from './fieldMapping/MappingArea';
 import { JavaEditor } from './fieldMapping/JavaEditor';
-import { useBusinessComponentAdapters } from '@/hooks/useBusinessComponentAdapters';
 import { DataStructure } from '@/types/dataStructures';
 
 interface MappingScreenProps {
   onClose?: () => void;
   onSave?: (mappings: FieldMapping[], mappingName: string) => void;
   initialMappingName?: string;
-  sourceBusinessComponent?: string;
-  targetBusinessComponent?: string;
-  sourceStructure?: string;
-  targetStructure?: string;
   sampleStructures?: DataStructure[];
-  onSourceBusinessComponentChange?: (value: string) => void;
-  onTargetBusinessComponentChange?: (value: string) => void;
-  onSourceStructureChange?: (value: string) => void;
-  onTargetStructureChange?: (value: string) => void;
 }
 
 export function FieldMappingScreen({ 
   onClose, 
   onSave, 
   initialMappingName = '',
-  sourceBusinessComponent = '',
-  targetBusinessComponent = '',
-  sourceStructure = '',
-  targetStructure = '',
-  sampleStructures = [],
-  onSourceBusinessComponentChange,
-  onTargetBusinessComponentChange,
-  onSourceStructureChange,
-  onTargetStructureChange
+  sampleStructures = []
 }: MappingScreenProps) {
   const [sourceFields, setSourceFields] = useState<FieldNode[]>([]);
   const [targetFields, setTargetFields] = useState<FieldNode[]>([]);
@@ -59,40 +40,6 @@ export function FieldMappingScreen({
   const [tempJavaFunction, setTempJavaFunction] = useState('');
   const [mappingName, setMappingName] = useState(initialMappingName);
   const [requiresTransformation, setRequiresTransformation] = useState(true);
-  const { businessComponents, loading, getStructuresForBusinessComponent, getAdaptersForBusinessComponent } = useBusinessComponentAdapters();
-
-  const [businessComponentAdapters, setBusinessComponentAdapters] = useState<string[]>([]);
-  const [businessComponentStructures, setBusinessComponentStructures] = useState<string[]>([]);
-
-  useEffect(() => {
-    if (sourceBusinessComponent) {
-      loadBusinessComponentData(sourceBusinessComponent);
-    }
-  }, [sourceBusinessComponent]);
-
-  // Auto-detect if transformation is required based on structure comparison
-  useEffect(() => {
-    if (sourceStructure && targetStructure) {
-      const areStructuresSame = sourceStructure === targetStructure;
-      if (areStructuresSame && requiresTransformation) {
-        setRequiresTransformation(false);
-      }
-    }
-  }, [sourceStructure, targetStructure]);
-
-  const loadBusinessComponentData = async (businessComponentId: string) => {
-    const adapters = await getAdaptersForBusinessComponent(businessComponentId);
-    const structures = await getStructuresForBusinessComponent(businessComponentId);
-    setBusinessComponentAdapters(adapters);
-    setBusinessComponentStructures(structures);
-  };
-
-  const getFilteredStructures = (businessComponentId: string, usage: 'source' | 'target') => {
-    if (!businessComponentId) return sampleStructures.filter(s => s.usage === usage);
-    return sampleStructures.filter(s => 
-      businessComponentStructures.includes(s.id) && s.usage === usage
-    );
-  };
 
   const toggleExpanded = useCallback((nodeId: string, isSource: boolean) => {
     const updateNode = (nodes: FieldNode[]): FieldNode[] => {
@@ -202,105 +149,6 @@ export function FieldMappingScreen({
     <div className="fixed inset-0 bg-background z-50 overflow-hidden animate-fade-in">
       {/* Header */}
       <div className="border-b">
-        {/* Business Component and Structure Selection */}
-        <div className="px-6 py-4 bg-muted/20">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Source Business Component & Structure */}
-            <div className="space-y-3">
-              <div>
-                <Label className="text-sm font-medium text-white">Source Business Component</Label>
-                <Select value={sourceBusinessComponent} onValueChange={onSourceBusinessComponentChange} disabled={loading}>
-                  <SelectTrigger className="bg-card/50 border-border">
-                    <SelectValue placeholder="Select source business component" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {businessComponents.map((businessComponent) => (
-                      <SelectItem key={businessComponent.id} value={businessComponent.id}>
-                        <div className="flex items-center gap-2">
-                          <span>{businessComponent.name}</span>
-                          {businessComponent.description && (
-                            <Badge variant="outline" className="text-xs">{businessComponent.description}</Badge>
-                          )}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div>
-                <Label className="text-sm font-medium text-white">Source Structure</Label>
-                <Select 
-                  value={sourceStructure} 
-                  onValueChange={onSourceStructureChange}
-                  disabled={!sourceBusinessComponent}
-                >
-                  <SelectTrigger className="bg-card/50 border-border">
-                    <SelectValue placeholder="Select source structure" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {getFilteredStructures(sourceBusinessComponent, 'source').map((structure) => (
-                      <SelectItem key={structure.id} value={structure.id}>
-                        <div className="flex items-center gap-2">
-                          <span>{structure.name}</span>
-                          <Badge variant="outline" className="text-xs">{structure.type}</Badge>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            
-            {/* Target Business Component & Structure */}
-            <div className="space-y-3">
-              <div>
-                <Label className="text-sm font-medium text-white">Target Business Component</Label>
-                <Select value={targetBusinessComponent} onValueChange={onTargetBusinessComponentChange} disabled={loading}>
-                  <SelectTrigger className="bg-card/50 border-border">
-                    <SelectValue placeholder="Select target business component" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {businessComponents.map((businessComponent) => (
-                      <SelectItem key={businessComponent.id} value={businessComponent.id}>
-                        <div className="flex items-center gap-2">
-                          <span>{businessComponent.name}</span>
-                          {businessComponent.description && (
-                            <Badge variant="outline" className="text-xs">{businessComponent.description}</Badge>
-                          )}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div>
-                <Label className="text-sm font-medium text-white">Target Structure</Label>
-                <Select 
-                  value={targetStructure} 
-                  onValueChange={onTargetStructureChange}
-                  disabled={!targetBusinessComponent}
-                >
-                  <SelectTrigger className="bg-card/50 border-border">
-                    <SelectValue placeholder="Select target structure" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {getFilteredStructures(targetBusinessComponent, 'target').map((structure) => (
-                      <SelectItem key={structure.id} value={structure.id}>
-                        <div className="flex items-center gap-2">
-                          <span>{structure.name}</span>
-                          <Badge variant="outline" className="text-xs">{structure.type}</Badge>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
-        </div>
-        
         {/* Mapping Name and Actions */}
         <div className="h-16 flex items-center justify-between px-6">
           <div className="flex items-center gap-4">
