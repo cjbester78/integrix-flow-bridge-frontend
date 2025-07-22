@@ -25,6 +25,7 @@ import { IdocReceiverAdapterConfiguration } from '@/components/adapter/IdocRecei
 import { JmsSenderAdapterConfiguration } from '@/components/adapter/JmsSenderAdapterConfiguration';
 import { JmsReceiverAdapterConfiguration } from '@/components/adapter/JmsReceiverAdapterConfiguration';
 import { RestSenderAdapterConfiguration } from '@/components/adapter/RestSenderAdapterConfiguration';
+import { RestReceiverAdapterConfiguration } from '@/components/adapter/RestReceiverAdapterConfiguration';
 import { useToast } from '@/hooks/use-toast';
 import { adapterService } from '@/services/adapter';
 import { 
@@ -691,6 +692,11 @@ export const CreateCommunicationAdapter = () => {
                 />
               ) : selectedAdapter === 'rest' && adapterMode === 'sender' ? (
                 <RestSenderAdapterConfiguration 
+                  configuration={configuration} 
+                  onConfigurationChange={(field, value) => handleConfigurationChange(field, value)} 
+                />
+              ) : selectedAdapter === 'rest' && adapterMode === 'receiver' ? (
+                <RestReceiverAdapterConfiguration 
                   configuration={configuration} 
                   onConfigurationChange={(field, value) => handleConfigurationChange(field, value)} 
                 />
