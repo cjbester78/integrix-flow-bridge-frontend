@@ -1,7 +1,7 @@
 export interface CommunicationAdapter {
   id?: string;
   name: string;
-  type: 'rest' | 'soap' | 'file' | 'database' | 'sap' | 'salesforce' | 'email' | 'sms' | 'jms' | 'odata' | 'rfc';
+  type: 'rest' | 'soap' | 'file' | 'database' | 'sap' | 'salesforce' | 'email' | 'sms' | 'jms' | 'odata' | 'rfc' | 'mail';
   mode: 'inbound' | 'outbound' | 'bidirectional';
   description?: string;
   configuration: AdapterConfiguration;
@@ -120,6 +120,38 @@ export interface AdapterConfiguration {
   listenerServiceName?: string;
   callerServiceName?: string;
   validationRules?: string;
+  
+  // Mail Configuration
+  mailServerHost?: string;
+  mailServerPort?: string;
+  mailProtocol?: string;
+  mailUsername?: string;
+  mailPassword?: string;
+  useSSLTLS?: boolean;
+  folderName?: string;
+  pollingInterval?: string;
+  searchCriteria?: string;
+  maxMessages?: string;
+  contentHandling?: string;
+  mailEncoding?: string;
+  deleteAfterFetch?: boolean;
+  
+  // SMTP Configuration
+  smtpServerHost?: string;
+  smtpServerPort?: string;
+  smtpUseSSLTLS?: boolean;
+  smtpUsername?: string;
+  smtpPassword?: string;
+  connectionTimeout?: string;
+  readTimeout?: string;
+  fromAddress?: string;
+  toAddresses?: string;
+  ccAddresses?: string;
+  bccAddresses?: string;
+  emailSubject?: string;
+  emailBody?: string;
+  emailAttachments?: string;
+  emailEncoding?: string;
   
   // Custom properties
   properties?: { [key: string]: any };

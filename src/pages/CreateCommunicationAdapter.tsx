@@ -32,6 +32,8 @@ import { OdataReceiverAdapterConfiguration } from '@/components/adapter/OdataRec
 import { OdataSenderAdapterConfiguration } from '@/components/adapter/OdataSenderAdapterConfiguration';
 import { RfcReceiverAdapterConfiguration } from '@/components/adapter/RfcReceiverAdapterConfiguration';
 import { RfcSenderAdapterConfiguration } from '@/components/adapter/RfcSenderAdapterConfiguration';
+import { MailReceiverAdapterConfiguration } from '@/components/adapter/MailReceiverAdapterConfiguration';
+import { MailSenderAdapterConfiguration } from '@/components/adapter/MailSenderAdapterConfiguration';
 import { useToast } from '@/hooks/use-toast';
 import { adapterService } from '@/services/adapter';
 import { 
@@ -348,20 +350,19 @@ const communicationAdapters: CommunicationAdapter[] = [
     ]
   },
   {
-    id: 'rfc',
-    name: 'RFC',
-    icon: Server,
-    description: 'SAP Remote Function Call',
-    category: 'SAP',
+    id: 'mail',
+    name: 'MAIL',
+    icon: Mail,
+    description: 'Email communication via IMAP/POP3/SMTP',
+    category: 'Email',
     fields: [
-      { name: 'sapHost', label: 'SAP Host', type: 'text', required: true, placeholder: 'sap.example.com' },
-      { name: 'systemNumber', label: 'System Number', type: 'text', required: true, placeholder: '00' },
-      { name: 'client', label: 'Client', type: 'text', required: true, placeholder: '100' },
-      { name: 'username', label: 'Username', type: 'text', required: true, placeholder: 'SAP Username' },
-      { name: 'password', label: 'Password', type: 'password', required: true, placeholder: 'SAP Password' },
-      { name: 'language', label: 'Language', type: 'text', required: false, placeholder: 'EN' },
-      { name: 'poolSize', label: 'Connection Pool Size', type: 'number', required: false, placeholder: '5' },
-      { name: 'authType', label: 'Authentication', type: 'select', required: false, options: ['None', 'Basic Auth', 'Bearer Token', 'API Key', 'OAuth', 'OAuth 2.0', 'SSL Certificate'] }
+      { name: 'mailServerHost', label: 'Mail Server Host', type: 'text', required: true, placeholder: 'imap.mailserver.com' },
+      { name: 'mailServerPort', label: 'Mail Server Port', type: 'number', required: true, placeholder: '993' },
+      { name: 'mailProtocol', label: 'Protocol', type: 'select', required: true, options: ['IMAP', 'POP3'] },
+      { name: 'mailUsername', label: 'Username', type: 'text', required: true, placeholder: 'user@example.com' },
+      { name: 'mailPassword', label: 'Password', type: 'password', required: true, placeholder: 'password' },
+      { name: 'useSSLTLS', label: 'Use SSL/TLS', type: 'checkbox', required: false },
+      { name: 'folderName', label: 'Folder Name', type: 'text', required: false, placeholder: 'INBOX' }
     ]
   }
 ];
@@ -749,6 +750,16 @@ export const CreateCommunicationAdapter = () => {
                 />
               ) : selectedAdapter === 'rfc' && adapterMode === 'receiver' ? (
                 <RfcReceiverAdapterConfiguration 
+                  configuration={configuration} 
+                  onConfigurationChange={(field, value) => handleConfigurationChange(field, value)} 
+                />
+              ) : selectedAdapter === 'mail' && adapterMode === 'sender' ? (
+                <MailSenderAdapterConfiguration 
+                  configuration={configuration} 
+                  onConfigurationChange={(field, value) => handleConfigurationChange(field, value)} 
+                />
+              ) : selectedAdapter === 'mail' && adapterMode === 'receiver' ? (
+                <MailReceiverAdapterConfiguration 
                   configuration={configuration} 
                   onConfigurationChange={(field, value) => handleConfigurationChange(field, value)} 
                 />
