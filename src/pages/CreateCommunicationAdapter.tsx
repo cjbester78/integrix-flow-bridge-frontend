@@ -26,6 +26,8 @@ import { JmsSenderAdapterConfiguration } from '@/components/adapter/JmsSenderAda
 import { JmsReceiverAdapterConfiguration } from '@/components/adapter/JmsReceiverAdapterConfiguration';
 import { RestSenderAdapterConfiguration } from '@/components/adapter/RestSenderAdapterConfiguration';
 import { RestReceiverAdapterConfiguration } from '@/components/adapter/RestReceiverAdapterConfiguration';
+import { SoapSenderAdapterConfiguration } from '@/components/adapter/SoapSenderAdapterConfiguration';
+import { SoapReceiverAdapterConfiguration } from '@/components/adapter/SoapReceiverAdapterConfiguration';
 import { useToast } from '@/hooks/use-toast';
 import { adapterService } from '@/services/adapter';
 import { 
@@ -697,6 +699,16 @@ export const CreateCommunicationAdapter = () => {
                 />
               ) : selectedAdapter === 'rest' && adapterMode === 'receiver' ? (
                 <RestReceiverAdapterConfiguration 
+                  configuration={configuration} 
+                  onConfigurationChange={(field, value) => handleConfigurationChange(field, value)} 
+                />
+              ) : selectedAdapter === 'soap' && adapterMode === 'sender' ? (
+                <SoapSenderAdapterConfiguration 
+                  configuration={configuration} 
+                  onConfigurationChange={(field, value) => handleConfigurationChange(field, value)} 
+                />
+              ) : selectedAdapter === 'soap' && adapterMode === 'receiver' ? (
+                <SoapReceiverAdapterConfiguration 
                   configuration={configuration} 
                   onConfigurationChange={(field, value) => handleConfigurationChange(field, value)} 
                 />
