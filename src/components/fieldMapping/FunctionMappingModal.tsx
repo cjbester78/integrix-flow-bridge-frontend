@@ -47,7 +47,7 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
     functionName: selectedFunction,
     parameters: {},
     sourceConnections: {},
-    position: { x: 450, y: 120 } // Better centered position between panels
+    position: { x: 450, y: 50 } // Move function much higher up
   });
   
   const [connections, setConnections] = useState<Connection[]>([]);
@@ -254,7 +254,7 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
           </svg>
 
           {/* Source fields panel */}
-          <div className="absolute left-4 top-4 w-72 h-96 overflow-y-auto">
+          <div className="absolute left-4 top-4 w-72 h-80 overflow-y-auto">{/* Reduced height */}
             <div className="bg-card border rounded-lg p-4 shadow-sm h-full">
               <h3 className="font-semibold text-base mb-4 text-primary">Source Fields</h3>
               <div className="space-y-3">
@@ -381,23 +381,23 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
           )}
         </div>
 
-        {/* Status bar */}
-        <div className="border-t bg-muted/30 p-3">
-          <div className="flex justify-between items-center text-sm">
+        {/* Compact status bar */}
+        <div className="border-t bg-muted/30 p-2">
+          <div className="flex justify-between items-center text-xs">
             <div className="text-muted-foreground">
-              Connect source fields to function parameters, then connect function output to target
+              Connect source → function → target
             </div>
-            <div className="flex items-center gap-4 text-xs">
+            <div className="flex items-center gap-3 text-xs">
               <span className={cn(
-                "px-2 py-1 rounded",
+                "px-1.5 py-0.5 rounded text-xs",
                 Object.keys(functionNode.sourceConnections).length > 0 
                   ? "bg-success/20 text-success" 
                   : "bg-muted text-muted-foreground"
               )}>
-                Parameters: {Object.keys(functionNode.sourceConnections).length}/{func.parameters.length}
+                Params: {Object.keys(functionNode.sourceConnections).length}/{func.parameters.length}
               </span>
               <span className={cn(
-                "px-2 py-1 rounded",
+                "px-1.5 py-0.5 rounded text-xs",
                 outputConnected 
                   ? "bg-success/20 text-success" 
                   : "bg-muted text-muted-foreground"
