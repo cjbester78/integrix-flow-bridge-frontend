@@ -32,10 +32,12 @@ export function MappingArea({
     selectedFunction: string;
     targetField: FieldNode | null;
     existingMappingId?: string;
+    filteredSourceFields?: FieldNode[];
   }>({
     open: false,
     selectedFunction: '',
-    targetField: null
+    targetField: null,
+    filteredSourceFields: []
   });
 
   useEffect(() => {
@@ -69,21 +71,31 @@ export function MappingArea({
       return;
     }
 
+    // Filter source fields to only show the ones already mapped in this mapping
+    const mappedSourceFields = sourceFields.filter(field => 
+      existingMapping.sourceFields.includes(field.name) || 
+      existingMapping.sourcePaths.includes(field.path)
+    );
+    
+    console.log('🔍 Existing mapping source fields:', existingMapping.sourceFields);
+    console.log('🔍 Existing mapping source paths:', existingMapping.sourcePaths);
+    console.log('🔍 Filtered source fields for visual mapper:', mappedSourceFields.map(f => f.name));
+
     console.log('✅ Opening visual mapping modal with:', {
       functionName,
       targetField: targetField.name,
-      mappingId
+      mappingId,
+      sourceFieldCount: mappedSourceFields.length
     });
     
-    // Open the visual mapping modal
+    // Open the visual mapping modal with filtered source fields
     setFunctionMappingModal({
       open: true,
       selectedFunction: functionName,
       targetField,
-      existingMappingId: mappingId
+      existingMappingId: mappingId,
+      filteredSourceFields: mappedSourceFields
     });
-    
-    console.log('🔍 Modal state after setting:', functionMappingModal);
   };
 
   const handleApplyFunctionMapping = (newMapping: FieldMapping) => {
@@ -109,7 +121,8 @@ export function MappingArea({
     setFunctionMappingModal({
       open: false,
       selectedFunction: '',
-      targetField: null
+      targetField: null,
+      filteredSourceFields: []
     });
   };
 
@@ -257,10 +270,11 @@ export function MappingArea({
           onClose={() => setFunctionMappingModal({
             open: false,
             selectedFunction: '',
-            targetField: null
+            targetField: null,
+            filteredSourceFields: []
           })}
           selectedFunction={functionMappingModal.selectedFunction}
-          sourceFields={sourceFields}
+          sourceFields={functionMappingModal.filteredSourceFields || sourceFields}
           targetField={functionMappingModal.targetField}
           onApplyMapping={handleApplyFunctionMapping}
         />
