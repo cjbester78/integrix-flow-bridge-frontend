@@ -359,25 +359,25 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
         </svg>
 
         {/* Source fields panel */}
-        <div className="absolute left-4 top-4 w-60 h-full overflow-y-auto">
-          <div className="bg-card border rounded-lg p-3 shadow-sm">
-            <h3 className="font-semibold text-sm mb-3 text-primary">
+        <div className="absolute left-4 top-4 w-80 overflow-y-auto" style={{ height: 'calc(100% - 80px)' }}>
+          <div className="bg-card border rounded-lg p-4 shadow-sm h-full">
+            <h3 className="font-semibold text-base mb-4 text-primary">
               Source Fields {selectedSourceStructure && `(${selectedSourceStructure})`}
             </h3>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {filteredSourceFields.map(field => (
                 <div
                   key={field.id}
                   className={cn(
-                    "bg-background border rounded p-3 cursor-grab transition-all hover:shadow-md",
+                    "bg-background border rounded p-4 cursor-grab transition-all hover:shadow-md",
                     dragState.isDragging && dragState.draggedItem?.id === field.id && "opacity-50"
                   )}
                   draggable
                   onDragStart={(e) => handleSourceFieldDragStart(field, e)}
                   onDragEnd={handleDragEnd}
                 >
-                  <div className="font-medium text-sm">{field.name}</div>
-                  <div className="text-xs text-muted-foreground">{field.type}</div>
+                  <div className="font-medium text-base">{field.name}</div>
+                  <div className="text-sm text-muted-foreground">{field.type}</div>
                 </div>
               ))}
             </div>
@@ -385,7 +385,7 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
         </div>
 
         {/* Function nodes area */}
-        <div className="absolute left-80 top-4 right-80 h-full">
+        <div className="absolute left-96 top-4 right-96 h-full">
           {functionNodes.map(functionNode => {
             const func = getAllFunctions().find(f => f.name === functionNode.functionName);
             if (!func) return null;
@@ -395,9 +395,9 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
                 key={functionNode.id}
                 className="absolute bg-card border-2 border-primary/20 rounded-lg shadow-lg"
                 style={{
-                  left: functionNode.position.x - 320,
+                  left: functionNode.position.x - 384,
                   top: functionNode.position.y,
-                  width: '200px'
+                  width: '240px'
                 }}
               >
                 {/* Function header */}
@@ -455,17 +455,17 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
         </div>
 
         {/* Target fields panel */}
-        <div className="absolute right-4 top-4 w-60 h-full overflow-y-auto">
-          <div className="bg-card border rounded-lg p-3 shadow-sm">
-            <h3 className="font-semibold text-sm mb-3 text-primary">
+        <div className="absolute right-4 top-4 w-80 overflow-y-auto" style={{ height: 'calc(100% - 80px)' }}>
+          <div className="bg-card border rounded-lg p-4 shadow-sm h-full">
+            <h3 className="font-semibold text-base mb-4 text-primary">
               Target Field {currentTargetField && `(${currentTargetField.name})`}
             </h3>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {filteredTargetFields.map(field => (
                 <div
                   key={field.id}
                   className={cn(
-                    "bg-background border rounded p-3 transition-all hover:shadow-md",
+                    "bg-background border rounded p-4 transition-all hover:shadow-md",
                     dropTargets.has(`target-${field.id}`) && "border-primary bg-primary/10"
                   )}
                   onDragOver={(e) => e.preventDefault()}
@@ -474,8 +474,8 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
                     handleDropOnTarget(field);
                   }}
                 >
-                  <div className="font-medium text-sm">{field.name}</div>
-                  <div className="text-xs text-muted-foreground">{field.type}</div>
+                  <div className="font-medium text-base">{field.name}</div>
+                  <div className="text-sm text-muted-foreground">{field.type}</div>
                 </div>
               ))}
             </div>
