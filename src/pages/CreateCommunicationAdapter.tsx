@@ -24,6 +24,7 @@ import { IdocSenderAdapterConfiguration } from '@/components/adapter/IdocSenderA
 import { IdocReceiverAdapterConfiguration } from '@/components/adapter/IdocReceiverAdapterConfiguration';
 import { JmsSenderAdapterConfiguration } from '@/components/adapter/JmsSenderAdapterConfiguration';
 import { JmsReceiverAdapterConfiguration } from '@/components/adapter/JmsReceiverAdapterConfiguration';
+import { RestSenderAdapterConfiguration } from '@/components/adapter/RestSenderAdapterConfiguration';
 import { useToast } from '@/hooks/use-toast';
 import { adapterService } from '@/services/adapter';
 import { 
@@ -687,6 +688,11 @@ export const CreateCommunicationAdapter = () => {
                     status: 'inactive'
                   }}
                   onUpdate={(adapter) => setConfiguration(adapter.configuration)} 
+                />
+              ) : selectedAdapter === 'rest' && adapterMode === 'sender' ? (
+                <RestSenderAdapterConfiguration 
+                  configuration={configuration} 
+                  onConfigurationChange={(field, value) => handleConfigurationChange(field, value)} 
                 />
               ) : (
                 <Card className="animate-scale-in" style={{ animationDelay: '0.2s' }}>
