@@ -12,12 +12,14 @@ interface TargetPanelProps {
   selectedService: string;
   searchValue: string;
   showSelector: boolean;
+  selectedField?: FieldNode | null;
   onSearchChange: (value: string) => void;
   onShowSelectorChange: (show: boolean) => void;
   onSelectService: (service: string) => void;
   onToggleExpanded: (nodeId: string, isSource: boolean) => void;
   onDragOver: (e: React.DragEvent) => void;
   onDrop: (field: FieldNode) => void;
+  onSelectField?: (field: FieldNode) => void;
 }
 
 export function TargetPanel({ 
@@ -26,12 +28,14 @@ export function TargetPanel({
   selectedService, 
   searchValue, 
   showSelector,
+  selectedField,
   onSearchChange,
   onShowSelectorChange,
   onSelectService,
   onToggleExpanded,
   onDragOver,
-  onDrop
+  onDrop,
+  onSelectField
 }: TargetPanelProps) {
   return (
     <div className="w-1/3 border-l bg-muted/20 animate-fade-in">
@@ -75,9 +79,11 @@ export function TargetPanel({
             fields={fields}
             mappings={mappings}
             side="target"
+            selectedField={selectedField}
             onToggleExpanded={onToggleExpanded}
             onDragOver={onDragOver}
             onDrop={onDrop}
+            onSelectField={onSelectField}
           />
         )}
       </div>

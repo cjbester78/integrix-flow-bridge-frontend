@@ -43,6 +43,7 @@ export function FieldMappingScreen({
   const [mappingName, setMappingName] = useState(initialMappingName);
   const [requiresTransformation, setRequiresTransformation] = useState(true);
   const [viewMode, setViewMode] = useState<'traditional' | 'visual'>('visual');
+  const [selectedTargetField, setSelectedTargetField] = useState<FieldNode | null>(null);
   
   const { structures } = useDataStructures();
 
@@ -324,7 +325,7 @@ export function FieldMappingScreen({
                   onCreateMapping={createMapping}
                   onRemoveMapping={removeMapping}
                   onDragEnd={handleDragEnd}
-                  currentTargetField={targetFields[0]}
+                  currentTargetField={selectedTargetField}
                   selectedSourceStructure={selectedSource}
                 />
             </div>
@@ -336,12 +337,14 @@ export function FieldMappingScreen({
                 selectedService={selectedTarget}
                 searchValue={searchTarget}
                 showSelector={showTargetSelector}
+                selectedField={selectedTargetField}
                 onSearchChange={setSearchTarget}
                 onShowSelectorChange={setShowTargetSelector}
                 onSelectService={(service) => selectDataStructure(service, false)}
                 onToggleExpanded={toggleExpanded}
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
+                onSelectField={setSelectedTargetField}
               />
             </div>
           </div>

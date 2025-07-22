@@ -8,39 +8,50 @@ interface FieldTreeProps {
   fields: FieldNode[];
   mappings: FieldMapping[];
   side: 'source' | 'target';
+  selectedField?: FieldNode | null;
   onToggleExpanded: (nodeId: string, isSource: boolean) => void;
   onDragStart?: (field: FieldNode) => void;
   onDragEnd?: () => void;
   onDragOver?: (e: React.DragEvent) => void;
   onDrop?: (field: FieldNode) => void;
+  onSelectField?: (field: FieldNode) => void;
 }
 
 export function FieldTree({ 
   fields, 
   mappings, 
   side, 
+  selectedField,
   onToggleExpanded,
   onDragStart,
   onDragEnd,
   onDragOver,
-  onDrop
+  onDrop,
+  onSelectField
 }: FieldTreeProps) {
   const renderField = useCallback((field: FieldNode, level: number): JSX.Element => {
     const isLeaf = !field.children || field.children.length === 0;
     const isMapped = mappings.some(m => 
       side === 'source' ? m.sourcePaths.includes(field.path) : m.targetPath === field.path
     );
+    const isSelected = selectedField?.id === field.id;
 
     return (
       <div key={field.id} className="w-full">
         <div
           className={`flex items-center p-2 border rounded-md transition-colors ${
+            isSelected ? 'bg-primary/20 border-primary ring-1 ring-primary' :
             isMapped ? 'bg-primary/10 border-primary' : 'bg-background hover:bg-muted/50'
           } ${isLeaf && side === 'source' ? 'cursor-grab active:cursor-grabbing' : ''} ${
-            isLeaf && side === 'target' ? 'border-dashed border-2 hover:border-primary' : ''
+            isLeaf && side === 'target' ? 'border-dashed border-2 hover:border-primary cursor-pointer' : ''
           }`}
           style={{ marginLeft: `${level * 16}px` }}
           draggable={isLeaf && side === 'source'}
+          onClick={() => {
+            if (isLeaf && side === 'target' && onSelectField) {
+              onSelectField(field);
+            }
+          }}
           onDragStart={(e) => {
             if (isLeaf && side === 'source' && onDragStart) {
               e.dataTransfer.effectAllowed = 'copy';
@@ -94,7 +105,7 @@ export function FieldTree({
         )}
       </div>
     );
-  }, [mappings, side, onToggleExpanded, onDragStart, onDragEnd, onDragOver, onDrop]);
+  }, [mappings, side, selectedField, onToggleExpanded, onDragStart, onDragEnd, onDragOver, onDrop, onSelectField]);
 
   return (
     <div className="space-y-2">
