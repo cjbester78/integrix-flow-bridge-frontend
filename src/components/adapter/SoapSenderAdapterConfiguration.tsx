@@ -58,25 +58,200 @@ export function SoapSenderAdapterConfiguration({
         );
       case 'ws-security':
         return (
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="auth-username">Username</Label>
-              <Input
-                id="auth-username"
-                value={credentials.username || ''}
-                onChange={(e) => handleAuthFieldChange('username', e.target.value)}
-                placeholder="Enter username"
-              />
+          <div className="space-y-6">
+            {/* Authentication Credentials */}
+            <div className="space-y-4">
+              <h4 className="text-md font-medium text-muted-foreground">Authentication Credentials</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="auth-username">Username</Label>
+                  <Input
+                    id="auth-username"
+                    value={credentials.username || ''}
+                    onChange={(e) => handleAuthFieldChange('username', e.target.value)}
+                    placeholder="Enter username"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="auth-password">Password</Label>
+                  <Input
+                    id="auth-password"
+                    type="password"
+                    value={credentials.password || ''}
+                    onChange={(e) => handleAuthFieldChange('password', e.target.value)}
+                    placeholder="Enter password"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password-type">Password Type</Label>
+                  <Select
+                    value={credentials.passwordType || 'digest'}
+                    onValueChange={(value) => handleAuthFieldChange('passwordType', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select password type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="digest">Password Digest</SelectItem>
+                      <SelectItem value="plaintext">Plain Text</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="auth-password">Password</Label>
-              <Input
-                id="auth-password"
-                type="password"
-                value={credentials.password || ''}
-                onChange={(e) => handleAuthFieldChange('password', e.target.value)}
-                placeholder="Enter password"
-              />
+
+            {/* WS-Security Policies */}
+            <div className="space-y-4">
+              <h4 className="text-md font-medium text-muted-foreground">WS-Security Policies</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="security-policy">Security Policy</Label>
+                  <Select
+                    value={credentials.securityPolicy || ''}
+                    onValueChange={(value) => handleAuthFieldChange('securityPolicy', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select security policy" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="usernametoken">Username Token Only</SelectItem>
+                      <SelectItem value="timestamp">Timestamp</SelectItem>
+                      <SelectItem value="usernametoken-timestamp">Username Token + Timestamp</SelectItem>
+                      <SelectItem value="sign">Digital Sign</SelectItem>
+                      <SelectItem value="encrypt">Encrypt</SelectItem>
+                      <SelectItem value="sign-encrypt">Sign + Encrypt</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="ws-addressing">WS-Addressing</Label>
+                  <Select
+                    value={credentials.wsAddressing || 'disabled'}
+                    onValueChange={(value) => handleAuthFieldChange('wsAddressing', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select WS-Addressing" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="disabled">Disabled</SelectItem>
+                      <SelectItem value="optional">Optional</SelectItem>
+                      <SelectItem value="required">Required</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="timestamp-ttl">Timestamp TTL (seconds)</Label>
+                  <Input
+                    id="timestamp-ttl"
+                    type="number"
+                    value={credentials.timestampTTL || ''}
+                    onChange={(e) => handleAuthFieldChange('timestampTTL', e.target.value)}
+                    placeholder="300"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="security-algorithm">Security Algorithm</Label>
+                  <Select
+                    value={credentials.securityAlgorithm || ''}
+                    onValueChange={(value) => handleAuthFieldChange('securityAlgorithm', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select algorithm" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="aes128">AES-128</SelectItem>
+                      <SelectItem value="aes256">AES-256</SelectItem>
+                      <SelectItem value="3des">Triple DES</SelectItem>
+                      <SelectItem value="rsa15">RSA 1.5</SelectItem>
+                      <SelectItem value="rsa-oaep">RSA-OAEP</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
+            {/* Certificate and Key Management */}
+            <div className="space-y-4">
+              <h4 className="text-md font-medium text-muted-foreground">Certificate & Key Management</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="keystore-alias">Private Key Alias</Label>
+                  <Input
+                    id="keystore-alias"
+                    value={credentials.keystoreAlias || ''}
+                    onChange={(e) => handleAuthFieldChange('keystoreAlias', e.target.value)}
+                    placeholder="mykey"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="keystore-password">Private Key Password</Label>
+                  <Input
+                    id="keystore-password"
+                    type="password"
+                    value={credentials.keystorePassword || ''}
+                    onChange={(e) => handleAuthFieldChange('keystorePassword', e.target.value)}
+                    placeholder="Enter private key password"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="certificate-alias">Certificate Alias</Label>
+                  <Input
+                    id="certificate-alias"
+                    value={credentials.certificateAlias || ''}
+                    onChange={(e) => handleAuthFieldChange('certificateAlias', e.target.value)}
+                    placeholder="receiver-cert"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="verify-server-certificate">Verify Server Certificate</Label>
+                  <Select
+                    value={credentials.verifyServerCertificate || 'true'}
+                    onValueChange={(value) => handleAuthFieldChange('verifyServerCertificate', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select verification" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="true">Yes</SelectItem>
+                      <SelectItem value="false">No</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
+            {/* Advanced WS-Security Settings */}
+            <div className="space-y-4">
+              <h4 className="text-md font-medium text-muted-foreground">Advanced Settings</h4>
+              <div className="grid grid-cols-1 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="custom-policy">Custom Security Policy</Label>
+                  <Textarea
+                    id="custom-policy"
+                    value={credentials.customPolicy || ''}
+                    onChange={(e) => handleAuthFieldChange('customPolicy', e.target.value)}
+                    placeholder="Enter custom WS-Security policy XML if needed"
+                    rows={3}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="security-token-reference">Security Token Reference</Label>
+                  <Select
+                    value={credentials.securityTokenReference || 'binarySecurityToken'}
+                    onValueChange={(value) => handleAuthFieldChange('securityTokenReference', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select token reference" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="binarySecurityToken">Binary Security Token</SelectItem>
+                      <SelectItem value="keyIdentifier">Key Identifier</SelectItem>
+                      <SelectItem value="x509Data">X509 Data</SelectItem>
+                      <SelectItem value="thumbprint">Thumbprint Reference</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </div>
           </div>
         );
