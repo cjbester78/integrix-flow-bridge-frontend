@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { FunctionPicker } from './FunctionPicker';
+import { FunctionMappingModal } from './FunctionMappingModal';
 import { FieldNode, FieldMapping, FunctionNodeData } from './types';
 import { functionsByCategory, TransformationFunction } from '@/services/transformationFunctions';
 import { Plus, X, Settings, Play } from 'lucide-react';
@@ -61,6 +62,15 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
     startPosition: { x: 0, y: 0 }
   });
   const [dropTargets, setDropTargets] = useState<Set<string>>(new Set());
+  const [functionMappingModal, setFunctionMappingModal] = useState<{
+    open: boolean;
+    selectedFunction: string;
+    targetField: FieldNode | null;
+  }>({
+    open: false,
+    selectedFunction: '',
+    targetField: null
+  });
 
   // Filter fields based on current context
   const filteredSourceFields = currentTargetField && selectedSourceStructure 
@@ -280,6 +290,26 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
     return Object.values(functionsByCategory).flat();
   };
 
+  // Handle function mapping from modal
+  const handleApplyFunctionMapping = useCallback((mapping: FieldMapping) => {
+    // Remove any existing mapping for this target field
+    mappings.forEach(existingMapping => {
+      if (existingMapping.targetField === mapping.targetField) {
+        onRemoveMapping(existingMapping.id);
+      }
+    });
+    
+    // Create the new function-based mapping
+    onCreateMapping(mapping);
+    
+    // Close the modal
+    setFunctionMappingModal({
+      open: false,
+      selectedFunction: '',
+      targetField: null
+    });
+  }, [mappings, onCreateMapping, onRemoveMapping]);
+
   // Render the visual mapping canvas with SAP-like styling
   return (
     <div className="relative w-full h-full bg-background overflow-hidden border rounded-lg">
@@ -289,7 +319,14 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
           <FunctionPicker
             onFunctionSelect={(functionName, javaCode) => {
               console.log('Function selected from picker:', functionName, javaCode);
-              addFunctionNode(functionName);
+              // Open the function mapping modal instead of adding directly to canvas
+              if (currentTargetField) {
+                setFunctionMappingModal({
+                  open: true,
+                  selectedFunction: functionName,
+                  targetField: currentTargetField
+                });
+              }
             }}
             trigger={
               <Button variant="outline" size="sm" className="h-8">
@@ -516,6 +553,20 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Function Mapping Modal */}
+      <FunctionMappingModal
+        open={functionMappingModal.open}
+        onClose={() => setFunctionMappingModal({
+          open: false,
+          selectedFunction: '',
+          targetField: null
+        })}
+        selectedFunction={functionMappingModal.selectedFunction}
+        sourceFields={filteredSourceFields}
+        targetField={functionMappingModal.targetField!}
+        onApplyMapping={handleApplyFunctionMapping}
+      />
     </div>
   );
 };
