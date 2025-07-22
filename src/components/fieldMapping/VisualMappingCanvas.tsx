@@ -1,11 +1,10 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { FunctionPicker } from './FunctionPicker';
-import { FunctionNode } from './FunctionNode';
 import { FieldNode, FieldMapping, FunctionNodeData } from './types';
 import { functionsByCategory, TransformationFunction } from '@/services/transformationFunctions';
-import { Plus, Zap, X } from 'lucide-react';
+import { Plus, X, Settings, Play } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface VisualMappingCanvasProps {
   sourceFields: FieldNode[];
@@ -18,6 +17,24 @@ interface VisualMappingCanvasProps {
   onDragEnd: () => void;
 }
 
+interface Connection {
+  id: string;
+  sourceId: string;
+  targetId: string;
+  sourceX: number;
+  sourceY: number;
+  targetX: number;
+  targetY: number;
+  type: 'field' | 'function';
+}
+
+interface DragState {
+  isDragging: boolean;
+  draggedItem: FieldNode | FunctionNodeData | null;
+  dragType: 'source' | 'function-output' | null;
+  startPosition: { x: number; y: number };
+}
+
 export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
   sourceFields,
   targetFields,
@@ -28,15 +45,21 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
   onRemoveMapping,
   onDragEnd
 }) => {
-  const [functionNodes, setFunctionNodes] = useState<FunctionNodeData[]>([]);
-  const [draggedFromFunction, setDraggedFromFunction] = useState<string | null>(null);
-  const [internalDraggedField, setInternalDraggedField] = useState<FieldNode | null>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+  
+  const [functionNodes, setFunctionNodes] = useState<FunctionNodeData[]>([]);
+  const [connections, setConnections] = useState<Connection[]>([]);
+  const [dragState, setDragState] = useState<DragState>({
+    isDragging: false,
+    draggedItem: null,
+    dragType: null,
+    startPosition: { x: 0, y: 0 }
+  });
+  const [dropTargets, setDropTargets] = useState<Set<string>>(new Set());
 
-  // Use internal dragged field if available, otherwise external
-  const draggedField = internalDraggedField || externalDraggedField;
-
-  const addFunctionNode = (functionName: string) => {
+  // Function management
+  const addFunctionNode = useCallback((functionName: string) => {
     const allFunctions = Object.values(functionsByCategory).flat();
     const func = allFunctions.find(f => f.name === functionName);
     if (!func) return;
@@ -46,89 +69,106 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
       functionName,
       parameters: {},
       sourceConnections: {},
-      position: { x: 300, y: 200 + functionNodes.length * 150 }
+      position: { 
+        x: 400 + functionNodes.length * 50, 
+        y: 150 + functionNodes.length * 100 
+      }
     };
 
     setFunctionNodes(prev => [...prev, newFunctionNode]);
-  };
+  }, [functionNodes.length]);
 
-  const removeFunctionNode = (nodeId: string) => {
+  const removeFunctionNode = useCallback((nodeId: string) => {
     setFunctionNodes(prev => prev.filter(n => n.id !== nodeId));
-    // Also remove any mappings that use this function
+    setConnections(prev => prev.filter(c => !c.id.includes(nodeId)));
+    
+    // Remove mappings that use this function
     mappings.forEach(mapping => {
       if (mapping.functionNode?.id === nodeId) {
         onRemoveMapping(mapping.id);
       }
     });
-  };
+  }, [mappings, onRemoveMapping]);
 
-  const updateFunctionNodeParameter = (nodeId: string, paramName: string, value: string) => {
-    setFunctionNodes(prev => prev.map(node =>
-      node.id === nodeId
-        ? {
-            ...node,
-            parameters: { ...node.parameters, [paramName]: value }
-          }
-        : node
-    ));
-  };
-
-  const handleDropOnFunctionParameter = (nodeId: string, paramName: string) => {
-    if (!draggedField) return;
-
-    setFunctionNodes(prev => prev.map(node =>
-      node.id === nodeId
-        ? {
-            ...node,
-            sourceConnections: {
-              ...node.sourceConnections,
-              [paramName]: [...(node.sourceConnections[paramName] || []), draggedField.path]
-            }
-          }
-        : node
-    ));
+  // Drag and drop handlers
+  const handleSourceFieldDragStart = useCallback((field: FieldNode, event: React.DragEvent) => {
+    setDragState({
+      isDragging: true,
+      draggedItem: field,
+      dragType: 'source',
+      startPosition: { x: event.clientX, y: event.clientY }
+    });
     
-    setInternalDraggedField(null);
+    // Highlight potential drop targets
+    const targets = new Set<string>();
+    targetFields.forEach(tf => targets.add(`target-${tf.id}`));
+    functionNodes.forEach(fn => {
+      const func = getAllFunctions().find(f => f.name === fn.functionName);
+      func?.parameters.forEach(param => targets.add(`param-${fn.id}-${param.name}`));
+    });
+    setDropTargets(targets);
+  }, [targetFields, functionNodes]);
+
+  const handleFunctionOutputDragStart = useCallback((functionNode: FunctionNodeData, event: React.DragEvent) => {
+    setDragState({
+      isDragging: true,
+      draggedItem: functionNode,
+      dragType: 'function-output',
+      startPosition: { x: event.clientX, y: event.clientY }
+    });
+    
+    // Highlight target fields
+    const targets = new Set<string>();
+    targetFields.forEach(tf => targets.add(`target-${tf.id}`));
+    setDropTargets(targets);
+  }, [targetFields]);
+
+  const handleDragEnd = useCallback(() => {
+    setDragState({
+      isDragging: false,
+      draggedItem: null,
+      dragType: null,
+      startPosition: { x: 0, y: 0 }
+    });
+    setDropTargets(new Set());
     onDragEnd();
-  };
+  }, [onDragEnd]);
 
-  const handleParameterFieldSelect = (nodeId: string, paramName: string, fieldPath: string) => {
-    setFunctionNodes(prev => prev.map(node =>
-      node.id === nodeId
-        ? {
-            ...node,
-            sourceConnections: {
-              ...node.sourceConnections,
-              [paramName]: [...(node.sourceConnections[paramName] || []), fieldPath]
-            }
-          }
-        : node
-    ));
-  };
+  // Drop handlers
+  const handleDropOnTarget = useCallback((targetField: FieldNode) => {
+    if (!dragState.isDragging) return;
 
-  const handleParameterFieldRemove = (nodeId: string, paramName: string, fieldPath: string) => {
-    setFunctionNodes(prev => prev.map(node =>
-      node.id === nodeId
-        ? {
-            ...node,
-            sourceConnections: {
-              ...node.sourceConnections,
-              [paramName]: (node.sourceConnections[paramName] || []).filter(path => path !== fieldPath)
-            }
-          }
-        : node
-    ));
-  };
+    if (dragState.dragType === 'source' && dragState.draggedItem) {
+      const sourceField = dragState.draggedItem as FieldNode;
+      
+      const newMapping: FieldMapping = {
+        id: `mapping_${Date.now()}`,
+        name: `${sourceField.name}_to_${targetField.name}`,
+        sourceFields: [sourceField.name],
+        targetField: targetField.name,
+        sourcePaths: [sourceField.path],
+        targetPath: targetField.path,
+        requiresTransformation: false
+      };
 
-  const handleDropOnTarget = (targetField: FieldNode) => {
-    if (!draggedFromFunction && !draggedField) return;
-
-    if (draggedFromFunction) {
-      // Create mapping from function output to target field
-      const functionNode = functionNodes.find(f => f.id === draggedFromFunction);
-      if (!functionNode) return;
-
-      // Get all source fields connected to this function
+      onCreateMapping(newMapping);
+      
+      // Add visual connection
+      const connection: Connection = {
+        id: `connection_${Date.now()}`,
+        sourceId: sourceField.id,
+        targetId: targetField.id,
+        sourceX: 200,
+        sourceY: 100,
+        targetX: 800,
+        targetY: 100,
+        type: 'field'
+      };
+      setConnections(prev => [...prev, connection]);
+    } else if (dragState.dragType === 'function-output' && dragState.draggedItem) {
+      const functionNode = dragState.draggedItem as FunctionNodeData;
+      
+      // Get connected source fields
       const connectedSourceFields: string[] = [];
       const connectedSourcePaths: string[] = [];
       
@@ -151,268 +191,290 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
       };
 
       onCreateMapping(newMapping);
-      setDraggedFromFunction(null);
-    } else if (draggedField) {
-      // Direct field mapping (existing logic)
-      const newMapping: FieldMapping = {
-        id: `mapping_${Date.now()}`,
-        name: `${draggedField.name}_to_${targetField.name}`,
-        sourceFields: [draggedField.name],
-        targetField: targetField.name,
-        sourcePaths: [draggedField.path],
-        targetPath: targetField.path,
-        requiresTransformation: false
+      
+      // Add visual connection
+      const connection: Connection = {
+        id: `connection_${Date.now()}`,
+        sourceId: functionNode.id,
+        targetId: targetField.id,
+        sourceX: functionNode.position.x + 200,
+        sourceY: functionNode.position.y + 50,
+        targetX: 800,
+        targetY: 100,
+        type: 'function'
       };
-
-      onCreateMapping(newMapping);
+      setConnections(prev => [...prev, connection]);
     }
-  };
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-  };
+    handleDragEnd();
+  }, [dragState, onCreateMapping, handleDragEnd]);
+
+  const handleDropOnFunctionParameter = useCallback((functionNode: FunctionNodeData, paramName: string) => {
+    if (!dragState.isDragging || dragState.dragType !== 'source') return;
+    
+    const sourceField = dragState.draggedItem as FieldNode;
+    if (!sourceField) return;
+
+    setFunctionNodes(prev => prev.map(node =>
+      node.id === functionNode.id
+        ? {
+            ...node,
+            sourceConnections: {
+              ...node.sourceConnections,
+              [paramName]: [...(node.sourceConnections[paramName] || []), sourceField.path]
+            }
+          }
+        : node
+    ));
+
+    // Add visual connection to function parameter
+    const connection: Connection = {
+      id: `connection_${Date.now()}`,
+      sourceId: sourceField.id,
+      targetId: `${functionNode.id}-${paramName}`,
+      sourceX: 200,
+      sourceY: 100,
+      targetX: functionNode.position.x,
+      targetY: functionNode.position.y + 50,
+      type: 'field'
+    };
+    setConnections(prev => [...prev, connection]);
+
+    handleDragEnd();
+  }, [dragState, handleDragEnd]);
 
   const getAllFunctions = () => {
     return Object.values(functionsByCategory).flat();
   };
 
-  const renderConnectionLines = () => {
-    return (
-      <svg className="absolute inset-0 pointer-events-none z-5" style={{ overflow: 'visible' }}>
-        <defs>
-          <marker
-            id="arrowhead"
-            markerWidth="10"
-            markerHeight="7"
-            refX="9"
-            refY="3.5"
-            orient="auto"
-          >
-            <polygon
-              points="0 0, 10 3.5, 0 7"
-              fill="hsl(var(--primary))"
-            />
-          </marker>
-        </defs>
-        
-        {/* Render connections from source fields to function parameters */}
-        {functionNodes.map(functionNode => 
-          Object.entries(functionNode.sourceConnections).map(([paramName, sourcePaths]) =>
-            sourcePaths.map((sourcePath, index) => (
-              <line
-                key={`${functionNode.id}-${paramName}-${index}`}
-                x1="200"
-                y1="100"
-                x2={functionNode.position.x}
-                y2={functionNode.position.y + 80}
-                stroke="hsl(var(--primary))"
+  // Render the visual mapping canvas with SAP-like styling
+  return (
+    <div className="relative w-full h-full bg-background overflow-hidden border rounded-lg">
+      {/* Professional toolbar like SAP */}
+      <div className="flex items-center justify-between p-3 border-b bg-muted/30">
+        <div className="flex items-center gap-2">
+          <FunctionPicker
+            onFunctionSelect={addFunctionNode}
+            trigger={
+              <Button variant="outline" size="sm" className="h-8">
+                <Plus className="h-4 w-4 mr-1" />
+                Add Function
+              </Button>
+            }
+          />
+          <Button variant="outline" size="sm" className="h-8">
+            <Settings className="h-4 w-4 mr-1" />
+            Settings
+          </Button>
+          <Button variant="outline" size="sm" className="h-8">
+            <Play className="h-4 w-4 mr-1" />
+            Test Mapping
+          </Button>
+        </div>
+        <div className="text-sm text-muted-foreground">
+          {mappings.length} mapping(s) • {functionNodes.length} function(s)
+        </div>
+      </div>
+
+      {/* Main canvas area */}
+      <div 
+        ref={canvasRef}
+        className="relative w-full h-full bg-background/50"
+        style={{ height: 'calc(100% - 60px)' }}
+      >
+        {/* SVG for connections */}
+        <svg
+          ref={svgRef}
+          className="absolute inset-0 w-full h-full pointer-events-none z-10"
+          style={{ overflow: 'visible' }}
+        >
+          <defs>
+            <marker
+              id="arrowhead"
+              markerWidth="10"
+              markerHeight="7"
+              refX="9"
+              refY="3.5"
+              orient="auto"
+              markerUnits="strokeWidth"
+            >
+              <polygon
+                points="0 0, 10 3.5, 0 7"
+                fill="hsl(var(--primary))"
+              />
+            </marker>
+            <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="1" dy="1" stdDeviation="1" floodOpacity="0.3"/>
+            </filter>
+          </defs>
+          
+          {/* Render all connections */}
+          {connections.map(connection => (
+            <g key={connection.id}>
+              <path
+                d={`M ${connection.sourceX} ${connection.sourceY} 
+                   C ${connection.sourceX + 100} ${connection.sourceY}, 
+                     ${connection.targetX - 100} ${connection.targetY}, 
+                     ${connection.targetX} ${connection.targetY}`}
+                stroke={connection.type === 'function' ? 'hsl(var(--primary))' : 'hsl(var(--primary))'}
                 strokeWidth="2"
+                fill="none"
                 markerEnd="url(#arrowhead)"
                 className="animate-draw-line"
               />
-            ))
-          )
-        )}
-        
-        {/* Render connections from function outputs to target fields */}
-        {mappings
-          .filter(mapping => mapping.functionNode)
-          .map(mapping => (
-            <line
-              key={`output-${mapping.id}`}
-              x1={mapping.functionNode!.position.x + 200}
-              y1={mapping.functionNode!.position.y + 80}
-              x2="800"
-              y2="100"
-              stroke="hsl(var(--success))"
-              strokeWidth="2"
-              markerEnd="url(#arrowhead)"
-              className="animate-fade-in"
-            />
-          ))
-        }
-        
-        {/* Render direct field mappings (no functions) */}
-        {mappings
-          .filter(mapping => !mapping.functionNode)
-          .map(mapping => (
-            <line
-              key={`direct-${mapping.id}`}
-              x1="200"
-              y1="50"
-              x2="800"
-              y2="50"
-              stroke="hsl(var(--primary))"
-              strokeWidth="2"
-              markerEnd="url(#arrowhead)"
-              className="animate-fade-in"
-              strokeDasharray="5,5"
-            />
-          ))
-        }
-      </svg>
-    );
-  };
+            </g>
+          ))}
+        </svg>
 
-  return (
-    <div 
-      ref={canvasRef}
-      className="relative w-full h-full bg-muted/10 overflow-auto"
-      onDragOver={handleDragOver}
-    >
-      <div className="absolute top-4 left-4 z-20">
-        <FunctionPicker
-          onFunctionSelect={(functionName) => addFunctionNode(functionName)}
-          trigger={
-            <Button variant="outline" size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Function
-            </Button>
-          }
-        />
-      </div>
-
-      {/* Function Nodes */}
-      {functionNodes.map(functionNode => {
-        const func = getAllFunctions().find(f => f.name === functionNode.functionName);
-        if (!func) return null;
-
-        return (
-          <FunctionNode
-            key={functionNode.id}
-            id={functionNode.id}
-            func={func}
-            parameterValues={functionNode.parameters}
-            sourceConnections={functionNode.sourceConnections}
-            position={functionNode.position}
-            availableFields={sourceFields}
-            onParameterChange={(paramName, value) => 
-              updateFunctionNodeParameter(functionNode.id, paramName, value)
-            }
-            onParameterFieldSelect={(paramName, fieldPath) =>
-              handleParameterFieldSelect(functionNode.id, paramName, fieldPath)
-            }
-            onParameterFieldRemove={(paramName, fieldPath) =>
-              handleParameterFieldRemove(functionNode.id, paramName, fieldPath)
-            }
-            onRemove={() => removeFunctionNode(functionNode.id)}
-            onDragOver={handleDragOver}
-            onDropOnParameter={(paramName) => 
-              handleDropOnFunctionParameter(functionNode.id, paramName)
-            }
-          />
-        );
-      })}
-
-      {/* Function output drag handlers */}
-      {functionNodes.map(functionNode => (
-        <div
-          key={`output-${functionNode.id}`}
-          className="absolute bg-success/20 border border-success rounded p-2 cursor-grab z-10 hover:bg-success/30 transition-colors"
-          style={{ 
-            left: functionNode.position.x + 220, 
-            top: functionNode.position.y + 160,
-            width: '100px',
-            textAlign: 'center'
-          }}
-          draggable
-          onDragStart={() => setDraggedFromFunction(functionNode.id)}
-          onDragEnd={() => setDraggedFromFunction(null)}
-        >
-          <div className="text-xs font-medium text-success">
-            {functionNode.functionName} output
-          </div>
-        </div>
-      ))}
-
-      {/* Source field drag sources */}
-      <div className="absolute left-4 top-16 space-y-2 z-10">
-        <div className="text-sm font-semibold mb-2 text-muted-foreground">Source Fields</div>
-        {sourceFields.map(field => (
-          <div
-            key={field.id}
-            className="bg-primary/10 border border-primary/20 rounded p-3 min-w-[120px] cursor-grab hover:bg-primary/20 transition-colors animate-fade-in"
-            draggable
-            onDragStart={(e) => {
-              e.dataTransfer.setData('application/reactflow', JSON.stringify(field));
-              setInternalDraggedField(field);
-            }}
-            onDragEnd={() => {
-              setInternalDraggedField(null);
-              onDragEnd();
-            }}
-          >
-            <div className="text-sm font-medium text-primary">{field.name}</div>
-            <div className="text-xs text-primary/70">{field.type}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Target field drop zones */}
-      <div className="absolute right-4 top-16 space-y-2 z-10">
-        <div className="text-sm font-semibold mb-2 text-muted-foreground">Target Fields</div>
-        {targetFields.map(field => (
-          <div
-            key={field.id}
-            className="bg-card border rounded p-3 min-w-[120px] cursor-pointer hover:bg-accent/50 transition-colors animate-fade-in"
-            onDragOver={handleDragOver}
-            onDrop={(e) => {
-              e.preventDefault();
-              handleDropOnTarget(field);
-              setInternalDraggedField(null);
-              onDragEnd();
-            }}
-          >
-            <div className="text-sm font-medium">{field.name}</div>
-            <div className="text-xs text-muted-foreground">{field.type}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Existing mappings display */}
-      <div className="absolute bottom-4 left-4 right-4 z-10">
-        <div className="bg-card border rounded p-3 max-h-32 overflow-y-auto animate-fade-in">
-          <div className="text-sm font-medium mb-2">Active Mappings ({mappings.length})</div>
-          <div className="space-y-1">
-            {mappings.map(mapping => (
-              <div key={mapping.id} className="text-xs p-2 bg-muted rounded flex justify-between items-center animate-scale-in">
-                <span>
-                  {mapping.functionNode ? (
-                    <>
-                      {mapping.sourceFields.join(', ')} → {mapping.functionNode.functionName} → {mapping.targetField}
-                    </>
-                  ) : (
-                    <>
-                      {mapping.sourceFields.join(', ')} → {mapping.targetField}
-                    </>
+        {/* Source fields panel */}
+        <div className="absolute left-4 top-4 w-60 h-full overflow-y-auto">
+          <div className="bg-card border rounded-lg p-3 shadow-sm">
+            <h3 className="font-semibold text-sm mb-3 text-primary">Source Fields</h3>
+            <div className="space-y-2">
+              {sourceFields.map(field => (
+                <div
+                  key={field.id}
+                  className={cn(
+                    "bg-background border rounded p-3 cursor-grab transition-all hover:shadow-md",
+                    dragState.isDragging && dragState.draggedItem?.id === field.id && "opacity-50"
                   )}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onRemoveMapping(mapping.id)}
-                  className="h-6 w-6 p-0 text-destructive hover-scale"
+                  draggable
+                  onDragStart={(e) => handleSourceFieldDragStart(field, e)}
+                  onDragEnd={handleDragEnd}
                 >
-                  <X className="h-3 w-3" />
-                </Button>
+                  <div className="font-medium text-sm">{field.name}</div>
+                  <div className="text-xs text-muted-foreground">{field.type}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Function nodes area */}
+        <div className="absolute left-80 top-4 right-80 h-full">
+          {functionNodes.map(functionNode => {
+            const func = getAllFunctions().find(f => f.name === functionNode.functionName);
+            if (!func) return null;
+
+            return (
+              <div
+                key={functionNode.id}
+                className="absolute bg-card border-2 border-primary/20 rounded-lg shadow-lg"
+                style={{
+                  left: functionNode.position.x - 320,
+                  top: functionNode.position.y,
+                  width: '200px'
+                }}
+              >
+                {/* Function header */}
+                <div className="bg-primary text-primary-foreground p-2 rounded-t-lg flex justify-between items-center">
+                  <span className="font-medium text-sm">{func.name}</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeFunctionNode(functionNode.id)}
+                    className="h-6 w-6 p-0 text-primary-foreground hover:bg-primary-foreground/20"
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+
+                {/* Function parameters */}
+                <div className="p-3 space-y-2">
+                  {func.parameters.map(param => (
+                    <div
+                      key={param.name}
+                      className={cn(
+                        "border border-dashed border-muted-foreground/30 rounded p-2 text-xs transition-colors",
+                        dropTargets.has(`param-${functionNode.id}-${param.name}`) && 
+                        "border-primary bg-primary/10"
+                      )}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        handleDropOnFunctionParameter(functionNode, param.name);
+                      }}
+                    >
+                      <div className="font-medium">{param.name}</div>
+                      <div className="text-muted-foreground">{param.type}</div>
+                      {functionNode.sourceConnections[param.name]?.map((path, idx) => (
+                        <div key={idx} className="text-xs bg-muted rounded px-1 mt-1">
+                          {path.split('.').pop()}
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Function output */}
+                <div
+                  className="bg-success/10 border-t border-success/20 p-2 text-center cursor-grab hover:bg-success/20 transition-colors"
+                  draggable
+                  onDragStart={(e) => handleFunctionOutputDragStart(functionNode, e)}
+                  onDragEnd={handleDragEnd}
+                >
+                  <div className="text-xs font-medium text-success">Output</div>
+                </div>
               </div>
-            ))}
+            );
+          })}
+        </div>
+
+        {/* Target fields panel */}
+        <div className="absolute right-4 top-4 w-60 h-full overflow-y-auto">
+          <div className="bg-card border rounded-lg p-3 shadow-sm">
+            <h3 className="font-semibold text-sm mb-3 text-primary">Target Fields</h3>
+            <div className="space-y-2">
+              {targetFields.map(field => (
+                <div
+                  key={field.id}
+                  className={cn(
+                    "bg-background border rounded p-3 transition-all hover:shadow-md",
+                    dropTargets.has(`target-${field.id}`) && "border-primary bg-primary/10"
+                  )}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    handleDropOnTarget(field);
+                  }}
+                >
+                  <div className="font-medium text-sm">{field.name}</div>
+                  <div className="text-xs text-muted-foreground">{field.type}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Drag overlay */}
+        {dragState.isDragging && (
+          <div className="absolute inset-0 bg-primary/5 border-2 border-dashed border-primary/30 flex items-center justify-center z-20">
+            <div className="text-center">
+              <div className="text-lg font-medium text-primary">
+                Drop to create mapping
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {dragState.dragType === 'source' 
+                  ? 'Drop on function parameter or target field'
+                  : 'Drop on target field'
+                }
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Status bar */}
+      <div className="absolute bottom-0 left-0 right-0 border-t bg-muted/30 p-2">
+        <div className="flex justify-between items-center text-xs text-muted-foreground">
+          <div>
+            Ready • Click and drag to create mappings
+          </div>
+          <div>
+            {dragState.isDragging ? 'Dragging...' : 'Ready'}
           </div>
         </div>
       </div>
-
-      {/* Connection Lines */}
-      {renderConnectionLines()}
-
-      {/* Drop hint overlay */}
-      {draggedField && (
-        <div className="absolute inset-0 bg-primary/5 border-2 border-dashed border-primary/30 flex items-center justify-center z-5">
-          <div className="text-center">
-            <Zap className="h-8 w-8 mx-auto mb-2 text-primary" />
-            <p className="text-sm font-medium">Drop on function parameter or target field</p>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
