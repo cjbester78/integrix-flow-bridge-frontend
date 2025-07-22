@@ -47,7 +47,7 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
     functionName: selectedFunction,
     parameters: {},
     sourceConnections: {},
-    position: { x: 450, y: 50 } // Move function much higher up
+    position: { x: 450, y: 10 } // Move to very top
   });
   
   const [connections, setConnections] = useState<Connection[]>([]);
@@ -253,16 +253,16 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
             ))}
           </svg>
 
-          {/* Source fields panel */}
-          <div className="absolute left-4 top-4 w-72 h-80 overflow-y-auto">{/* Reduced height */}
-            <div className="bg-card border rounded-lg p-4 shadow-sm h-full">
-              <h3 className="font-semibold text-base mb-4 text-primary">Source Fields</h3>
-              <div className="space-y-3">
+          {/* Source fields panel - MOVED TO TOP */}
+          <div className="absolute left-4 top-0 w-72 h-60 overflow-y-auto">
+            <div className="bg-card border rounded-lg p-2 shadow-sm h-full">
+              <h3 className="font-semibold text-sm mb-2 text-primary">Source Fields</h3>
+              <div className="space-y-2">
                 {sourceFields.map(field => (
                   <div
                     key={field.id}
                     className={cn(
-                      "bg-background border rounded p-3 cursor-grab transition-all hover:shadow-md",
+                      "bg-background border rounded p-2 cursor-grab transition-all hover:shadow-md",
                       dragState.isDragging && dragState.draggedItem?.id === field.id && "opacity-50"
                     )}
                     draggable
@@ -277,7 +277,7 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
             </div>
           </div>
 
-          {/* Function node in center */}
+          {/* Function node - MOVED TO TOP */}
           <div
             className="absolute bg-card border-2 border-primary/20 rounded-lg shadow-lg"
             style={{
@@ -288,18 +288,18 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
             }}
           >
             {/* Function header */}
-            <div className="bg-primary text-primary-foreground p-3 rounded-t-lg">
-              <div className="font-medium">{func.name}</div>
+            <div className="bg-primary text-primary-foreground p-2 rounded-t-lg">
+              <div className="font-medium text-sm">{func.name}</div>
               <div className="text-xs opacity-80">{func.description}</div>
             </div>
 
             {/* Function parameters */}
-            <div className="p-3 space-y-3">
+            <div className="p-2 space-y-2">
               {func.parameters.map(param => (
                 <div
                   key={param.name}
                   className={cn(
-                    "border border-dashed border-muted-foreground/30 rounded p-3 text-sm transition-colors min-h-12",
+                    "border border-dashed border-muted-foreground/30 rounded p-2 text-sm transition-colors min-h-10",
                     dropTargets.has(`param-${functionNode.id}-${param.name}`) && 
                     "border-primary bg-primary/10"
                   )}
@@ -309,16 +309,16 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
                     handleDropOnFunctionParameter(param.name);
                   }}
                 >
-                  <div className="font-medium text-sm">{param.name}</div>
-                  <div className="text-xs text-muted-foreground mb-2">{param.type}</div>
+                  <div className="font-medium text-xs">{param.name}</div>
+                  <div className="text-xs text-muted-foreground mb-1">{param.type}</div>
                   {functionNode.sourceConnections[param.name]?.map((path, idx) => (
-                    <div key={idx} className="text-xs bg-primary/10 text-primary rounded px-2 py-1 mt-1 inline-block mr-1">
+                    <div key={idx} className="text-xs bg-primary/10 text-primary rounded px-1 py-0.5 mt-1 inline-block mr-1">
                       {path.split('.').pop()}
                     </div>
                   ))}
                   {!functionNode.sourceConnections[param.name]?.length && (
                     <div className="text-xs text-muted-foreground italic">
-                      Drop source field here
+                      Drop here
                     </div>
                   )}
                 </div>
@@ -327,24 +327,24 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
 
             {/* Function output */}
             <div
-              className="bg-success/10 border-t border-success/20 p-3 text-center cursor-grab hover:bg-success/20 transition-colors"
+              className="bg-success/10 border-t border-success/20 p-2 text-center cursor-grab hover:bg-success/20 transition-colors"
               draggable="true"
               onDragStart={handleFunctionOutputDragStart}
               onDragEnd={handleDragEnd}
             >
-              <div className="text-sm font-medium text-success">Output</div>
-              <div className="text-xs text-success/80">Drag to target field</div>
+              <div className="text-xs font-medium text-success">Output</div>
+              <div className="text-xs text-success/80">Drag to target</div>
             </div>
           </div>
 
-          {/* Target field panel */}
+          {/* Target field panel - MOVED TO TOP */}
           {targetField && (
-            <div className="absolute right-4 top-4 w-72">
-              <div className="bg-card border rounded-lg p-4 shadow-sm">
-                <h3 className="font-semibold text-base mb-4 text-primary">Target Field</h3>
+            <div className="absolute right-4 top-0 w-72">
+              <div className="bg-card border rounded-lg p-2 shadow-sm">
+                <h3 className="font-semibold text-sm mb-2 text-primary">Target Field</h3>
                 <div
                   className={cn(
-                    "bg-background border rounded p-4 transition-all",
+                    "bg-background border rounded p-3 transition-all",
                     dropTargets.has(`target-${targetField.id}`) && "border-primary bg-primary/10",
                     outputConnected && "border-success bg-success/10"
                   )}
@@ -354,7 +354,7 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
                     handleDropOnTarget();
                   }}
                 >
-                  <div className="font-medium text-base">{targetField.name}</div>
+                  <div className="font-medium text-sm">{targetField.name}</div>
                   <div className="text-sm text-muted-foreground">{targetField.type}</div>
                   {outputConnected && (
                     <div className="text-xs text-success mt-2 font-medium">
