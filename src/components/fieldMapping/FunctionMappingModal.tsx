@@ -279,11 +279,13 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
 
           {/* Function node - MOVED TO TOP */}
           <div
-            className="absolute bg-card border-2 border-primary/20 rounded-lg shadow-lg"
+            className="absolute bg-card border-2 border-primary/20 rounded-lg shadow-lg overflow-visible"
             style={{
               left: functionNode.position.x,
               top: functionNode.position.y,
               width: '200px',
+              maxHeight: 'none',
+              height: 'auto',
               zIndex: 5
             }}
           >
