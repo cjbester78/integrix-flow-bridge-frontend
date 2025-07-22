@@ -7,6 +7,14 @@ export interface FieldNode {
   expanded?: boolean;
 }
 
+export interface FunctionNodeData {
+  id: string;
+  functionName: string;
+  parameters: Record<string, string>; // paramName -> constantValue
+  sourceConnections: Record<string, string[]>; // paramName -> sourceFieldPaths[]
+  position: { x: number; y: number };
+}
+
 export interface FieldMapping {
   id: string;
   name: string;
@@ -16,6 +24,7 @@ export interface FieldMapping {
   targetPath: string;
   javaFunction?: string;
   requiresTransformation?: boolean;
+  functionNode?: FunctionNodeData; // New field for function-based mappings
 }
 
 export interface WebserviceStructures {
