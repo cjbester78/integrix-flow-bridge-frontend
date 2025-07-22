@@ -1,7 +1,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Edit, Crown, Settings, UserCheck, Users } from 'lucide-react';
+import { EmptyState } from '@/components/ui/empty-state';
+import { Plus, Edit, Crown, Settings, UserCheck, Users, Shield } from 'lucide-react';
 import { Role } from '@/types/admin';
 
 interface RoleManagementProps {
@@ -39,11 +40,15 @@ export const RoleManagement = ({ roles }: RoleManagementProps) => {
       <CardContent>
         <div className="grid gap-4">
           {roles.length === 0 ? (
-            <Card className="bg-gradient-secondary border-border/50">
-              <CardContent className="text-center py-8 text-muted-foreground">
-                No roles found. Click "Add Role" to create your first role.
-              </CardContent>
-            </Card>
+            <EmptyState
+              icon={<Shield className="h-12 w-12" />}
+              title="No roles found"
+              description="Create roles to define user permissions and access levels for your integration platform."
+              action={{
+                label: "Add Role",
+                onClick: () => {/* Add role handler */}
+              }}
+            />
           ) : (
             roles.map((role) => (
               <Card key={role.id} className="bg-gradient-secondary border-border/50">

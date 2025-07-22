@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Message } from '@/services/messageService';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { EmptyState } from '@/components/ui/empty-state';
 import { FileText, Database } from 'lucide-react';
 import { TimeFilter } from './types/timeFilter';
 import { filterMessagesByTime, getFilterDescription } from './utils/timeFilters';
@@ -70,18 +71,14 @@ export const MessageList = ({ messages, isBusinessComponentSelected, statusFilte
             </Card>
           ))
         ) : filteredMessages.length === 0 ? (
-          <Card className="bg-gradient-secondary border-border/50">
-            <CardContent className="py-12 text-center">
-              <Database className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium text-foreground mb-2">No Messages Found</h3>
-              <p className="text-muted-foreground">
-                {statusFilter 
-                  ? `No ${statusFilter} messages found for the selected time period.`
-                  : 'No messages found for the selected time period.'
-                }
-              </p>
-            </CardContent>
-          </Card>
+          <EmptyState
+            icon={<Database className="h-12 w-12" />}
+            title="No Messages Found"
+            description={statusFilter 
+              ? `No ${statusFilter} messages found for the selected time period.`
+              : 'No messages found for the selected time period.'
+            }
+          />
         ) : (
           filteredMessages.map((message) => (
             <MessageCard key={message.id} message={message} />

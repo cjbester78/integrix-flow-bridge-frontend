@@ -2,7 +2,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { EmptyState } from '@/components/ui/empty-state';
+import { Plus, Edit, Trash2, Key } from 'lucide-react';
 import { Certificate } from '@/types/admin';
 
 interface CertificateManagementProps {
@@ -38,28 +39,32 @@ export const CertificateManagement = ({ certificates }: CertificateManagementPro
         </div>
       </CardHeader>
       <CardContent>
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Issuer</TableHead>
-                <TableHead>Valid Period</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Usage</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {certificates.length === 0 ? (
+        {certificates.length === 0 ? (
+          <EmptyState
+            icon={<Key className="h-12 w-12" />}
+            title="No certificates found"
+            description="Upload and manage SSL certificates and authentication keys for secure connections."
+            action={{
+              label: "Add Certificate",
+              onClick: () => {/* Add certificate handler */}
+            }}
+          />
+        ) : (
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                    No certificates found. Click "Add Certificate" to upload your first certificate.
-                  </TableCell>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Issuer</TableHead>
+                  <TableHead>Valid Period</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Usage</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
-              ) : (
-                certificates.map((cert) => (
+              </TableHeader>
+              <TableBody>
+                {certificates.map((cert) => (
                   <TableRow key={cert.id}>
                     <TableCell className="font-medium">{cert.name}</TableCell>
                     <TableCell>{cert.type}</TableCell>
@@ -84,11 +89,11 @@ export const CertificateManagement = ({ certificates }: CertificateManagementPro
                       </div>
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

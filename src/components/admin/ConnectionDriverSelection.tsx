@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Database, MessageSquare } from 'lucide-react';
+import { EmptyState } from '@/components/ui/empty-state';
+import { Database, MessageSquare, FileArchive } from 'lucide-react';
 import { JdbcDriverModal } from './JdbcDriverModal';
 import { JmsDriverModal } from './JmsDriverModal';
 import { JarFile } from '@/types/admin';
@@ -71,13 +72,11 @@ export const ConnectionDriverSelection = ({ jarFiles, onJarFileAdded, onJarFileD
         </div>
         
         {jarFiles.length === 0 ? (
-          <Card>
-            <CardContent className="text-center py-8">
-              <p className="text-muted-foreground">
-                No connection drivers uploaded yet. Select a driver type above to get started.
-              </p>
-            </CardContent>
-          </Card>
+          <EmptyState
+            icon={<FileArchive className="h-12 w-12" />}
+            title="No connection drivers uploaded"
+            description="Upload JDBC database drivers or JMS client libraries to enable connections to external systems."
+          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {jarFiles.map((jarFile) => (

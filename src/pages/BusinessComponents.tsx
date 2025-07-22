@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { EmptyState } from '@/components/ui/empty-state';
 import { useToast } from '@/hooks/use-toast';
 import { BusinessComponent, CreateBusinessComponentRequest } from '@/types/businessComponent';
 import { businessComponentService } from '@/services/businessComponentService';
@@ -228,17 +229,15 @@ export const BusinessComponents = () => {
       </div>
 
       {businessComponents.length === 0 ? (
-        <Card>
-          <CardContent className="text-center py-12">
-            <Building2 className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-            <h3 className="text-lg font-medium mb-2">No business components yet</h3>
-            <p className="text-muted-foreground mb-4">Get started by adding your first business component</p>
-            <Button onClick={() => setIsCreateDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Business Component
-            </Button>
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={<Building2 className="h-12 w-12" />}
+          title="No business components yet"
+          description="Get started by adding your first business component to organize your integrations."
+          action={{
+            label: "Add Business Component",
+            onClick: () => setIsCreateDialogOpen(true)
+          }}
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {businessComponents.map((businessComponent) => (

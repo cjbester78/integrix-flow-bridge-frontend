@@ -1,6 +1,8 @@
 import { Card, CardContent } from '@/components/ui/card';
+import { EmptyState } from '@/components/ui/empty-state';
 import { ChannelCard } from './ChannelCard';
 import { Channel } from '@/services/channelService';
+import { Radio } from 'lucide-react';
 
 interface ChannelListProps {
   channels: Channel[];
@@ -14,13 +16,11 @@ export const ChannelList = ({ channels }: ChannelListProps) => {
           <ChannelCard key={channel.id} channel={channel} />
         ))
       ) : (
-        <Card className="bg-gradient-secondary border-border/50 animate-fade-in">
-          <CardContent className="text-center py-12">
-            <div className="text-muted-foreground">
-              No channels found. Channels will appear here once your integration flows are configured and deployed.
-            </div>
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={<Radio className="h-12 w-12" />}
+          title="No channels found"
+          description="Channels will appear here once your integration flows are configured and deployed."
+        />
       )}
     </div>
   );

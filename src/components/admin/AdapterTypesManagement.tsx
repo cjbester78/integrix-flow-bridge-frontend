@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { EmptyState } from '@/components/ui/empty-state';
 import { useToast } from '@/hooks/use-toast';
 import { Pencil, Trash2, Plus, Network, Shield, FolderOpen, MessageSquare, Database, Globe, Mail, FileText, Cpu, Activity, Cloud, Inbox, Download, HardDrive, Zap } from 'lucide-react';
 
@@ -383,6 +384,16 @@ export const AdapterTypesManagement = () => {
       <CardContent>
         {loading ? (
           <div className="text-center py-8">Loading adapter types...</div>
+        ) : adapterTypes.length === 0 ? (
+          <EmptyState
+            icon={<Network className="h-12 w-12" />}
+            title="No adapter types found"
+            description="Create custom adapter types to extend the platform with new integration capabilities."
+            action={{
+              label: "Add Adapter Type",
+              onClick: () => {/* Add adapter type handler */}
+            }}
+          />
         ) : (
           <Table>
             <TableHeader>
@@ -396,14 +407,7 @@ export const AdapterTypesManagement = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {adapterTypes.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                    No adapter types found. Click "Add Adapter Type" to create your first adapter type.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                adapterTypes.map((adapterType) => {
+              {adapterTypes.map((adapterType) => {
                 const IconComponent = getIcon(adapterType.iconName);
                 return (
                   <TableRow key={adapterType.id}>
@@ -453,14 +457,13 @@ export const AdapterTypesManagement = () => {
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
-                    </TableCell>
-                  </TableRow>
-                  );
-                })
-              )}
-            </TableBody>
-          </Table>
-        )}
+                     </TableCell>
+                   </TableRow>
+                 );
+               })}
+             </TableBody>
+           </Table>
+         )}
       </CardContent>
     </Card>
   );
