@@ -555,18 +555,20 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
       </div>
 
       {/* Function Mapping Modal */}
-      <FunctionMappingModal
-        open={functionMappingModal.open}
-        onClose={() => setFunctionMappingModal({
-          open: false,
-          selectedFunction: '',
-          targetField: null
-        })}
-        selectedFunction={functionMappingModal.selectedFunction}
-        sourceFields={filteredSourceFields}
-        targetField={functionMappingModal.targetField!}
-        onApplyMapping={handleApplyFunctionMapping}
-      />
+      {functionMappingModal.open && functionMappingModal.targetField && (
+        <FunctionMappingModal
+          open={functionMappingModal.open}
+          onClose={() => setFunctionMappingModal({
+            open: false,
+            selectedFunction: '',
+            targetField: null
+          })}
+          selectedFunction={functionMappingModal.selectedFunction}
+          sourceFields={filteredSourceFields}
+          targetField={functionMappingModal.targetField}
+          onApplyMapping={handleApplyFunctionMapping}
+        />
+      )}
     </div>
   );
 };

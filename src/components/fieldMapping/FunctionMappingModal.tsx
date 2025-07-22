@@ -11,7 +11,7 @@ interface FunctionMappingModalProps {
   onClose: () => void;
   selectedFunction: string;
   sourceFields: FieldNode[];
-  targetField: FieldNode;
+  targetField: FieldNode | null;
   onApplyMapping: (mapping: FieldMapping) => void;
 }
 
@@ -81,6 +81,8 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
   }, [func, functionNode.id]);
 
   const handleFunctionOutputDragStart = useCallback((event: React.DragEvent) => {
+    if (!targetField) return;
+    
     event.stopPropagation();
     event.dataTransfer.effectAllowed = 'move';
     
@@ -88,7 +90,7 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
     const targets = new Set<string>();
     targets.add(`target-${targetField.id}`);
     setDropTargets(targets);
-  }, [targetField.id]);
+  }, [targetField]);
 
   const handleDragEnd = useCallback(() => {
     setDragState({
@@ -129,6 +131,8 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
   }, [dragState, functionNode.id, functionNode.position, handleDragEnd]);
 
   const handleDropOnTarget = useCallback(() => {
+    if (!targetField) return;
+    
     setOutputConnected(true);
     
     // Add visual connection from function output to target
@@ -142,11 +146,11 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
       targetY: 100
     };
     setConnections(prev => [...prev, connection]);
-  }, [functionNode.id, functionNode.position, targetField.id]);
+  }, [functionNode.id, functionNode.position, targetField]);
 
   // Apply the function mapping
   const handleApplyFunction = useCallback(() => {
-    if (!func || !outputConnected) return;
+    if (!func || !outputConnected || !targetField) return;
 
     // Get connected source fields
     const connectedSourceFields: string[] = [];
@@ -324,31 +328,33 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
           </div>
 
           {/* Target field panel */}
-          <div className="absolute right-4 top-4 w-72">
-            <div className="bg-card border rounded-lg p-4 shadow-sm">
-              <h3 className="font-semibold text-base mb-4 text-primary">Target Field</h3>
-              <div
-                className={cn(
-                  "bg-background border rounded p-4 transition-all",
-                  dropTargets.has(`target-${targetField.id}`) && "border-primary bg-primary/10",
-                  outputConnected && "border-success bg-success/10"
-                )}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  handleDropOnTarget();
-                }}
-              >
-                <div className="font-medium text-base">{targetField.name}</div>
-                <div className="text-sm text-muted-foreground">{targetField.type}</div>
-                {outputConnected && (
-                  <div className="text-xs text-success mt-2 font-medium">
-                    ✓ Function output connected
-                  </div>
-                )}
+          {targetField && (
+            <div className="absolute right-4 top-4 w-72">
+              <div className="bg-card border rounded-lg p-4 shadow-sm">
+                <h3 className="font-semibold text-base mb-4 text-primary">Target Field</h3>
+                <div
+                  className={cn(
+                    "bg-background border rounded p-4 transition-all",
+                    dropTargets.has(`target-${targetField.id}`) && "border-primary bg-primary/10",
+                    outputConnected && "border-success bg-success/10"
+                  )}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    handleDropOnTarget();
+                  }}
+                >
+                  <div className="font-medium text-base">{targetField.name}</div>
+                  <div className="text-sm text-muted-foreground">{targetField.type}</div>
+                  {outputConnected && (
+                    <div className="text-xs text-success mt-2 font-medium">
+                      ✓ Function output connected
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Drag overlay */}
           {dragState.isDragging && (
