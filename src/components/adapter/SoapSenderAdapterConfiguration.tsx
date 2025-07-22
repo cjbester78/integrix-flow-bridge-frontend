@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { PasswordConfirmation } from '@/components/ui/password-confirmation';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface SoapSenderAdapterConfigurationProps {
@@ -45,13 +46,13 @@ export function SoapSenderAdapterConfiguration({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="auth-password">Password</Label>
-              <Input
-                id="auth-password"
-                type="password"
-                value={credentials.password || ''}
-                onChange={(e) => handleAuthFieldChange('password', e.target.value)}
+              <PasswordConfirmation
+                name="auth-password"
+                label="Password"
                 placeholder="Enter password"
+                value={credentials.password || ''}
+                onValueChange={(value) => handleAuthFieldChange('password', value)}
+                showConfirmation={false}
               />
             </div>
           </div>
@@ -73,13 +74,13 @@ export function SoapSenderAdapterConfiguration({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="auth-password">Password</Label>
-                  <Input
-                    id="auth-password"
-                    type="password"
-                    value={credentials.password || ''}
-                    onChange={(e) => handleAuthFieldChange('password', e.target.value)}
+                  <PasswordConfirmation
+                    name="auth-password"
+                    label="Password"
                     placeholder="Enter password"
+                    value={credentials.password || ''}
+                    onValueChange={(value) => handleAuthFieldChange('password', value)}
+                    showConfirmation={false}
                   />
                 </div>
                 <div className="space-y-2">
@@ -184,13 +185,13 @@ export function SoapSenderAdapterConfiguration({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="keystore-password">Private Key Password</Label>
-                  <Input
-                    id="keystore-password"
-                    type="password"
-                    value={credentials.keystorePassword || ''}
-                    onChange={(e) => handleAuthFieldChange('keystorePassword', e.target.value)}
+                  <PasswordConfirmation
+                    name="keystore-password"
+                    label="Private Key Password"
                     placeholder="Enter private key password"
+                    value={credentials.keystorePassword || ''}
+                    onValueChange={(value) => handleAuthFieldChange('keystorePassword', value)}
+                    showConfirmation={false}
                   />
                 </div>
                 <div className="space-y-2">
@@ -268,13 +269,13 @@ export function SoapSenderAdapterConfiguration({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="auth-client-secret">Client Secret</Label>
-              <Input
-                id="auth-client-secret"
-                type="password"
-                value={credentials.clientSecret || ''}
-                onChange={(e) => handleAuthFieldChange('clientSecret', e.target.value)}
+              <PasswordConfirmation
+                name="auth-client-secret"
+                label="Client Secret"
                 placeholder="Enter client secret"
+                value={credentials.clientSecret || ''}
+                onValueChange={(value) => handleAuthFieldChange('clientSecret', value)}
+                showConfirmation={false}
               />
             </div>
           </div>

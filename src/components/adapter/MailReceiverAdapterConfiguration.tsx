@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
+import { PasswordConfirmation } from '@/components/ui/password-confirmation';
 import { AdapterConfiguration } from '@/types/adapter';
 
 interface MailReceiverAdapterConfigurationProps {
@@ -87,13 +88,13 @@ export const MailReceiverAdapterConfiguration: React.FC<MailReceiverAdapterConfi
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="mailPassword">Password</Label>
-                  <Input
-                    id="mailPassword"
-                    type="password"
-                    value={configuration.mailPassword || ''}
-                    onChange={(e) => onConfigurationChange('mailPassword', e.target.value)}
+                  <PasswordConfirmation
+                    name="mailPassword"
+                    label="Password"
                     placeholder="password"
+                    value={configuration.mailPassword || ''}
+                    onValueChange={(value) => onConfigurationChange('mailPassword', value)}
+                    showConfirmation={false}
                   />
                   <p className="text-sm text-muted-foreground">Mail account password</p>
                 </div>

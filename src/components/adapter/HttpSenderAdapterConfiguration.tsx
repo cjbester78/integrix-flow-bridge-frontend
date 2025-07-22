@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { PasswordConfirmation } from '@/components/ui/password-confirmation';
 import { useBusinessComponentAdapters } from '@/hooks/useBusinessComponentAdapters';
 import { useDataStructures } from '@/hooks/useDataStructures';
 
@@ -250,13 +251,13 @@ export function HttpSenderAdapterConfiguration({
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="basicPassword">Password</Label>
-                    <Input
-                      id="basicPassword"
-                      type="password"
+                    <PasswordConfirmation
+                      name="basicPassword"
+                      label="Password"
                       placeholder="Basic auth password"
                       value={configuration.basicPassword || ''}
-                      onChange={(e) => onConfigurationChange('basicPassword', e.target.value)}
+                      onValueChange={(value) => onConfigurationChange('basicPassword', value)}
+                      showConfirmation={false}
                     />
                   </div>
                 </>
@@ -264,13 +265,13 @@ export function HttpSenderAdapterConfiguration({
 
               {configuration.authenticationType === 'oauth2-bearer' && (
                 <div className="space-y-2">
-                  <Label htmlFor="bearerToken">Bearer Token</Label>
-                  <Input
-                    id="bearerToken"
-                    type="password"
+                  <PasswordConfirmation
+                    name="bearerToken"
+                    label="Bearer Token"
                     placeholder="OAuth2 bearer token"
                     value={configuration.bearerToken || ''}
-                    onChange={(e) => onConfigurationChange('bearerToken', e.target.value)}
+                    onValueChange={(value) => onConfigurationChange('bearerToken', value)}
+                    showConfirmation={false}
                   />
                 </div>
               )}
@@ -288,13 +289,13 @@ export function HttpSenderAdapterConfiguration({
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="apiKeyValue">API Key Value</Label>
-                    <Input
-                      id="apiKeyValue"
-                      type="password"
+                    <PasswordConfirmation
+                      name="apiKeyValue"
+                      label="API Key Value"
                       placeholder="API key value"
                       value={configuration.apiKeyValue || ''}
-                      onChange={(e) => onConfigurationChange('apiKeyValue', e.target.value)}
+                      onValueChange={(value) => onConfigurationChange('apiKeyValue', value)}
+                      showConfirmation={false}
                     />
                   </div>
                 </>

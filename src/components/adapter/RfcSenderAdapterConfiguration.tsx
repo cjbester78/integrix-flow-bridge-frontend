@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { PasswordConfirmation } from '@/components/ui/password-confirmation';
 import { AdapterConfiguration } from '@/types/adapter';
 
 interface RfcSenderAdapterConfigurationProps {
@@ -161,13 +162,13 @@ export const RfcSenderAdapterConfiguration: React.FC<RfcSenderAdapterConfigurati
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="sapPassword">SAP Password</Label>
-                  <Input
-                    id="sapPassword"
-                    type="password"
-                    value={configuration.sapPassword || ''}
-                    onChange={(e) => onConfigurationChange('sapPassword', e.target.value)}
+                  <PasswordConfirmation
+                    name="sapPassword"
+                    label="SAP Password"
                     placeholder="secret"
+                    value={configuration.sapPassword || ''}
+                    onValueChange={(value) => onConfigurationChange('sapPassword', value)}
+                    showConfirmation={false}
                   />
                   <p className="text-sm text-muted-foreground">Password for RFC user</p>
                 </div>
