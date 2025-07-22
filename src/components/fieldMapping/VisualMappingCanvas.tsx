@@ -117,14 +117,15 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
   const handleSourceFieldDragStart = useCallback((field: FieldNode, event: React.DragEvent) => {
     console.log('Starting drag for field:', field.name);
     event.stopPropagation(); // Prevent event bubbling
+    event.dataTransfer.effectAllowed = 'move';
     
-    setDragState(prev => ({
-      ...prev,
+    // Important: Use a new object instead of mutation
+    setDragState({
       isDragging: true,
       draggedItem: field,
       dragType: 'source',
       startPosition: { x: event.clientX, y: event.clientY }
-    }));
+    });
     
     // Highlight potential drop targets
     const targets = new Set<string>();
@@ -138,13 +139,15 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
 
   const handleFunctionOutputDragStart = useCallback((functionNode: FunctionNodeData, event: React.DragEvent) => {
     event.stopPropagation();
-    setDragState(prev => ({
-      ...prev,
+    event.dataTransfer.effectAllowed = 'move';
+    
+    // Important: Use a new object, not mutation
+    setDragState({
       isDragging: true,
       draggedItem: functionNode,
       dragType: 'function-output',
       startPosition: { x: event.clientX, y: event.clientY }
-    }));
+    });
     
     // Highlight target fields
     const targets = new Set<string>();
@@ -153,6 +156,7 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
   }, [filteredTargetFields]);
 
   const handleDragEnd = useCallback(() => {
+    console.log('Drag ended, clearing state');
     setDragState({
       isDragging: false,
       draggedItem: null,
@@ -443,9 +447,10 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
                 {/* Function output */}
                 <div
                   className="bg-success/10 border-t border-success/20 p-2 text-center cursor-grab hover:bg-success/20 transition-colors"
-                  draggable
+                  draggable="true"
                   onDragStart={(e) => handleFunctionOutputDragStart(functionNode, e)}
                   onDragEnd={handleDragEnd}
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <div className="text-xs font-medium text-success">Output</div>
                 </div>

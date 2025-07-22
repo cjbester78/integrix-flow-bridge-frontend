@@ -315,16 +315,18 @@ export function FieldMappingScreen({
             </div>
             
             <div className="flex-1">
-              <VisualMappingCanvas
-                sourceFields={sourceFields}
-                targetFields={targetFields}
-                mappings={mappings}
-                draggedField={draggedField}
-                onUpdateMapping={updateMapping}
-                onCreateMapping={createMapping}
-                onRemoveMapping={removeMapping}
-                onDragEnd={handleDragEnd}
-              />
+                <VisualMappingCanvas
+                  sourceFields={sourceFields}
+                  targetFields={targetFields}
+                  mappings={mappings}
+                  draggedField={draggedField}
+                  onUpdateMapping={updateMapping}
+                  onCreateMapping={createMapping}
+                  onRemoveMapping={removeMapping}
+                  onDragEnd={handleDragEnd}
+                  currentTargetField={targetFields[0]}
+                  selectedSourceStructure={selectedSource}
+                />
             </div>
             
             <div className="w-1/4 border-l">
