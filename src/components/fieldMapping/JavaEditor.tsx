@@ -3,8 +3,9 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Code } from 'lucide-react';
+import { Code, Sparkles } from 'lucide-react';
 import { FieldMapping } from './types';
+import { FunctionPicker } from './FunctionPicker';
 
 interface JavaEditorProps {
   isOpen: boolean;
@@ -23,6 +24,11 @@ export function JavaEditor({
   onJavaFunctionChange, 
   onSave 
 }: JavaEditorProps) {
+  const handleFunctionSelect = (functionName: string, javaCode: string) => {
+    // Insert the function call at the cursor position or append to existing code
+    const newCode = javaFunction ? `${javaFunction}\n\n// ${functionName} function\n${javaCode}` : javaCode;
+    onJavaFunctionChange(newCode);
+  };
   const getPlaceholder = () => {
     if (!mapping) return '';
     
@@ -88,11 +94,22 @@ ${exampleLogic}
             </div>
           )}
           
-          <div>
-            <p className="text-sm text-muted-foreground mb-3">
-              Write a custom Java function to transform the source field(s) to the target field.
-              The function should return a String value that will be assigned to the target field.
-            </p>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                Write a custom Java function to transform the source field(s) to the target field.
+                The function should return a String value that will be assigned to the target field.
+              </p>
+              <FunctionPicker 
+                onFunctionSelect={handleFunctionSelect}
+                trigger={
+                  <Button variant="outline" size="sm">
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Functions
+                  </Button>
+                }
+              />
+            </div>
             
             <Textarea
               placeholder="// Write your Java function here..."

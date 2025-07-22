@@ -2,16 +2,23 @@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ArrowRight, Code, X } from 'lucide-react';
+import { ArrowRight, Code, X, Zap } from 'lucide-react';
 import { FieldMapping } from './types';
+import { FunctionPicker } from './FunctionPicker';
 
 interface MappingAreaProps {
   mappings: FieldMapping[];
   onRemoveMapping: (mappingId: string) => void;
   onEditJavaFunction: (mappingId: string) => void;
+  onUpdateMapping?: (mappingId: string, updates: Partial<FieldMapping>) => void;
 }
 
-export function MappingArea({ mappings, onRemoveMapping, onEditJavaFunction }: MappingAreaProps) {
+export function MappingArea({ mappings, onRemoveMapping, onEditJavaFunction, onUpdateMapping }: MappingAreaProps) {
+  const handleQuickFunction = (mappingId: string, functionName: string, javaCode: string) => {
+    if (onUpdateMapping) {
+      onUpdateMapping(mappingId, { javaFunction: javaCode });
+    }
+  };
   return (
     <div className="w-1/3 relative bg-background animate-fade-in">
       <div className="p-4 border-b">
@@ -45,15 +52,30 @@ export function MappingArea({ mappings, onRemoveMapping, onEditJavaFunction }: M
                   </div>
                   <div className="flex gap-1">
                     {mapping.requiresTransformation !== false && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => onEditJavaFunction(mapping.id)}
-                        className="h-6 w-6 p-0 hover-scale"
-                        title="Edit Java Function"
-                      >
-                        <Code className="h-3 w-3" />
-                      </Button>
+                      <>
+                        <FunctionPicker
+                          onFunctionSelect={(functionName, javaCode) => handleQuickFunction(mapping.id, functionName, javaCode)}
+                          trigger={
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0 hover-scale"
+                              title="Quick Functions"
+                            >
+                              <Zap className="h-3 w-3" />
+                            </Button>
+                          }
+                        />
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onEditJavaFunction(mapping.id)}
+                          className="h-6 w-6 p-0 hover-scale"
+                          title="Edit Java Function"
+                        >
+                          <Code className="h-3 w-3" />
+                        </Button>
+                      </>
                     )}
                     <Button
                       variant="ghost"

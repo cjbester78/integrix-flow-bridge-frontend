@@ -29,6 +29,7 @@ import {
   EyeOff,
   UserPlus
 } from 'lucide-react';
+import { TransformationPreview } from '@/components/fieldMapping/TransformationPreview';
 
 export const Settings = () => {
   const { user } = useAuth();
@@ -246,6 +247,28 @@ export const Settings = () => {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        {/* Transformation Functions Demo */}
+        <div className="xl:col-span-3 space-y-6">
+          <Card className="animate-scale-in">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Monitor className="h-5 w-5" />
+                Transformation Functions Demo
+              </CardTitle>
+              <CardDescription>
+                Test the transformation functions that can be used in field mappings
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+                <TransformationPreview selectedFunctionName="add" />
+                <TransformationPreview selectedFunctionName="concat" />
+                <TransformationPreview selectedFunctionName="if" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* User Management Section */}
         <div className="xl:col-span-2 space-y-6">
           <Card className="animate-scale-in">

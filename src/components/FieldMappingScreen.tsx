@@ -161,6 +161,12 @@ export function FieldMappingScreen({
     setTempJavaFunction('');
   };
 
+  const updateMapping = (mappingId: string, updates: Partial<FieldMapping>) => {
+    setMappings(prev => prev.map(m => 
+      m.id === mappingId ? { ...m, ...updates } : m
+    ));
+  };
+
   const handleEditJavaFunction = (mappingId: string) => {
     const mapping = mappings.find(m => m.id === mappingId);
     setShowJavaEditor(mappingId);
@@ -248,6 +254,7 @@ export function FieldMappingScreen({
           mappings={mappings}
           onRemoveMapping={removeMapping}
           onEditJavaFunction={handleEditJavaFunction}
+          onUpdateMapping={updateMapping}
         />
 
         <TargetPanel
