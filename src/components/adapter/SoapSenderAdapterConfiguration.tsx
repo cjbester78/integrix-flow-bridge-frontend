@@ -402,6 +402,16 @@ export function SoapSenderAdapterConfiguration({
                     </SelectContent>
                   </Select>
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="ws-security-policies">WS-Security Policies</Label>
+                  <Input
+                    id="ws-security-policies"
+                    value={configuration.wsSecurityPolicies || ''}
+                    onChange={(e) => onConfigurationChange('wsSecurityPolicies', e.target.value)}
+                    placeholder="Encryption, Signature, Timestamp"
+                  />
+                  <p className="text-sm text-muted-foreground">Security policies applied</p>
+                </div>
                 {renderAuthFields()}
               </div>
             </div>
