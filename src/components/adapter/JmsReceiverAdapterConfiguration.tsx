@@ -8,15 +8,18 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { PasswordConfirmation } from '@/components/ui/password-confirmation';
 import { Button } from '@/components/ui/button';
 import { CommunicationAdapter } from '@/types/adapter';
+import { CertificateSelection } from '@/components/ui/certificate-selection';
 
 interface JmsReceiverAdapterConfigurationProps {
   adapter: CommunicationAdapter;
   onUpdate: (adapter: CommunicationAdapter) => void;
+  businessComponentId?: string;
 }
 
 export function JmsReceiverAdapterConfiguration({
   adapter,
-  onUpdate
+  onUpdate,
+  businessComponentId
 }: JmsReceiverAdapterConfigurationProps) {
   const handleInputChange = (field: string, value: string | number | boolean) => {
     onUpdate({
@@ -171,27 +174,16 @@ export function JmsReceiverAdapterConfiguration({
               </div>
 
               {adapter.configuration.useSSL && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="sslKeystore">SSL Keystore Path</Label>
-                    <Input
-                      id="sslKeystore"
-                      placeholder="/path/to/keystore"
-                      value={adapter.configuration.sslKeystore || ''}
-                      onChange={(e) => handleInputChange('sslKeystore', e.target.value)}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="sslPassword">SSL Keystore Password</Label>
-                    <Input
-                      id="sslPassword"
-                      type="password"
-                      placeholder="Keystore Password"
-                      value={adapter.configuration.sslPassword || ''}
-                      onChange={(e) => handleInputChange('sslPassword', e.target.value)}
-                    />
-                  </div>
+                <div className="space-y-4">
+                  <CertificateSelection
+                    id="sslCertificate"
+                    label="SSL Certificate"
+                    value={adapter.configuration.sslCertificateId || ''}
+                    onChange={(value) => handleInputChange('sslCertificateId', value)}
+                    businessComponentId={businessComponentId}
+                    placeholder="Select SSL certificate"
+                    required
+                  />
                 </div>
               )}
             </CardContent>

@@ -89,6 +89,7 @@ export interface AdapterConfiguration {
   useSSL?: boolean;
   sslKeystore?: string;
   sslPassword?: string;
+  sslCertificateId?: string;
   destinationType?: 'Queue' | 'Topic';
   messageSelector?: string;
   clientId?: string;
@@ -152,6 +153,13 @@ export interface AdapterConfiguration {
   emailBody?: string;
   emailAttachments?: string;
   emailEncoding?: string;
+  
+  // Certificate Configuration
+  certificateId?: string;
+  keystoreAlias?: string;
+  keystorePassword?: string;
+  certificateAlias?: string;
+  verifyServerCertificate?: string;
   
   // Custom properties
   properties?: { [key: string]: any };

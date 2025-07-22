@@ -6,15 +6,18 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
+import { CertificateSelection } from '@/components/ui/certificate-selection';
 
 interface HttpReceiverAdapterConfigurationProps {
   configuration: any;
   onConfigurationChange: (field: string, value: string | number | boolean) => void;
+  businessComponentId?: string;
 }
 
 export function HttpReceiverAdapterConfiguration({
   configuration,
-  onConfigurationChange
+  onConfigurationChange,
+  businessComponentId
 }: HttpReceiverAdapterConfigurationProps) {
   return (
     <Card>
@@ -229,28 +232,17 @@ export function HttpReceiverAdapterConfiguration({
               )}
 
               {configuration.authenticationType === 'client-certificate' && (
-                <>
-                  <div className="space-y-2">
-                    <Label htmlFor="certificatePath">Certificate Path</Label>
-                    <Input
-                      id="certificatePath"
-                      type="text"
-                      placeholder="Path to client certificate"
-                      value={configuration.certificatePath || ''}
-                      onChange={(e) => onConfigurationChange('certificatePath', e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="privateKeyPath">Private Key Path</Label>
-                    <Input
-                      id="privateKeyPath"
-                      type="text"
-                      placeholder="Path to private key"
-                      value={configuration.privateKeyPath || ''}
-                      onChange={(e) => onConfigurationChange('privateKeyPath', e.target.value)}
-                    />
-                  </div>
-                </>
+                <div className="space-y-4">
+                  <CertificateSelection
+                    id="certificate"
+                    label="Client Certificate"
+                    value={configuration.certificateId || ''}
+                    onChange={(value) => onConfigurationChange('certificateId', value)}
+                    businessComponentId={businessComponentId}
+                    placeholder="Select client certificate"
+                    required
+                  />
+                </div>
               )}
             </div>
 

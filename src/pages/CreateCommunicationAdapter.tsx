@@ -95,22 +95,6 @@ interface CommunicationAdapter {
 
 const communicationAdapters: CommunicationAdapter[] = [
   {
-    id: 'email-smtp',
-    name: 'Email SMTP',
-    icon: Mail,
-    description: 'Send emails via SMTP server',
-    category: 'Email',
-    fields: [
-      { name: 'host', label: 'SMTP Host', type: 'text', required: true, placeholder: 'smtp.gmail.com' },
-      { name: 'port', label: 'Port', type: 'number', required: true, placeholder: '587' },
-      { name: 'username', label: 'Username', type: 'text', required: true, placeholder: 'your-email@gmail.com' },
-      { name: 'password', label: 'Password', type: 'password', required: true, placeholder: 'App Password' },
-      { name: 'encryption', label: 'Encryption', type: 'select', required: true, options: ['TLS', 'SSL', 'None'] },
-      { name: 'fromEmail', label: 'From Email', type: 'text', required: true, placeholder: 'noreply@company.com' },
-      { name: 'fromName', label: 'From Name', type: 'text', required: false, placeholder: 'IntegrixLab System' }
-    ]
-  },
-  {
     id: 'sms-gateway',
     name: 'SMS Gateway',
     icon: Smartphone,
@@ -221,8 +205,7 @@ const communicationAdapters: CommunicationAdapter[] = [
       { name: 'username', label: 'Username', type: 'text', required: true, placeholder: 'Enter username', conditionalField: 'receiver', parentField: 'receiverAuthentication', parentValue: 'Basic' },
       { name: 'password', label: 'Password', type: 'password', required: true, placeholder: 'Enter password', conditionalField: 'receiver', parentField: 'receiverAuthentication', parentValue: 'Basic' },
       
-      { name: 'clientCertificate', label: 'Client Certificate', type: 'file', required: true, conditionalField: 'receiver', parentField: 'receiverAuthentication', parentValue: 'Client Certificate' },
-      { name: 'privateKey', label: 'Private Key', type: 'file', required: true, conditionalField: 'receiver', parentField: 'receiverAuthentication', parentValue: 'Client Certificate' },
+      { name: 'clientCertificate', label: 'Client Certificate', type: 'certificate-dropdown', required: true, conditionalField: 'receiver', parentField: 'receiverAuthentication', parentValue: 'Client Certificate' },
       
       { name: 'oauthClientId', label: 'Client ID', type: 'text', required: true, placeholder: 'Enter OAuth client ID', conditionalField: 'receiver', parentField: 'receiverAuthentication', parentValue: 'OAuth' },
       { name: 'oauthClientSecret', label: 'Client Secret', type: 'password', required: true, placeholder: 'Enter OAuth client secret', conditionalField: 'receiver', parentField: 'receiverAuthentication', parentValue: 'OAuth' },
@@ -310,8 +293,7 @@ const communicationAdapters: CommunicationAdapter[] = [
       { name: 'as2Url', label: 'AS2 URL', type: 'text', required: true, placeholder: 'https://partner.example.com/as2' },
       { name: 'as2From', label: 'AS2 From', type: 'text', required: true, placeholder: 'MyCompany' },
       { name: 'as2To', label: 'AS2 To', type: 'text', required: true, placeholder: 'PartnerCompany' },
-      { name: 'certificate', label: 'Certificate Path', type: 'text', required: true, placeholder: '/path/to/certificate.p12' },
-      { name: 'certificatePassword', label: 'Certificate Password', type: 'password', required: true, placeholder: 'Certificate Password' },
+      { name: 'certificate', label: 'Certificate', type: 'certificate-dropdown', required: true, placeholder: 'Select certificate' },
       { name: 'encryptionAlgorithm', label: 'Encryption Algorithm', type: 'select', required: false, options: ['3DES', 'AES128', 'AES192', 'AES256'] },
       { name: 'authType', label: 'Authentication', type: 'select', required: false, options: ['None', 'Basic Auth', 'Bearer Token', 'API Key', 'OAuth', 'OAuth 2.0', 'SSL Certificate'] }
     ]

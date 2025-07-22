@@ -5,15 +5,18 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { CertificateSelection } from '@/components/ui/certificate-selection';
 
 interface SoapReceiverAdapterConfigurationProps {
   configuration: any;
   onConfigurationChange: (field: string, value: any) => void;
+  businessComponentId?: string;
 }
 
 export function SoapReceiverAdapterConfiguration({
   configuration,
-  onConfigurationChange
+  onConfigurationChange,
+  businessComponentId
 }: SoapReceiverAdapterConfigurationProps) {
   const handleAuthTypeChange = (authType: string) => {
     onConfigurationChange('authentication.type', authType);
@@ -173,40 +176,22 @@ export function SoapReceiverAdapterConfiguration({
             {/* Certificate and Key Management */}
             <div className="space-y-4">
               <h4 className="text-md font-medium text-muted-foreground">Certificate & Key Management</h4>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="keystore-alias">Private Key Alias</Label>
-                  <Input
-                    id="keystore-alias"
-                    value={credentials.keystoreAlias || ''}
-                    onChange={(e) => handleAuthFieldChange('keystoreAlias', e.target.value)}
-                    placeholder="mykey"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="keystore-password">Private Key Password</Label>
-                  <Input
-                    id="keystore-password"
-                    type="password"
-                    value={credentials.keystorePassword || ''}
-                    onChange={(e) => handleAuthFieldChange('keystorePassword', e.target.value)}
-                    placeholder="Enter private key password"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="certificate-alias">Certificate Alias</Label>
-                  <Input
-                    id="certificate-alias"
-                    value={credentials.certificateAlias || ''}
-                    onChange={(e) => handleAuthFieldChange('certificateAlias', e.target.value)}
-                    placeholder="sender-cert"
-                  />
-                </div>
+              <div className="grid grid-cols-1 gap-4">
+                <CertificateSelection
+                  id="soapCertificate"
+                  label="SOAP Certificate"
+                  value={configuration.certificateId || ''}
+                  onChange={(value) => onConfigurationChange('certificateId', value)}
+                  businessComponentId={businessComponentId}
+                  placeholder="Select SOAP certificate"
+                  required
+                />
+                
                 <div className="space-y-2">
                   <Label htmlFor="verify-server-certificate">Verify Server Certificate</Label>
                   <Select
-                    value={credentials.verifyServerCertificate || 'true'}
-                    onValueChange={(value) => handleAuthFieldChange('verifyServerCertificate', value)}
+                    value={configuration.verifyServerCertificate || 'true'}
+                    onValueChange={(value) => onConfigurationChange('verifyServerCertificate', value)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select verification" />
