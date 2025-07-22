@@ -32,6 +32,230 @@ const sampleStructures: DataStructure[] = [
     },
     createdAt: '2024-01-10',
     usage: 'target'
+  },
+  {
+    id: '3',
+    name: 'Customer Profile',
+    type: 'json',
+    description: 'Detailed customer profile with nested address information',
+    structure: {
+      customer: {
+        id: 'string',
+        firstName: 'string',
+        lastName: 'string',
+        email: 'string',
+        phone: 'string',
+        dateOfBirth: 'date',
+        address: {
+          street: 'string',
+          city: 'string',
+          state: 'string',
+          zipCode: 'string',
+          country: 'string'
+        },
+        preferences: {
+          newsletter: 'boolean',
+          smsNotifications: 'boolean',
+          language: 'string'
+        }
+      }
+    },
+    createdAt: '2024-01-12',
+    usage: 'source'
+  },
+  {
+    id: '4',
+    name: 'Product Catalog',
+    type: 'json',
+    description: 'Product information with categories and pricing',
+    structure: {
+      products: {
+        id: 'string',
+        name: 'string',
+        description: 'string',
+        category: {
+          id: 'string',
+          name: 'string',
+          parentCategory: 'string'
+        },
+        pricing: {
+          basePrice: 'decimal',
+          currency: 'string',
+          discountPercentage: 'decimal',
+          taxRate: 'decimal'
+        },
+        inventory: {
+          quantity: 'integer',
+          warehouse: 'string',
+          lastUpdated: 'datetime'
+        },
+        specifications: {
+          weight: 'decimal',
+          dimensions: {
+            length: 'decimal',
+            width: 'decimal',
+            height: 'decimal'
+          },
+          color: 'string',
+          material: 'string'
+        }
+      }
+    },
+    createdAt: '2024-01-08',
+    usage: 'source'
+  },
+  {
+    id: '5',
+    name: 'Invoice Data',
+    type: 'xsd',
+    description: 'Standard invoice format for accounting systems',
+    structure: {
+      invoice: {
+        header: {
+          invoiceNumber: 'string',
+          invoiceDate: 'date',
+          dueDate: 'date',
+          currency: 'string'
+        },
+        vendor: {
+          vendorId: 'string',
+          companyName: 'string',
+          address: {
+            street: 'string',
+            city: 'string',
+            postalCode: 'string',
+            country: 'string'
+          },
+          taxId: 'string'
+        },
+        customer: {
+          customerId: 'string',
+          companyName: 'string',
+          contactPerson: 'string',
+          address: {
+            street: 'string',
+            city: 'string',
+            postalCode: 'string',
+            country: 'string'
+          }
+        },
+        lineItems: {
+          item: {
+            lineNumber: 'integer',
+            productId: 'string',
+            description: 'string',
+            quantity: 'decimal',
+            unitPrice: 'decimal',
+            taxAmount: 'decimal',
+            lineTotal: 'decimal'
+          }
+        },
+        totals: {
+          subtotal: 'decimal',
+          totalTax: 'decimal',
+          totalAmount: 'decimal'
+        }
+      }
+    },
+    createdAt: '2024-01-05',
+    usage: 'target'
+  },
+  {
+    id: '6',
+    name: 'Sales Report',
+    type: 'json',
+    description: 'Comprehensive sales reporting structure',
+    structure: {
+      report: {
+        metadata: {
+          reportId: 'string',
+          generatedAt: 'datetime',
+          period: {
+            startDate: 'date',
+            endDate: 'date'
+          },
+          reportType: 'string'
+        },
+        summary: {
+          totalSales: 'decimal',
+          totalOrders: 'integer',
+          averageOrderValue: 'decimal',
+          topProducts: {
+            productId: 'string',
+            productName: 'string',
+            salesCount: 'integer',
+            revenue: 'decimal'
+          }
+        },
+        salesData: {
+          daily: {
+            date: 'date',
+            orders: 'integer',
+            revenue: 'decimal',
+            customers: 'integer'
+          },
+          byRegion: {
+            region: 'string',
+            orders: 'integer',
+            revenue: 'decimal',
+            growthRate: 'decimal'
+          }
+        }
+      }
+    },
+    createdAt: '2024-01-03',
+    usage: 'target'
+  },
+  {
+    id: '7',
+    name: 'Employee Record',
+    type: 'custom',
+    description: 'HR system employee data structure',
+    structure: {
+      employee: {
+        personalInfo: {
+          employeeId: 'string',
+          firstName: 'string',
+          lastName: 'string',
+          middleName: 'string',
+          dateOfBirth: 'date',
+          ssn: 'string',
+          address: {
+            home: {
+              street: 'string',
+              city: 'string',
+              state: 'string',
+              zipCode: 'string'
+            },
+            mailing: {
+              street: 'string',
+              city: 'string',
+              state: 'string',
+              zipCode: 'string'
+            }
+          }
+        },
+        employment: {
+          hireDate: 'date',
+          department: 'string',
+          position: 'string',
+          manager: 'string',
+          salary: {
+            amount: 'decimal',
+            currency: 'string',
+            payFrequency: 'string'
+          },
+          benefits: {
+            healthInsurance: 'boolean',
+            dentalInsurance: 'boolean',
+            retirement401k: 'boolean',
+            vacationDays: 'integer'
+          }
+        }
+      }
+    },
+    createdAt: '2024-01-01',
+    usage: 'source'
   }
 ];
 
