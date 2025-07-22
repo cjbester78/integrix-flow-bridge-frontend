@@ -2,6 +2,7 @@ import { AdapterApi } from './adapterApi';
 import { AdapterTesting } from './adapterTesting';
 import { AdapterMonitoring } from './adapterMonitoring';
 import { AdapterTypes } from './adapterTypes';
+import { adapterValidationService } from './adapterValidation';
 
 class AdapterService {
   private api: AdapterApi;
@@ -66,6 +67,11 @@ class AdapterService {
   // Types methods
   async getAdapterTypes(...args: Parameters<AdapterTypes['getAdapterTypes']>) {
     return this.types.getAdapterTypes(...args);
+  }
+
+  // Validation methods
+  async validateAdapter(config: any) {
+    return adapterValidationService.validateAdapter(config);
   }
 }
 

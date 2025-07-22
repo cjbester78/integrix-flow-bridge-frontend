@@ -36,6 +36,7 @@ import { MailReceiverAdapterConfiguration } from '@/components/adapter/MailRecei
 import { MailSenderAdapterConfiguration } from '@/components/adapter/MailSenderAdapterConfiguration';
 import { useToast } from '@/hooks/use-toast';
 import { adapterService } from '@/services/adapter';
+import { AdapterValidationDialog } from '@/components/adapter/AdapterValidationDialog';
 import { 
   Mail, 
   Smartphone, 
@@ -999,13 +1000,29 @@ export const CreateCommunicationAdapter = () => {
 
               <Separator />
               
-              <Button 
-                onClick={handleSaveAdapter}
-                className="w-full bg-gradient-primary hover:opacity-90 transition-all duration-300"
-              >
-                <Save className="h-4 w-4 mr-2" />
-                Save Adapter
-              </Button>
+              <div className="space-y-2">
+                <AdapterValidationDialog
+                  adapterType={selectedAdapterConfig?.id || ''}
+                  configuration={configuration}
+                >
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    disabled={!selectedAdapterConfig}
+                  >
+                    <TestTube className="h-4 w-4 mr-2" />
+                    Validate Configuration
+                  </Button>
+                </AdapterValidationDialog>
+
+                <Button 
+                  onClick={handleSaveAdapter}
+                  className="w-full bg-gradient-primary hover:opacity-90 transition-all duration-300"
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Adapter
+                </Button>
+              </div>
             </CardContent>
           </Card>
 
