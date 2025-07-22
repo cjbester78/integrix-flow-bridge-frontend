@@ -66,14 +66,17 @@ const textFunctions: TransformationFunction[] = [
   {
     name: 'concat',
     category: 'text',
-    description: 'Concatenate multiple strings',
+    description: 'Concatenate two strings with optional delimiter',
     parameters: [
       { name: 'string1', type: 'string', required: true, description: 'First string to concatenate' },
       { name: 'string2', type: 'string', required: true, description: 'Second string to concatenate' },
-      { name: 'string3', type: 'string', required: false, description: 'Optional third string' }
+      { name: 'delimiter', type: 'string', required: false, description: 'Optional delimiter between strings' }
     ],
-    execute: (string1: string, string2: string, string3?: string) => {
-      return string1 + string2 + (string3 || '');
+    execute: (string1: string, string2: string, delimiter?: string) => {
+      if (delimiter) {
+        return string1 + delimiter + string2;
+      }
+      return string1 + string2;
     },
     javaTemplate: 'concat({0}, {1}, {2})'
   },
