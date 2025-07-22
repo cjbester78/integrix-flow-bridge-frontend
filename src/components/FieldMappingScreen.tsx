@@ -6,7 +6,7 @@ import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Trash2, X, CheckCircle } from 'lucide-react';
 import { FieldNode, FieldMapping } from './fieldMapping/types';
-import { useWebservices } from '@/hooks/useWebservices';
+import { useDataStructures } from '@/hooks/useDataStructures';
 import { SourcePanel } from './fieldMapping/SourcePanel';
 import { TargetPanel } from './fieldMapping/TargetPanel';
 import { MappingArea } from './fieldMapping/MappingArea';
@@ -40,6 +40,8 @@ export function FieldMappingScreen({
   const [tempJavaFunction, setTempJavaFunction] = useState('');
   const [mappingName, setMappingName] = useState(initialMappingName);
   const [requiresTransformation, setRequiresTransformation] = useState(true);
+  
+  const { structures } = useDataStructures();
 
   const toggleExpanded = useCallback((nodeId: string, isSource: boolean) => {
     const updateNode = (nodes: FieldNode[]): FieldNode[] => {
@@ -114,17 +116,39 @@ export function FieldMappingScreen({
     setMappings([]);
   };
 
-  const selectWebservice = async (filename: string, isSource: boolean) => {
-    const { getWebserviceStructure } = useWebservices();
-    const structure = await getWebserviceStructure(filename) || [];
+  const selectDataStructure = (structureName: string, isSource: boolean) => {
+    const selectedStructure = structures.find(s => s.name === structureName);
+    if (!selectedStructure) return;
+    
+    // Convert data structure to field nodes
+    const convertToFieldNodes = (structure: any, parentPath = ''): FieldNode[] => {
+      if (!structure || typeof structure !== 'object') return [];
+      
+      return Object.keys(structure).map((key, index) => {
+        const value = structure[key];
+        const path = parentPath ? `${parentPath}.${key}` : key;
+        const hasChildren = value && typeof value === 'object' && !Array.isArray(value);
+        
+        return {
+          id: `${path}_${index}`,
+          name: key,
+          type: Array.isArray(value) ? 'array' : typeof value,
+          path,
+          expanded: false,
+          children: hasChildren ? convertToFieldNodes(value, path) : undefined
+        };
+      });
+    };
+    
+    const fieldNodes = convertToFieldNodes(selectedStructure.structure);
     
     if (isSource) {
-      setSelectedSource(filename);
-      setSourceFields(structure);
+      setSelectedSource(structureName);
+      setSourceFields(fieldNodes);
       setShowSourceSelector(false);
     } else {
-      setSelectedTarget(filename);
-      setTargetFields(structure);
+      setSelectedTarget(structureName);
+      setTargetFields(fieldNodes);
       setShowTargetSelector(false);
     }
   };
@@ -215,7 +239,7 @@ export function FieldMappingScreen({
           showSelector={showSourceSelector}
           onSearchChange={setSearchSource}
           onShowSelectorChange={setShowSourceSelector}
-          onSelectService={(service) => selectWebservice(service, true)}
+          onSelectService={(service) => selectDataStructure(service, true)}
           onToggleExpanded={toggleExpanded}
           onDragStart={handleDragStart}
         />
@@ -234,7 +258,7 @@ export function FieldMappingScreen({
           showSelector={showTargetSelector}
           onSearchChange={setSearchTarget}
           onShowSelectorChange={setShowTargetSelector}
-          onSelectService={(service) => selectWebservice(service, false)}
+          onSelectService={(service) => selectDataStructure(service, false)}
           onToggleExpanded={toggleExpanded}
           onDragOver={handleDragOver}
           onDrop={handleDrop}
