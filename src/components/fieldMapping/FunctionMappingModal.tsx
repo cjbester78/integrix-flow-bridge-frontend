@@ -30,6 +30,7 @@ interface DragState {
   isDragging: boolean;
   draggedItem: FieldNode | null;
   startPosition: { x: number; y: number };
+  currentPosition: { x: number; y: number };
 }
 
 export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
@@ -55,7 +56,8 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
   const [dragState, setDragState] = useState<DragState>({
     isDragging: false,
     draggedItem: null,
-    startPosition: { x: 0, y: 0 }
+    startPosition: { x: 0, y: 0 },
+    currentPosition: { x: 0, y: 0 }
   });
   const [dropTargets, setDropTargets] = useState<Set<string>>(new Set());
   const [outputConnected, setOutputConnected] = useState(false);
@@ -63,27 +65,14 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
   const getAllFunctions = () => Object.values(functionsByCategory).flat();
   const func = getAllFunctions().find(f => f.name === selectedFunction);
 
-  const handleSourceFieldDragStart = useCallback((field: FieldNode, event: React.DragEvent) => {
-    console.log('=== DRAG START ===');
-    console.log('Field:', field.name);
-    console.log('Event type:', event.type);
-    
-    // Set drag data with multiple formats for better compatibility
-    event.dataTransfer.setData('text/plain', field.name);
-    event.dataTransfer.setData('application/json', JSON.stringify(field));
-    event.dataTransfer.setData('text/field-id', field.id);
-    event.dataTransfer.effectAllowed = 'copy';
-    
-    // Set drag image to make it more visible
-    const dragImage = event.currentTarget.cloneNode(true) as HTMLElement;
-    dragImage.style.transform = 'rotate(5deg)';
-    dragImage.style.opacity = '0.8';
-    event.dataTransfer.setDragImage(dragImage, 20, 20);
-
+  // Mouse-based drag implementation
+  const handleMouseDown = useCallback((field: FieldNode, event: React.MouseEvent) => {
+    console.log('Mouse down on field:', field.name);
     setDragState({
       isDragging: true,
       draggedItem: field,
-      startPosition: { x: event.clientX, y: event.clientY }
+      startPosition: { x: event.clientX, y: event.clientY },
+      currentPosition: { x: event.clientX, y: event.clientY }
     });
 
     const targets = new Set<string>();
@@ -93,9 +82,83 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
       }
     });
     setDropTargets(targets);
-    console.log('Drop targets set:', Array.from(targets));
-    console.log('=== DRAG START COMPLETE ===');
   }, [func, functionNode.id]);
+
+  const handleMouseMove = useCallback((event: MouseEvent) => {
+    if (dragState.isDragging) {
+      setDragState(prev => ({
+        ...prev,
+        currentPosition: { x: event.clientX, y: event.clientY }
+      }));
+    }
+  }, [dragState.isDragging]);
+
+  const handleMouseUp = useCallback((event: MouseEvent) => {
+    if (!dragState.isDragging || !dragState.draggedItem) return;
+
+    // Check if we're over a drop zone
+    const elementUnderMouse = document.elementFromPoint(event.clientX, event.clientY);
+    const dropZone = elementUnderMouse?.closest('[data-param]');
+    
+    if (dropZone) {
+      const paramName = dropZone.getAttribute('data-param');
+      if (paramName) {
+        console.log('Dropped on parameter:', paramName);
+        const sourceField = dragState.draggedItem;
+
+        setFunctionNode(prev => ({
+          ...prev,
+          sourceConnections: {
+            ...prev.sourceConnections,
+            [paramName]: [sourceField.path]
+          }
+        }));
+
+        // Create visual connection
+        setTimeout(() => {
+          const sourceElement = document.querySelector(`[data-field-id="${sourceField.id}"]`);
+          const targetElement = dropZone;
+          
+          if (sourceElement && targetElement && canvasRef.current) {
+            const canvasRect = canvasRef.current.getBoundingClientRect();
+            const sourceRect = sourceElement.getBoundingClientRect();
+            const targetRect = targetElement.getBoundingClientRect();
+            
+            const connection: Connection = {
+              id: `connection_${Date.now()}`,
+              sourceId: sourceField.id,
+              targetId: `${functionNode.id}-${paramName}`,
+              sourceX: sourceRect.right - canvasRect.left,
+              sourceY: sourceRect.top + sourceRect.height / 2 - canvasRect.top,
+              targetX: targetRect.left - canvasRect.left,
+              targetY: targetRect.top + targetRect.height / 2 - canvasRect.top
+            };
+            setConnections(prev => [...prev, connection]);
+          }
+        }, 100);
+      }
+    }
+
+    setDragState({
+      isDragging: false,
+      draggedItem: null,
+      startPosition: { x: 0, y: 0 },
+      currentPosition: { x: 0, y: 0 }
+    });
+    setDropTargets(new Set());
+  }, [dragState, functionNode.id]);
+
+  // Add global mouse event listeners
+  React.useEffect(() => {
+    if (dragState.isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [dragState.isDragging, handleMouseMove, handleMouseUp]);
 
   const handleFunctionOutputDragStart = useCallback((event: React.DragEvent) => {
     if (!targetField) return;
@@ -108,7 +171,12 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
   }, [targetField]);
 
   const handleDragEnd = useCallback(() => {
-    setDragState({ isDragging: false, draggedItem: null, startPosition: { x: 0, y: 0 } });
+    setDragState({ 
+      isDragging: false, 
+      draggedItem: null, 
+      startPosition: { x: 0, y: 0 },
+      currentPosition: { x: 0, y: 0 }
+    });
     setDropTargets(new Set());
   }, []);
 
@@ -295,34 +363,20 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
                     <div 
                       key={field.id} 
                       data-field-id={field.id}
-                      className="bg-background border-2 rounded p-3 transition-all hover:shadow-lg hover:border-primary/50"
+                      className={cn(
+                        "bg-background border-2 rounded p-3 transition-all hover:shadow-lg hover:border-primary/50 select-none",
+                        dragState.isDragging && dragState.draggedItem?.id === field.id && "opacity-70 scale-95"
+                      )}
                       style={{ 
-                        cursor: 'grab',
-                        userSelect: 'none',
-                        WebkitUserSelect: 'none',
-                        MozUserSelect: 'none',
-                        msUserSelect: 'none'
-                      }}
-                      draggable="true"
-                      onDragStart={(e) => {
-                        console.log('onDragStart called for:', field.name);
-                        e.currentTarget.style.cursor = 'grabbing';
-                        e.currentTarget.style.opacity = '0.5';
-                        handleSourceFieldDragStart(field, e);
-                      }}
-                      onDragEnd={(e) => {
-                        console.log('onDragEnd called for:', field.name);
-                        e.currentTarget.style.cursor = 'grab';
-                        e.currentTarget.style.opacity = '1';
-                        handleDragEnd();
+                        cursor: dragState.isDragging && dragState.draggedItem?.id === field.id ? 'grabbing' : 'grab'
                       }}
                       onMouseDown={(e) => {
-                        console.log('Mouse down on field:', field.name);
-                        // Don't prevent default here as it can interfere with drag
+                        e.preventDefault();
+                        handleMouseDown(field, e);
                       }}
                     >
-                      <div className="font-medium text-sm" style={{ pointerEvents: 'none' }}>{field.name}</div>
-                      <div className="text-xs text-muted-foreground" style={{ pointerEvents: 'none' }}>{field.type}</div>
+                      <div className="font-medium text-sm pointer-events-none">{field.name}</div>
+                      <div className="text-xs text-muted-foreground pointer-events-none">{field.type}</div>
                     </div>
                   ))}
                 </div>
@@ -360,21 +414,6 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
                           dropTargets.has(`param-${functionNode.id}-${param.name}`) && "border-primary bg-primary/10",
                           "hover:border-primary/50"
                         )}
-                        onDragOver={(e) => {
-                          console.log('Drag over parameter:', param.name);
-                          e.preventDefault();
-                          e.stopPropagation();
-                        }}
-                        onDragEnter={(e) => {
-                          console.log('Drag enter parameter:', param.name);
-                          e.preventDefault();
-                        }}
-                        onDrop={(e) => {
-                          console.log('Drop event on parameter:', param.name);
-                          e.preventDefault();
-                          e.stopPropagation();
-                          handleDropOnFunctionParameter(param.name, e);
-                        }}
                       >
                         {functionNode.sourceConnections[param.name]?.map((path, idx) => (
                           <div key={idx} className="text-xs bg-primary/10 text-primary rounded px-1 py-0.5 mt-1 inline-block mr-1">
@@ -421,11 +460,25 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
             )}
           </div>
 
+          {/* Floating drag preview */}
+          {dragState.isDragging && dragState.draggedItem && (
+            <div 
+              className="fixed pointer-events-none z-50 bg-primary text-primary-foreground px-2 py-1 rounded shadow-lg"
+              style={{
+                left: dragState.currentPosition.x + 10,
+                top: dragState.currentPosition.y - 30,
+                transform: 'rotate(5deg)'
+              }}
+            >
+              {dragState.draggedItem.name}
+            </div>
+          )}
+
           {dragState.isDragging && (
             <div className="absolute inset-0 bg-primary/5 border-2 border-dashed border-primary/30 flex items-center justify-center z-20">
               <div className="text-center">
-                <div className="text-lg font-medium text-primary">Drop to connect</div>
-                <div className="text-sm text-muted-foreground">Drop on function parameter or target field</div>
+                <div className="text-lg font-medium text-primary">Drop on function parameter</div>
+                <div className="text-sm text-muted-foreground">Release to connect {dragState.draggedItem?.name}</div>
               </div>
             </div>
           )}
