@@ -9,7 +9,9 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Layout } from "@/components/layout/Layout";
 import { Login } from "@/pages/Login";
 import { Dashboard } from "@/pages/Dashboard";
-import { CreateFlow } from "@/pages/CreateFlow";
+import { CreateFlowSelection } from "@/pages/CreateFlowSelection";
+import { CreateDirectMappingFlow } from "@/pages/CreateDirectMappingFlow";
+import { CreateOrchestrationFlow } from "@/pages/CreateOrchestrationFlow";
 import { CreateCommunicationAdapter } from "@/pages/CreateCommunicationAdapter";
 import { DataStructures } from "@/pages/DataStructures";
 import { BusinessComponents } from "@/pages/BusinessComponents";
@@ -34,7 +36,9 @@ const App = () => (
             <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
               <Route index element={<Navigate to="/admin" replace />} />
               <Route path="dashboard" element={<Dashboard />} />
-              <Route path="create-flow" element={<CreateFlow />} />
+              <Route path="create-flow" element={<CreateFlowSelection />} />
+              <Route path="create-direct-mapping-flow" element={<CreateDirectMappingFlow />} />
+              <Route path="create-orchestration-flow" element={<CreateOrchestrationFlow />} />
               <Route path="create-communication-adapter" element={<CreateCommunicationAdapter />} />
               <Route path="data-structures" element={<DataStructures />} />
               <Route path="business-components" element={<BusinessComponents />} />
