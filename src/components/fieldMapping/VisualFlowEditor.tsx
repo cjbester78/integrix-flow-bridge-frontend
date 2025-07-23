@@ -12,6 +12,7 @@ import {
   ConnectionMode,
   MiniMap,
   Panel,
+  MarkerType,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -25,6 +26,7 @@ import { TargetFieldNode } from './nodes/TargetFieldNode';
 import { ConditionalNode } from './nodes/ConditionalNode';
 import { FieldSelectorDialog } from './FieldSelectorDialog';
 import { FunctionSelectorDialog } from './FunctionSelectorDialog';
+import { DeletableEdge } from './DeletableEdge';
 import { functionsByCategory, TransformationFunction } from '@/services/transformationFunctions';
 
 interface VisualFlowEditorProps {
@@ -42,6 +44,10 @@ const nodeTypes = {
   constant: ConstantNode,
   targetField: TargetFieldNode,
   conditional: ConditionalNode,
+};
+
+const edgeTypes = {
+  deletable: DeletableEdge,
 };
 
 export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
@@ -92,9 +98,16 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
     (params: Connection) => {
       const edge = {
         ...params,
-        type: 'smoothstep',
-        animated: true,
-        style: { stroke: 'hsl(var(--primary))' },
+        type: 'deletable',
+        animated: false, // Solid lines instead of animated
+        style: { 
+          stroke: 'hsl(var(--primary))', 
+          strokeWidth: 2 
+        },
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          color: 'hsl(var(--primary))'
+        }
       };
       setEdges((eds) => addEdge(edge, eds));
     },
@@ -255,6 +268,7 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
             nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
             connectionMode={ConnectionMode.Loose}
             fitView
             fitViewOptions={{
@@ -263,9 +277,16 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
               maxZoom: 2
             }}
             defaultEdgeOptions={{
-              type: 'smoothstep',
-              animated: true,
-              style: { stroke: 'hsl(var(--primary))' }
+              type: 'deletable',
+              animated: false,
+              style: { 
+                stroke: 'hsl(var(--primary))', 
+                strokeWidth: 2 
+              },
+              markerEnd: {
+                type: MarkerType.ArrowClosed,
+                color: 'hsl(var(--primary))'
+              }
             }}
             className="bg-background"
           >
