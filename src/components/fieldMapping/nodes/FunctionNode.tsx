@@ -5,8 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
 import { TransformationFunction, functionsByCategory } from '@/services/transformationFunctions';
-import { Settings, Zap, X, Link2 } from 'lucide-react';
+import { Settings, Zap, X, Link2, Code } from 'lucide-react';
 
 interface FunctionNodeProps {
   id: string;
@@ -14,6 +15,7 @@ interface FunctionNodeProps {
     function: TransformationFunction;
     parameters: Record<string, any>;
     showSelector?: boolean;
+    isCustom?: boolean;
   };
 }
 
@@ -128,7 +130,10 @@ export const FunctionNode: React.FC<FunctionNodeProps> = ({ id, data }) => {
           </SelectContent>
         </Select>
       ) : (
-        <div className="text-sm font-semibold text-primary">{selectedFunction.name}</div>
+        <div className="text-sm font-semibold text-primary flex items-center gap-2">
+          {data.isCustom && <Code className="h-3 w-3" />}
+          {selectedFunction.name}
+        </div>
       )}
 
       <div className="text-xs text-muted-foreground mt-1 mb-3">
@@ -137,36 +142,53 @@ export const FunctionNode: React.FC<FunctionNodeProps> = ({ id, data }) => {
 
       {showConfig && (
         <div className="space-y-2 mb-3 border-t pt-2 bg-muted/20 rounded p-2">
-          <Label className="text-xs font-medium">Parameters</Label>
-          {selectedFunction.parameters.length === 0 ? (
-            <div className="text-xs text-muted-foreground">No parameters required</div>
-          ) : (
-            selectedFunction.parameters.map((param, index) => (
-              <div key={param.name} className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <Label className="text-xs">
-                    {param.name}
-                    {param.required && <span className="text-destructive ml-1">*</span>}
-                  </Label>
-                  {connectedFields[param.name] && (
-                    <Badge variant="outline" className="text-xs flex items-center gap-1">
-                      <Link2 className="h-2 w-2" />
-                      {connectedFields[param.name]}
-                    </Badge>
-                  )}
-                </div>
-                <Input
-                  placeholder={connectedFields[param.name] ? 'Connected' : `${param.type} value`}
-                  value={parameters[param.name] || ''}
-                  onChange={(e) => handleParameterChange(param.name, e.target.value)}
-                  className="h-6 text-xs"
-                  disabled={!!connectedFields[param.name]}
-                />
-                {param.description && (
-                  <div className="text-xs text-muted-foreground">{param.description}</div>
-                )}
+          {data.isCustom ? (
+            <div className="space-y-2">
+              <Label className="text-xs font-medium">Custom Java Code</Label>
+              <Textarea
+                placeholder="Enter your custom Java transformation code here..."
+                className="h-20 text-xs font-mono"
+                value={parameters.customCode || ''}
+                onChange={(e) => handleParameterChange('customCode', e.target.value)}
+              />
+              <div className="text-xs text-muted-foreground">
+                Write Java code to transform input values. Use 'input' variable to access connected fields.
               </div>
-            ))
+            </div>
+          ) : (
+            <>
+              <Label className="text-xs font-medium">Parameters</Label>
+              {selectedFunction.parameters.length === 0 ? (
+                <div className="text-xs text-muted-foreground">No parameters required</div>
+              ) : (
+                selectedFunction.parameters.map((param, index) => (
+                  <div key={param.name} className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs">
+                        {param.name}
+                        {param.required && <span className="text-destructive ml-1">*</span>}
+                      </Label>
+                      {connectedFields[param.name] && (
+                        <Badge variant="outline" className="text-xs flex items-center gap-1">
+                          <Link2 className="h-2 w-2" />
+                          {connectedFields[param.name]}
+                        </Badge>
+                      )}
+                    </div>
+                    <Input
+                      placeholder={connectedFields[param.name] ? 'Connected' : `${param.type} value`}
+                      value={parameters[param.name] || ''}
+                      onChange={(e) => handleParameterChange(param.name, e.target.value)}
+                      className="h-6 text-xs"
+                      disabled={!!connectedFields[param.name]}
+                    />
+                    {param.description && (
+                      <div className="text-xs text-muted-foreground">{param.description}</div>
+                    )}
+                  </div>
+                ))
+              )}
+            </>
           )}
         </div>
       )}

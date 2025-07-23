@@ -18,7 +18,7 @@ import '@xyflow/react/dist/style.css';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { FieldNode, FieldMapping } from './types';
-import { Plus, Save, X, Zap, Hash, GitBranch } from 'lucide-react';
+import { Plus, Save, X, Zap, Hash, GitBranch, Code } from 'lucide-react';
 import { SourceFieldNode } from './nodes/SourceFieldNode';
 import { FunctionNode } from './nodes/FunctionNode';
 import { ConstantNode } from './nodes/ConstantNode';
@@ -154,37 +154,26 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
     setNodeIdCounter(prev => prev + 1);
   }, [nodeIdCounter, nodes, setNodes]);
 
-  const addConstant = useCallback(() => {
-    const existingConstantNodes = nodes.filter(node => node.type === 'constant');
+  const addCustomFunction = useCallback(() => {
+    const existingCustomNodes = nodes.filter(node => node.type === 'function' && node.data.function.name === 'custom');
     const newNode: Node = {
-      id: `constant-${nodeIdCounter}`,
-      type: 'constant',
+      id: `custom-function-${nodeIdCounter}`,
+      type: 'function',
       position: { 
-        x: 200, 
-        y: 50 + existingConstantNodes.length * 80 // Align with top, space constants
+        x: 350, 
+        y: 50 + existingCustomNodes.length * 120
       },
       data: { 
-        value: '',
-        type: 'string'
-      },
-    };
-
-    setNodes((nds) => [...nds, newNode]);
-    setNodeIdCounter(prev => prev + 1);
-  }, [nodeIdCounter, nodes, setNodes]);
-
-  const addConditional = useCallback(() => {
-    const existingConditionalNodes = nodes.filter(node => node.type === 'conditional');
-    const newNode: Node = {
-      id: `conditional-${nodeIdCounter}`,
-      type: 'conditional',
-      position: { 
-        x: 500, 
-        y: 50 + existingConditionalNodes.length * 150 // Align with top, space conditionals
-      },
-      data: { 
-        condition: 'equals',
-        compareValue: ''
+        function: {
+          name: 'custom',
+          description: 'Custom Java function',
+          category: 'custom',
+          parameters: [],
+          javaCode: ''
+        },
+        parameters: {},
+        showSelector: false,
+        isCustom: true
       },
     };
 
@@ -334,22 +323,13 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
                   Function
                 </Button>
                 <Button
-                  onClick={addConstant}
+                  onClick={addCustomFunction}
                   size="sm"
                   variant="outline"
                   className="justify-start h-9"
                 >
-                  <Hash className="h-4 w-4 mr-2" />
-                  Constant
-                </Button>
-                <Button
-                  onClick={addConditional}
-                  size="sm"
-                  variant="outline"
-                  className="justify-start h-9"
-                >
-                  <GitBranch className="h-4 w-4 mr-2" />
-                  Conditional
+                  <Code className="h-4 w-4 mr-2" />
+                  Custom Function
                 </Button>
               </div>
             </Panel>
