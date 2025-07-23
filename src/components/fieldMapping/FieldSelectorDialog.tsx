@@ -25,6 +25,13 @@ export const FieldSelectorDialog: React.FC<FieldSelectorDialogProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
 
+  console.log('🔍 FieldSelectorDialog render:', {
+    open,
+    sourceFieldsCount: sourceFields.length,
+    excludeFieldsCount: excludeFields.length,
+    sourceFieldNames: sourceFields.map(f => f.name)
+  });
+
   const toggleExpanded = (nodeId: string) => {
     setExpandedNodes(prev => {
       const newSet = new Set(prev);
