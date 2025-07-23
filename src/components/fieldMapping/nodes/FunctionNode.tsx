@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { Handle, Position, useReactFlow } from '@xyflow/react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Handle, Position, useReactFlow, useOnSelectionChange } from '@xyflow/react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -23,36 +23,48 @@ export const FunctionNode: React.FC<FunctionNodeProps> = ({ id, data }) => {
   const [selectedFunction, setSelectedFunction] = useState(data.function);
   const [parameters, setParameters] = useState(data.parameters);
   const [showConfig, setShowConfig] = useState(false);
+  const [, forceUpdate] = useState({});
   const { setNodes, setEdges, getEdges, getNodes } = useReactFlow();
 
-  // Get connected fields for each parameter
+  // Force re-render when edges or nodes change
+  useEffect(() => {
+    const interval = setInterval(() => {
+      forceUpdate({});
+    }, 100); // Update every 100ms to catch edge changes
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  // Get connected fields for each parameter with better edge detection
   const connectedFields = useMemo(() => {
     const edges = getEdges();
     const nodes = getNodes();
     const connections: Record<string, string> = {};
     
-    edges.forEach(edge => {
-      if (edge.target === id && edge.targetHandle) {
-        // Find the source node
+    // Force re-render by including a timestamp check
+    const relevantEdges = edges.filter(edge => edge.target === id);
+    
+    relevantEdges.forEach(edge => {
+      if (edge.targetHandle) {
         const sourceNode = nodes.find(n => n.id === edge.source);
         
-        if (sourceNode && sourceNode.type === 'sourceField') {
-          const fieldData = sourceNode.data as { field: { name: string; path?: string } };
-          if (fieldData?.field?.name) {
-            connections[edge.targetHandle] = fieldData.field.name;
-          } else if (fieldData?.field?.path) {
-            // Fallback to path if name isn't available
-            const pathParts = fieldData.field.path.split('.');
-            connections[edge.targetHandle] = pathParts[pathParts.length - 1];
+        if (sourceNode) {
+          if (sourceNode.type === 'sourceField') {
+            const fieldData = sourceNode.data as { field: { name: string; path?: string } };
+            if (fieldData?.field?.name) {
+              connections[edge.targetHandle] = fieldData.field.name;
+            } else if (fieldData?.field?.path) {
+              const pathParts = fieldData.field.path.split('.');
+              connections[edge.targetHandle] = pathParts[pathParts.length - 1];
+            }
+          } else if (sourceNode.type === 'constant') {
+            const constantData = sourceNode.data as { value: string };
+            if (constantData?.value) {
+              connections[edge.targetHandle] = `"${constantData.value}"`;
+            }
+          } else if (sourceNode.type === 'function') {
+            connections[edge.targetHandle] = 'Function Output';
           }
-        } else if (sourceNode && sourceNode.type === 'constant') {
-          const constantData = sourceNode.data as { value: string };
-          if (constantData?.value) {
-            connections[edge.targetHandle] = `"${constantData.value}"`;
-          }
-        } else if (sourceNode && sourceNode.type === 'function') {
-          // Handle function-to-function connections
-          connections[edge.targetHandle] = 'Function Output';
         }
       }
     });
