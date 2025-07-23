@@ -31,19 +31,13 @@ export const FunctionNode: React.FC<FunctionNodeProps> = ({ id, data }) => {
     const nodes = getNodes();
     const connections: Record<string, string> = {};
     
-    // Debug logging
-    console.log('FunctionNode edges:', edges.filter(e => e.target === id));
-    console.log('FunctionNode nodes:', nodes);
-    
     edges.forEach(edge => {
       if (edge.target === id && edge.targetHandle) {
         // Find the source node
         const sourceNode = nodes.find(n => n.id === edge.source);
-        console.log('Source node for edge:', edge, sourceNode);
         
         if (sourceNode && sourceNode.type === 'sourceField') {
           const fieldData = sourceNode.data as { field: { name: string; path?: string } };
-          console.log('Field data:', fieldData);
           if (fieldData?.field?.name) {
             connections[edge.targetHandle] = fieldData.field.name;
           } else if (fieldData?.field?.path) {
@@ -56,11 +50,13 @@ export const FunctionNode: React.FC<FunctionNodeProps> = ({ id, data }) => {
           if (constantData?.value) {
             connections[edge.targetHandle] = `"${constantData.value}"`;
           }
+        } else if (sourceNode && sourceNode.type === 'function') {
+          // Handle function-to-function connections
+          connections[edge.targetHandle] = 'Function Output';
         }
       }
     });
     
-    console.log('Connections for function node:', connections);
     return connections;
   }, [id, getEdges, getNodes]);
 
