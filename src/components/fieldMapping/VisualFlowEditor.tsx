@@ -221,10 +221,15 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-[95vw] h-[90vh] p-0">
-        <DialogHeader className="p-4 pb-0 border-b">
+      <DialogContent className="max-w-[98vw] h-[95vh] p-0 max-h-[95vh]">
+        <DialogHeader className="p-4 pb-2 border-b bg-muted/30">
           <DialogTitle className="flex items-center justify-between">
-            <span>Visual Flow Editor</span>
+            <div className="flex items-center gap-3">
+              <span className="text-lg font-semibold">Visual Flow Editor</span>
+              <div className="text-sm text-muted-foreground">
+                Target: <span className="font-medium text-primary">{targetField.name}</span>
+              </div>
+            </div>
             <div className="flex items-center gap-2">
               <Button 
                 onClick={handleSave}
@@ -242,7 +247,7 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 relative">
+        <div className="flex-1 relative h-[calc(95vh-80px)]">
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -252,24 +257,35 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
             nodeTypes={nodeTypes}
             connectionMode={ConnectionMode.Loose}
             fitView
+            fitViewOptions={{
+              padding: 0.1,
+              minZoom: 0.5,
+              maxZoom: 2
+            }}
             defaultEdgeOptions={{
               type: 'smoothstep',
               animated: true,
               style: { stroke: 'hsl(var(--primary))' }
             }}
+            className="bg-background"
           >
-            <Background />
+            <Background gap={20} size={1} />
             <Controls />
-            <MiniMap />
+            <MiniMap 
+              className="bg-background border border-border" 
+              pannable 
+              zoomable 
+              nodeColor="hsl(var(--primary))"
+            />
             
-            <Panel position="top-left" className="bg-card border rounded-lg p-2 shadow-lg">
+            <Panel position="top-left" className="bg-card border rounded-lg p-3 shadow-lg min-w-[200px]">
               <div className="flex flex-col gap-2">
-                <h3 className="text-sm font-semibold text-primary mb-2">Add Nodes</h3>
+                <h3 className="text-sm font-semibold text-primary mb-2 border-b border-border pb-2">Add Nodes</h3>
                 <Button
                   onClick={addSourceField}
                   size="sm"
                   variant="outline"
-                  className="justify-start"
+                  className="justify-start h-9"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Source Field
@@ -278,7 +294,7 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
                   onClick={addFunction}
                   size="sm"
                   variant="outline"
-                  className="justify-start"
+                  className="justify-start h-9"
                 >
                   <Zap className="h-4 w-4 mr-2" />
                   Function
@@ -287,7 +303,7 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
                   onClick={addConstant}
                   size="sm"
                   variant="outline"
-                  className="justify-start"
+                  className="justify-start h-9"
                 >
                   <Hash className="h-4 w-4 mr-2" />
                   Constant
@@ -296,7 +312,7 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
                   onClick={addConditional}
                   size="sm"
                   variant="outline"
-                  className="justify-start"
+                  className="justify-start h-9"
                 >
                   <GitBranch className="h-4 w-4 mr-2" />
                   Conditional
@@ -304,9 +320,12 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
               </div>
             </Panel>
 
-            <Panel position="bottom-right" className="bg-card border rounded-lg p-2 shadow-lg">
-              <div className="text-xs text-muted-foreground">
-                {isFlowValid ? '✅ Flow is valid' : '❌ Connect nodes to target field'}
+            <Panel position="bottom-right" className="bg-card border rounded-lg p-3 shadow-lg">
+              <div className="flex items-center gap-2">
+                <div className={`w-2 h-2 rounded-full ${isFlowValid ? 'bg-green-500' : 'bg-red-500'}`} />
+                <div className="text-sm font-medium">
+                  {isFlowValid ? 'Flow is valid - ready to save' : 'Connect nodes to target field'}
+                </div>
               </div>
             </Panel>
           </ReactFlow>
