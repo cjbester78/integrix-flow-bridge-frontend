@@ -204,7 +204,7 @@ export const FunctionPicker: React.FC<FunctionPickerProps> = ({
           </Button>
         )}
       </PopoverTrigger>
-      <PopoverContent className="w-96 p-4" align="start">
+      <PopoverContent className="w-[32rem] p-4 z-50" align="start" sideOffset={4}>
         {selectedFunction ? renderFunctionConfig() : renderFunctionList()}
       </PopoverContent>
     </Popover>
