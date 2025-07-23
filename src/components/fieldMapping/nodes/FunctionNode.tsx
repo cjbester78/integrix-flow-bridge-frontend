@@ -67,10 +67,15 @@ export const FunctionNode: React.FC<FunctionNodeProps> = ({ id, data }) => {
         <Button
           size="sm"
           variant="ghost"
-          onClick={() => setShowConfig(!showConfig)}
-          className="h-6 w-6 p-0"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Settings clicked, showConfig was:', showConfig);
+            setShowConfig(!showConfig);
+          }}
+          className="h-6 w-6 p-0 hover:bg-muted rounded"
         >
-          <Settings className="h-3 w-3" />
+          <Settings className={`h-3 w-3 ${showConfig ? 'text-primary' : ''}`} />
         </Button>
       </div>
 
@@ -103,19 +108,29 @@ export const FunctionNode: React.FC<FunctionNodeProps> = ({ id, data }) => {
       </div>
 
       {showConfig && (
-        <div className="space-y-2 mb-3 border-t pt-2">
+        <div className="space-y-2 mb-3 border-t pt-2 bg-muted/20 rounded p-2">
           <Label className="text-xs font-medium">Parameters</Label>
-          {selectedFunction.parameters.map((param, index) => (
-            <div key={param.name} className="space-y-1">
-              <Label className="text-xs">{param.name}</Label>
-              <Input
-                placeholder={`${param.type} value`}
-                value={parameters[param.name] || ''}
-                onChange={(e) => handleParameterChange(param.name, e.target.value)}
-                className="h-6 text-xs"
-              />
-            </div>
-          ))}
+          {selectedFunction.parameters.length === 0 ? (
+            <div className="text-xs text-muted-foreground">No parameters required</div>
+          ) : (
+            selectedFunction.parameters.map((param, index) => (
+              <div key={param.name} className="space-y-1">
+                <Label className="text-xs">
+                  {param.name}
+                  {param.required && <span className="text-destructive ml-1">*</span>}
+                </Label>
+                <Input
+                  placeholder={`${param.type} value`}
+                  value={parameters[param.name] || ''}
+                  onChange={(e) => handleParameterChange(param.name, e.target.value)}
+                  className="h-6 text-xs"
+                />
+                {param.description && (
+                  <div className="text-xs text-muted-foreground">{param.description}</div>
+                )}
+              </div>
+            ))
+          )}
         </div>
       )}
 
