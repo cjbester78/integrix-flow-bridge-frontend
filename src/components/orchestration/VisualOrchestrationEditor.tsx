@@ -224,18 +224,19 @@ export function VisualOrchestrationEditor() {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="p-0 h-full">
-            <ReactFlow
-              nodes={nodes}
-              edges={edges}
-              onNodesChange={onNodesChange}
-              onEdgesChange={onEdgesChange}
-              onConnect={onConnect}
-              onNodeClick={onNodeClick}
-              nodeTypes={nodeTypes}
-              fitView
-              style={{ background: 'hsl(var(--muted/50))' }}
-            >
+          <CardContent className="p-0 h-[calc(100%-80px)]">
+            <div className="h-full w-full">
+              <ReactFlow
+                nodes={nodes}
+                edges={edges}
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
+                onConnect={onConnect}
+                onNodeClick={onNodeClick}
+                nodeTypes={nodeTypes}
+                fitView
+                style={{ background: 'hsl(var(--muted/50))' }}
+              >
               <Controls />
               <MiniMap />
               <Background />
@@ -256,6 +257,7 @@ export function VisualOrchestrationEditor() {
                 </div>
               </Panel>
             </ReactFlow>
+            </div>
           </CardContent>
         </Card>
       </div>
