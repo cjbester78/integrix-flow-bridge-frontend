@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { Handle, Position } from '@xyflow/react';
+import { Handle, Position, useReactFlow } from '@xyflow/react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { TransformationFunction, functionsByCategory } from '@/services/transformationFunctions';
-import { Settings, Zap } from 'lucide-react';
+import { Settings, Zap, X } from 'lucide-react';
 
 interface FunctionNodeProps {
+  id: string;
   data: {
     function: TransformationFunction;
     parameters: Record<string, any>;
@@ -15,10 +16,11 @@ interface FunctionNodeProps {
   };
 }
 
-export const FunctionNode: React.FC<FunctionNodeProps> = ({ data }) => {
+export const FunctionNode: React.FC<FunctionNodeProps> = ({ id, data }) => {
   const [selectedFunction, setSelectedFunction] = useState(data.function);
   const [parameters, setParameters] = useState(data.parameters);
   const [showConfig, setShowConfig] = useState(false);
+  const { setNodes, setEdges } = useReactFlow();
 
   const allFunctions = Object.values(functionsByCategory).flat();
 
@@ -37,12 +39,30 @@ export const FunctionNode: React.FC<FunctionNodeProps> = ({ data }) => {
     }));
   };
 
+  const handleDelete = () => {
+    // Remove the node
+    setNodes((nodes) => nodes.filter((node) => node.id !== id));
+    
+    // Remove any edges connected to this node
+    setEdges((edges) => edges.filter((edge) => edge.source !== id && edge.target !== id));
+  };
+
   return (
-    <div className="bg-card border-2 border-orange-200 rounded-lg p-3 min-w-[200px] shadow-sm">
+    <div className="bg-card border-2 border-orange-200 rounded-lg p-3 min-w-[200px] shadow-sm relative group">
+      {/* Delete button - only visible on hover */}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={handleDelete}
+        className="absolute -top-2 -right-2 h-6 w-6 p-0 bg-destructive text-destructive-foreground opacity-0 group-hover:opacity-100 transition-opacity rounded-full shadow-md hover:bg-destructive/80"
+        title="Delete function"
+      >
+        <X className="h-3 w-3" />
+      </Button>
+
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <Zap className="h-4 w-4 text-orange-500" />
-          <span className="text-sm font-medium text-foreground">Function</span>
         </div>
         <Button
           size="sm"
