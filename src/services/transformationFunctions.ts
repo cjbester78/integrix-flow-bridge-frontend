@@ -559,11 +559,14 @@ const dateFunctions: TransformationFunction[] = [
     description: 'Transform date format',
     parameters: [
       { name: 'date', type: 'string', required: true, description: 'Input date' },
-      { name: 'fromFormat', type: 'string', required: true, description: 'Source format' },
-      { name: 'toFormat', type: 'string', required: true, description: 'Target format' }
+      { name: 'fromFormat', type: 'string', required: true, description: 'Input date format' },
+      { name: 'toFormat', type: 'string', required: true, description: 'Output date format' },
+      { name: 'firstWeekday', type: 'string', required: false, description: 'First day of week (Sunday, Monday, etc.)' },
+      { name: 'minDays', type: 'number', required: false, description: 'Minimum days in first week' },
+      { name: 'lenient', type: 'boolean', required: false, description: 'Enable lenient parsing' }
     ],
-    execute: (date: string, fromFormat: string, toFormat: string) => date, // Simplified for preview
-    javaTemplate: 'dateTrans({0}, {1}, {2})'
+    execute: (date: string, fromFormat: string, toFormat: string, firstWeekday?: string, minDays?: number, lenient?: boolean) => date, // Simplified for preview
+    javaTemplate: 'dateTrans({0}, {1}, {2}, {3}, {4}, {5})'
   },
   {
     name: 'dateBefore',
