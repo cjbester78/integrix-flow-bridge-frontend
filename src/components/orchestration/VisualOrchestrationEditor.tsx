@@ -251,9 +251,9 @@ export function VisualOrchestrationEditor() {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[calc(100vh-200px)]">
-      {/* Main Canvas */}
-      <div className="lg:col-span-3">
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 h-[calc(100vh-150px)]">
+      {/* Main Canvas - Takes up 4/5 of the space */}
+      <div className="lg:col-span-4">
         <Card className="h-full">
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
@@ -274,7 +274,7 @@ export function VisualOrchestrationEditor() {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="p-0 h-[calc(100%-80px)]">
+          <CardContent className="p-0 h-[calc(100%-60px)]">
             <ReactFlow
               nodes={nodes}
               edges={edges}
@@ -305,8 +305,8 @@ export function VisualOrchestrationEditor() {
         </Card>
       </div>
 
-      {/* Sidebar */}
-      <div className="space-y-4">
+      {/* Sidebar - Takes up 1/5 of the space */}
+      <div className="space-y-3">
         {/* Node Palette */}
         <Card>
           <CardHeader>
