@@ -64,63 +64,75 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
   const [showFieldSelector, setShowFieldSelector] = useState(false);
   const [showFunctionSelector, setShowFunctionSelector] = useState(false);
 
-  // Initialize nodes when dialog opens
+  // Initialize nodes when dialog opens or when initialMapping changes
   React.useEffect(() => {
     if (open && targetField) {
-      const initialNodes: Node[] = [];
+      let initialNodes: Node[] = [];
+      let initialEdges: Edge[] = [];
+      let initialNodeCounter = 1;
       
-      // Add target field node
-      initialNodes.push({
-        id: 'target',
-        type: 'targetField',
-        position: { x: 800, y: 200 },
-        data: { field: targetField },
-      });
+      // Check if we have saved visual flow data to restore
+      if (initialMapping?.visualFlowData) {
+        // Restore the complete flow state
+        initialNodes = initialMapping.visualFlowData.nodes;
+        initialEdges = initialMapping.visualFlowData.edges;
+        initialNodeCounter = initialMapping.visualFlowData.nodeIdCounter;
+      } else {
+        // Create new flow
+        // Add target field node
+        initialNodes.push({
+          id: 'target',
+          type: 'targetField',
+          position: { x: 800, y: 200 },
+          data: { field: targetField },
+        });
 
-      // If there's an initial mapping, add its source fields to the canvas
-      if (initialMapping && initialMapping.sourcePaths && initialMapping.sourcePaths.length > 0) {
-        initialMapping.sourcePaths.forEach((sourceFieldPath, index) => {
-          // Find the corresponding FieldNode for this source field path
-          const sourceField = sourceFields.find(field => 
-            field.path === sourceFieldPath || field.name === sourceFieldPath
-          );
-          
-          if (sourceField) {
-            initialNodes.push({
-              id: `source-${sourceField.id}`,
-              type: 'sourceField',
-              position: { x: 50, y: 50 + index * 100 },
-              data: { field: sourceField },
-            });
-          }
-        });
-      }
-      // Fallback: try using sourceFields if sourcePaths is not available
-      else if (initialMapping && initialMapping.sourceFields && initialMapping.sourceFields.length > 0) {
-        initialMapping.sourceFields.forEach((sourceFieldName, index) => {
-          const sourceField = sourceFields.find(field => 
-            field.name === sourceFieldName || field.path === sourceFieldName
-          );
-          
-          if (sourceField) {
-            initialNodes.push({
-              id: `source-${sourceField.id}`,
-              type: 'sourceField',
-              position: { x: 50, y: 50 + index * 100 },
-              data: { field: sourceField },
-            });
-          }
-        });
+        // If there's an initial mapping, add its source fields to the canvas
+        if (initialMapping && initialMapping.sourcePaths && initialMapping.sourcePaths.length > 0) {
+          initialMapping.sourcePaths.forEach((sourceFieldPath, index) => {
+            // Find the corresponding FieldNode for this source field path
+            const sourceField = sourceFields.find(field => 
+              field.path === sourceFieldPath || field.name === sourceFieldPath
+            );
+            
+            if (sourceField) {
+              initialNodes.push({
+                id: `source-${sourceField.id}`,
+                type: 'sourceField',
+                position: { x: 50, y: 50 + index * 100 },
+                data: { field: sourceField },
+              });
+            }
+          });
+        }
+        // Fallback: try using sourceFields if sourcePaths is not available
+        else if (initialMapping && initialMapping.sourceFields && initialMapping.sourceFields.length > 0) {
+          initialMapping.sourceFields.forEach((sourceFieldName, index) => {
+            const sourceField = sourceFields.find(field => 
+              field.name === sourceFieldName || field.path === sourceFieldName
+            );
+            
+            if (sourceField) {
+              initialNodes.push({
+                id: `source-${sourceField.id}`,
+                type: 'sourceField',
+                position: { x: 50, y: 50 + index * 100 },
+                data: { field: sourceField },
+              });
+            }
+          });
+        }
+        
+        // Set node counter based on how many nodes we're starting with  
+        const sourceNodeCount = (initialMapping?.sourcePaths?.length || initialMapping?.sourceFields?.length || 0);
+        initialNodeCounter = 2 + sourceNodeCount;
       }
 
       setNodes(initialNodes);
-      setEdges([]);
-      
-      // Set node counter based on how many nodes we're starting with  
-      const sourceNodeCount = (initialMapping?.sourcePaths?.length || initialMapping?.sourceFields?.length || 0);
-      setNodeIdCounter(2 + sourceNodeCount);
+      setEdges(initialEdges);
+      setNodeIdCounter(initialNodeCounter);
     }
-  }, [open, targetField, sourceFields, setNodes, setEdges]);
+  }, [open, targetField, sourceFields, initialMapping, setNodes, setEdges]);
 
   const onConnect = useCallback(
     (params: Connection) => {
@@ -230,7 +242,7 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
       }
     });
 
-    // Create mapping object
+    // Create mapping object with complete flow state
     const mapping: FieldMapping = {
       id: initialMapping?.id || `mapping_${Date.now()}`,
       name: `visual_flow_to_${targetField.name}`,
@@ -239,7 +251,12 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
       sourcePaths: connectedSourcePaths,
       targetPath: targetField.path,
       requiresTransformation: true,
-      // Store the flow configuration for future editing
+      // Store the complete flow configuration for future editing
+      visualFlowData: {
+        nodes: nodes,
+        edges: edges,
+        nodeIdCounter: nodeIdCounter
+      },
       functionNode: {
         id: 'visual_flow',
         functionName: 'visual_flow',
@@ -251,7 +268,7 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
 
     onApplyMapping(mapping);
     onClose();
-  }, [nodes, edges, targetField, initialMapping, onApplyMapping, onClose]);
+  }, [nodes, edges, nodeIdCounter, targetField, initialMapping, onApplyMapping, onClose]);
 
   const isFlowValid = useMemo(() => {
     const targetNode = nodes.find(n => n.type === 'targetField');

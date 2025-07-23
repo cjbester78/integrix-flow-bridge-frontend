@@ -25,6 +25,11 @@ export interface FieldMapping {
   javaFunction?: string;
   requiresTransformation?: boolean;
   functionNode?: FunctionNodeData; // New field for function-based mappings
+  visualFlowData?: {
+    nodes: any[];
+    edges: any[];
+    nodeIdCounter: number;
+  }; // Store complete React Flow state for persistence
 }
 
 export interface WebserviceStructures {
