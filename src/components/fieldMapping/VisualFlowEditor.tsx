@@ -83,7 +83,7 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
         initialNodes.push({
           id: `source-${field.id}`,
           type: 'sourceField',
-          position: { x: 50, y: 50 + index * 100 },
+          position: { x: 50, y: 50 + index * 100 }, // Consistent with new positioning
           data: { field },
         });
       });
@@ -119,10 +119,11 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
   }, []);
 
   const handleSelectSourceField = useCallback((field: FieldNode) => {
+    const existingSourceNodes = nodes.filter(node => node.type === 'sourceField');
     const newNode: Node = {
       id: `source-${field.id}`,
       type: 'sourceField',
-      position: { x: 50, y: 50 + nodes.length * 80 },
+      position: { x: 50, y: 50 + existingSourceNodes.length * 100 }, // Consistent spacing
       data: { field },
     };
 
@@ -134,10 +135,14 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
   }, []);
 
   const handleSelectFunction = useCallback((func: TransformationFunction) => {
+    const existingFunctionNodes = nodes.filter(node => node.type === 'function');
     const newNode: Node = {
       id: `function-${nodeIdCounter}`,
       type: 'function',
-      position: { x: 300, y: 100 + (nodeIdCounter - 1) * 120 },
+      position: { 
+        x: 350, 
+        y: 50 + existingFunctionNodes.length * 120 // Start at top, space functions vertically
+      },
       data: { 
         function: func,
         parameters: {},
@@ -147,13 +152,17 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
 
     setNodes((nds) => [...nds, newNode]);
     setNodeIdCounter(prev => prev + 1);
-  }, [nodeIdCounter, setNodes]);
+  }, [nodeIdCounter, nodes, setNodes]);
 
   const addConstant = useCallback(() => {
+    const existingConstantNodes = nodes.filter(node => node.type === 'constant');
     const newNode: Node = {
       id: `constant-${nodeIdCounter}`,
       type: 'constant',
-      position: { x: 150, y: 100 + (nodeIdCounter - 1) * 80 },
+      position: { 
+        x: 200, 
+        y: 50 + existingConstantNodes.length * 80 // Align with top, space constants
+      },
       data: { 
         value: '',
         type: 'string'
@@ -162,13 +171,17 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
 
     setNodes((nds) => [...nds, newNode]);
     setNodeIdCounter(prev => prev + 1);
-  }, [nodeIdCounter, setNodes]);
+  }, [nodeIdCounter, nodes, setNodes]);
 
   const addConditional = useCallback(() => {
+    const existingConditionalNodes = nodes.filter(node => node.type === 'conditional');
     const newNode: Node = {
       id: `conditional-${nodeIdCounter}`,
       type: 'conditional',
-      position: { x: 450, y: 100 + (nodeIdCounter - 1) * 150 },
+      position: { 
+        x: 500, 
+        y: 50 + existingConditionalNodes.length * 150 // Align with top, space conditionals
+      },
       data: { 
         condition: 'equals',
         compareValue: ''
@@ -177,7 +190,7 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
 
     setNodes((nds) => [...nds, newNode]);
     setNodeIdCounter(prev => prev + 1);
-  }, [nodeIdCounter, setNodes]);
+  }, [nodeIdCounter, nodes, setNodes]);
 
   const handleSave = useCallback(() => {
     if (!targetField) return;
