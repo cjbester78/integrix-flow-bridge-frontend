@@ -313,7 +313,15 @@ export function MappingArea({
                             <span className="font-medium text-primary">Function Mapping:</span>
                           </div>
                           <div className="text-muted-foreground">
-                            {mapping.functionNode.functionName} with {Object.keys(mapping.functionNode.sourceConnections).length} parameter(s) connected
+                            {mapping.functionNode.functionName === 'visual_flow' ? (
+                              mapping.visualFlowData ? (
+                                `Visual Flow - ${mapping.sourceFields.length} source field(s): ${mapping.sourceFields.join(', ')}`
+                              ) : (
+                                `Visual Flow - ${mapping.sourceFields.length} source field(s) connected`
+                              )
+                            ) : (
+                              `${mapping.functionNode.functionName} with ${Object.keys(mapping.functionNode.sourceConnections).length} parameter(s) connected`
+                            )}
                           </div>
                         </div>
                       )}
