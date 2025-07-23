@@ -64,9 +64,21 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
   const func = getAllFunctions().find(f => f.name === selectedFunction);
 
   const handleSourceFieldDragStart = useCallback((field: FieldNode, event: React.DragEvent) => {
-    console.log('Drag start for field:', field.name);
+    console.log('=== DRAG START ===');
+    console.log('Field:', field.name);
+    console.log('Event type:', event.type);
+    
+    // Set drag data with multiple formats for better compatibility
+    event.dataTransfer.setData('text/plain', field.name);
     event.dataTransfer.setData('application/json', JSON.stringify(field));
-    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/field-id', field.id);
+    event.dataTransfer.effectAllowed = 'copy';
+    
+    // Set drag image to make it more visible
+    const dragImage = event.currentTarget.cloneNode(true) as HTMLElement;
+    dragImage.style.transform = 'rotate(5deg)';
+    dragImage.style.opacity = '0.8';
+    event.dataTransfer.setDragImage(dragImage, 20, 20);
 
     setDragState({
       isDragging: true,
@@ -75,9 +87,14 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
     });
 
     const targets = new Set<string>();
-    func?.parameters.forEach(param => targets.add(`param-${functionNode.id}-${param.name}`));
+    func?.parameters.forEach(param => {
+      if (!param.name.toLowerCase().includes('delimiter') && !param.name.toLowerCase().includes('separator')) {
+        targets.add(`param-${functionNode.id}-${param.name}`);
+      }
+    });
     setDropTargets(targets);
     console.log('Drop targets set:', Array.from(targets));
+    console.log('=== DRAG START COMPLETE ===');
   }, [func, functionNode.id]);
 
   const handleFunctionOutputDragStart = useCallback((event: React.DragEvent) => {
@@ -96,13 +113,32 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
   }, []);
 
   const handleDropOnFunctionParameter = useCallback((paramName: string, event: React.DragEvent) => {
-    console.log('Drop on parameter:', paramName);
+    console.log('=== DROP EVENT ===');
+    console.log('Parameter:', paramName);
+    console.log('Event type:', event.type);
+    
     event.preventDefault();
-    const fieldData = event.dataTransfer.getData('application/json');
-    console.log('Field data from drag:', fieldData);
+    event.stopPropagation();
+    
+    // Try multiple data formats
+    let fieldData = event.dataTransfer.getData('application/json');
+    const fieldName = event.dataTransfer.getData('text/plain');
+    const fieldId = event.dataTransfer.getData('text/field-id');
+    
+    console.log('Drag data - JSON:', fieldData);
+    console.log('Drag data - Name:', fieldName);
+    console.log('Drag data - ID:', fieldId);
+    
+    if (!fieldData && fieldName) {
+      // Fallback: find field by name
+      const sourceField = sourceFields.find(f => f.name === fieldName);
+      if (sourceField) {
+        fieldData = JSON.stringify(sourceField);
+      }
+    }
     
     if (!fieldData) {
-      console.log('No field data found in drag transfer');
+      console.log('ERROR: No field data found in drag transfer');
       return;
     }
     
@@ -113,36 +149,37 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
       ...prev,
       sourceConnections: {
         ...prev.sourceConnections,
-        [paramName]: [...(prev.sourceConnections[paramName] || []), sourceField.path]
+        [paramName]: [sourceField.path] // Replace instead of append
       }
     }));
 
-    // Create visual connection with better positioning
-    const sourceElement = document.querySelector(`[data-field-id="${sourceField.id}"]`);
-    const targetElement = document.querySelector(`[data-param="${paramName}"]`);
-    
-    if (sourceElement && targetElement && canvasRef.current) {
-      const canvasRect = canvasRef.current.getBoundingClientRect();
-      const sourceRect = sourceElement.getBoundingClientRect();
-      const targetRect = targetElement.getBoundingClientRect();
+    // Create visual connection
+    setTimeout(() => {
+      const sourceElement = document.querySelector(`[data-field-id="${sourceField.id}"]`);
+      const targetElement = document.querySelector(`[data-param="${paramName}"]`);
       
-      const connection: Connection = {
-        id: `connection_${Date.now()}`,
-        sourceId: sourceField.id,
-        targetId: `${functionNode.id}-${paramName}`,
-        sourceX: sourceRect.right - canvasRect.left,
-        sourceY: sourceRect.top + sourceRect.height / 2 - canvasRect.top,
-        targetX: targetRect.left - canvasRect.left,
-        targetY: targetRect.top + targetRect.height / 2 - canvasRect.top
-      };
-      setConnections(prev => [...prev, connection]);
-      console.log('Connection created:', connection);
-    } else {
-      console.log('Could not find elements for connection');
-    }
+      if (sourceElement && targetElement && canvasRef.current) {
+        const canvasRect = canvasRef.current.getBoundingClientRect();
+        const sourceRect = sourceElement.getBoundingClientRect();
+        const targetRect = targetElement.getBoundingClientRect();
+        
+        const connection: Connection = {
+          id: `connection_${Date.now()}`,
+          sourceId: sourceField.id,
+          targetId: `${functionNode.id}-${paramName}`,
+          sourceX: sourceRect.right - canvasRect.left,
+          sourceY: sourceRect.top + sourceRect.height / 2 - canvasRect.top,
+          targetX: targetRect.left - canvasRect.left,
+          targetY: targetRect.top + targetRect.height / 2 - canvasRect.top
+        };
+        setConnections(prev => [...prev, connection]);
+        console.log('Connection created:', connection);
+      }
+    }, 100);
 
     handleDragEnd();
-  }, [functionNode.id, handleDragEnd]);
+    console.log('=== DROP COMPLETE ===');
+  }, [functionNode.id, handleDragEnd, sourceFields]);
 
   const handleDropOnTarget = useCallback((event: React.DragEvent) => {
     event.preventDefault();
@@ -258,26 +295,30 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
                     <div 
                       key={field.id} 
                       data-field-id={field.id}
-                      className={cn(
-                        "bg-background border rounded p-2 transition-all hover:shadow-md touch-none", 
-                        dragState.isDragging && dragState.draggedItem?.id === field.id && "opacity-50"
-                      )}
-                      style={{ cursor: 'grab', userSelect: 'none' }}
-                      draggable={true}
+                      className="bg-background border-2 rounded p-3 transition-all hover:shadow-lg hover:border-primary/50"
+                      style={{ 
+                        cursor: 'grab',
+                        userSelect: 'none',
+                        WebkitUserSelect: 'none',
+                        MozUserSelect: 'none',
+                        msUserSelect: 'none'
+                      }}
+                      draggable="true"
                       onDragStart={(e) => {
                         console.log('onDragStart called for:', field.name);
                         e.currentTarget.style.cursor = 'grabbing';
+                        e.currentTarget.style.opacity = '0.5';
                         handleSourceFieldDragStart(field, e);
                       }}
                       onDragEnd={(e) => {
                         console.log('onDragEnd called for:', field.name);
                         e.currentTarget.style.cursor = 'grab';
+                        e.currentTarget.style.opacity = '1';
                         handleDragEnd();
                       }}
                       onMouseDown={(e) => {
                         console.log('Mouse down on field:', field.name);
-                        // Prevent text selection during drag
-                        e.preventDefault();
+                        // Don't prevent default here as it can interfere with drag
                       }}
                     >
                       <div className="font-medium text-sm" style={{ pointerEvents: 'none' }}>{field.name}</div>
