@@ -31,14 +31,25 @@ export const FunctionNode: React.FC<FunctionNodeProps> = ({ id, data }) => {
     const nodes = getNodes();
     const connections: Record<string, string> = {};
     
+    // Debug logging
+    console.log('FunctionNode edges:', edges.filter(e => e.target === id));
+    console.log('FunctionNode nodes:', nodes);
+    
     edges.forEach(edge => {
       if (edge.target === id && edge.targetHandle) {
         // Find the source node
         const sourceNode = nodes.find(n => n.id === edge.source);
+        console.log('Source node for edge:', edge, sourceNode);
+        
         if (sourceNode && sourceNode.type === 'sourceField') {
-          const fieldData = sourceNode.data as { field: { name: string } };
+          const fieldData = sourceNode.data as { field: { name: string; path?: string } };
+          console.log('Field data:', fieldData);
           if (fieldData?.field?.name) {
             connections[edge.targetHandle] = fieldData.field.name;
+          } else if (fieldData?.field?.path) {
+            // Fallback to path if name isn't available
+            const pathParts = fieldData.field.path.split('.');
+            connections[edge.targetHandle] = pathParts[pathParts.length - 1];
           }
         } else if (sourceNode && sourceNode.type === 'constant') {
           const constantData = sourceNode.data as { value: string };
@@ -49,6 +60,7 @@ export const FunctionNode: React.FC<FunctionNodeProps> = ({ id, data }) => {
       }
     });
     
+    console.log('Connections for function node:', connections);
     return connections;
   }, [id, getEdges, getNodes]);
 
@@ -207,7 +219,7 @@ export const FunctionNode: React.FC<FunctionNodeProps> = ({ id, data }) => {
                         // Draggable parameter - show connection status, no input field
                         <div className="h-6 px-2 py-1 bg-muted/50 rounded text-xs border border-dashed">
                           {connectedFields[param.name] ? (
-                            <span className="text-green-600">{connectedFields[param.name]}</span>
+                            <span className="text-green-600 font-medium">{connectedFields[param.name]}</span>
                           ) : (
                             <span className="text-muted-foreground">Connect field here</span>
                           )}
