@@ -526,19 +526,6 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
             )}
           </div>
 
-          {/* Floating drag preview */}
-          {dragState.isDragging && dragState.draggedItem && (
-            <div 
-              className="fixed pointer-events-none z-50 bg-primary text-primary-foreground px-2 py-1 rounded shadow-lg"
-              style={{
-                left: dragState.currentPosition.x - 10,
-                top: dragState.currentPosition.y - 10,
-                transform: 'translate(-50%, -50%)'
-              }}
-            >
-              {dragState.draggedItem.name}
-            </div>
-          )}
 
         </div>
 
