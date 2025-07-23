@@ -541,10 +541,10 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
           )}
 
           {dragState.isDragging && (
-            <div className="absolute inset-0 bg-primary/5 border-2 border-dashed border-primary/30 flex items-center justify-center z-20">
-              <div className="text-center">
-                <div className="text-lg font-medium text-primary">Drop on function parameter</div>
-                <div className="text-sm text-muted-foreground">Release to connect {dragState.draggedItem?.name}</div>
+            <div className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center">
+              <div className="text-center pointer-events-none">
+                <div className="text-lg font-medium text-primary pointer-events-none">Drop on function parameter</div>
+                <div className="text-sm text-muted-foreground pointer-events-none">Release to connect {dragState.draggedItem?.name}</div>
               </div>
             </div>
           )}
