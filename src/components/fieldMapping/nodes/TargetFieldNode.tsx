@@ -16,7 +16,6 @@ export const TargetFieldNode: React.FC<TargetFieldNodeProps> = ({ data }) => {
     <div className="bg-card border-2 border-purple-200 rounded-lg p-3 min-w-[160px] shadow-sm">
       <div className="flex items-center gap-2 mb-2">
         <Target className="h-4 w-4 text-purple-500" />
-        <span className="text-sm font-medium text-foreground">Target Field</span>
       </div>
       
       <div className="space-y-1">

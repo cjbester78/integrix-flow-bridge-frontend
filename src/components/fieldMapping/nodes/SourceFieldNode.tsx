@@ -38,7 +38,6 @@ export const SourceFieldNode: React.FC<SourceFieldNodeProps> = ({ id, data }) =>
 
       <div className="flex items-center gap-2 mb-2">
         <Database className="h-4 w-4 text-blue-500" />
-        <span className="text-sm font-medium text-foreground">Source Field</span>
       </div>
       
       <div className="space-y-1">
