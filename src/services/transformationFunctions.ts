@@ -696,13 +696,19 @@ const nodeFunctions: TransformationFunction[] = [
   {
     name: 'useOneAsMany',
     category: 'node',
-    description: 'Use single value as multiple occurrences',
+    description: 'Replicate a field that occurs once to pair with fields that occur multiple times',
     parameters: [
-      { name: 'value', type: 'string', required: true },
-      { name: 'count', type: 'number', required: true }
+      { name: 'singleField', type: 'string', required: true, description: 'Field that occurs 1..1 (once)' },
+      { name: 'countField', type: 'string', required: true, description: 'Field that determines replication count' },
+      { name: 'multipleField', type: 'string', required: true, description: 'Field that occurs multiple times and provides context' }
     ],
-    execute: (value: string, count: number) => Array(count).fill(value),
-    javaTemplate: 'useOneAsMany({0}, {1})'
+    execute: (singleField: string, countField: string, multipleField: string) => {
+      // This is a simplified implementation for preview
+      // In actual SAP PI/XI, this function replicates the singleField value
+      // based on the occurrence count of multipleField within countField context
+      return [singleField]; // Simplified return
+    },
+    javaTemplate: 'useOneAsMany({0}, {1}, {2})'
   },
   {
     name: 'sort',
