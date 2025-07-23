@@ -49,6 +49,7 @@ const initialNodes: Node[] = [
       borderRadius: '8px',
       padding: '10px',
     },
+    deletable: false, // Prevent deletion of start node
   },
   {
     id: 'message-receive',
@@ -158,6 +159,7 @@ const initialNodes: Node[] = [
       borderRadius: '8px',
       padding: '10px',
     },
+    deletable: false, // Prevent deletion of end node
   },
 ];
 
@@ -243,6 +245,7 @@ export function VisualOrchestrationEditor() {
         borderRadius: '8px',
         padding: '10px',
       },
+      deletable: true, // Allow deletion of custom nodes
     };
     setNodes((nds) => [...nds, newNode]);
   };
