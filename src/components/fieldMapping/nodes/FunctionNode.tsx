@@ -207,22 +207,6 @@ export const FunctionNode: React.FC<FunctionNodeProps> = ({ id, data }) => {
         </div>
       )}
 
-      {/* Input handles for each parameter - only show handles, no drag indicators */}
-      {selectedFunction.parameters.map((param, index) => (
-        <Handle
-          key={`input-${param.name}`}
-          type="target"
-          position={Position.Left}
-          id={param.name}
-          style={{ 
-            top: `${60 + index * 20}px`,
-            background: connectedFields[param.name] ? '#22c55e' : '#f97316',
-            width: '8px',
-            height: '8px'
-          }}
-          className="border-2 border-white"
-        />
-      ))}
 
       {/* Output handle */}
       <Handle
