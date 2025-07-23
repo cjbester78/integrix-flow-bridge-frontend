@@ -259,24 +259,29 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
                       key={field.id} 
                       data-field-id={field.id}
                       className={cn(
-                        "bg-background border rounded p-2 cursor-grab transition-all hover:shadow-md select-none", 
+                        "bg-background border rounded p-2 transition-all hover:shadow-md touch-none", 
                         dragState.isDragging && dragState.draggedItem?.id === field.id && "opacity-50"
                       )}
+                      style={{ cursor: 'grab', userSelect: 'none' }}
                       draggable={true}
                       onDragStart={(e) => {
                         console.log('onDragStart called for:', field.name);
+                        e.currentTarget.style.cursor = 'grabbing';
                         handleSourceFieldDragStart(field, e);
                       }}
                       onDragEnd={(e) => {
                         console.log('onDragEnd called for:', field.name);
+                        e.currentTarget.style.cursor = 'grab';
                         handleDragEnd();
                       }}
                       onMouseDown={(e) => {
                         console.log('Mouse down on field:', field.name);
+                        // Prevent text selection during drag
+                        e.preventDefault();
                       }}
                     >
-                      <div className="font-medium text-sm pointer-events-none">{field.name}</div>
-                      <div className="text-xs text-muted-foreground pointer-events-none">{field.type}</div>
+                      <div className="font-medium text-sm" style={{ pointerEvents: 'none' }}>{field.name}</div>
+                      <div className="text-xs text-muted-foreground" style={{ pointerEvents: 'none' }}>{field.type}</div>
                     </div>
                   ))}
                 </div>
@@ -309,13 +314,24 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
                     ) : (
                       <div 
                         data-param={param.name}
-                        className={cn("border border-dashed border-muted-foreground/30 rounded p-2 text-sm transition-colors min-h-10", dropTargets.has(`param-${functionNode.id}-${param.name}`) && "border-primary bg-primary/10")}
+                        className={cn(
+                          "border-2 border-dashed border-muted-foreground/30 rounded p-2 text-sm transition-colors min-h-10", 
+                          dropTargets.has(`param-${functionNode.id}-${param.name}`) && "border-primary bg-primary/10",
+                          "hover:border-primary/50"
+                        )}
                         onDragOver={(e) => {
                           console.log('Drag over parameter:', param.name);
+                          e.preventDefault();
+                          e.stopPropagation();
+                        }}
+                        onDragEnter={(e) => {
+                          console.log('Drag enter parameter:', param.name);
                           e.preventDefault();
                         }}
                         onDrop={(e) => {
                           console.log('Drop event on parameter:', param.name);
+                          e.preventDefault();
+                          e.stopPropagation();
                           handleDropOnFunctionParameter(param.name, e);
                         }}
                       >
