@@ -130,28 +130,7 @@ export const TransformationConfigurationCard = ({
           <CardDescription>Configure how data should be transformed during the flow</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Field Mapping Selection */}
-          <div className="grid grid-cols-1 gap-3">
-            {transformations.map((transformation) => (
-              <div
-                key={transformation.id}
-                className="p-3 border border-border rounded-lg hover:bg-accent/50 transition-all duration-300 cursor-pointer group"
-                onClick={() => onAddTransformation(transformation.id)}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium group-hover:text-primary transition-colors">
-                      {transformation.name}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {transformation.description}
-                    </div>
-                  </div>
-                  <Plus className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                </div>
-              </div>
-            ))}
-          </div>
+          {/* Removed Field Mapping Selection - users can only use Create Mapping button */}
 
           {/* Field Mapping Interface */}
           {showFieldMapping && (
@@ -216,11 +195,24 @@ export const TransformationConfigurationCard = ({
             </div>
           )}
 
-          {!showFieldMapping && selectedTransformations.length === 0 && (
+          {!showFieldMapping && (
             <div className="text-center py-8 text-muted-foreground">
               <Settings className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>Select Field Mapping to configure data transformations</p>
-              <p className="text-xs mt-2">Field mapping allows you to connect source and target fields with custom logic</p>
+              <p className="mb-4">Configure data transformations with field mapping</p>
+              <p className="text-xs mb-4">Field mapping allows you to connect source and target fields with custom logic</p>
+              {(!sourceBusinessComponent || !targetBusinessComponent) && (
+                <p className="text-xs text-amber-600 mb-4">
+                  Please select both source and target business components above to enable mapping
+                </p>
+              )}
+              <Button 
+                onClick={onShowMappingScreen}
+                className="bg-gradient-primary hover:opacity-90 transition-all duration-300"
+                disabled={!sourceBusinessComponent || !targetBusinessComponent}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Create Mapping
+              </Button>
             </div>
           )}
         </CardContent>
