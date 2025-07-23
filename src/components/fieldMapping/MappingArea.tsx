@@ -234,38 +234,38 @@ export function MappingArea({
   return (
     <div className="w-1/3 relative bg-background animate-fade-in">
       <div className="p-4 border-b">
-        <div className="flex items-center justify-between">
-          <h3 className="font-semibold flex items-center gap-2">
-            <ArrowRight className="h-4 w-4" />
-            Field Mappings ({mappings.length})
-          </h3>
-          <div className="flex gap-1">
-            <Button
-              onClick={() => setBulkMappingDialog(true)}
-              size="sm"
-              variant="outline"
-              title="Bulk Operations"
-            >
-              <Wand2 className="h-4 w-4" />
-            </Button>
-            <Button
-              onClick={() => setConditionalMappingDialog(true)}
-              size="sm"
-              variant="outline"
-              title="Conditional Mapping"
-            >
-              <GitBranch className="h-4 w-4" />
-            </Button>
-            <Button
-              onClick={() => setAggregationMappingDialog(true)}
-              size="sm"
-              variant="outline"
-              title="Multi-Source Aggregation"
-            >
-              <Combine className="h-4 w-4" />
-            </Button>
-          </div>
+        <h3 className="font-semibold flex items-center gap-2">
+          <ArrowRight className="h-4 w-4" />
+          Field Mappings ({mappings.length})
+        </h3>
+        {/* Temporarily hidden bulk operations toolbar
+        <div className="flex gap-1">
+          <Button
+            onClick={() => setBulkMappingDialog(true)}
+            size="sm"
+            variant="outline"
+            title="Bulk Operations"
+          >
+            <Wand2 className="h-4 w-4" />
+          </Button>
+          <Button
+            onClick={() => setConditionalMappingDialog(true)}
+            size="sm"
+            variant="outline"
+            title="Conditional Mapping"
+          >
+            <GitBranch className="h-4 w-4" />
+          </Button>
+          <Button
+            onClick={() => setAggregationMappingDialog(true)}
+            size="sm"
+            variant="outline"
+            title="Multi-Source Aggregation"
+          >
+            <Combine className="h-4 w-4" />
+          </Button>
         </div>
+        */}
       </div>
 
       <div className="p-4 h-[calc(100%-60px)] overflow-y-auto">
