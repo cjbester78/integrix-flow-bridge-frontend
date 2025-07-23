@@ -236,16 +236,24 @@ export const FunctionNode: React.FC<FunctionNodeProps> = ({ id, data }) => {
 
       {/* Connection status display when config is closed */}
       {!showConfig && Object.keys(connectedFields).length > 0 && (
-        <div className="text-xs text-muted-foreground mb-2">
-          <div className="flex items-center gap-1 mb-1">
-            <Link2 className="h-2 w-2" />
-            <span>Connected:</span>
+        <div className="space-y-1 mb-2 p-2 bg-muted/20 rounded border">
+          <div className="flex items-center gap-1 text-xs font-medium text-primary">
+            <Link2 className="h-3 w-3" />
+            <span>Inputs:</span>
           </div>
-          {Object.entries(connectedFields).map(([param, field]) => (
-            <div key={param} className="ml-3 text-xs">
-              <span className="font-medium">{param}</span> ← {field}
-            </div>
-          ))}
+          {selectedFunction.parameters.map((param) => {
+            const isDraggable = isDraggableParameter(param);
+            if (!isDraggable) return null;
+            
+            return (
+              <div key={param.name} className="flex items-center justify-between text-xs">
+                <span className="font-medium text-muted-foreground">{param.name}:</span>
+                <span className="text-green-600 font-medium">
+                  {connectedFields[param.name] || 'Not connected'}
+                </span>
+              </div>
+            );
+          })}
         </div>
       )}
 
