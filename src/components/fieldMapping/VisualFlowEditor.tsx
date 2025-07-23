@@ -78,19 +78,11 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
         draggable: false,
       });
 
-      // Add a few source field nodes to start
-      sourceFields.slice(0, 3).forEach((field, index) => {
-        initialNodes.push({
-          id: `source-${field.id}`,
-          type: 'sourceField',
-          position: { x: 50, y: 50 + index * 100 }, // Consistent with new positioning
-          data: { field },
-        });
-      });
+      // Start with clean canvas - only target field
 
       setNodes(initialNodes);
       setEdges([]);
-      setNodeIdCounter(sourceFields.length + 2);
+      setNodeIdCounter(2); // Start from 2 since target is 1
     }
   }, [open, targetField, sourceFields, setNodes, setEdges]);
 
