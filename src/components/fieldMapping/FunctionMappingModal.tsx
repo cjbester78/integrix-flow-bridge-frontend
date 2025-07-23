@@ -531,8 +531,9 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
             <div 
               className="fixed pointer-events-none z-50 bg-primary text-primary-foreground px-2 py-1 rounded shadow-lg"
               style={{
-                left: dragState.currentPosition.x + 5,
-                top: dragState.currentPosition.y + 5
+                left: dragState.currentPosition.x - 10,
+                top: dragState.currentPosition.y - 10,
+                transform: 'translate(-50%, -50%)'
               }}
             >
               {dragState.draggedItem.name}
