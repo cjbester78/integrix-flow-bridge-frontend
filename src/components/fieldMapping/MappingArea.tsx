@@ -7,6 +7,7 @@ import { ArrowRight, Code, X, Zap } from 'lucide-react';
 import { FieldMapping, FieldNode } from './types';
 import { FunctionPicker } from './FunctionPicker';
 import { FunctionMappingModal } from './FunctionMappingModal';
+import { VisualFlowEditor } from './VisualFlowEditor';
 
 interface MappingAreaProps {
   mappings: FieldMapping[];
@@ -38,6 +39,15 @@ export function MappingArea({
     selectedFunction: '',
     targetField: null,
     filteredSourceFields: []
+  });
+
+  const [visualFlowEditor, setVisualFlowEditor] = useState<{
+    open: boolean;
+    targetField: FieldNode | null;
+    existingMapping?: FieldMapping;
+  }>({
+    open: false,
+    targetField: null
   });
 
   useEffect(() => {
@@ -95,6 +105,46 @@ export function MappingArea({
       targetField,
       existingMappingId: mappingId,
       filteredSourceFields: mappedSourceFields
+    });
+  };
+
+  const handleOpenVisualFlowEditor = (mappingId: string) => {
+    const existingMapping = mappings.find(m => m.id === mappingId);
+    if (!existingMapping) return;
+
+    const targetField = targetFields.find(field => field.name === existingMapping.targetField);
+    if (!targetField) return;
+
+    setVisualFlowEditor({
+      open: true,
+      targetField,
+      existingMapping
+    });
+  };
+
+  const handleApplyVisualFlow = (newMapping: FieldMapping) => {
+    if (visualFlowEditor.existingMapping) {
+      // Update existing mapping
+      if (onUpdateMapping) {
+        onUpdateMapping(visualFlowEditor.existingMapping.id, {
+          functionNode: newMapping.functionNode,
+          javaFunction: newMapping.javaFunction,
+          sourceFields: newMapping.sourceFields,
+          sourcePaths: newMapping.sourcePaths,
+          requiresTransformation: true
+        });
+      }
+    } else {
+      // Create new mapping
+      if (onCreateMapping) {
+        onCreateMapping(newMapping);
+      }
+    }
+
+    // Close the editor
+    setVisualFlowEditor({
+      open: false,
+      targetField: null
     });
   };
 
@@ -169,19 +219,15 @@ export function MappingArea({
                   <div className="flex gap-1">
                     {mapping.requiresTransformation !== false && (
                       <>
-                        <FunctionPicker
-                          onFunctionSelect={(functionName, javaCode) => handleQuickFunction(mapping.id, functionName, javaCode)}
-                          trigger={
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-6 w-6 p-0 hover-scale"
-                              title="Visual Function Mapping"
-                            >
-                              <Zap className="h-3 w-3" />
-                            </Button>
-                          }
-                        />
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleOpenVisualFlowEditor(mapping.id)}
+                          className="h-6 w-6 p-0 hover-scale"
+                          title="Open Visual Flow Editor"
+                        >
+                          <Zap className="h-3 w-3" />
+                        </Button>
                         <Button
                           variant="ghost"
                           size="sm"
@@ -277,6 +323,21 @@ export function MappingArea({
           sourceFields={functionMappingModal.filteredSourceFields || sourceFields}
           targetField={functionMappingModal.targetField}
           onApplyMapping={handleApplyFunctionMapping}
+        />
+      )}
+
+      {/* Visual Flow Editor */}
+      {visualFlowEditor.open && visualFlowEditor.targetField && (
+        <VisualFlowEditor
+          open={visualFlowEditor.open}
+          onClose={() => setVisualFlowEditor({
+            open: false,
+            targetField: null
+          })}
+          sourceFields={sourceFields}
+          targetField={visualFlowEditor.targetField}
+          onApplyMapping={handleApplyVisualFlow}
+          initialMapping={visualFlowEditor.existingMapping}
         />
       )}
     </div>
