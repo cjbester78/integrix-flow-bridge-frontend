@@ -24,7 +24,8 @@ import { ConstantNode } from './nodes/ConstantNode';
 import { TargetFieldNode } from './nodes/TargetFieldNode';
 import { ConditionalNode } from './nodes/ConditionalNode';
 import { FieldSelectorDialog } from './FieldSelectorDialog';
-import { functionsByCategory } from '@/services/transformationFunctions';
+import { FunctionSelectorDialog } from './FunctionSelectorDialog';
+import { functionsByCategory, TransformationFunction } from '@/services/transformationFunctions';
 
 interface VisualFlowEditorProps {
   open: boolean;
@@ -55,6 +56,7 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [nodeIdCounter, setNodeIdCounter] = useState(1);
   const [showFieldSelector, setShowFieldSelector] = useState(false);
+  const [showFunctionSelector, setShowFunctionSelector] = useState(false);
 
   // Initialize nodes when dialog opens
   React.useEffect(() => {
@@ -115,19 +117,18 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
   }, [nodes, setNodes]);
 
   const addFunction = useCallback(() => {
-    const allFunctions = Object.values(functionsByCategory).flat();
-    const firstFunction = allFunctions[0];
-    
-    if (!firstFunction) return;
+    setShowFunctionSelector(true);
+  }, []);
 
+  const handleSelectFunction = useCallback((func: TransformationFunction) => {
     const newNode: Node = {
       id: `function-${nodeIdCounter}`,
       type: 'function',
       position: { x: 300, y: 100 + (nodeIdCounter - 1) * 120 },
       data: { 
-        function: firstFunction,
+        function: func,
         parameters: {},
-        showSelector: true
+        showSelector: false
       },
     };
 
@@ -339,6 +340,12 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
             .filter(node => node.type === 'sourceField')
             .map(node => node.data.field.id)
           }
+        />
+
+        <FunctionSelectorDialog
+          open={showFunctionSelector}
+          onClose={() => setShowFunctionSelector(false)}
+          onSelectFunction={handleSelectFunction}
         />
       </DialogContent>
     </Dialog>
