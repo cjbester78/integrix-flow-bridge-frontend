@@ -64,6 +64,7 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
   const func = getAllFunctions().find(f => f.name === selectedFunction);
 
   const handleSourceFieldDragStart = useCallback((field: FieldNode, event: React.DragEvent) => {
+    console.log('Drag start for field:', field.name);
     event.dataTransfer.setData('application/json', JSON.stringify(field));
     event.dataTransfer.effectAllowed = 'move';
 
@@ -76,6 +77,7 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
     const targets = new Set<string>();
     func?.parameters.forEach(param => targets.add(`param-${functionNode.id}-${param.name}`));
     setDropTargets(targets);
+    console.log('Drop targets set:', Array.from(targets));
   }, [func, functionNode.id]);
 
   const handleFunctionOutputDragStart = useCallback((event: React.DragEvent) => {
@@ -94,11 +96,18 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
   }, []);
 
   const handleDropOnFunctionParameter = useCallback((paramName: string, event: React.DragEvent) => {
+    console.log('Drop on parameter:', paramName);
     event.preventDefault();
     const fieldData = event.dataTransfer.getData('application/json');
-    if (!fieldData) return;
+    console.log('Field data from drag:', fieldData);
+    
+    if (!fieldData) {
+      console.log('No field data found in drag transfer');
+      return;
+    }
     
     const sourceField = JSON.parse(fieldData) as FieldNode;
+    console.log('Parsed source field:', sourceField);
 
     setFunctionNode(prev => ({
       ...prev,
@@ -127,6 +136,9 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
         targetY: targetRect.top + targetRect.height / 2 - canvasRect.top
       };
       setConnections(prev => [...prev, connection]);
+      console.log('Connection created:', connection);
+    } else {
+      console.log('Could not find elements for connection');
     }
 
     handleDragEnd();
@@ -246,13 +258,25 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
                     <div 
                       key={field.id} 
                       data-field-id={field.id}
-                      className={cn("bg-background border rounded p-2 cursor-grab transition-all hover:shadow-md", dragState.isDragging && dragState.draggedItem?.id === field.id && "opacity-50")}
-                      draggable
-                      onDragStart={(e) => handleSourceFieldDragStart(field, e)}
-                      onDragEnd={handleDragEnd}
+                      className={cn(
+                        "bg-background border rounded p-2 cursor-grab transition-all hover:shadow-md select-none", 
+                        dragState.isDragging && dragState.draggedItem?.id === field.id && "opacity-50"
+                      )}
+                      draggable={true}
+                      onDragStart={(e) => {
+                        console.log('onDragStart called for:', field.name);
+                        handleSourceFieldDragStart(field, e);
+                      }}
+                      onDragEnd={(e) => {
+                        console.log('onDragEnd called for:', field.name);
+                        handleDragEnd();
+                      }}
+                      onMouseDown={(e) => {
+                        console.log('Mouse down on field:', field.name);
+                      }}
                     >
-                      <div className="font-medium text-sm">{field.name}</div>
-                      <div className="text-xs text-muted-foreground">{field.type}</div>
+                      <div className="font-medium text-sm pointer-events-none">{field.name}</div>
+                      <div className="text-xs text-muted-foreground pointer-events-none">{field.type}</div>
                     </div>
                   ))}
                 </div>
@@ -286,8 +310,14 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
                       <div 
                         data-param={param.name}
                         className={cn("border border-dashed border-muted-foreground/30 rounded p-2 text-sm transition-colors min-h-10", dropTargets.has(`param-${functionNode.id}-${param.name}`) && "border-primary bg-primary/10")}
-                        onDragOver={(e) => e.preventDefault()}
-                        onDrop={(e) => handleDropOnFunctionParameter(param.name, e)}
+                        onDragOver={(e) => {
+                          console.log('Drag over parameter:', param.name);
+                          e.preventDefault();
+                        }}
+                        onDrop={(e) => {
+                          console.log('Drop event on parameter:', param.name);
+                          handleDropOnFunctionParameter(param.name, e);
+                        }}
                       >
                         {functionNode.sourceConnections[param.name]?.map((path, idx) => (
                           <div key={idx} className="text-xs bg-primary/10 text-primary rounded px-1 py-0.5 mt-1 inline-block mr-1">
