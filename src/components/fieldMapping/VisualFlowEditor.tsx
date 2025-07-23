@@ -78,11 +78,48 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
         draggable: false,
       });
 
-      // Start with clean canvas - only target field
+      // If there's an initial mapping, add its source fields to the canvas
+      if (initialMapping && initialMapping.sourcePaths && initialMapping.sourcePaths.length > 0) {
+        initialMapping.sourcePaths.forEach((sourceFieldPath, index) => {
+          // Find the corresponding FieldNode for this source field path
+          const sourceField = sourceFields.find(field => 
+            field.path === sourceFieldPath || field.name === sourceFieldPath
+          );
+          
+          if (sourceField) {
+            initialNodes.push({
+              id: `source-${sourceField.id}`,
+              type: 'sourceField',
+              position: { x: 50, y: 50 + index * 100 },
+              data: { field: sourceField },
+            });
+          }
+        });
+      }
+      // Fallback: try using sourceFields if sourcePaths is not available
+      else if (initialMapping && initialMapping.sourceFields && initialMapping.sourceFields.length > 0) {
+        initialMapping.sourceFields.forEach((sourceFieldName, index) => {
+          const sourceField = sourceFields.find(field => 
+            field.name === sourceFieldName || field.path === sourceFieldName
+          );
+          
+          if (sourceField) {
+            initialNodes.push({
+              id: `source-${sourceField.id}`,
+              type: 'sourceField',
+              position: { x: 50, y: 50 + index * 100 },
+              data: { field: sourceField },
+            });
+          }
+        });
+      }
 
       setNodes(initialNodes);
       setEdges([]);
-      setNodeIdCounter(2); // Start from 2 since target is 1
+      
+      // Set node counter based on how many nodes we're starting with  
+      const sourceNodeCount = (initialMapping?.sourcePaths?.length || initialMapping?.sourceFields?.length || 0);
+      setNodeIdCounter(2 + sourceNodeCount);
     }
   }, [open, targetField, sourceFields, setNodes, setEdges]);
 
