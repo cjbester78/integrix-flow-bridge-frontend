@@ -251,9 +251,9 @@ export function VisualOrchestrationEditor() {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 h-[calc(100vh-150px)]">
-      {/* Main Canvas - Takes up 4/5 of the space */}
-      <div className="lg:col-span-4">
+    <div className="h-full flex">
+      {/* Main Canvas - Takes most of the space */}
+      <div className="flex-1 h-full">
         <Card className="h-full">
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
@@ -274,7 +274,7 @@ export function VisualOrchestrationEditor() {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="p-0 h-[calc(100%-60px)]">
+          <CardContent className="p-0 h-full">
             <ReactFlow
               nodes={nodes}
               edges={edges}
@@ -305,14 +305,15 @@ export function VisualOrchestrationEditor() {
         </Card>
       </div>
 
-      {/* Sidebar - Takes up 1/5 of the space */}
-      <div className="space-y-3">
-        {/* Node Palette */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Process Steps</CardTitle>
+      {/* Compact Sidebar */}
+      <div className="w-80 border-l border-border bg-card/50 overflow-y-auto">
+        <div className="p-4 space-y-4">
+          {/* Node Palette */}
+          <Card>
+            <CardHeader className="pb-3">
+            <CardTitle className="text-base">Process Steps</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent className="space-y-2 p-3">
             <Button
               variant="outline"
               size="sm"
@@ -349,15 +350,15 @@ export function VisualOrchestrationEditor() {
               <AlertTriangle className="h-4 w-4 mr-2" />
               Error Handler
             </Button>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        {/* Properties Panel */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Properties</CardTitle>
+          {/* Properties Panel */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Properties</CardTitle>
           </CardHeader>
-          <CardContent>
+            <CardContent className="p-3">
             {selectedNode ? (
               <div className="space-y-4">
                 <div>
@@ -378,15 +379,15 @@ export function VisualOrchestrationEditor() {
                 Select a node to view its properties
               </p>
             )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        {/* Flow Status */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Flow Status</CardTitle>
+          {/* Flow Status */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Flow Status</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-3">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm">Nodes</span>
@@ -401,8 +402,9 @@ export function VisualOrchestrationEditor() {
                 <Badge variant="outline">Design Mode</Badge>
               </div>
             </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
