@@ -100,7 +100,6 @@ export const FunctionNode: React.FC<FunctionNodeProps> = ({ id, data }) => {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            console.log('Settings clicked, showConfig was:', showConfig);
             setShowConfig(!showConfig);
           }}
           className="h-6 w-6 p-0 hover:bg-muted rounded"
@@ -208,7 +207,7 @@ export const FunctionNode: React.FC<FunctionNodeProps> = ({ id, data }) => {
         </div>
       )}
 
-      {/* Input handles for each parameter */}
+      {/* Input handles for each parameter - only show handles, no drag indicators */}
       {selectedFunction.parameters.map((param, index) => (
         <Handle
           key={`input-${param.name}`}
