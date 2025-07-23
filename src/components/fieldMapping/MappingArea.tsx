@@ -54,6 +54,10 @@ export function MappingArea({
     console.log('🔍 Modal state changed:', functionMappingModal);
   }, [functionMappingModal]);
 
+  useEffect(() => {
+    console.log('🔥 Visual flow editor state changed:', visualFlowEditor);
+  }, [visualFlowEditor]);
+
   const handleQuickFunction = (mappingId: string, functionName: string, javaCode: string) => {
     console.log('🔍 handleQuickFunction called with:', { mappingId, functionName, javaCode });
     
@@ -109,11 +113,31 @@ export function MappingArea({
   };
 
   const handleOpenVisualFlowEditor = (mappingId: string) => {
+    console.log('🔥 handleOpenVisualFlowEditor called with mappingId:', mappingId);
+    console.log('🔥 Available mappings:', mappings);
+    console.log('🔥 Available targetFields:', targetFields);
+    
     const existingMapping = mappings.find(m => m.id === mappingId);
-    if (!existingMapping) return;
+    console.log('🔥 Found existing mapping:', existingMapping);
+    
+    if (!existingMapping) {
+      console.log('❌ No existing mapping found for ID:', mappingId);
+      return;
+    }
 
     const targetField = targetFields.find(field => field.name === existingMapping.targetField);
-    if (!targetField) return;
+    console.log('🔥 Looking for target field with name:', existingMapping.targetField);
+    console.log('🔥 Found target field:', targetField);
+    
+    if (!targetField) {
+      console.log('❌ Target field not found');
+      return;
+    }
+
+    console.log('✅ Opening visual flow editor with:', {
+      targetField: targetField.name,
+      existingMapping: existingMapping.id
+    });
 
     setVisualFlowEditor({
       open: true,
@@ -222,7 +246,10 @@ export function MappingArea({
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleOpenVisualFlowEditor(mapping.id)}
+                          onClick={() => {
+                            console.log('🔥 Lightning bolt clicked for mapping:', mapping.id);
+                            handleOpenVisualFlowEditor(mapping.id);
+                          }}
                           className="h-6 w-6 p-0 hover-scale"
                           title="Open Visual Flow Editor"
                         >
