@@ -23,6 +23,7 @@ import { FunctionNode } from './nodes/FunctionNode';
 import { ConstantNode } from './nodes/ConstantNode';
 import { TargetFieldNode } from './nodes/TargetFieldNode';
 import { ConditionalNode } from './nodes/ConditionalNode';
+import { FieldSelectorDialog } from './FieldSelectorDialog';
 import { functionsByCategory } from '@/services/transformationFunctions';
 
 interface VisualFlowEditorProps {
@@ -53,6 +54,7 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [nodeIdCounter, setNodeIdCounter] = useState(1);
+  const [showFieldSelector, setShowFieldSelector] = useState(false);
 
   // Initialize nodes when dialog opens
   React.useEffect(() => {
@@ -98,13 +100,10 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
   );
 
   const addSourceField = useCallback(() => {
-    const availableFields = sourceFields.filter(field => 
-      !nodes.some(node => node.id === `source-${field.id}`)
-    );
-    
-    if (availableFields.length === 0) return;
+    setShowFieldSelector(true);
+  }, []);
 
-    const field = availableFields[0];
+  const handleSelectSourceField = useCallback((field: FieldNode) => {
     const newNode: Node = {
       id: `source-${field.id}`,
       type: 'sourceField',
@@ -113,7 +112,7 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
     };
 
     setNodes((nds) => [...nds, newNode]);
-  }, [nodes, sourceFields, setNodes]);
+  }, [nodes, setNodes]);
 
   const addFunction = useCallback(() => {
     const allFunctions = Object.values(functionsByCategory).flat();
@@ -330,6 +329,17 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
             </Panel>
           </ReactFlow>
         </div>
+
+        <FieldSelectorDialog
+          open={showFieldSelector}
+          onClose={() => setShowFieldSelector(false)}
+          sourceFields={sourceFields}
+          onSelectField={handleSelectSourceField}
+          excludeFields={nodes
+            .filter(node => node.type === 'sourceField')
+            .map(node => node.data.field.id)
+          }
+        />
       </DialogContent>
     </Dialog>
   );
