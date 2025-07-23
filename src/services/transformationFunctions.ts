@@ -229,13 +229,18 @@ const mathFunctions: TransformationFunction[] = [
   {
     name: 'formatNumber',
     category: 'math',
-    description: 'Format number with decimal places',
+    description: 'Format number with specified total digits and decimal places',
     parameters: [
-      { name: 'value', type: 'number', required: true },
+      { name: 'value', type: 'number', required: true, description: 'Number to format' },
+      { name: 'totalDigits', type: 'number', required: true, description: 'Total number of digits required (adds trailing zeros)' },
       { name: 'decimals', type: 'number', required: false, description: 'Number of decimal places' }
     ],
-    execute: (value: number, decimals: number = 2) => Number(value.toFixed(decimals)),
-    javaTemplate: 'formatNumber({0}, {1})'
+    execute: (value: number, totalDigits: number, decimals: number = 2) => {
+      const formatted = Number(value.toFixed(decimals));
+      const str = formatted.toString();
+      return str.padStart(totalDigits, '0');
+    },
+    javaTemplate: 'formatNumber({0}, {1}, {2})'
   },
   {
     name: 'sum',
