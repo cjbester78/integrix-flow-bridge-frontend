@@ -3,11 +3,14 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ArrowRight, Code, X, Zap } from 'lucide-react';
+import { ArrowRight, Code, X, Zap, Wand2, GitBranch, Combine } from 'lucide-react';
 import { FieldMapping, FieldNode } from './types';
 import { FunctionPicker } from './FunctionPicker';
 import { FunctionMappingModal } from './FunctionMappingModal';
 import { VisualFlowEditor } from './VisualFlowEditor';
+import { BulkMappingDialog } from './BulkMappingDialog';
+import { ConditionalMappingDialog } from './ConditionalMappingDialog';
+import { AggregationMappingDialog } from './AggregationMappingDialog';
 
 interface MappingAreaProps {
   mappings: FieldMapping[];
@@ -48,6 +51,10 @@ export function MappingArea({
     open: false,
     targetField: null
   });
+
+  const [bulkMappingDialog, setBulkMappingDialog] = useState(false);
+  const [conditionalMappingDialog, setConditionalMappingDialog] = useState(false);
+  const [aggregationMappingDialog, setAggregationMappingDialog] = useState(false);
 
   useEffect(() => {
     console.log('🔍 Modal state changed:', functionMappingModal);
@@ -227,10 +234,38 @@ export function MappingArea({
   return (
     <div className="w-1/3 relative bg-background animate-fade-in">
       <div className="p-4 border-b">
-        <h3 className="font-semibold flex items-center gap-2">
-          <ArrowRight className="h-4 w-4" />
-          Field Mappings ({mappings.length})
-        </h3>
+        <div className="flex items-center justify-between">
+          <h3 className="font-semibold flex items-center gap-2">
+            <ArrowRight className="h-4 w-4" />
+            Field Mappings ({mappings.length})
+          </h3>
+          <div className="flex gap-1">
+            <Button
+              onClick={() => setBulkMappingDialog(true)}
+              size="sm"
+              variant="outline"
+              title="Bulk Operations"
+            >
+              <Wand2 className="h-4 w-4" />
+            </Button>
+            <Button
+              onClick={() => setConditionalMappingDialog(true)}
+              size="sm"
+              variant="outline"
+              title="Conditional Mapping"
+            >
+              <GitBranch className="h-4 w-4" />
+            </Button>
+            <Button
+              onClick={() => setAggregationMappingDialog(true)}
+              size="sm"
+              variant="outline"
+              title="Multi-Source Aggregation"
+            >
+              <Combine className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
       </div>
 
       <div className="p-4 h-[calc(100%-60px)] overflow-y-auto">
@@ -375,6 +410,41 @@ export function MappingArea({
           initialMapping={visualFlowEditor.existingMapping}
         />
       )}
+
+      {/* Advanced Mapping Dialogs */}
+      <BulkMappingDialog
+        open={bulkMappingDialog}
+        onClose={() => setBulkMappingDialog(false)}
+        sourceFields={sourceFields}
+        targetFields={targetFields}
+        onApplyBulkMappings={(newMappings) => {
+          newMappings.forEach(mapping => onCreateMapping?.(mapping));
+          setBulkMappingDialog(false);
+        }}
+        existingMappings={mappings}
+      />
+
+      <ConditionalMappingDialog
+        open={conditionalMappingDialog}
+        onClose={() => setConditionalMappingDialog(false)}
+        sourceFields={sourceFields}
+        targetFields={targetFields}
+        onApplyConditionalMapping={(mapping) => {
+          onCreateMapping?.(mapping);
+          setConditionalMappingDialog(false);
+        }}
+      />
+
+      <AggregationMappingDialog
+        open={aggregationMappingDialog}
+        onClose={() => setAggregationMappingDialog(false)}
+        sourceFields={sourceFields}
+        targetFields={targetFields}
+        onApplyAggregationMapping={(mapping) => {
+          onCreateMapping?.(mapping);
+          setAggregationMappingDialog(false);
+        }}
+      />
     </div>
   );
 }
