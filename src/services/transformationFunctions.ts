@@ -49,6 +49,184 @@ const mathFunctions: TransformationFunction[] = [
     javaTemplate: 'multiply({0}, {1})'
   },
   {
+    name: 'divide',
+    category: 'math',
+    description: 'Divide two numbers',
+    parameters: [
+      { name: 'a', type: 'number', required: true },
+      { name: 'b', type: 'number', required: true }
+    ],
+    execute: (a: number, b: number) => a / b,
+    javaTemplate: 'divide({0}, {1})'
+  },
+  {
+    name: 'equals',
+    category: 'math',
+    description: 'Check if two numbers are equal',
+    parameters: [
+      { name: 'a', type: 'number', required: true },
+      { name: 'b', type: 'number', required: true }
+    ],
+    execute: (a: number, b: number) => a === b,
+    javaTemplate: 'equals({0}, {1})'
+  },
+  {
+    name: 'absolute',
+    category: 'math',
+    description: 'Get absolute value of a number',
+    parameters: [
+      { name: 'value', type: 'number', required: true }
+    ],
+    execute: (value: number) => Math.abs(value),
+    javaTemplate: 'absolute({0})'
+  },
+  {
+    name: 'sqrt',
+    category: 'math',
+    description: 'Get square root of a number',
+    parameters: [
+      { name: 'value', type: 'number', required: true }
+    ],
+    execute: (value: number) => Math.sqrt(value),
+    javaTemplate: 'sqrt({0})'
+  },
+  {
+    name: 'square',
+    category: 'math',
+    description: 'Square a number',
+    parameters: [
+      { name: 'value', type: 'number', required: true }
+    ],
+    execute: (value: number) => value * value,
+    javaTemplate: 'square({0})'
+  },
+  {
+    name: 'sign',
+    category: 'math',
+    description: 'Get sign of a number (-1, 0, or 1)',
+    parameters: [
+      { name: 'value', type: 'number', required: true }
+    ],
+    execute: (value: number) => Math.sign(value),
+    javaTemplate: 'sign({0})'
+  },
+  {
+    name: 'neg',
+    category: 'math',
+    description: 'Negate a number',
+    parameters: [
+      { name: 'value', type: 'number', required: true }
+    ],
+    execute: (value: number) => -value,
+    javaTemplate: 'neg({0})'
+  },
+  {
+    name: 'inv',
+    category: 'math',
+    description: 'Get inverse of a number (1/x)',
+    parameters: [
+      { name: 'value', type: 'number', required: true }
+    ],
+    execute: (value: number) => 1 / value,
+    javaTemplate: 'inv({0})'
+  },
+  {
+    name: 'power',
+    category: 'math',
+    description: 'Raise number to power',
+    parameters: [
+      { name: 'base', type: 'number', required: true },
+      { name: 'exponent', type: 'number', required: true }
+    ],
+    execute: (base: number, exponent: number) => Math.pow(base, exponent),
+    javaTemplate: 'power({0}, {1})'
+  },
+  {
+    name: 'lesser',
+    category: 'math',
+    description: 'Check if first number is less than second',
+    parameters: [
+      { name: 'a', type: 'number', required: true },
+      { name: 'b', type: 'number', required: true }
+    ],
+    execute: (a: number, b: number) => a < b,
+    javaTemplate: 'lesser({0}, {1})'
+  },
+  {
+    name: 'greater',
+    category: 'math',
+    description: 'Check if first number is greater than second',
+    parameters: [
+      { name: 'a', type: 'number', required: true },
+      { name: 'b', type: 'number', required: true }
+    ],
+    execute: (a: number, b: number) => a > b,
+    javaTemplate: 'greater({0}, {1})'
+  },
+  {
+    name: 'max',
+    category: 'math',
+    description: 'Get maximum of two numbers',
+    parameters: [
+      { name: 'a', type: 'number', required: true },
+      { name: 'b', type: 'number', required: true }
+    ],
+    execute: (a: number, b: number) => Math.max(a, b),
+    javaTemplate: 'max({0}, {1})'
+  },
+  {
+    name: 'min',
+    category: 'math',
+    description: 'Get minimum of two numbers',
+    parameters: [
+      { name: 'a', type: 'number', required: true },
+      { name: 'b', type: 'number', required: true }
+    ],
+    execute: (a: number, b: number) => Math.min(a, b),
+    javaTemplate: 'min({0}, {1})'
+  },
+  {
+    name: 'ceil',
+    category: 'math',
+    description: 'Round number up to nearest integer',
+    parameters: [
+      { name: 'value', type: 'number', required: true }
+    ],
+    execute: (value: number) => Math.ceil(value),
+    javaTemplate: 'ceil({0})'
+  },
+  {
+    name: 'floor',
+    category: 'math',
+    description: 'Round number down to nearest integer',
+    parameters: [
+      { name: 'value', type: 'number', required: true }
+    ],
+    execute: (value: number) => Math.floor(value),
+    javaTemplate: 'floor({0})'
+  },
+  {
+    name: 'round',
+    category: 'math',
+    description: 'Round number to nearest integer',
+    parameters: [
+      { name: 'value', type: 'number', required: true }
+    ],
+    execute: (value: number) => Math.round(value),
+    javaTemplate: 'round({0})'
+  },
+  {
+    name: 'counter',
+    category: 'math',
+    description: 'Generate incremental counter',
+    parameters: [
+      { name: 'start', type: 'number', required: false, description: 'Starting value' },
+      { name: 'step', type: 'number', required: false, description: 'Increment step' }
+    ],
+    execute: (start: number = 1, step: number = 1) => start + step,
+    javaTemplate: 'counter({0}, {1})'
+  },
+  {
     name: 'formatNumber',
     category: 'math',
     description: 'Format number with decimal places',
@@ -58,6 +236,46 @@ const mathFunctions: TransformationFunction[] = [
     ],
     execute: (value: number, decimals: number = 2) => Number(value.toFixed(decimals)),
     javaTemplate: 'formatNumber({0}, {1})'
+  },
+  {
+    name: 'sum',
+    category: 'math',
+    description: 'Sum multiple numbers',
+    parameters: [
+      { name: 'values', type: 'array', required: true, description: 'Array of numbers to sum' }
+    ],
+    execute: (values: number[]) => values.reduce((acc, val) => acc + val, 0),
+    javaTemplate: 'sum({0})'
+  },
+  {
+    name: 'average',
+    category: 'math',
+    description: 'Calculate average of numbers',
+    parameters: [
+      { name: 'values', type: 'array', required: true, description: 'Array of numbers' }
+    ],
+    execute: (values: number[]) => values.reduce((acc, val) => acc + val, 0) / values.length,
+    javaTemplate: 'average({0})'
+  },
+  {
+    name: 'count',
+    category: 'math',
+    description: 'Count elements in array',
+    parameters: [
+      { name: 'values', type: 'array', required: true, description: 'Array to count' }
+    ],
+    execute: (values: any[]) => values.length,
+    javaTemplate: 'count({0})'
+  },
+  {
+    name: 'index',
+    category: 'math',
+    description: 'Get current index in iteration',
+    parameters: [
+      { name: 'position', type: 'number', required: true, description: 'Current position' }
+    ],
+    execute: (position: number) => position,
+    javaTemplate: 'index({0})'
   }
 ];
 
@@ -93,6 +311,94 @@ const textFunctions: TransformationFunction[] = [
     javaTemplate: 'substring({0}, {1}, {2})'
   },
   {
+    name: 'equals',
+    category: 'text',
+    description: 'Check if two strings are equal',
+    parameters: [
+      { name: 'string1', type: 'string', required: true },
+      { name: 'string2', type: 'string', required: true }
+    ],
+    execute: (string1: string, string2: string) => string1 === string2,
+    javaTemplate: 'equals({0}, {1})'
+  },
+  {
+    name: 'indexOf',
+    category: 'text',
+    description: 'Find index of substring',
+    parameters: [
+      { name: 'text', type: 'string', required: true },
+      { name: 'searchValue', type: 'string', required: true }
+    ],
+    execute: (text: string, searchValue: string) => text.indexOf(searchValue),
+    javaTemplate: 'indexOf({0}, {1})'
+  },
+  {
+    name: 'lastIndexOf',
+    category: 'text',
+    description: 'Find last index of substring',
+    parameters: [
+      { name: 'text', type: 'string', required: true },
+      { name: 'searchValue', type: 'string', required: true }
+    ],
+    execute: (text: string, searchValue: string) => text.lastIndexOf(searchValue),
+    javaTemplate: 'lastIndexOf({0}, {1})'
+  },
+  {
+    name: 'compare',
+    category: 'text',
+    description: 'Compare two strings lexicographically',
+    parameters: [
+      { name: 'string1', type: 'string', required: true },
+      { name: 'string2', type: 'string', required: true }
+    ],
+    execute: (string1: string, string2: string) => string1.localeCompare(string2),
+    javaTemplate: 'compare({0}, {1})'
+  },
+  {
+    name: 'replaceString',
+    category: 'text',
+    description: 'Replace substring in text',
+    parameters: [
+      { name: 'text', type: 'string', required: true },
+      { name: 'searchValue', type: 'string', required: true },
+      { name: 'replaceValue', type: 'string', required: true }
+    ],
+    execute: (text: string, searchValue: string, replaceValue: string) => text.replace(searchValue, replaceValue),
+    javaTemplate: 'replaceString({0}, {1}, {2})'
+  },
+  {
+    name: 'length',
+    category: 'text',
+    description: 'Get length of string',
+    parameters: [
+      { name: 'text', type: 'string', required: true }
+    ],
+    execute: (text: string) => text.length,
+    javaTemplate: 'length({0})'
+  },
+  {
+    name: 'endsWith',
+    category: 'text',
+    description: 'Check if string ends with specified suffix',
+    parameters: [
+      { name: 'text', type: 'string', required: true },
+      { name: 'suffix', type: 'string', required: true }
+    ],
+    execute: (text: string, suffix: string) => text.endsWith(suffix),
+    javaTemplate: 'endsWith({0}, {1})'
+  },
+  {
+    name: 'startsWith',
+    category: 'text',
+    description: 'Check if string starts with specified prefix',
+    parameters: [
+      { name: 'text', type: 'string', required: true },
+      { name: 'prefix', type: 'string', required: true }
+    ],
+    execute: (text: string, prefix: string) => text.startsWith(prefix),
+    javaTemplate: 'startsWith({0}, {1})'
+  },
+  {
     name: 'toUpperCase',
     category: 'text',
     description: 'Convert text to uppercase',
@@ -101,6 +407,16 @@ const textFunctions: TransformationFunction[] = [
     ],
     execute: (text: string) => text.toUpperCase(),
     javaTemplate: 'toUpperCase({0})'
+  },
+  {
+    name: 'toLowerCase',
+    category: 'text',
+    description: 'Convert text to lowercase',
+    parameters: [
+      { name: 'text', type: 'string', required: true }
+    ],
+    execute: (text: string) => text.toLowerCase(),
+    javaTemplate: 'toLowerCase({0})'
   },
   {
     name: 'trim',
@@ -139,6 +455,38 @@ const booleanFunctions: TransformationFunction[] = [
     javaTemplate: 'or({0}, {1})'
   },
   {
+    name: 'not',
+    category: 'boolean',
+    description: 'Logical NOT operation',
+    parameters: [
+      { name: 'value', type: 'boolean', required: true }
+    ],
+    execute: (value: boolean) => !value,
+    javaTemplate: 'not({0})'
+  },
+  {
+    name: 'equals',
+    category: 'boolean',
+    description: 'Check if two boolean values are equal',
+    parameters: [
+      { name: 'a', type: 'boolean', required: true },
+      { name: 'b', type: 'boolean', required: true }
+    ],
+    execute: (a: boolean, b: boolean) => a === b,
+    javaTemplate: 'equals({0}, {1})'
+  },
+  {
+    name: 'notEquals',
+    category: 'boolean',
+    description: 'Check if two values are not equal',
+    parameters: [
+      { name: 'a', type: 'string', required: true },
+      { name: 'b', type: 'string', required: true }
+    ],
+    execute: (a: any, b: any) => a !== b,
+    javaTemplate: 'notEquals({0}, {1})'
+  },
+  {
     name: 'if',
     category: 'boolean',
     description: 'Conditional logic with true/false branches',
@@ -149,6 +497,247 @@ const booleanFunctions: TransformationFunction[] = [
     ],
     execute: (condition: boolean, trueValue: any, falseValue: any) => condition ? trueValue : falseValue,
     javaTemplate: 'if({0}, {1}, {2})'
+  },
+  {
+    name: 'ifWithoutElse',
+    category: 'boolean',
+    description: 'Conditional logic without else branch',
+    parameters: [
+      { name: 'condition', type: 'boolean', required: true },
+      { name: 'trueValue', type: 'string', required: true }
+    ],
+    execute: (condition: boolean, trueValue: any) => condition ? trueValue : null,
+    javaTemplate: 'ifWithoutElse({0}, {1})'
+  },
+  {
+    name: 'isNil',
+    category: 'boolean',
+    description: 'Check if value is null or undefined',
+    parameters: [
+      { name: 'value', type: 'string', required: true }
+    ],
+    execute: (value: any) => value == null,
+    javaTemplate: 'isNil({0})'
+  }
+];
+
+// Conversion Functions
+const conversionFunctions: TransformationFunction[] = [
+  {
+    name: 'fixValues',
+    category: 'conversion',
+    description: 'Fix and validate values according to specified format',
+    parameters: [
+      { name: 'value', type: 'string', required: true, description: 'Value to fix' },
+      { name: 'format', type: 'string', required: true, description: 'Target format' }
+    ],
+    execute: (value: string, format: string) => value, // Simplified for preview
+    javaTemplate: 'fixValues({0}, {1})'
+  }
+];
+
+// Date Functions
+const dateFunctions: TransformationFunction[] = [
+  {
+    name: 'currentDate',
+    category: 'date',
+    description: 'Get current date',
+    parameters: [
+      { name: 'format', type: 'string', required: false, description: 'Date format (optional)' }
+    ],
+    execute: (format?: string) => new Date().toISOString(),
+    javaTemplate: 'currentDate({0})'
+  },
+  {
+    name: 'dateTrans',
+    category: 'date',
+    description: 'Transform date format',
+    parameters: [
+      { name: 'date', type: 'string', required: true, description: 'Input date' },
+      { name: 'fromFormat', type: 'string', required: true, description: 'Source format' },
+      { name: 'toFormat', type: 'string', required: true, description: 'Target format' }
+    ],
+    execute: (date: string, fromFormat: string, toFormat: string) => date, // Simplified for preview
+    javaTemplate: 'dateTrans({0}, {1}, {2})'
+  },
+  {
+    name: 'dateBefore',
+    category: 'date',
+    description: 'Check if first date is before second date',
+    parameters: [
+      { name: 'date1', type: 'string', required: true },
+      { name: 'date2', type: 'string', required: true }
+    ],
+    execute: (date1: string, date2: string) => new Date(date1) < new Date(date2),
+    javaTemplate: 'dateBefore({0}, {1})'
+  },
+  {
+    name: 'dateAfter',
+    category: 'date',
+    description: 'Check if first date is after second date',
+    parameters: [
+      { name: 'date1', type: 'string', required: true },
+      { name: 'date2', type: 'string', required: true }
+    ],
+    execute: (date1: string, date2: string) => new Date(date1) > new Date(date2),
+    javaTemplate: 'dateAfter({0}, {1})'
+  },
+  {
+    name: 'compareDates',
+    category: 'date',
+    description: 'Compare two dates (-1, 0, 1)',
+    parameters: [
+      { name: 'date1', type: 'string', required: true },
+      { name: 'date2', type: 'string', required: true }
+    ],
+    execute: (date1: string, date2: string) => {
+      const d1 = new Date(date1);
+      const d2 = new Date(date2);
+      return d1 < d2 ? -1 : d1 > d2 ? 1 : 0;
+    },
+    javaTemplate: 'compareDates({0}, {1})'
+  }
+];
+
+// Node Functions
+const nodeFunctions: TransformationFunction[] = [
+  {
+    name: 'createIf',
+    category: 'node',
+    description: 'Create conditional node structure',
+    parameters: [
+      { name: 'condition', type: 'boolean', required: true },
+      { name: 'value', type: 'string', required: true }
+    ],
+    execute: (condition: boolean, value: string) => condition ? value : null,
+    javaTemplate: 'createIf({0}, {1})'
+  },
+  {
+    name: 'removeContexts',
+    category: 'node',
+    description: 'Remove context from node structure',
+    parameters: [
+      { name: 'node', type: 'string', required: true }
+    ],
+    execute: (node: string) => node, // Simplified for preview
+    javaTemplate: 'removeContexts({0})'
+  },
+  {
+    name: 'replaceValue',
+    category: 'node',
+    description: 'Replace value in node structure',
+    parameters: [
+      { name: 'node', type: 'string', required: true },
+      { name: 'oldValue', type: 'string', required: true },
+      { name: 'newValue', type: 'string', required: true }
+    ],
+    execute: (node: string, oldValue: string, newValue: string) => node.replace(oldValue, newValue),
+    javaTemplate: 'replaceValue({0}, {1}, {2})'
+  },
+  {
+    name: 'exists',
+    category: 'node',
+    description: 'Check if node exists',
+    parameters: [
+      { name: 'node', type: 'string', required: true }
+    ],
+    execute: (node: string) => node != null && node !== '',
+    javaTemplate: 'exists({0})'
+  },
+  {
+    name: 'getHeader',
+    category: 'node',
+    description: 'Get header value from message',
+    parameters: [
+      { name: 'headerName', type: 'string', required: true }
+    ],
+    execute: (headerName: string) => `header_${headerName}`, // Simplified for preview
+    javaTemplate: 'getHeader({0})'
+  },
+  {
+    name: 'getProperty',
+    category: 'node',
+    description: 'Get property value',
+    parameters: [
+      { name: 'propertyName', type: 'string', required: true }
+    ],
+    execute: (propertyName: string) => `property_${propertyName}`, // Simplified for preview
+    javaTemplate: 'getProperty({0})'
+  },
+  {
+    name: 'splitByValue',
+    category: 'node',
+    description: 'Split node by delimiter',
+    parameters: [
+      { name: 'value', type: 'string', required: true },
+      { name: 'delimiter', type: 'string', required: true }
+    ],
+    execute: (value: string, delimiter: string) => value.split(delimiter),
+    javaTemplate: 'splitByValue({0}, {1})'
+  },
+  {
+    name: 'collapseContexts',
+    category: 'node',
+    description: 'Collapse multiple contexts into one',
+    parameters: [
+      { name: 'contexts', type: 'array', required: true }
+    ],
+    execute: (contexts: any[]) => contexts.join(''),
+    javaTemplate: 'collapseContexts({0})'
+  },
+  {
+    name: 'useOneAsMany',
+    category: 'node',
+    description: 'Use single value as multiple occurrences',
+    parameters: [
+      { name: 'value', type: 'string', required: true },
+      { name: 'count', type: 'number', required: true }
+    ],
+    execute: (value: string, count: number) => Array(count).fill(value),
+    javaTemplate: 'useOneAsMany({0}, {1})'
+  },
+  {
+    name: 'sort',
+    category: 'node',
+    description: 'Sort array of values',
+    parameters: [
+      { name: 'values', type: 'array', required: true }
+    ],
+    execute: (values: any[]) => [...values].sort(),
+    javaTemplate: 'sort({0})'
+  },
+  {
+    name: 'sortByKey',
+    category: 'node',
+    description: 'Sort array by specific key',
+    parameters: [
+      { name: 'values', type: 'array', required: true },
+      { name: 'key', type: 'string', required: true }
+    ],
+    execute: (values: any[], key: string) => [...values].sort((a, b) => a[key] - b[key]),
+    javaTemplate: 'sortByKey({0}, {1})'
+  },
+  {
+    name: 'mapWithDefault',
+    category: 'node',
+    description: 'Map value with default fallback',
+    parameters: [
+      { name: 'value', type: 'string', required: true },
+      { name: 'defaultValue', type: 'string', required: true }
+    ],
+    execute: (value: string, defaultValue: string) => value || defaultValue,
+    javaTemplate: 'mapWithDefault({0}, {1})'
+  },
+  {
+    name: 'formatByExample',
+    category: 'node',
+    description: 'Format value using example pattern',
+    parameters: [
+      { name: 'value', type: 'string', required: true },
+      { name: 'example', type: 'string', required: true }
+    ],
+    execute: (value: string, example: string) => value, // Simplified for preview
+    javaTemplate: 'formatByExample({0}, {1})'
   }
 ];
 
@@ -171,6 +760,9 @@ export const allTransformationFunctions = [
   ...mathFunctions,
   ...textFunctions,
   ...booleanFunctions,
+  ...conversionFunctions,
+  ...dateFunctions,
+  ...nodeFunctions,
   ...constantFunctions
 ];
 
@@ -179,6 +771,9 @@ export const functionsByCategory = {
   math: mathFunctions,
   text: textFunctions,
   boolean: booleanFunctions,
+  conversion: conversionFunctions,
+  date: dateFunctions,
+  node: nodeFunctions,
   constants: constantFunctions
 };
 
