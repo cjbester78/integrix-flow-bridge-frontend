@@ -52,6 +52,31 @@ export const FunctionNode: React.FC<FunctionNodeProps> = ({ id, data }) => {
     return connections;
   }, [id, getEdges, getNodes]);
 
+  // Determine if a parameter is draggable (should have handle) or configurable (should have input)
+  const isDraggableParameter = (param: any) => {
+    // Parameters that are typically draggable (input fields)
+    const draggableNames = ['string1', 'string2', 'text', 'input', 'value', 'a', 'b', 'array', 'object', 'source', 'target'];
+    
+    // If parameter name suggests it's input data, it's draggable
+    if (draggableNames.some(name => param.name.toLowerCase().includes(name))) {
+      return true;
+    }
+    
+    // If it's the first parameter and required, it's usually draggable
+    if (selectedFunction.parameters.indexOf(param) === 0 && param.required) {
+      return true;
+    }
+    
+    // Parameters like delimiter, format, separator, etc. are configurable
+    const configurableNames = ['delimiter', 'format', 'separator', 'pattern', 'start', 'end', 'length', 'index'];
+    if (configurableNames.some(name => param.name.toLowerCase().includes(name))) {
+      return false;
+    }
+    
+    // Default: if required, it's draggable; if optional, it's configurable
+    return param.required;
+  };
+
   const allFunctions = Object.values(functionsByCategory).flat();
 
   const handleFunctionChange = (functionName: string) => {
@@ -160,32 +185,49 @@ export const FunctionNode: React.FC<FunctionNodeProps> = ({ id, data }) => {
               {selectedFunction.parameters.length === 0 ? (
                 <div className="text-xs text-muted-foreground">No parameters required</div>
               ) : (
-                selectedFunction.parameters.map((param, index) => (
-                  <div key={param.name} className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <Label className="text-xs">
-                        {param.name}
-                        {param.required && <span className="text-destructive ml-1">*</span>}
-                      </Label>
-                      {connectedFields[param.name] && (
-                        <Badge variant="outline" className="text-xs flex items-center gap-1">
-                          <Link2 className="h-2 w-2" />
-                          {connectedFields[param.name]}
-                        </Badge>
+                selectedFunction.parameters.map((param, index) => {
+                  const isDraggable = isDraggableParameter(param);
+                  return (
+                    <div key={param.name} className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs">
+                          {param.name}
+                          {param.required && <span className="text-destructive ml-1">*</span>}
+                          {isDraggable && <span className="text-blue-500 ml-1">•</span>}
+                        </Label>
+                        {connectedFields[param.name] && (
+                          <Badge variant="outline" className="text-xs flex items-center gap-1">
+                            <Link2 className="h-2 w-2" />
+                            {connectedFields[param.name]}
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      {isDraggable ? (
+                        // Draggable parameter - show connection status, no input field
+                        <div className="h-6 px-2 py-1 bg-muted/50 rounded text-xs border border-dashed">
+                          {connectedFields[param.name] ? (
+                            <span className="text-green-600">Connected: {connectedFields[param.name]}</span>
+                          ) : (
+                            <span className="text-muted-foreground">Connect field here</span>
+                          )}
+                        </div>
+                      ) : (
+                        // Configurable parameter - show input field, no handle
+                        <Input
+                          placeholder={`${param.type} value`}
+                          value={parameters[param.name] || ''}
+                          onChange={(e) => handleParameterChange(param.name, e.target.value)}
+                          className="h-6 text-xs"
+                        />
+                      )}
+                      
+                      {param.description && (
+                        <div className="text-xs text-muted-foreground">{param.description}</div>
                       )}
                     </div>
-                    <Input
-                      placeholder={connectedFields[param.name] ? 'Connected' : `${param.type} value`}
-                      value={parameters[param.name] || ''}
-                      onChange={(e) => handleParameterChange(param.name, e.target.value)}
-                      className="h-6 text-xs"
-                      disabled={!!connectedFields[param.name]}
-                    />
-                    {param.description && (
-                      <div className="text-xs text-muted-foreground">{param.description}</div>
-                    )}
-                  </div>
-                ))
+                  );
+                })
               )}
             </>
           )}
@@ -207,6 +249,27 @@ export const FunctionNode: React.FC<FunctionNodeProps> = ({ id, data }) => {
         </div>
       )}
 
+      {/* Input handles - only for draggable parameters */}
+      {selectedFunction.parameters.map((param, index) => {
+        const isDraggable = isDraggableParameter(param);
+        if (!isDraggable) return null; // No handle for configurable parameters
+        
+        return (
+          <Handle
+            key={`input-${param.name}`}
+            type="target"
+            position={Position.Left}
+            id={param.name}
+            style={{ 
+              top: `${60 + index * 20}px`,
+              background: connectedFields[param.name] ? '#22c55e' : '#f97316',
+              width: '8px',
+              height: '8px'
+            }}
+            className="border-2 border-white"
+          />
+        );
+      })}
 
       {/* Output handle */}
       <Handle
