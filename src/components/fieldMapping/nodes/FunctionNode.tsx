@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Handle, Position, useReactFlow, useOnSelectionChange } from '@xyflow/react';
+import React, { useState, useMemo } from 'react';
+import { Handle, Position, useReactFlow } from '@xyflow/react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -23,54 +23,7 @@ export const FunctionNode: React.FC<FunctionNodeProps> = ({ id, data }) => {
   const [selectedFunction, setSelectedFunction] = useState(data.function);
   const [parameters, setParameters] = useState(data.parameters);
   const [showConfig, setShowConfig] = useState(false);
-  const [, forceUpdate] = useState({});
-  const { setNodes, setEdges, getEdges, getNodes } = useReactFlow();
-
-  // Force re-render when edges or nodes change
-  useEffect(() => {
-    const interval = setInterval(() => {
-      forceUpdate({});
-    }, 100); // Update every 100ms to catch edge changes
-    
-    return () => clearInterval(interval);
-  }, []);
-
-  // Get connected fields for each parameter with better edge detection
-  const connectedFields = useMemo(() => {
-    const edges = getEdges();
-    const nodes = getNodes();
-    const connections: Record<string, string> = {};
-    
-    // Force re-render by including a timestamp check
-    const relevantEdges = edges.filter(edge => edge.target === id);
-    
-    relevantEdges.forEach(edge => {
-      if (edge.targetHandle) {
-        const sourceNode = nodes.find(n => n.id === edge.source);
-        
-        if (sourceNode) {
-          if (sourceNode.type === 'sourceField') {
-            const fieldData = sourceNode.data as { field: { name: string; path?: string } };
-            if (fieldData?.field?.name) {
-              connections[edge.targetHandle] = fieldData.field.name;
-            } else if (fieldData?.field?.path) {
-              const pathParts = fieldData.field.path.split('.');
-              connections[edge.targetHandle] = pathParts[pathParts.length - 1];
-            }
-          } else if (sourceNode.type === 'constant') {
-            const constantData = sourceNode.data as { value: string };
-            if (constantData?.value) {
-              connections[edge.targetHandle] = `"${constantData.value}"`;
-            }
-          } else if (sourceNode.type === 'function') {
-            connections[edge.targetHandle] = 'Function Output';
-          }
-        }
-      }
-    });
-    
-    return connections;
-  }, [id, getEdges, getNodes]);
+  const { setNodes, setEdges } = useReactFlow();
 
   // Determine if a parameter is draggable (should have handle) or configurable (should have input)
   const isDraggableParameter = (param: any) => {
@@ -202,78 +155,33 @@ export const FunctionNode: React.FC<FunctionNodeProps> = ({ id, data }) => {
           ) : (
             <>
               <Label className="text-xs font-medium">Parameters</Label>
-              {selectedFunction.parameters.length === 0 ? (
-                <div className="text-xs text-muted-foreground">No parameters required</div>
+              {selectedFunction.parameters.filter(param => !isDraggableParameter(param)).length === 0 ? (
+                <div className="text-xs text-muted-foreground">No configurable parameters</div>
               ) : (
-                selectedFunction.parameters.map((param, index) => {
-                  const isDraggable = isDraggableParameter(param);
-                  return (
+                selectedFunction.parameters
+                  .filter(param => !isDraggableParameter(param))
+                  .map((param) => (
                     <div key={param.name} className="space-y-1">
-                      <div className="flex items-center justify-between">
-                        <Label className="text-xs">
-                          {param.name}
-                          {param.required && <span className="text-destructive ml-1">*</span>}
-                          {isDraggable && <span className="text-blue-500 ml-1">•</span>}
-                        </Label>
-                        {connectedFields[param.name] && (
-                          <Badge variant="outline" className="text-xs flex items-center gap-1">
-                            <Link2 className="h-2 w-2" />
-                            {connectedFields[param.name]}
-                          </Badge>
-                        )}
-                      </div>
+                      <Label className="text-xs">
+                        {param.name}
+                        {param.required && <span className="text-destructive ml-1">*</span>}
+                      </Label>
                       
-                      {isDraggable ? (
-                        // Draggable parameter - show connection status, no input field
-                        <div className="h-6 px-2 py-1 bg-muted/50 rounded text-xs border border-dashed">
-                          {connectedFields[param.name] ? (
-                            <span className="text-green-600 font-medium">{connectedFields[param.name]}</span>
-                          ) : (
-                            <span className="text-muted-foreground">Connect field here</span>
-                          )}
-                        </div>
-                      ) : (
-                        // Configurable parameter - show input field, no handle
-                        <Input
-                          placeholder={`${param.type} value`}
-                          value={parameters[param.name] || ''}
-                          onChange={(e) => handleParameterChange(param.name, e.target.value)}
-                          className="h-6 text-xs"
-                        />
-                      )}
+                      <Input
+                        placeholder={`${param.type} value`}
+                        value={parameters[param.name] || ''}
+                        onChange={(e) => handleParameterChange(param.name, e.target.value)}
+                        className="h-6 text-xs"
+                      />
                       
                       {param.description && (
                         <div className="text-xs text-muted-foreground">{param.description}</div>
                       )}
                     </div>
-                  );
-                })
+                  ))
               )}
             </>
           )}
-        </div>
-      )}
-
-      {/* Connection status display when config is closed */}
-      {!showConfig && Object.keys(connectedFields).length > 0 && (
-        <div className="space-y-1 mb-2 p-2 bg-muted/20 rounded border">
-          <div className="flex items-center gap-1 text-xs font-medium text-primary">
-            <Link2 className="h-3 w-3" />
-            <span>Inputs:</span>
-          </div>
-          {selectedFunction.parameters.map((param) => {
-            const isDraggable = isDraggableParameter(param);
-            if (!isDraggable) return null;
-            
-            return (
-              <div key={param.name} className="flex items-center justify-between text-xs">
-                <span className="font-medium text-muted-foreground">{param.name}:</span>
-                <span className="text-green-600 font-medium">
-                  {connectedFields[param.name] || 'Not connected'}
-                </span>
-              </div>
-            );
-          })}
         </div>
       )}
 
@@ -290,7 +198,7 @@ export const FunctionNode: React.FC<FunctionNodeProps> = ({ id, data }) => {
             id={param.name}
             style={{ 
               top: `${60 + index * 20}px`,
-              background: connectedFields[param.name] ? '#22c55e' : '#f97316',
+              background: '#f97316',
               width: '8px',
               height: '8px'
             }}
