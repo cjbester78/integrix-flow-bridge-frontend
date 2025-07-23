@@ -224,6 +224,8 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
   const handleSave = useCallback(() => {
     if (!targetField) return;
 
+    console.log('🔥 VisualFlowEditor handleSave - saving with nodes:', nodes.length, 'edges:', edges.length);
+
     // Find the target node and trace back all connections
     const targetNode = nodes.find(n => n.type === 'targetField');
     if (!targetNode) return;
@@ -242,10 +244,13 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
       }
     });
 
+    console.log('🔥 VisualFlowEditor handleSave - connectedSourcePaths:', connectedSourcePaths);
+    console.log('🔥 VisualFlowEditor handleSave - connectedSourceFields:', connectedSourceFields);
+
     // Create mapping object with complete flow state
     const mapping: FieldMapping = {
       id: initialMapping?.id || `mapping_${Date.now()}`,
-      name: `visual_flow_to_${targetField.name}`,
+      name: initialMapping?.name || `visual_flow_to_${targetField.name}`,
       sourceFields: connectedSourceFields,
       targetField: targetField.name,
       sourcePaths: connectedSourcePaths,
@@ -265,6 +270,8 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
         position: { x: 0, y: 0 }
       }
     };
+
+    console.log('🔥 VisualFlowEditor handleSave - final mapping:', mapping);
 
     onApplyMapping(mapping);
     onClose();
