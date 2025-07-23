@@ -67,6 +67,13 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
 
   // Mouse-based drag implementation
   const handleMouseDown = useCallback((field: FieldNode, event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    // Prevent text selection during drag
+    document.body.style.userSelect = 'none';
+    document.body.style.webkitUserSelect = 'none';
+    
     console.log('Mouse down on field:', field.name);
     setDragState({
       isDragging: true,
@@ -139,6 +146,10 @@ export const FunctionMappingModal: React.FC<FunctionMappingModalProps> = ({
       }
     }
 
+    // Reset user selection styles
+    document.body.style.userSelect = '';
+    document.body.style.webkitUserSelect = '';
+    
     setDragState({
       isDragging: false,
       draggedItem: null,
