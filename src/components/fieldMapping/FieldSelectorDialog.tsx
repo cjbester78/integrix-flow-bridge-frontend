@@ -25,13 +25,6 @@ export const FieldSelectorDialog: React.FC<FieldSelectorDialogProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
 
-  console.log('🔍 FieldSelectorDialog render:', {
-    open,
-    sourceFieldsCount: sourceFields.length,
-    excludeFieldsCount: excludeFields.length,
-    sourceFieldNames: sourceFields.map(f => f.name)
-  });
-
   const toggleExpanded = (nodeId: string) => {
     setExpandedNodes(prev => {
       const newSet = new Set(prev);
@@ -177,12 +170,25 @@ export const FieldSelectorDialog: React.FC<FieldSelectorDialogProps> = ({
           </div>
         </div>
 
-        <ScrollArea className="flex-1">
+         <ScrollArea className="flex-1">
           <div className="space-y-2 pr-4">
+            {/* Debug info */}
+            {process.env.NODE_ENV === 'development' && (
+              <div className="mb-4 p-2 bg-yellow-100 border border-yellow-300 rounded text-xs">
+                <div>Debug Info:</div>
+                <div>Source Fields Count: {sourceFields.length}</div>
+                <div>Available Fields Count: {availableFields.length}</div>
+                <div>Field Names: {sourceFields.map(f => f.name).join(', ')}</div>
+              </div>
+            )}
+            
             {availableFields.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <Database className="h-8 w-8 mx-auto mb-2 opacity-50" />
                 <p>No available source fields to add</p>
+                <p className="text-xs mt-2">
+                  Total source fields received: {sourceFields.length}
+                </p>
               </div>
             ) : (
               availableFields.map(field => renderField(field))

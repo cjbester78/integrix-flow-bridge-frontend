@@ -66,12 +66,6 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
 
   // Initialize nodes when dialog opens
   React.useEffect(() => {
-    console.log('🔍 VisualFlowEditor opened with:', {
-      sourceFields: sourceFields.length,
-      targetField: targetField?.name,
-      sourceFieldNames: sourceFields.map(f => f.name)
-    });
-    
     if (open && targetField) {
       const initialNodes: Node[] = [];
       
