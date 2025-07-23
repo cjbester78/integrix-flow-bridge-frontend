@@ -26,15 +26,29 @@ import {
   Database,
   Workflow,
   AlertTriangle,
-  CheckCircle
+  CheckCircle,
+  Globe,
+  ArrowRightLeft,
+  Filter
 } from 'lucide-react';
 
-// Initial nodes for the orchestration flow
+// Import our custom node types
+import { AdapterNode } from './nodes/AdapterNode';
+import { TransformationNode } from './nodes/TransformationNode';
+import { RoutingNode } from './nodes/RoutingNode';
+
+// Define custom node types that wrap existing components
+const nodeTypes = {
+  adapter: AdapterNode,
+  transformation: TransformationNode,
+  routing: RoutingNode,
+};
+// Sample orchestration flow using reusable components
 const initialNodes: Node[] = [
   {
     id: 'start',
     type: 'input',
-    position: { x: 250, y: 0 },
+    position: { x: 50, y: 100 },
     data: { 
       label: (
         <div className="flex items-center gap-2">
@@ -43,108 +57,71 @@ const initialNodes: Node[] = [
         </div>
       )
     },
-    style: {
-      background: 'hsl(var(--card))',
-      border: '2px solid hsl(var(--border))',
-      borderRadius: '8px',
-      padding: '10px',
-    },
-    deletable: false, // Prevent deletion of start node
+    deletable: false,
   },
   {
-    id: 'message-receive',
+    id: 'http-receiver',
+    type: 'adapter',
     position: { x: 250, y: 100 },
-    data: { 
-      label: (
-        <div className="flex items-center gap-2">
-          <MessageSquare className="h-4 w-4 text-blue-500" />
-          <span>Message Reception</span>
-        </div>
-      )
-    },
-    style: {
-      background: 'hsl(var(--card))',
-      border: '2px solid hsl(var(--border))',
-      borderRadius: '8px',
-      padding: '10px',
+    data: {
+      adapterType: 'http-receiver',
+      adapterConfig: {},
+      onConfigChange: (config: any) => console.log('HTTP Receiver config:', config)
     },
   },
   {
-    id: 'routing-decision',
-    position: { x: 250, y: 200 },
-    data: { 
-      label: (
-        <div className="flex items-center gap-2">
-          <GitBranch className="h-4 w-4 text-orange-500" />
-          <span>Routing Decision</span>
-        </div>
-      )
-    },
-    style: {
-      background: 'hsl(var(--card))',
-      border: '2px solid hsl(var(--border))',
-      borderRadius: '8px',
-      padding: '10px',
+    id: 'message-router',
+    type: 'routing',
+    position: { x: 500, y: 100 },
+    data: {
+      routingConfig: {},
+      onConfigChange: (config: any) => console.log('Router config:', config)
     },
   },
   {
-    id: 'transform-a',
-    position: { x: 100, y: 320 },
-    data: { 
-      label: (
-        <div className="flex items-center gap-2">
-          <Workflow className="h-4 w-4 text-purple-500" />
-          <span>Transform A</span>
-        </div>
-      )
-    },
-    style: {
-      background: 'hsl(var(--card))',
-      border: '2px solid hsl(var(--border))',
-      borderRadius: '8px',
-      padding: '10px',
+    id: 'field-mapping-a',
+    type: 'transformation',
+    position: { x: 750, y: 50 },
+    data: {
+      transformationType: 'field-mapping' as const,
+      transformationConfig: {},
+      onConfigChange: (config: any) => console.log('Transform A config:', config)
     },
   },
   {
-    id: 'transform-b',
-    position: { x: 400, y: 320 },
-    data: { 
-      label: (
-        <div className="flex items-center gap-2">
-          <Workflow className="h-4 w-4 text-purple-500" />
-          <span>Transform B</span>
-        </div>
-      )
-    },
-    style: {
-      background: 'hsl(var(--card))',
-      border: '2px solid hsl(var(--border))',
-      borderRadius: '8px',
-      padding: '10px',
+    id: 'field-mapping-b',
+    type: 'transformation',
+    position: { x: 750, y: 200 },
+    data: {
+      transformationType: 'field-mapping' as const,
+      transformationConfig: {},
+      onConfigChange: (config: any) => console.log('Transform B config:', config)
     },
   },
   {
-    id: 'system-delivery',
-    position: { x: 250, y: 440 },
-    data: { 
-      label: (
-        <div className="flex items-center gap-2">
-          <Database className="h-4 w-4 text-cyan-500" />
-          <span>System Delivery</span>
-        </div>
-      )
+    id: 'soap-sender',
+    type: 'adapter',
+    position: { x: 1000, y: 50 },
+    data: {
+      adapterType: 'soap-sender',
+      adapterConfig: {},
+      onConfigChange: (config: any) => console.log('SOAP Sender config:', config)
     },
-    style: {
-      background: 'hsl(var(--card))',
-      border: '2px solid hsl(var(--border))',
-      borderRadius: '8px',
-      padding: '10px',
+  },
+  {
+    id: 'rest-sender',
+    type: 'adapter',
+    position: { x: 1000, y: 200 },
+    data: {
+      adapterType: 'rest-sender',
+      adapterConfig: {},
+      onConfigChange: (config: any) => console.log('REST Sender config:', config)
     },
   },
   {
     id: 'end',
     type: 'output',
-    position: { x: 250, y: 540 },
+    position: { x: 1250, y: 100 },
     data: { 
       label: (
         <div className="flex items-center gap-2">
@@ -153,64 +130,19 @@ const initialNodes: Node[] = [
         </div>
       )
     },
-    style: {
-      background: 'hsl(var(--card))',
-      border: '2px solid hsl(var(--border))',
-      borderRadius: '8px',
-      padding: '10px',
-    },
-    deletable: false, // Prevent deletion of end node
+    deletable: false,
   },
 ];
 
 const initialEdges: Edge[] = [
-  {
-    id: 'e1-2',
-    source: 'start',
-    target: 'message-receive',
-    animated: true,
-    style: { stroke: 'hsl(var(--primary))' },
-  },
-  {
-    id: 'e2-3',
-    source: 'message-receive',
-    target: 'routing-decision',
-    animated: true,
-    style: { stroke: 'hsl(var(--primary))' },
-  },
-  {
-    id: 'e3-4a',
-    source: 'routing-decision',
-    target: 'transform-a',
-    label: 'Path A',
-    style: { stroke: 'hsl(var(--primary))' },
-  },
-  {
-    id: 'e3-4b',
-    source: 'routing-decision',
-    target: 'transform-b',
-    label: 'Path B',
-    style: { stroke: 'hsl(var(--primary))' },
-  },
-  {
-    id: 'e4a-5',
-    source: 'transform-a',
-    target: 'system-delivery',
-    style: { stroke: 'hsl(var(--primary))' },
-  },
-  {
-    id: 'e4b-5',
-    source: 'transform-b',
-    target: 'system-delivery',
-    style: { stroke: 'hsl(var(--primary))' },
-  },
-  {
-    id: 'e5-6',
-    source: 'system-delivery',
-    target: 'end',
-    animated: true,
-    style: { stroke: 'hsl(var(--primary))' },
-  },
+  { id: 'e1-2', source: 'start', target: 'http-receiver', animated: true },
+  { id: 'e2-3', source: 'http-receiver', target: 'message-router', animated: true },
+  { id: 'e3-4a', source: 'message-router', sourceHandle: 'route-a', target: 'field-mapping-a', label: 'Path A' },
+  { id: 'e3-4b', source: 'message-router', sourceHandle: 'route-b', target: 'field-mapping-b', label: 'Path B' },
+  { id: 'e4a-5', source: 'field-mapping-a', target: 'soap-sender' },
+  { id: 'e4b-5', source: 'field-mapping-b', target: 'rest-sender' },
+  { id: 'e5a-6', source: 'soap-sender', target: 'end' },
+  { id: 'e5b-6', source: 'rest-sender', target: 'end' },
 ];
 
 export function VisualOrchestrationEditor() {
@@ -227,25 +159,43 @@ export function VisualOrchestrationEditor() {
     setSelectedNode(node);
   }, []);
 
-  const addNewNode = (type: string) => {
+  const addAdapter = (adapterType: string) => {
     const newNode: Node = {
-      id: `node-${Date.now()}`,
-      position: { x: Math.random() * 500, y: Math.random() * 500 },
-      data: { 
-        label: (
-          <div className="flex items-center gap-2">
-            <Workflow className="h-4 w-4 text-primary" />
-            <span>{type}</span>
-          </div>
-        )
+      id: `${adapterType}-${Date.now()}`,
+      type: 'adapter',
+      position: { x: Math.random() * 400 + 100, y: Math.random() * 400 + 100 },
+      data: {
+        adapterType,
+        adapterConfig: {},
+        onConfigChange: (config: any) => console.log(`${adapterType} config:`, config)
       },
-      style: {
-        background: 'hsl(var(--card))',
-        border: '2px solid hsl(var(--border))',
-        borderRadius: '8px',
-        padding: '10px',
+    };
+    setNodes((nds) => [...nds, newNode]);
+  };
+
+  const addTransformation = (transformationType: 'field-mapping' | 'custom-function' | 'filter' | 'enrichment') => {
+    const newNode: Node = {
+      id: `${transformationType}-${Date.now()}`,
+      type: 'transformation',
+      position: { x: Math.random() * 400 + 100, y: Math.random() * 400 + 100 },
+      data: {
+        transformationType,
+        transformationConfig: {},
+        onConfigChange: (config: any) => console.log(`${transformationType} config:`, config)
       },
-      deletable: true, // Allow deletion of custom nodes
+    };
+    setNodes((nds) => [...nds, newNode]);
+  };
+
+  const addRouting = () => {
+    const newNode: Node = {
+      id: `routing-${Date.now()}`,
+      type: 'routing',
+      position: { x: Math.random() * 400 + 100, y: Math.random() * 400 + 100 },
+      data: {
+        routingConfig: {},
+        onConfigChange: (config: any) => console.log('Routing config:', config)
+      },
     };
     setNodes((nds) => [...nds, newNode]);
   };
@@ -282,6 +232,7 @@ export function VisualOrchestrationEditor() {
               onEdgesChange={onEdgesChange}
               onConnect={onConnect}
               onNodeClick={onNodeClick}
+              nodeTypes={nodeTypes}
               fitView
               style={{ background: 'hsl(var(--muted/50))' }}
             >
@@ -289,14 +240,18 @@ export function VisualOrchestrationEditor() {
               <MiniMap />
               <Background />
               <Panel position="top-left">
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => addNewNode('Message Processor')}
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Step
+                <div className="flex gap-2 flex-wrap">
+                  <Button size="sm" variant="outline" onClick={() => addAdapter('http-receiver')}>
+                    <Globe className="h-4 w-4 mr-2" />
+                    HTTP Receiver
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => addTransformation('field-mapping')}>
+                    <ArrowRightLeft className="h-4 w-4 mr-2" />
+                    Field Mapping
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={addRouting}>
+                    <GitBranch className="h-4 w-4 mr-2" />
+                    Router
                   </Button>
                 </div>
               </Panel>
@@ -318,7 +273,7 @@ export function VisualOrchestrationEditor() {
               variant="outline"
               size="sm"
               className="w-full justify-start"
-              onClick={() => addNewNode('Message Router')}
+              onClick={addRouting}
             >
               <GitBranch className="h-4 w-4 mr-2" />
               Message Router
@@ -327,28 +282,28 @@ export function VisualOrchestrationEditor() {
               variant="outline"
               size="sm"
               className="w-full justify-start"
-              onClick={() => addNewNode('Data Transformer')}
+              onClick={() => addTransformation('field-mapping')}
             >
-              <Workflow className="h-4 w-4 mr-2" />
-              Data Transformer
+              <ArrowRightLeft className="h-4 w-4 mr-2" />
+              Field Mapping
             </Button>
             <Button
               variant="outline"
               size="sm"
               className="w-full justify-start"
-              onClick={() => addNewNode('System Adapter')}
+              onClick={() => addAdapter('http-sender')}
             >
-              <Database className="h-4 w-4 mr-2" />
-              System Adapter
+              <Globe className="h-4 w-4 mr-2" />
+              HTTP Adapter
             </Button>
             <Button
               variant="outline"
               size="sm"
               className="w-full justify-start"
-              onClick={() => addNewNode('Error Handler')}
+              onClick={() => addTransformation('filter')}
             >
-              <AlertTriangle className="h-4 w-4 mr-2" />
-              Error Handler
+              <Filter className="h-4 w-4 mr-2" />
+              Message Filter
             </Button>
             </CardContent>
           </Card>
