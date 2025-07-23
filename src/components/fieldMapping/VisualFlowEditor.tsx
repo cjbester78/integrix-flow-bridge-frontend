@@ -75,7 +75,6 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
         type: 'targetField',
         position: { x: 800, y: 200 },
         data: { field: targetField },
-        draggable: false,
       });
 
       // If there's an initial mapping, add its source fields to the canvas
