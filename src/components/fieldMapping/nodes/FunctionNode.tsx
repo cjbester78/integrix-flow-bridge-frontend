@@ -207,7 +207,7 @@ export const FunctionNode: React.FC<FunctionNodeProps> = ({ id, data }) => {
                         // Draggable parameter - show connection status, no input field
                         <div className="h-6 px-2 py-1 bg-muted/50 rounded text-xs border border-dashed">
                           {connectedFields[param.name] ? (
-                            <span className="text-green-600">Connected: {connectedFields[param.name]}</span>
+                            <span className="text-green-600">{connectedFields[param.name]}</span>
                           ) : (
                             <span className="text-muted-foreground">Connect field here</span>
                           )}

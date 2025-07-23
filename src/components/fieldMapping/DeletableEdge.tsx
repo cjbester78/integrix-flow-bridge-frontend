@@ -19,6 +19,7 @@ interface DeletableEdgeProps {
   targetPosition: any;
   style?: React.CSSProperties;
   markerEnd?: any;
+  selected?: boolean;
 }
 
 export const DeletableEdge: React.FC<DeletableEdgeProps> = ({
@@ -31,6 +32,7 @@ export const DeletableEdge: React.FC<DeletableEdgeProps> = ({
   targetPosition,
   style = {},
   markerEnd,
+  selected = false,
 }) => {
   const { setEdges } = useReactFlow();
   const [edgePath, labelX, labelY] = getBezierPath({
@@ -50,24 +52,26 @@ export const DeletableEdge: React.FC<DeletableEdgeProps> = ({
   return (
     <>
       <BaseEdge path={edgePath} markerEnd={markerEnd} style={style} />
-      <EdgeLabelRenderer>
-        <div
-          className="absolute pointer-events-auto"
-          style={{
-            transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
-          }}
-        >
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onEdgeClick}
-            className="h-6 w-6 p-0 bg-destructive text-destructive-foreground hover:bg-destructive/80 rounded-full shadow-md opacity-70 hover:opacity-100 transition-opacity"
-            title="Delete connection"
+      {selected && (
+        <EdgeLabelRenderer>
+          <div
+            className="absolute pointer-events-auto"
+            style={{
+              transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
+            }}
           >
-            <X className="h-3 w-3" />
-          </Button>
-        </div>
-      </EdgeLabelRenderer>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onEdgeClick}
+              className="h-6 w-6 p-0 bg-destructive text-destructive-foreground hover:bg-destructive/80 rounded-full shadow-md"
+              title="Delete connection"
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
+        </EdgeLabelRenderer>
+      )}
     </>
   );
 };
