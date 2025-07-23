@@ -11,7 +11,7 @@ import { useDataStructures } from '@/hooks/useDataStructures';
 import { SourcePanel } from './fieldMapping/SourcePanel';
 import { TargetPanel } from './fieldMapping/TargetPanel';
 import { MappingArea } from './fieldMapping/MappingArea';
-import { JavaEditor } from './fieldMapping/JavaEditor';
+
 import { DataStructure } from '@/types/dataStructures';
 
 interface MappingScreenProps {
@@ -37,8 +37,6 @@ export function FieldMappingScreen({
   const [selectedTarget, setSelectedTarget] = useState<string>('');
   const [showSourceSelector, setShowSourceSelector] = useState(false);
   const [showTargetSelector, setShowTargetSelector] = useState(false);
-  const [showJavaEditor, setShowJavaEditor] = useState<string | null>(null);
-  const [tempJavaFunction, setTempJavaFunction] = useState('');
   const [mappingName, setMappingName] = useState(initialMappingName);
   const [requiresTransformation, setRequiresTransformation] = useState(true);
   // Remove viewMode - always use traditional view
@@ -104,7 +102,6 @@ export function FieldMappingScreen({
         targetField: targetField.name,
         sourcePaths: [draggedField.path],
         targetPath: targetField.path,
-        javaFunction: requiresTransformation ? '' : undefined,
         requiresTransformation
       };
       
@@ -159,14 +156,6 @@ export function FieldMappingScreen({
     }
   };
 
-  const updateMappingJavaFunction = (mappingId: string, javaFunction: string) => {
-    setMappings(prev => prev.map(m => 
-      m.id === mappingId ? { ...m, javaFunction } : m
-    ));
-    setShowJavaEditor(null);
-    setTempJavaFunction('');
-  };
-
   const updateMapping = (mappingId: string, updates: Partial<FieldMapping>) => {
     setMappings(prev => prev.map(m => 
       m.id === mappingId ? { ...m, ...updates } : m
@@ -176,14 +165,6 @@ export function FieldMappingScreen({
   const createMapping = (mapping: FieldMapping) => {
     setMappings(prev => [...prev, mapping]);
   };
-
-  const handleEditJavaFunction = (mappingId: string) => {
-    const mapping = mappings.find(m => m.id === mappingId);
-    setShowJavaEditor(mappingId);
-    setTempJavaFunction(mapping?.javaFunction || '');
-  };
-
-  const currentMapping = showJavaEditor ? mappings.find(m => m.id === showJavaEditor) : null;
 
   return (
     <div className="fixed inset-0 bg-background z-50 overflow-hidden animate-fade-in">
@@ -265,7 +246,6 @@ export function FieldMappingScreen({
           sourceFields={sourceFields}
           targetFields={targetFields}
           onRemoveMapping={removeMapping}
-          onEditJavaFunction={handleEditJavaFunction}
           onUpdateMapping={updateMapping}
           onCreateMapping={createMapping}
         />
@@ -285,14 +265,6 @@ export function FieldMappingScreen({
         />
       </div>
 
-      <JavaEditor
-        isOpen={!!showJavaEditor}
-        onClose={() => setShowJavaEditor(null)}
-        mapping={currentMapping}
-        javaFunction={tempJavaFunction}
-        onJavaFunctionChange={setTempJavaFunction}
-        onSave={() => updateMappingJavaFunction(showJavaEditor!, tempJavaFunction)}
-      />
     </div>
   );
 }

@@ -14,7 +14,7 @@ interface MappingAreaProps {
   sourceFields?: FieldNode[];
   targetFields?: FieldNode[];
   onRemoveMapping: (mappingId: string) => void;
-  onEditJavaFunction: (mappingId: string) => void;
+  
   onUpdateMapping?: (mappingId: string, updates: Partial<FieldMapping>) => void;
   onCreateMapping?: (mapping: FieldMapping) => void;
 }
@@ -23,8 +23,7 @@ export function MappingArea({
   mappings, 
   sourceFields = [], 
   targetFields = [], 
-  onRemoveMapping, 
-  onEditJavaFunction, 
+  onRemoveMapping,
   onUpdateMapping,
   onCreateMapping
 }: MappingAreaProps) {
@@ -80,7 +79,7 @@ export function MappingArea({
       console.log('❌ Target field not found, falling back to simple function update');
       // Fallback to simple function update if target field not found
       if (onUpdateMapping) {
-        onUpdateMapping(mappingId, { javaFunction: javaCode });
+        
       }
       return;
     }
@@ -171,10 +170,9 @@ export function MappingArea({
       if (onUpdateMapping) {
         onUpdateMapping(visualFlowEditor.existingMapping.id, {
           functionNode: newMapping.functionNode,
-          javaFunction: newMapping.javaFunction,
+          requiresTransformation: true,
           sourceFields: newMapping.sourceFields,
-          sourcePaths: newMapping.sourcePaths,
-          requiresTransformation: true
+          sourcePaths: newMapping.sourcePaths
         });
       }
     } else {
@@ -197,10 +195,9 @@ export function MappingArea({
       if (onUpdateMapping) {
         onUpdateMapping(functionMappingModal.existingMappingId, {
           functionNode: newMapping.functionNode,
-          javaFunction: newMapping.javaFunction,
+          requiresTransformation: true,
           sourceFields: newMapping.sourceFields,
-          sourcePaths: newMapping.sourcePaths,
-          requiresTransformation: true
+          sourcePaths: newMapping.sourcePaths
         });
       }
     } else {
@@ -274,15 +271,6 @@ export function MappingArea({
                         >
                           <Zap className="h-3 w-3" />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onEditJavaFunction(mapping.id)}
-                          className="h-6 w-6 p-0 hover-scale"
-                          title="Edit Java Function"
-                        >
-                          <Code className="h-3 w-3" />
-                        </Button>
                       </>
                     )}
                     <Button
@@ -325,20 +313,9 @@ export function MappingArea({
                           </div>
                         </div>
                       )}
-                      {mapping.javaFunction && !mapping.functionNode && (
-                        <div className="mt-2 p-2 bg-background rounded text-xs">
-                          <div className="flex items-center gap-2 mb-1">
-                            <Code className="h-3 w-3" />
-                            <span className="font-medium">Java Function:</span>
-                          </div>
-                          <pre className="text-muted-foreground whitespace-pre-wrap text-xs font-mono">
-                            {mapping.javaFunction}
-                          </pre>
-                        </div>
-                      )}
-                      {!mapping.javaFunction && !mapping.functionNode && (
+                       {!mapping.functionNode && (
                         <div className="mt-2 text-xs text-muted-foreground italic">
-                          Click the lightning icon for visual function mapping or code icon for custom Java
+                          Click the lightning icon to configure transformations using the visual flow editor
                         </div>
                       )}
                     </>
