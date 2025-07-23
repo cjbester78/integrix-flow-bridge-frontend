@@ -90,7 +90,7 @@ export const FunctionPicker: React.FC<FunctionPickerProps> = ({
       </div>
 
       <Tabs defaultValue="math" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6">
+        <TabsList className="grid w-full" style={{ gridTemplateColumns: `repeat(${Object.keys(filteredFunctions).length}, 1fr)` }}>
           {Object.keys(filteredFunctions).map((category) => (
             <TabsTrigger key={category} value={category} className="capitalize text-xs">
               {category}
