@@ -165,14 +165,18 @@ export function MappingArea({
   };
 
   const handleApplyVisualFlow = (newMapping: FieldMapping) => {
+    console.log('🔥 handleApplyVisualFlow called with:', newMapping);
+    
     if (visualFlowEditor.existingMapping) {
-      // Update existing mapping
+      // Update existing mapping - include ALL fields, especially visualFlowData
       if (onUpdateMapping) {
         onUpdateMapping(visualFlowEditor.existingMapping.id, {
           functionNode: newMapping.functionNode,
+          visualFlowData: newMapping.visualFlowData, // This was missing!
           requiresTransformation: true,
           sourceFields: newMapping.sourceFields,
-          sourcePaths: newMapping.sourcePaths
+          sourcePaths: newMapping.sourcePaths,
+          name: newMapping.name
         });
       }
     } else {
