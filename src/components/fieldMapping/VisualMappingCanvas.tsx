@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { FunctionPicker } from './FunctionPicker';
-import { FunctionMappingModal } from './FunctionMappingModal';
+import { VisualFlowEditor } from './VisualFlowEditor';
 import { FieldNode, FieldMapping } from './types';
 import { Plus, Settings } from 'lucide-react';
 
@@ -27,13 +27,11 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
   currentTargetField,
   selectedSourceStructure
 }) => {
-  const [functionMappingModal, setFunctionMappingModal] = useState<{
+  const [visualFlowEditor, setVisualFlowEditor] = useState<{
     open: boolean;
-    selectedFunction: string;
     targetField: FieldNode | null;
   }>({
     open: false,
-    selectedFunction: '',
     targetField: null
   });
 
@@ -42,8 +40,8 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
     ? sourceFields 
     : sourceFields;
 
-  // Handle function mapping from modal
-  const handleApplyFunctionMapping = useCallback((mapping: FieldMapping) => {
+  // Handle visual flow mapping
+  const handleApplyFlowMapping = useCallback((mapping: FieldMapping) => {
     // Remove any existing mapping for this target field
     mappings.forEach(existingMapping => {
       if (existingMapping.targetField === mapping.targetField) {
@@ -51,13 +49,12 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
       }
     });
     
-    // Create the new function-based mapping
+    // Create the new flow-based mapping
     onCreateMapping(mapping);
     
-    // Close the modal
-    setFunctionMappingModal({
+    // Close the editor
+    setVisualFlowEditor({
       open: false,
-      selectedFunction: '',
       targetField: null
     });
   }, [mappings, onCreateMapping, onRemoveMapping]);
@@ -67,37 +64,30 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
       {/* Toolbar */}
       <div className="flex items-center justify-between p-3 border-b bg-muted/30">
         <div className="flex items-center gap-2">
-          <FunctionPicker
-            onFunctionSelect={(functionName, javaCode) => {
-              console.log('Function selected from picker:', functionName, javaCode);
-              // Open the function mapping modal
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="h-8"
+            disabled={!currentTargetField}
+            onClick={() => {
               if (currentTargetField) {
-                setFunctionMappingModal({
+                setVisualFlowEditor({
                   open: true,
-                  selectedFunction: functionName,
                   targetField: currentTargetField
                 });
               }
             }}
-            trigger={
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="h-8"
-                disabled={!currentTargetField}
-              >
-                <Plus className="h-4 w-4 mr-1" />
-                Add Function
-              </Button>
-            }
-          />
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Open Flow Editor
+          </Button>
           <Button variant="outline" size="sm" className="h-8">
             <Settings className="h-4 w-4 mr-1" />
             Settings
           </Button>
         </div>
         <div className="text-sm text-muted-foreground">
-          {mappings.length} mapping(s) • Function-based mapping only
+          {mappings.length} mapping(s) • Visual flow mapping
         </div>
       </div>
 
@@ -105,24 +95,25 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="text-center max-w-md">
           <div className="text-lg font-semibold text-primary mb-2">
-            Function-Based Field Mapping
+            Visual Flow Field Mapping
           </div>
-          <div className="text-muted-foreground mb-6">
-            {currentTargetField 
-              ? `Select a function to map fields to "${currentTargetField.name}"`
-              : "Select a target field first, then choose a function to create mappings"
-            }
-          </div>
+           <div className="text-muted-foreground mb-6">
+             {currentTargetField 
+               ? `Open the visual flow editor to create a mapping to "${currentTargetField.name}"`
+               : "Select a target field first, then open the flow editor to create complex mappings"
+             }
+           </div>
           
           {!currentTargetField && (
             <div className="bg-muted/50 rounded-lg p-4 text-sm text-muted-foreground">
               <div className="font-medium mb-2">To create a mapping:</div>
               <ol className="text-left space-y-1">
                 <li>1. Select a target field from the right panel</li>
-                <li>2. Click "Add Function" to choose a transformation</li>
-                <li>3. Connect source fields to function parameters</li>
-                <li>4. Connect function output to target field</li>
-                <li>5. Apply the mapping</li>
+                <li>2. Click "Open Flow Editor" to start building</li>
+                <li>3. Add source fields, functions, constants as nodes</li>
+                <li>4. Connect nodes to create your transformation flow</li>
+                <li>5. Connect the final output to the target field</li>
+                <li>6. Save the flow</li>
               </ol>
             </div>
           )}
@@ -137,21 +128,19 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
                 <span className="text-muted-foreground ml-2">({currentTargetField.type})</span>
               </div>
               <div className="mt-3">
-                <FunctionPicker
-                  onFunctionSelect={(functionName, javaCode) => {
-                    setFunctionMappingModal({
+                <Button 
+                  size="sm" 
+                  className="bg-primary text-primary-foreground"
+                  onClick={() => {
+                    setVisualFlowEditor({
                       open: true,
-                      selectedFunction: functionName,
                       targetField: currentTargetField
                     });
                   }}
-                  trigger={
-                    <Button size="sm" className="bg-primary text-primary-foreground">
-                      <Plus className="h-4 w-4 mr-1" />
-                      Choose Function
-                    </Button>
-                  }
-                />
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Open Flow Editor
+                </Button>
               </div>
             </div>
           )}
@@ -162,7 +151,7 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
       <div className="absolute bottom-0 left-0 right-0 border-t bg-muted/30 p-2">
         <div className="flex justify-between items-center text-xs text-muted-foreground">
           <div>
-            Function-based mapping • Select target field and function to create mappings
+            Visual flow mapping • Select target field and open editor to create complex mappings
           </div>
           <div>
             {selectedSourceStructure && `Source: ${selectedSourceStructure}`}
@@ -170,19 +159,17 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
         </div>
       </div>
 
-      {/* Function Mapping Modal */}
-      {functionMappingModal.open && functionMappingModal.targetField && (
-        <FunctionMappingModal
-          open={functionMappingModal.open}
-          onClose={() => setFunctionMappingModal({
+      {/* Visual Flow Editor */}
+      {visualFlowEditor.open && visualFlowEditor.targetField && (
+        <VisualFlowEditor
+          open={visualFlowEditor.open}
+          onClose={() => setVisualFlowEditor({
             open: false,
-            selectedFunction: '',
             targetField: null
           })}
-          selectedFunction={functionMappingModal.selectedFunction}
           sourceFields={filteredSourceFields}
-          targetField={functionMappingModal.targetField}
-          onApplyMapping={handleApplyFunctionMapping}
+          targetField={visualFlowEditor.targetField}
+          onApplyMapping={handleApplyFlowMapping}
         />
       )}
     </div>
