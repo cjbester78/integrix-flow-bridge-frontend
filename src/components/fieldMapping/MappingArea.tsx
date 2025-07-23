@@ -116,6 +116,7 @@ export function MappingArea({
     console.log('🔥 handleOpenVisualFlowEditor called with mappingId:', mappingId);
     console.log('🔥 Available mappings:', mappings);
     console.log('🔥 Available targetFields:', targetFields);
+    console.log('🔥 Target fields names:', targetFields.map(f => f?.name));
     
     const existingMapping = mappings.find(m => m.id === mappingId);
     console.log('🔥 Found existing mapping:', existingMapping);
@@ -125,12 +126,30 @@ export function MappingArea({
       return;
     }
 
-    const targetField = targetFields.find(field => field.name === existingMapping.targetField);
+    const targetField = targetFields.find(field => field?.name === existingMapping.targetField);
     console.log('🔥 Looking for target field with name:', existingMapping.targetField);
     console.log('🔥 Found target field:', targetField);
     
     if (!targetField) {
-      console.log('❌ Target field not found');
+      console.log('❌ Target field not found, attempting to create a mock target field');
+      
+      // Create a mock target field if not found in the array
+      const mockTargetField: FieldNode = {
+        id: `target_${existingMapping.targetField}`,
+        name: existingMapping.targetField,
+        type: 'string', // Default type
+        path: existingMapping.targetPath || existingMapping.targetField,
+        children: [],
+        expanded: false
+      };
+      
+      console.log('🔥 Created mock target field:', mockTargetField);
+      
+      setVisualFlowEditor({
+        open: true,
+        targetField: mockTargetField,
+        existingMapping
+      });
       return;
     }
 
