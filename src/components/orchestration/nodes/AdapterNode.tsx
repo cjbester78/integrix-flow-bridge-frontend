@@ -42,6 +42,13 @@ export const AdapterNode: React.FC<AdapterNodeProps> = ({ id, data }) => {
   console.log('[AdapterNode] Rendering node:', { id, data });
   
   const [configOpen, setConfigOpen] = useState(false);
+  const [sourceBusinessComponent, setSourceBusinessComponent] = useState(data.adapterConfig?.sourceBusinessComponent || '');
+  const [targetBusinessComponent, setTargetBusinessComponent] = useState(data.adapterConfig?.targetBusinessComponent || '');
+  const [sourceAdapter, setSourceAdapter] = useState(data.adapterType);
+  const [targetAdapter, setTargetAdapter] = useState(data.adapterConfig?.targetAdapter || '');
+  const [sourceAdapterActive, setSourceAdapterActive] = useState(data.adapterConfig?.sourceAdapterActive || true);
+  const [targetAdapterActive, setTargetAdapterActive] = useState(data.adapterConfig?.targetAdapterActive || false);
+  
   const Icon = getAdapterIcon(data.adapterType);
   const adapterName = getAdapterName(data.adapterType);
   const isConfigured = data.adapterConfig && Object.keys(data.adapterConfig).length > 0;
@@ -137,29 +144,35 @@ export const AdapterNode: React.FC<AdapterNodeProps> = ({ id, data }) => {
                     icon: Icon,
                     category: data.adapterType.split('-')[0].toUpperCase()
                   }]}
-                  sourceBusinessComponent=""
-                  targetBusinessComponent=""
-                  sourceAdapter={data.adapterType}
-                  targetAdapter=""
-                  sourceAdapterActive={true}
-                  targetAdapterActive={false}
+                  sourceBusinessComponent={sourceBusinessComponent}
+                  targetBusinessComponent={targetBusinessComponent}
+                  sourceAdapter={sourceAdapter}
+                  targetAdapter={targetAdapter}
+                  sourceAdapterActive={sourceAdapterActive}
+                  targetAdapterActive={targetAdapterActive}
                   onSourceBusinessComponentChange={(value) => {
                     console.log('[AdapterNode] Source business component changed:', value);
+                    setSourceBusinessComponent(value);
                   }}
                   onTargetBusinessComponentChange={(value) => {
                     console.log('[AdapterNode] Target business component changed:', value);
+                    setTargetBusinessComponent(value);
                   }}
                   onSourceAdapterChange={(value) => {
                     console.log('[AdapterNode] Source adapter changed:', value);
+                    setSourceAdapter(value);
                   }}
                   onTargetAdapterChange={(value) => {
                     console.log('[AdapterNode] Target adapter changed:', value);
+                    setTargetAdapter(value);
                   }}
                   onSourceAdapterActiveChange={(active) => {
                     console.log('[AdapterNode] Source adapter active changed:', active);
+                    setSourceAdapterActive(active);
                   }}
                   onTargetAdapterActiveChange={(active) => {
                     console.log('[AdapterNode] Target adapter active changed:', active);
+                    setTargetAdapterActive(active);
                   }}
                 />
               );
