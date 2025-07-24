@@ -177,9 +177,9 @@ export function CreateDirectMappingFlow() {
         </div>
       </div>
 
-      <div className="container mx-auto p-6 max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <div className="lg:col-span-3 space-y-6">
+      <div className="p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
             {/* Flow Details */}
             <Card className="animate-scale-in">
               <CardHeader>
