@@ -81,10 +81,10 @@ export const TransformationNode: React.FC<TransformationNodeProps> = ({ id, data
         <CardHeader className="pb-0 p-1">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-0.5">
-              <Icon className="h-2 w-2 text-white" />
-              <CardTitle className="text-[10px] font-medium text-white truncate">{transformationName}</CardTitle>
+              <Icon className="h-1.5 w-1.5 text-white" />
+              <CardTitle className="text-[6px] font-medium text-white truncate">{transformationName}</CardTitle>
             </div>
-            <Badge variant={isConfigured ? "default" : "secondary"} className="text-[8px] px-1 py-0 bg-white text-black">
+            <Badge variant={isConfigured ? "default" : "secondary"} className="text-[6px] px-0.5 py-0 bg-white text-black">
               {isConfigured ? "✓" : "!"}
             </Badge>
           </div>
@@ -93,7 +93,7 @@ export const TransformationNode: React.FC<TransformationNodeProps> = ({ id, data
           <Button
             size="sm"
             variant="outline"
-            className="w-full text-[8px] h-4 px-1 bg-white text-black border-white hover:bg-gray-200"
+            className="w-full text-[6px] h-3 px-0.5 bg-white text-black border-white hover:bg-gray-200"
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
@@ -107,7 +107,7 @@ export const TransformationNode: React.FC<TransformationNodeProps> = ({ id, data
             }}
             onMouseDown={(e) => e.stopPropagation()}
           >
-            <Settings className="h-2 w-2 mr-0.5" />
+            <Settings className="h-1.5 w-1.5 mr-0.5" />
             Configure
           </Button>
         </CardContent>
