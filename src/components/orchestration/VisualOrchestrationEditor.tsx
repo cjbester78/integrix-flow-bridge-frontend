@@ -12,8 +12,11 @@ import {
   Node,
   MarkerType,
   BackgroundVariant,
+  useReactFlow,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+import { Button } from '@/components/ui/button';
+import { Trash2, Copy, RotateCcw } from 'lucide-react';
 
 // Import our custom node types and components
 import { AdapterNode } from './nodes/AdapterNode';
@@ -21,6 +24,7 @@ import { TransformationNode } from './nodes/TransformationNode';
 import { RoutingNode } from './nodes/RoutingNode';
 import { OrchestrationNodePalette } from './OrchestrationNodePalette';
 import { OrchestrationPropertiesPanel } from './OrchestrationPropertiesPanel';
+import { FlowControls } from './FlowControls';
 
 // Define comprehensive node types for all BPMN 2.0 orchestration components
 const nodeTypes = {
@@ -119,6 +123,11 @@ export function VisualOrchestrationEditor() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  
+  // Track selected nodes for deletion
+  const selectedNodes = useMemo(() => {
+    return nodes.filter(node => node.selected).map(node => node.id);
+  }, [nodes]);
 
   const onConnect = useCallback(
     (params: Connection) => {
@@ -179,6 +188,14 @@ export function VisualOrchestrationEditor() {
     });
   }, [setNodes]);
 
+  // Function to delete selected nodes
+  const deleteSelectedNodes = useCallback(() => {
+    setNodes((nds) => nds.filter((node) => !node.selected));
+    setEdges((eds) => eds.filter((edge) => 
+      !selectedNodes.includes(edge.source) && !selectedNodes.includes(edge.target)
+    ));
+  }, [selectedNodes, setNodes, setEdges]);
+
   // Calculate flow statistics
   const flowStats = useMemo(() => {
     const totalNodes = nodes.length;
@@ -230,6 +247,12 @@ export function VisualOrchestrationEditor() {
           <MiniMap />
           <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
         </ReactFlow>
+        
+        {/* Custom Flow Controls */}
+        <FlowControls 
+          selectedNodes={selectedNodes}
+          onDeleteNodes={deleteSelectedNodes}
+        />
       </div>
 
       {/* Right Sidebar - Properties and Status */}
