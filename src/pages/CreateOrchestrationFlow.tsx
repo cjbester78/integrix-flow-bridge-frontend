@@ -20,7 +20,7 @@ export function CreateOrchestrationFlow() {
   };
 
   const handleCancel = () => {
-    navigate(-1); // Go back to previous page
+    navigate('/create-flow');
   };
 
   return (
