@@ -170,10 +170,10 @@ export function VisualOrchestrationEditor() {
         transformationType: type,
         routingType: type,
         configured: false,
-        onConfigChange: (id: string, config: any) => {
-          console.log('[VisualOrchestrationEditor] Node config changed:', { id, config });
+        onConfigChange: (config: any) => {
+          console.log('[VisualOrchestrationEditor] Node config changed:', { nodeId, config });
           setNodes((nds) =>
-            nds.map((node) => (node.id === id ? { ...node, data: { ...node.data, ...config, configured: true } } : node))
+            nds.map((node) => (node.id === nodeId ? { ...node, data: { ...node.data, ...config, configured: true } } : node))
           );
         }
       },
