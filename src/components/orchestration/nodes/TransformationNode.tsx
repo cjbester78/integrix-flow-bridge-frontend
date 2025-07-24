@@ -10,7 +10,7 @@ import { FieldMappingScreen } from '@/components/FieldMappingScreen';
 interface TransformationNodeProps {
   id: string;
   data: {
-    transformationType: 'field-mapping' | 'custom-function' | 'filter' | 'enrichment';
+    transformationType: string;
     transformationConfig: any;
     showDeleteButton?: boolean;
     onConfigChange: (config: any) => void;
@@ -35,14 +35,84 @@ const getTransformationIcon = (type: string) => {
 
 const getTransformationName = (type: string) => {
   switch (type) {
+    // Mapping & Transformation
     case 'field-mapping':
       return 'Field Mapping';
+    case 'data-transformation':
+      return 'Data Transformation';
+    case 'format-conversion':
+      return 'Format Conversion';
+    case 'value-mapping':
+      return 'Value Mapping';
+    case 'structure-mapping':
+      return 'Structure Mapping';
+    case 'conditional-mapping':
+      return 'Conditional Mapping';
+    case 'aggregation':
+      return 'Aggregation';
+    case 'split-mapping':
+      return 'Split Mapping';
+    
+    // File Transformations
+    case 'csv-to-xml':
+      return 'CSV to XML';
+    case 'json-to-xml':
+      return 'JSON to XML';
+    case 'xml-to-json':
+      return 'XML to JSON';
+    case 'excel-to-csv':
+      return 'Excel to CSV';
+    case 'pdf-extractor':
+      return 'PDF Extractor';
+    case 'file-splitter':
+      return 'File Splitter';
+    case 'file-merger':
+      return 'File Merger';
+    case 'file-validator':
+      return 'File Validator';
+    
+    // Scripts & Functions
+    case 'javascript-script':
+      return 'JavaScript Script';
+    case 'groovy-script':
+      return 'Groovy Script';
+    case 'xslt-transformation':
+      return 'XSLT Transformation';
     case 'custom-function':
       return 'Custom Function';
+    case 'lookup-function':
+      return 'Lookup Function';
+    case 'calculation-function':
+      return 'Calculation Function';
+    case 'validation-function':
+      return 'Validation Function';
+    case 'enrichment-function':
+      return 'Enrichment Function';
+    
+    // BPMN Activities
+    case 'task':
+      return 'Task';
+    case 'service-task':
+      return 'Service Task';
+    case 'user-task':
+      return 'User Task';
+    case 'script-task':
+      return 'Script Task';
+    case 'manual-task':
+      return 'Manual Task';
+    case 'business-rule-task':
+      return 'Business Rule Task';
+    case 'receive-task':
+      return 'Receive Task';
+    case 'send-task':
+      return 'Send Task';
+    
+    // Legacy cases
     case 'filter':
       return 'Message Filter';
     case 'enrichment':
       return 'Data Enrichment';
+    
     default:
       return 'Transformation';
   }
