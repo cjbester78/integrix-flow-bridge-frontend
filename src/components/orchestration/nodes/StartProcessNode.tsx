@@ -94,37 +94,37 @@ export const StartProcessNode: React.FC<StartProcessNodeProps> = ({ id, data, se
 
   return (
     <>
-      <Card className="min-w-[83px] max-w-[168px] shadow-lg border-2 hover:border-primary/20 transition-colors bg-black text-white relative group">
+      <Card className="min-w-[200px] shadow-lg border-2 hover:border-primary/20 transition-colors bg-black text-white relative group">
         {/* Delete button - only visible on click */}
         {data.showDeleteButton && (
           <Button
             variant="ghost"
             size="sm"
             onClick={handleDelete}
-            className="absolute -top-1 -right-1 h-7 w-7 p-0 bg-destructive text-destructive-foreground opacity-100 transition-opacity rounded-full shadow-md hover:bg-destructive/80"
+            className="absolute -top-2 -right-2 h-6 w-6 p-0 bg-destructive text-destructive-foreground opacity-100 transition-opacity rounded-full shadow-md hover:bg-destructive/80"
             title="Delete start process"
           >
-            <X className="h-4 w-4" />
+            <X className="h-3 w-3" />
           </Button>
         )}
         
-        <CardHeader className="pb-0 p-3">
+        <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Play className="h-3 w-3 text-white" />
-              <CardTitle className="text-[12px] font-medium text-white truncate">Start Process</CardTitle>
+              <Play className="h-5 w-5 text-white" />
+              <CardTitle className="text-sm font-medium text-white">Start Process</CardTitle>
             </div>
-            <Badge variant={isConfigured ? "default" : "secondary"} className="text-[12px] px-2 py-0 bg-white text-black">
-              {isConfigured ? "✓" : "!"}
+            <Badge variant={isConfigured ? "default" : "secondary"} className="text-xs bg-white text-black">
+              {isConfigured ? "Configured" : "Setup Required"}
             </Badge>
           </div>
         </CardHeader>
         
-        <CardContent className="pt-0 p-3 flex justify-center">
+        <CardContent className="pt-0">
           <Button
             size="sm"
             variant="outline"
-            className="w-4/5 text-[8px] h-5 px-2 bg-gray-800 text-white border-gray-700 hover:bg-gray-700"
+            className="w-full bg-gray-800 text-white border-gray-700 hover:bg-gray-700"
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
@@ -132,8 +132,8 @@ export const StartProcessNode: React.FC<StartProcessNodeProps> = ({ id, data, se
             }}
             onMouseDown={(e) => e.stopPropagation()}
           >
-            <Settings size={8} className="mr-1" />
-            Config
+            <Settings className="h-4 w-4 mr-2" />
+            Configure
           </Button>
         </CardContent>
         
@@ -141,7 +141,7 @@ export const StartProcessNode: React.FC<StartProcessNodeProps> = ({ id, data, se
         <Handle
           type="source"
           position={Position.Right}
-          className="w-4 h-4 bg-green-500 border-1 border-white"
+          className="w-3 h-3 bg-green-500 border-2 border-white"
         />
       </Card>
 
