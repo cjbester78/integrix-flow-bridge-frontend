@@ -172,20 +172,46 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
 
   const onConnect = useCallback(
     (params: Connection) => {
-      const edge = {
-        ...params,
-        type: 'deletable',
-        animated: false, // Solid lines instead of animated
-        style: { 
-          stroke: 'hsl(var(--primary))', 
-          strokeWidth: 2 
-        },
-        markerEnd: {
-          type: MarkerType.ArrowClosed,
-          color: 'hsl(var(--primary))'
-        }
-      };
-      setEdges((eds) => addEdge(edge, eds));
+      // If connecting to target field, remove any existing connections to target
+      if (params.target === 'target') {
+        setEdges((eds) => {
+          // Remove existing edges to target
+          const filteredEdges = eds.filter(edge => edge.target !== 'target');
+          
+          // Add the new edge
+          const edge = {
+            ...params,
+            type: 'deletable',
+            animated: false,
+            style: { 
+              stroke: 'hsl(var(--primary))', 
+              strokeWidth: 2 
+            },
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+              color: 'hsl(var(--primary))'
+            }
+          };
+          
+          return addEdge(edge, filteredEdges);
+        });
+      } else {
+        // For non-target connections, just add normally
+        const edge = {
+          ...params,
+          type: 'deletable',
+          animated: false,
+          style: { 
+            stroke: 'hsl(var(--primary))', 
+            strokeWidth: 2 
+          },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            color: 'hsl(var(--primary))'
+          }
+        };
+        setEdges((eds) => addEdge(edge, eds));
+      }
     },
     [setEdges]
   );
