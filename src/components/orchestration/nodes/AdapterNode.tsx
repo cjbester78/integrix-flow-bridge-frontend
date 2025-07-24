@@ -74,36 +74,36 @@ export const AdapterNode: React.FC<AdapterNodeProps> = ({ id, data, selected }) 
 
   return (
     <>
-      <Card className="min-w-[64px] max-w-[129px] shadow-lg border-2 hover:border-primary/20 transition-colors bg-black text-white relative group">
+      <Card className="min-w-[83px] max-w-[168px] shadow-lg border-2 hover:border-primary/20 transition-colors bg-black text-white relative group">
         {/* Delete button - only visible on click */}
         {data.showDeleteButton && (
           <Button
             variant="ghost"
             size="sm"
             onClick={handleDelete}
-            className="absolute -top-1 -right-1 h-5 w-5 p-0 bg-destructive text-destructive-foreground opacity-100 transition-opacity rounded-full shadow-md hover:bg-destructive/80"
+            className="absolute -top-1 -right-1 h-7 w-7 p-0 bg-destructive text-destructive-foreground opacity-100 transition-opacity rounded-full shadow-md hover:bg-destructive/80"
             title="Delete adapter"
           >
-            <X className="h-3 w-3" />
+            <X className="h-4 w-4" />
           </Button>
         )}
         
-        <CardHeader className="pb-0 p-2">
+        <CardHeader className="pb-0 p-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5">
-              <Icon className="h-2.5 w-2.5 text-white" />
-              <CardTitle className="text-[9px] font-medium text-white truncate">{adapterName}</CardTitle>
+            <div className="flex items-center gap-2">
+              <Icon className="h-3 w-3 text-white" />
+              <CardTitle className="text-[12px] font-medium text-white truncate">{adapterName}</CardTitle>
             </div>
-            <Badge variant={isConfigured ? "default" : "secondary"} className="text-[9px] px-1.5 py-0 bg-white text-black">
+            <Badge variant={isConfigured ? "default" : "secondary"} className="text-[12px] px-2 py-0 bg-white text-black">
               {isConfigured ? "✓" : "!"}
             </Badge>
           </div>
         </CardHeader>
-        <CardContent className="pt-0 p-2">
+        <CardContent className="pt-0 p-3">
           <Button
             size="sm"
             variant="outline"
-            className="w-3/5 text-[5px] h-3 px-1 bg-white text-black border-white hover:bg-gray-200"
+            className="w-3/5 text-[7px] h-4 px-2 bg-white text-black border-white hover:bg-gray-200"
             onClick={(e) => {
               console.log('[AdapterNode] Configure button clicked:', { id, adapterType: data.adapterType });
               e.stopPropagation();
@@ -120,7 +120,7 @@ export const AdapterNode: React.FC<AdapterNodeProps> = ({ id, data, selected }) 
               e.stopPropagation();
             }}
           >
-            <Settings size={8} className="mr-0.5" />
+            <Settings size={10} className="mr-0.5" />
             Config
           </Button>
         </CardContent>
@@ -129,12 +129,12 @@ export const AdapterNode: React.FC<AdapterNodeProps> = ({ id, data, selected }) 
         <Handle
           type="target"
           position={Position.Left}
-          className="w-3 h-3 bg-blue-500 border-1 border-white"
+          className="w-4 h-4 bg-blue-500 border-1 border-white"
         />
         <Handle
           type="source"
           position={Position.Right}
-          className="w-3 h-3 bg-green-500 border-1 border-white"
+          className="w-4 h-4 bg-green-500 border-1 border-white"
         />
       </Card>
 
