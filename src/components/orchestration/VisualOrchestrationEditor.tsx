@@ -245,21 +245,6 @@ export function VisualOrchestrationEditor() {
           <MiniMap />
           <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
         </ReactFlow>
-        
-        {/* Simple Delete Button */}
-        {selectedNodes.length > 0 && (
-          <div className="absolute top-4 left-4 z-10">
-            <Button
-              size="sm"
-              variant="destructive"
-              onClick={deleteSelectedNodes}
-              className="flex items-center gap-2"
-            >
-              <Trash2 className="h-4 w-4" />
-              Delete ({selectedNodes.length})
-            </Button>
-          </div>
-        )}
       </div>
 
       {/* Right Sidebar - Properties and Status */}
