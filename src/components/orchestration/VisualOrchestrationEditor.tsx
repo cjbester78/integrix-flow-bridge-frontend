@@ -19,6 +19,7 @@ import { Trash2 } from 'lucide-react';
 
 // Import our custom node types and components
 import { AdapterNode } from './nodes/AdapterNode';
+import { StartProcessNode } from './nodes/StartProcessNode';
 import { TransformationNode } from './nodes/TransformationNode';
 import { RoutingNode } from './nodes/RoutingNode';
 import { OrchestrationNodePalette } from './OrchestrationNodePalette';
@@ -27,7 +28,7 @@ import { OrchestrationPropertiesPanel } from './OrchestrationPropertiesPanel';
 // Define comprehensive node types for all BPMN 2.0 orchestration components
 const nodeTypes = {
   // BPMN Events
-  'start-process': AdapterNode,
+  'start-process': StartProcessNode,
   'end-process': AdapterNode,
   'start-event': AdapterNode,
   'end-event': AdapterNode,
