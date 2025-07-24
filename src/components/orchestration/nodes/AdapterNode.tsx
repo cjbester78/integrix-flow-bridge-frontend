@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Settings, Globe, Inbox, Workflow, RefreshCw, X } from 'lucide-react';
+import { Settings, Globe, Inbox, Workflow, RefreshCw, X, Play } from 'lucide-react';
 import { AdapterConfigurationCard } from '@/components/createFlow/AdapterConfigurationCard';
 
 interface AdapterNodeProps {
@@ -12,6 +12,7 @@ interface AdapterNodeProps {
   data: {
     adapterType: string;
     adapterConfig: any;
+    showDeleteButton?: boolean;
     onConfigChange: (config: any) => void;
   };
   selected?: boolean;
@@ -19,6 +20,8 @@ interface AdapterNodeProps {
 
 const getAdapterIcon = (type: string) => {
   switch (type) {
+    case 'start-process':
+      return Play;
     case 'http-sender':
     case 'http-receiver':
       return Globe;
@@ -34,6 +37,7 @@ const getAdapterIcon = (type: string) => {
 };
 
 const getAdapterName = (type: string) => {
+  if (type === 'start-process') return 'Start Process';
   return type.split('-').map(word => 
     word.charAt(0).toUpperCase() + word.slice(1)
   ).join(' ');
@@ -70,36 +74,36 @@ export const AdapterNode: React.FC<AdapterNodeProps> = ({ id, data, selected }) 
 
   return (
     <>
-      <Card className="min-w-[200px] shadow-lg border-2 hover:border-primary/20 transition-colors relative group">
-        {/* Delete button - only visible when selected */}
-        {selected && (
+      <Card className="min-w-[64px] max-w-[129px] shadow-lg border-2 hover:border-primary/20 transition-colors bg-black text-white relative group">
+        {/* Delete button - only visible on click */}
+        {data.showDeleteButton && (
           <Button
             variant="ghost"
             size="sm"
             onClick={handleDelete}
-            className="absolute -top-2 -right-2 h-6 w-6 p-0 bg-destructive text-destructive-foreground opacity-100 transition-opacity rounded-full shadow-md hover:bg-destructive/80"
+            className="absolute -top-1 -right-1 h-5 w-5 p-0 bg-destructive text-destructive-foreground opacity-100 transition-opacity rounded-full shadow-md hover:bg-destructive/80"
             title="Delete adapter"
           >
             <X className="h-3 w-3" />
           </Button>
         )}
         
-        <CardHeader className="pb-2">
+        <CardHeader className="pb-0 p-2">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Icon className="h-5 w-5 text-primary" />
-              <CardTitle className="text-sm font-medium">{adapterName}</CardTitle>
+            <div className="flex items-center gap-1.5">
+              <Icon className="h-2.5 w-2.5 text-white" />
+              <CardTitle className="text-[9px] font-medium text-white truncate">{adapterName}</CardTitle>
             </div>
-            <Badge variant={isConfigured ? "default" : "secondary"} className="text-xs">
-              {isConfigured ? "Configured" : "Setup Required"}
+            <Badge variant={isConfigured ? "default" : "secondary"} className="text-[9px] px-1.5 py-0 bg-white text-black">
+              {isConfigured ? "✓" : "!"}
             </Badge>
           </div>
         </CardHeader>
-        <CardContent className="pt-0">
+        <CardContent className="pt-0 p-2">
           <Button
             size="sm"
             variant="outline"
-            className="w-full"
+            className="w-3/5 text-[5px] h-3 px-1 bg-white text-black border-white hover:bg-gray-200"
             onClick={(e) => {
               console.log('[AdapterNode] Configure button clicked:', { id, adapterType: data.adapterType });
               e.stopPropagation();
@@ -116,8 +120,8 @@ export const AdapterNode: React.FC<AdapterNodeProps> = ({ id, data, selected }) 
               e.stopPropagation();
             }}
           >
-            <Settings className="h-4 w-4 mr-2" />
-            Configure
+            <Settings size={8} className="mr-0.5" />
+            Config
           </Button>
         </CardContent>
         
@@ -125,12 +129,12 @@ export const AdapterNode: React.FC<AdapterNodeProps> = ({ id, data, selected }) 
         <Handle
           type="target"
           position={Position.Left}
-          className="w-3 h-3 bg-blue-500 border-2 border-white"
+          className="w-3 h-3 bg-blue-500 border-1 border-white"
         />
         <Handle
           type="source"
           position={Position.Right}
-          className="w-3 h-3 bg-green-500 border-2 border-white"
+          className="w-3 h-3 bg-green-500 border-1 border-white"
         />
       </Card>
 

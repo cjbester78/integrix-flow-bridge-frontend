@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Handle, Position, useReactFlow } from '@xyflow/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -13,6 +14,7 @@ interface RoutingNodeProps {
   data: {
     routingType?: string;
     conditions?: Array<{ field: string; operator: string; value: string; route: string }>;
+    showDeleteButton?: boolean;
     onConfigChange?: (id: string, config: any) => void;
   };
   selected?: boolean;
@@ -50,62 +52,60 @@ export const RoutingNode: React.FC<RoutingNodeProps> = ({ id, data, selected }) 
 
   return (
     <>
-      <Card className="min-w-[200px] shadow-sm relative group">
-        {/* Delete button - only visible when selected */}
-        {selected && (
+      <Card className="min-w-[64px] max-w-[129px] shadow-lg border-2 hover:border-primary/20 transition-colors bg-black text-white relative group">
+        {/* Delete button - only visible on click */}
+        {data.showDeleteButton && (
           <Button
             variant="ghost"
             size="sm"
             onClick={handleDelete}
-            className="absolute -top-2 -right-2 h-6 w-6 p-0 bg-destructive text-destructive-foreground opacity-100 transition-opacity rounded-full shadow-md hover:bg-destructive/80"
+            className="absolute -top-1 -right-1 h-5 w-5 p-0 bg-destructive text-destructive-foreground opacity-100 transition-opacity rounded-full shadow-md hover:bg-destructive/80"
             title="Delete routing node"
           >
             <X className="h-3 w-3" />
           </Button>
         )}
 
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm flex items-center gap-2">
-            <Route className="h-4 w-4 text-orange-500" />
-            Routing Logic
-          </CardTitle>
+        <CardHeader className="pb-0 p-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <Route className="h-2.5 w-2.5 text-white" />
+              <CardTitle className="text-[9px] font-medium text-white truncate">Routing Logic</CardTitle>
+            </div>
+            <Badge variant="secondary" className="text-[9px] px-1.5 py-0 bg-white text-black">
+              {(data.conditions && data.conditions.length > 0) ? "✓" : "!"}
+            </Badge>
+          </div>
         </CardHeader>
         
-        <CardContent className="space-y-2">
-          <div className="text-xs text-muted-foreground">
-            Type: {routingType || 'Not configured'}
-          </div>
-          <div className="text-xs text-muted-foreground">
-            Conditions: {conditions.length}
-          </div>
-          
+        <CardContent className="pt-0 p-2">
           <Button
             variant="outline"
             size="sm"
+            className="w-3/5 text-[5px] h-3 px-1 bg-white text-black border-white hover:bg-gray-200"
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
               setConfigOpen(true);
             }}
             onMouseDown={(e) => e.stopPropagation()}
-            className="w-full"
           >
-            <Settings className="h-3 w-3 mr-1" />
-            Configure
+            <Settings size={8} className="mr-0.5" />
+            Config
           </Button>
         </CardContent>
 
         <Handle
           type="target"
           position={Position.Left}
-          className="w-3 h-3 bg-orange-500 border-2 border-white"
+          className="w-3 h-3 bg-orange-500 border-1 border-white"
         />
         
         <Handle
           type="source"
           position={Position.Right}
           id="default"
-          className="w-3 h-3 bg-orange-500 border-2 border-white"
+          className="w-3 h-3 bg-orange-500 border-1 border-white"
           style={{ top: '30%' }}
         />
         
@@ -113,7 +113,7 @@ export const RoutingNode: React.FC<RoutingNodeProps> = ({ id, data, selected }) 
           type="source"
           position={Position.Right}
           id="route1"
-          className="w-3 h-3 bg-orange-500 border-2 border-white"
+          className="w-3 h-3 bg-orange-500 border-1 border-white"
           style={{ top: '50%' }}
         />
         
@@ -121,7 +121,7 @@ export const RoutingNode: React.FC<RoutingNodeProps> = ({ id, data, selected }) 
           type="source"
           position={Position.Right}
           id="route2"
-          className="w-3 h-3 bg-orange-500 border-2 border-white"
+          className="w-3 h-3 bg-orange-500 border-1 border-white"
           style={{ top: '70%' }}
         />
       </Card>
