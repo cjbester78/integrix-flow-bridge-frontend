@@ -49,6 +49,7 @@ const getTransformationName = (type: string) => {
 
 export const TransformationNode: React.FC<TransformationNodeProps> = ({ id, data, selected }) => {
   const [configOpen, setConfigOpen] = useState(false);
+  const [showDelete, setShowDelete] = useState(false);
   const { setNodes, setEdges } = useReactFlow();
   const Icon = getTransformationIcon(data.transformationType);
   const transformationName = getTransformationName(data.transformationType);
@@ -57,13 +58,23 @@ export const TransformationNode: React.FC<TransformationNodeProps> = ({ id, data
   const handleDelete = () => {
     setNodes((nodes) => nodes.filter((node) => node.id !== id));
     setEdges((edges) => edges.filter((edge) => edge.source !== id && edge.target !== id));
+    setShowDelete(false);
+  };
+
+  const handleDoubleClick = () => {
+    setShowDelete(true);
+    // Hide delete button after 3 seconds
+    setTimeout(() => setShowDelete(false), 3000);
   };
 
   return (
     <>
-      <Card className="min-w-[180px] shadow-lg border-2 hover:border-primary/20 transition-colors bg-purple-50 dark:bg-purple-950/20 relative group">
-        {/* Delete button - only visible when selected */}
-        {selected && (
+      <Card 
+        className="min-w-[180px] shadow-lg border-2 hover:border-primary/20 transition-colors bg-purple-50 dark:bg-purple-950/20 relative group"
+        onDoubleClick={handleDoubleClick}
+      >
+        {/* Delete button - only visible on double-click */}
+        {showDelete && (
           <Button
             variant="ghost"
             size="sm"
