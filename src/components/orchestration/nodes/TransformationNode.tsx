@@ -93,7 +93,7 @@ export const TransformationNode: React.FC<TransformationNodeProps> = ({ id, data
           <Button
             size="sm"
             variant="outline"
-            className="w-3/5 text-[7px] h-4 px-2 bg-white text-black border-white hover:bg-gray-200"
+            className="w-3/5 text-[7px] h-4 px-2 bg-gray-800 text-white border-gray-700 hover:bg-gray-700"
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
