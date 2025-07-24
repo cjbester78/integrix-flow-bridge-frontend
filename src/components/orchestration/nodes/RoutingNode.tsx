@@ -78,7 +78,12 @@ export const RoutingNode: React.FC<RoutingNodeProps> = ({ id, data }) => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setConfigOpen(true)}
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              setConfigOpen(true);
+            }}
+            onMouseDown={(e) => e.stopPropagation()}
             className="w-full"
           >
             <Settings className="h-3 w-3 mr-1" />

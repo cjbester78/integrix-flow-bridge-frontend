@@ -71,7 +71,12 @@ export const TransformationNode: React.FC<TransformationNodeProps> = ({ id, data
             size="sm"
             variant="outline"
             className="w-full"
-            onClick={() => setConfigOpen(true)}
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              setConfigOpen(true);
+            }}
+            onMouseDown={(e) => e.stopPropagation()}
           >
             <Settings className="h-4 w-4 mr-2" />
             Configure
