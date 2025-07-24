@@ -107,7 +107,7 @@ export const TransformationNode: React.FC<TransformationNodeProps> = ({ id, data
             }}
             onMouseDown={(e) => e.stopPropagation()}
           >
-            <Settings className="h-1 w-1 mr-0.5" />
+            <Settings className="h-0.5 w-0.5 mr-0.5" />
             Config
           </Button>
         </CardContent>
