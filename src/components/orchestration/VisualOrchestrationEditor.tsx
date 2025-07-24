@@ -222,9 +222,11 @@ export function VisualOrchestrationEditor() {
           onNodeClick={onNodeClick}
           nodeTypes={nodeTypes}
           fitView
+          deleteKeyCode="Delete"
+          multiSelectionKeyCode="Control"
           className="bg-background"
         >
-          <Controls />
+          <Controls showInteractive={false} />
           <MiniMap />
           <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
         </ReactFlow>
