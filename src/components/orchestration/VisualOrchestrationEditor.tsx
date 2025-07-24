@@ -123,6 +123,7 @@ export function VisualOrchestrationEditor() {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [nodeWithDeleteButton, setNodeWithDeleteButton] = useState<string | null>(null);
+  const [clickTimeout, setClickTimeout] = useState<NodeJS.Timeout | null>(null);
   
   // Track selected nodes for deletion
   const selectedNodes = useMemo(() => {
@@ -150,16 +151,35 @@ export function VisualOrchestrationEditor() {
   );
 
   const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
-    console.log('[VisualOrchestrationEditor] Node clicked:', { nodeId: node.id, nodeType: node.type, nodeData: node.data });
-    setSelectedNode(node);
-  }, []);
+    // Clear any existing timeout to prevent single click when double-clicking
+    if (clickTimeout) {
+      clearTimeout(clickTimeout);
+      setClickTimeout(null);
+      return; // This was the first click of a double-click, so ignore it
+    }
+
+    // Set a timeout for single click handling
+    const timeout = setTimeout(() => {
+      console.log('[VisualOrchestrationEditor] Node single-clicked:', { nodeId: node.id, nodeType: node.type });
+      setSelectedNode(node);
+      setClickTimeout(null);
+    }, 200); // 200ms delay to detect double-click
+
+    setClickTimeout(timeout);
+  }, [clickTimeout]);
 
   const onNodeDoubleClick = useCallback((event: React.MouseEvent, node: Node) => {
+    // Clear the single-click timeout since this is a double-click
+    if (clickTimeout) {
+      clearTimeout(clickTimeout);
+      setClickTimeout(null);
+    }
+    
     console.log('[VisualOrchestrationEditor] Node double-clicked:', { nodeId: node.id, nodeType: node.type });
     setNodeWithDeleteButton(node.id);
     // Hide delete button after 3 seconds
     setTimeout(() => setNodeWithDeleteButton(null), 3000);
-  }, []);
+  }, [clickTimeout]);
 
   // Function to add a new node based on type and category
   const addNode = useCallback((type: string, category: string) => {
