@@ -1,137 +1,222 @@
 import React, { useState } from 'react';
-import { Handle, Position } from '@xyflow/react';
-import { Button } from '@/components/ui/button';
+import { Handle, Position, useReactFlow } from '@xyflow/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { Settings, GitBranch } from 'lucide-react';
+import { Route, Settings, X } from 'lucide-react';
 
 interface RoutingNodeProps {
   id: string;
   data: {
-    routingConfig: {
-      condition?: string;
-      routes?: Array<{ id: string; condition: string; target: string }>;
-    };
-    onConfigChange: (config: any) => void;
+    routingType?: string;
+    conditions?: Array<{ field: string; operator: string; value: string; route: string }>;
+    onConfigChange?: (id: string, config: any) => void;
   };
 }
 
 export const RoutingNode: React.FC<RoutingNodeProps> = ({ id, data }) => {
   const [configOpen, setConfigOpen] = useState(false);
-  const [condition, setCondition] = useState(data.routingConfig?.condition || '');
-  const isConfigured = data.routingConfig && data.routingConfig.condition;
+  const [routingType, setRoutingType] = useState(data.routingType || 'conditional');
+  const [conditions, setConditions] = useState(data.conditions || []);
+  const { setNodes, setEdges } = useReactFlow();
 
-  const handleSave = () => {
-    data.onConfigChange({
-      condition,
-      routes: [
-        { id: 'route-a', condition: condition, target: 'path-a' },
-        { id: 'route-b', condition: `!(${condition})`, target: 'path-b' }
-      ]
-    });
+  const handleDelete = () => {
+    setNodes((nodes) => nodes.filter((node) => node.id !== id));
+    setEdges((edges) => edges.filter((edge) => edge.source !== id && edge.target !== id));
+  };
+
+  const addCondition = () => {
+    setConditions([...conditions, { field: '', operator: 'equals', value: '', route: '' }]);
+  };
+
+  const updateCondition = (index: number, field: string, value: string) => {
+    const newConditions = [...conditions];
+    newConditions[index] = { ...newConditions[index], [field]: value };
+    setConditions(newConditions);
+  };
+
+  const removeCondition = (index: number) => {
+    setConditions(conditions.filter((_, i) => i !== index));
+  };
+
+  const saveConfig = () => {
+    data.onConfigChange?.(id, { routingType, conditions });
     setConfigOpen(false);
   };
 
   return (
     <>
-      <Card className="min-w-[180px] shadow-lg border-2 hover:border-primary/20 transition-colors bg-orange-50 dark:bg-orange-950/20">
+      <Card className="min-w-[200px] shadow-sm relative group">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleDelete}
+          className="absolute -top-2 -right-2 h-6 w-6 p-0 bg-destructive text-destructive-foreground opacity-0 group-hover:opacity-100 transition-opacity rounded-full shadow-md hover:bg-destructive/80"
+          title="Delete routing node"
+        >
+          <X className="h-3 w-3" />
+        </Button>
+
         <CardHeader className="pb-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <GitBranch className="h-5 w-5 text-orange-600" />
-              <CardTitle className="text-sm font-medium">Message Router</CardTitle>
-            </div>
-            <Badge variant={isConfigured ? "default" : "secondary"} className="text-xs">
-              {isConfigured ? "Configured" : "Setup Required"}
-            </Badge>
-          </div>
+          <CardTitle className="text-sm flex items-center gap-2">
+            <Route className="h-4 w-4 text-orange-500" />
+            Routing Logic
+          </CardTitle>
         </CardHeader>
-        <CardContent className="pt-0">
+        
+        <CardContent className="space-y-2">
+          <div className="text-xs text-muted-foreground">
+            Type: {routingType || 'Not configured'}
+          </div>
+          <div className="text-xs text-muted-foreground">
+            Conditions: {conditions.length}
+          </div>
+          
           <Button
-            size="sm"
             variant="outline"
-            className="w-full"
+            size="sm"
             onClick={() => setConfigOpen(true)}
+            className="w-full"
           >
-            <Settings className="h-4 w-4 mr-2" />
+            <Settings className="h-3 w-3 mr-1" />
             Configure
           </Button>
         </CardContent>
-        
-        {/* Connection handles */}
+
         <Handle
           type="target"
           position={Position.Left}
           className="w-3 h-3 bg-orange-500 border-2 border-white"
         />
+        
         <Handle
           type="source"
           position={Position.Right}
-          id="route-a"
-          style={{ top: '40%' }}
-          className="w-3 h-3 bg-green-500 border-2 border-white"
+          id="default"
+          className="w-3 h-3 bg-orange-500 border-2 border-white"
+          style={{ top: '30%' }}
         />
+        
         <Handle
           type="source"
           position={Position.Right}
-          id="route-b"
-          style={{ top: '60%' }}
-          className="w-3 h-3 bg-red-500 border-2 border-white"
+          id="route1"
+          className="w-3 h-3 bg-orange-500 border-2 border-white"
+          style={{ top: '50%' }}
+        />
+        
+        <Handle
+          type="source"
+          position={Position.Right}
+          id="route2"
+          className="w-3 h-3 bg-orange-500 border-2 border-white"
+          style={{ top: '70%' }}
         />
       </Card>
 
-      {/* Configuration Dialog */}
       <Dialog open={configOpen} onOpenChange={setConfigOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Configure Message Routing</DialogTitle>
+            <DialogTitle>Configure Routing Logic</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 mt-4">
-            <div>
-              <Label htmlFor="routing-condition">Routing Condition</Label>
-              <Textarea
-                id="routing-condition"
-                placeholder="e.g., message.type === 'order' && message.amount > 1000"
-                value={condition}
-                onChange={(e) => setCondition(e.target.value)}
-                className="mt-1"
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                JavaScript expression to evaluate message routing
-              </p>
+          
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="routingType">Routing Type</Label>
+              <Select value={routingType} onValueChange={setRoutingType}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select routing type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="conditional">Conditional Routing</SelectItem>
+                  <SelectItem value="content-based">Content-Based Routing</SelectItem>
+                  <SelectItem value="load-balance">Load Balancing</SelectItem>
+                  <SelectItem value="round-robin">Round Robin</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-3 border rounded-lg bg-green-50 dark:bg-green-950/20">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span className="text-sm font-medium">Route A (True)</span>
+
+            {routingType === 'conditional' && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label>Routing Conditions</Label>
+                  <Button onClick={addCondition} size="sm" variant="outline">
+                    Add Condition
+                  </Button>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Messages matching the condition
-                </p>
+                
+                {conditions.map((condition, index) => (
+                  <div key={index} className="grid grid-cols-5 gap-2 items-end">
+                    <div>
+                      <Label className="text-xs">Field</Label>
+                      <Input
+                        placeholder="Field name"
+                        value={condition.field}
+                        onChange={(e) => updateCondition(index, 'field', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Operator</Label>
+                      <Select
+                        value={condition.operator}
+                        onValueChange={(value) => updateCondition(index, 'operator', value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="equals">Equals</SelectItem>
+                          <SelectItem value="contains">Contains</SelectItem>
+                          <SelectItem value="starts-with">Starts With</SelectItem>
+                          <SelectItem value="greater-than">Greater Than</SelectItem>
+                          <SelectItem value="less-than">Less Than</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-xs">Value</Label>
+                      <Input
+                        placeholder="Condition value"
+                        value={condition.value}
+                        onChange={(e) => updateCondition(index, 'value', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Route</Label>
+                      <Select
+                        value={condition.route}
+                        onValueChange={(value) => updateCondition(index, 'route', value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="default">Default</SelectItem>
+                          <SelectItem value="route1">Route 1</SelectItem>
+                          <SelectItem value="route2">Route 2</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeCondition(index)}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
               </div>
-              
-              <div className="p-3 border rounded-lg bg-red-50 dark:bg-red-950/20">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                  <span className="text-sm font-medium">Route B (False)</span>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Messages not matching the condition
-                </p>
-              </div>
-            </div>
+            )}
             
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end space-x-2 pt-4">
               <Button variant="outline" onClick={() => setConfigOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleSave}>
+              <Button onClick={saveConfig}>
                 Save Configuration
               </Button>
             </div>

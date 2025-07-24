@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   ReactFlow,
   addEdge,
@@ -10,140 +10,59 @@ import {
   Connection,
   Edge,
   Node,
-  Panel,
+  MarkerType,
+  BackgroundVariant,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Plus, 
-  Play, 
-  Save, 
-  Settings, 
-  MessageSquare, 
-  GitBranch, 
-  Database,
-  Workflow,
-  AlertTriangle,
-  CheckCircle,
-  Globe,
-  ArrowRightLeft,
-  Filter
-} from 'lucide-react';
 
-// Import our custom node types
+// Import our custom node types and components
 import { AdapterNode } from './nodes/AdapterNode';
 import { TransformationNode } from './nodes/TransformationNode';
 import { RoutingNode } from './nodes/RoutingNode';
+import { OrchestrationNodePalette } from './OrchestrationNodePalette';
+import { OrchestrationPropertiesPanel } from './OrchestrationPropertiesPanel';
 
-// Define custom node types that wrap existing components
+// Define comprehensive node types for all orchestration components
 const nodeTypes = {
+  // Base types
   adapter: AdapterNode,
   transformation: TransformationNode,
   routing: RoutingNode,
+  
+  // Endpoints
+  'http-receiver': AdapterNode,
+  'http-sender': AdapterNode,
+  'ftp-adapter': AdapterNode,
+  'database-adapter': AdapterNode,
+  'mail-adapter': AdapterNode,
+  
+  // Routing & Logic
+  'content-router': RoutingNode,
+  'message-filter': TransformationNode,
+  'splitter': RoutingNode,
+  'aggregator': RoutingNode,
+  'conditional': RoutingNode,
+  
+  // Transformation
+  'data-mapper': TransformationNode,
+  'enricher': TransformationNode,
+  'translator': TransformationNode,
+  'validator': TransformationNode,
+  
+  // Control Flow
+  'delay': TransformationNode,
+  'retry': TransformationNode,
+  'stop': AdapterNode,
+  'start': AdapterNode,
+  
+  // Error Handling
+  'error-handler': TransformationNode,
+  'dead-letter': AdapterNode,
+  'circuit-breaker': TransformationNode,
 };
-// Sample orchestration flow using reusable components
-const initialNodes: Node[] = [
-  {
-    id: 'start',
-    type: 'input',
-    position: { x: 50, y: 100 },
-    data: { 
-      label: (
-        <div className="flex items-center gap-2">
-          <Play className="h-4 w-4 text-green-500" />
-          <span>Start Process</span>
-        </div>
-      )
-    },
-    deletable: false,
-  },
-  {
-    id: 'http-receiver',
-    type: 'adapter',
-    position: { x: 250, y: 100 },
-    data: {
-      adapterType: 'http-receiver',
-      adapterConfig: {},
-      onConfigChange: (config: any) => console.log('HTTP Receiver config:', config)
-    },
-  },
-  {
-    id: 'message-router',
-    type: 'routing',
-    position: { x: 500, y: 100 },
-    data: {
-      routingConfig: {},
-      onConfigChange: (config: any) => console.log('Router config:', config)
-    },
-  },
-  {
-    id: 'field-mapping-a',
-    type: 'transformation',
-    position: { x: 750, y: 50 },
-    data: {
-      transformationType: 'field-mapping' as const,
-      transformationConfig: {},
-      onConfigChange: (config: any) => console.log('Transform A config:', config)
-    },
-  },
-  {
-    id: 'field-mapping-b',
-    type: 'transformation',
-    position: { x: 750, y: 200 },
-    data: {
-      transformationType: 'field-mapping' as const,
-      transformationConfig: {},
-      onConfigChange: (config: any) => console.log('Transform B config:', config)
-    },
-  },
-  {
-    id: 'soap-sender',
-    type: 'adapter',
-    position: { x: 1000, y: 50 },
-    data: {
-      adapterType: 'soap-sender',
-      adapterConfig: {},
-      onConfigChange: (config: any) => console.log('SOAP Sender config:', config)
-    },
-  },
-  {
-    id: 'rest-sender',
-    type: 'adapter',
-    position: { x: 1000, y: 200 },
-    data: {
-      adapterType: 'rest-sender',
-      adapterConfig: {},
-      onConfigChange: (config: any) => console.log('REST Sender config:', config)
-    },
-  },
-  {
-    id: 'end',
-    type: 'output',
-    position: { x: 1250, y: 100 },
-    data: { 
-      label: (
-        <div className="flex items-center gap-2">
-          <CheckCircle className="h-4 w-4 text-green-500" />
-          <span>End Process</span>
-        </div>
-      )
-    },
-    deletable: false,
-  },
-];
-
-const initialEdges: Edge[] = [
-  { id: 'e1-2', source: 'start', target: 'http-receiver', animated: true },
-  { id: 'e2-3', source: 'http-receiver', target: 'message-router', animated: true },
-  { id: 'e3-4a', source: 'message-router', sourceHandle: 'route-a', target: 'field-mapping-a', label: 'Path A' },
-  { id: 'e3-4b', source: 'message-router', sourceHandle: 'route-b', target: 'field-mapping-b', label: 'Path B' },
-  { id: 'e4a-5', source: 'field-mapping-a', target: 'soap-sender' },
-  { id: 'e4b-5', source: 'field-mapping-b', target: 'rest-sender' },
-  { id: 'e5a-6', source: 'soap-sender', target: 'end' },
-  { id: 'e5b-6', source: 'rest-sender', target: 'end' },
-];
+// Initial empty state for new orchestration flow
+const initialNodes: Node[] = [];
+const initialEdges: Edge[] = [];
 
 export function VisualOrchestrationEditor() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -151,7 +70,22 @@ export function VisualOrchestrationEditor() {
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
 
   const onConnect = useCallback(
-    (params: Connection) => setEdges((eds) => addEdge(params, eds)),
+    (params: Connection) => {
+      const edge = {
+        ...params,
+        type: 'smoothstep',
+        animated: true,
+        style: { 
+          stroke: 'hsl(var(--primary))', 
+          strokeWidth: 2 
+        },
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          color: 'hsl(var(--primary))'
+        }
+      };
+      setEdges((eds) => addEdge(edge, eds));
+    },
     [setEdges]
   );
 
@@ -159,209 +93,88 @@ export function VisualOrchestrationEditor() {
     setSelectedNode(node);
   }, []);
 
-  const addAdapter = (adapterType: string) => {
+  // Function to add a new node based on type and category
+  const addNode = useCallback((type: string, category: string) => {
+    const nodeId = `${type}-${Date.now()}`;
     const newNode: Node = {
-      id: `${adapterType}-${Date.now()}`,
-      type: 'adapter',
-      position: { x: Math.random() * 400 + 100, y: Math.random() * 400 + 100 },
-      data: {
-        adapterType,
-        adapterConfig: {},
-        onConfigChange: (config: any) => console.log(`${adapterType} config:`, config)
+      id: nodeId,
+      type: type,
+      position: { 
+        x: Math.random() * 400 + 200, 
+        y: Math.random() * 300 + 150 
+      },
+      data: { 
+        adapterType: type,
+        transformationType: type,
+        routingType: type,
+        configured: false,
+        onConfigChange: (id: string, config: any) => {
+          setNodes((nds) =>
+            nds.map((node) => (node.id === id ? { ...node, data: { ...node.data, ...config, configured: true } } : node))
+          );
+        }
       },
     };
-    setNodes((nds) => [...nds, newNode]);
-  };
+    setNodes((nds) => nds.concat(newNode));
+  }, [setNodes]);
 
-  const addTransformation = (transformationType: 'field-mapping' | 'custom-function' | 'filter' | 'enrichment') => {
-    const newNode: Node = {
-      id: `${transformationType}-${Date.now()}`,
-      type: 'transformation',
-      position: { x: Math.random() * 400 + 100, y: Math.random() * 400 + 100 },
-      data: {
-        transformationType,
-        transformationConfig: {},
-        onConfigChange: (config: any) => console.log(`${transformationType} config:`, config)
-      },
+  // Calculate flow statistics
+  const flowStats = useMemo(() => {
+    const totalNodes = nodes.length;
+    const totalConnections = edges.length;
+    
+    // Simple complexity calculation based on node count and connections
+    let complexity: 'Low' | 'Medium' | 'High' = 'Low';
+    if (totalNodes > 10 || totalConnections > 15) {
+      complexity = 'High';
+    } else if (totalNodes > 5 || totalConnections > 8) {
+      complexity = 'Medium';
+    }
+    
+    // Estimate execution time based on node types and connections
+    const estimatedMs = totalNodes * 100 + totalConnections * 50; // rough estimate
+    const estimatedExecutionTime = estimatedMs < 1000 ? `${estimatedMs}ms` : `${(estimatedMs / 1000).toFixed(1)}s`;
+    
+    return {
+      totalNodes,
+      totalConnections,
+      estimatedExecutionTime,
+      complexity
     };
-    setNodes((nds) => [...nds, newNode]);
-  };
-
-  const addRouting = () => {
-    const newNode: Node = {
-      id: `routing-${Date.now()}`,
-      type: 'routing',
-      position: { x: Math.random() * 400 + 100, y: Math.random() * 400 + 100 },
-      data: {
-        routingConfig: {},
-        onConfigChange: (config: any) => console.log('Routing config:', config)
-      },
-    };
-    setNodes((nds) => [...nds, newNode]);
-  };
+  }, [nodes, edges]);
 
   return (
-    <div className="h-full flex">
-      {/* Main Canvas - Takes most of the space */}
-      <div className="flex-1 h-full">
-        <Card className="h-full">
-          <CardHeader className="pb-4">
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <Workflow className="h-5 w-5" />
-                Orchestration Flow Designer
-              </CardTitle>
-              <div className="flex items-center gap-2">
-                <Badge variant="secondary">Draft</Badge>
-                <Button size="sm" variant="outline">
-                  <Save className="h-4 w-4 mr-2" />
-                  Save
-                </Button>
-                <Button size="sm">
-                  <Play className="h-4 w-4 mr-2" />
-                  Test Flow
-                </Button>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0 h-[calc(100%-80px)]">
-            <div className="h-full w-full">
-              <ReactFlow
-                nodes={nodes}
-                edges={edges}
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
-                onConnect={onConnect}
-                onNodeClick={onNodeClick}
-                nodeTypes={nodeTypes}
-                fitView
-                style={{ background: 'hsl(var(--muted/50))' }}
-              >
-              <Controls />
-              <MiniMap />
-              <Background />
-              <Panel position="top-left">
-                <div className="flex gap-2 flex-wrap">
-                  <Button size="sm" variant="outline" onClick={() => addAdapter('http-receiver')}>
-                    <Globe className="h-4 w-4 mr-2" />
-                    HTTP Receiver
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => addTransformation('field-mapping')}>
-                    <ArrowRightLeft className="h-4 w-4 mr-2" />
-                    Field Mapping
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={addRouting}>
-                    <GitBranch className="h-4 w-4 mr-2" />
-                    Router
-                  </Button>
-                </div>
-              </Panel>
-            </ReactFlow>
-            </div>
-          </CardContent>
-        </Card>
+    <div className="h-full w-full flex">
+      {/* Left Sidebar - Node Palette */}
+      <div className="flex-shrink-0">
+        <OrchestrationNodePalette onAddNode={addNode} />
       </div>
 
-      {/* Compact Sidebar */}
-      <div className="w-80 border-l border-border bg-card/50 overflow-y-auto">
-        <div className="p-4 space-y-4">
-          {/* Node Palette */}
-          <Card>
-            <CardHeader className="pb-3">
-            <CardTitle className="text-base">Process Steps</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 p-3">
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full justify-start"
-              onClick={addRouting}
-            >
-              <GitBranch className="h-4 w-4 mr-2" />
-              Message Router
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full justify-start"
-              onClick={() => addTransformation('field-mapping')}
-            >
-              <ArrowRightLeft className="h-4 w-4 mr-2" />
-              Field Mapping
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full justify-start"
-              onClick={() => addAdapter('http-sender')}
-            >
-              <Globe className="h-4 w-4 mr-2" />
-              HTTP Adapter
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full justify-start"
-              onClick={() => addTransformation('filter')}
-            >
-              <Filter className="h-4 w-4 mr-2" />
-              Message Filter
-            </Button>
-            </CardContent>
-          </Card>
+      {/* Main Canvas Area */}
+      <div className="flex-1 relative">
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          onNodeClick={onNodeClick}
+          nodeTypes={nodeTypes}
+          fitView
+          className="bg-background"
+        >
+          <Controls />
+          <MiniMap />
+          <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
+        </ReactFlow>
+      </div>
 
-          {/* Properties Panel */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Properties</CardTitle>
-          </CardHeader>
-            <CardContent className="p-3">
-            {selectedNode ? (
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium">Node ID</label>
-                  <p className="text-sm text-muted-foreground">{selectedNode.id}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Type</label>
-                  <p className="text-sm text-muted-foreground">{selectedNode.type || 'default'}</p>
-                </div>
-                <Button size="sm" variant="outline" className="w-full">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Configure
-                </Button>
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                Select a node to view its properties
-              </p>
-            )}
-            </CardContent>
-          </Card>
-
-          {/* Flow Status */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Flow Status</CardTitle>
-          </CardHeader>
-          <CardContent className="p-3">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Nodes</span>
-                <Badge variant="secondary">{nodes.length}</Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Connections</span>
-                <Badge variant="secondary">{edges.length}</Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Status</span>
-                <Badge variant="outline">Design Mode</Badge>
-              </div>
-            </div>
-            </CardContent>
-          </Card>
-        </div>
+      {/* Right Sidebar - Properties and Status */}
+      <div className="flex-shrink-0">
+        <OrchestrationPropertiesPanel 
+          selectedNode={selectedNode} 
+          flowStats={flowStats}
+        />
       </div>
     </div>
   );
