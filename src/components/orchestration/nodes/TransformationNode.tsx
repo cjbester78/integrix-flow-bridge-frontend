@@ -63,7 +63,7 @@ export const TransformationNode: React.FC<TransformationNodeProps> = ({ id, data
   return (
     <>
       <Card 
-        className="min-w-[90px] shadow-lg border-2 hover:border-primary/20 transition-colors bg-black text-white relative group"
+        className="min-w-[45px] max-w-[90px] shadow-lg border-2 hover:border-primary/20 transition-colors bg-black text-white relative group"
       >
         {/* Delete button - only visible on double-click */}
         {data.showDeleteButton && (
@@ -71,29 +71,29 @@ export const TransformationNode: React.FC<TransformationNodeProps> = ({ id, data
             variant="ghost"
             size="sm"
             onClick={handleDelete}
-            className="absolute -top-2 -right-2 h-6 w-6 p-0 bg-destructive text-destructive-foreground opacity-100 transition-opacity rounded-full shadow-md hover:bg-destructive/80"
+            className="absolute -top-1 -right-1 h-3 w-3 p-0 bg-destructive text-destructive-foreground opacity-100 transition-opacity rounded-full shadow-md hover:bg-destructive/80"
             title="Delete transformation"
           >
-            <X className="h-3 w-3" />
+            <X className="h-2 w-2" />
           </Button>
         )}
         
-        <CardHeader className="pb-1 p-2">
+        <CardHeader className="pb-0 p-1">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1">
-              <Icon className="h-3 w-3 text-white" />
-              <CardTitle className="text-xs font-medium text-white">{transformationName}</CardTitle>
+            <div className="flex items-center gap-0.5">
+              <Icon className="h-2 w-2 text-white" />
+              <CardTitle className="text-[10px] font-medium text-white truncate">{transformationName}</CardTitle>
             </div>
-            <Badge variant={isConfigured ? "default" : "secondary"} className="text-xs bg-white text-black">
-              {isConfigured ? "Configured" : "Setup Required"}
+            <Badge variant={isConfigured ? "default" : "secondary"} className="text-[8px] px-1 py-0 bg-white text-black">
+              {isConfigured ? "✓" : "!"}
             </Badge>
           </div>
         </CardHeader>
-        <CardContent className="pt-0 p-2">
+        <CardContent className="pt-0 p-1">
           <Button
             size="sm"
             variant="outline"
-            className="w-full text-xs h-6 bg-white text-black border-white hover:bg-gray-200"
+            className="w-full text-[8px] h-4 px-1 bg-white text-black border-white hover:bg-gray-200"
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
@@ -107,7 +107,7 @@ export const TransformationNode: React.FC<TransformationNodeProps> = ({ id, data
             }}
             onMouseDown={(e) => e.stopPropagation()}
           >
-            <Settings className="h-3 w-3 mr-1" />
+            <Settings className="h-2 w-2 mr-0.5" />
             Configure
           </Button>
         </CardContent>
@@ -116,12 +116,12 @@ export const TransformationNode: React.FC<TransformationNodeProps> = ({ id, data
         <Handle
           type="target"
           position={Position.Left}
-          className="w-3 h-3 bg-purple-500 border-2 border-white"
+          className="w-2 h-2 bg-purple-500 border-1 border-white"
         />
         <Handle
           type="source"
           position={Position.Right}
-          className="w-3 h-3 bg-purple-500 border-2 border-white"
+          className="w-2 h-2 bg-purple-500 border-1 border-white"
         />
       </Card>
 
