@@ -146,6 +146,8 @@ export function CreateDirectMappingFlow() {
           onClose={handleClose}
           onSave={handleSave}
           initialMappingName={flowName}
+          sourceAdapterType={sourceAdapter}
+          targetAdapterType={targetAdapter}
         />
       </div>
     );

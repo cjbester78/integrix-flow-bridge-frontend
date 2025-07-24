@@ -19,13 +19,17 @@ interface MappingScreenProps {
   onSave?: (mappings: FieldMapping[], mappingName: string) => void;
   initialMappingName?: string;
   sampleStructures?: DataStructure[];
+  sourceAdapterType?: string;
+  targetAdapterType?: string;
 }
 
 export function FieldMappingScreen({ 
   onClose, 
   onSave, 
   initialMappingName = '',
-  sampleStructures = []
+  sampleStructures = [],
+  sourceAdapterType = '',
+  targetAdapterType = ''
 }: MappingScreenProps) {
   const [sourceFields, setSourceFields] = useState<FieldNode[]>([]);
   const [targetFields, setTargetFields] = useState<FieldNode[]>([]);
@@ -42,6 +46,23 @@ export function FieldMappingScreen({
   // Remove viewMode - always use traditional view
   
   const { structures } = useDataStructures();
+
+  // Auto-select data structures based on adapter types
+  useEffect(() => {
+    if (sourceAdapterType && targetAdapterType && structures.length > 0 && !selectedSource && !selectedTarget) {
+      // Find compatible data structures for the selected adapters
+      const sourceStructures = structures.filter(s => s.usage === 'source' || !s.usage);
+      const targetStructures = structures.filter(s => s.usage === 'target' || !s.usage);
+      
+      // Auto-select the first available structures
+      if (sourceStructures.length > 0) {
+        selectDataStructure(sourceStructures[0].name, true);
+      }
+      if (targetStructures.length > 0) {
+        selectDataStructure(targetStructures[0].name, false);
+      }
+    }
+  }, [sourceAdapterType, targetAdapterType, structures, selectedSource, selectedTarget]);
 
   const toggleExpanded = useCallback((nodeId: string, isSource: boolean) => {
     const updateNode = (nodes: FieldNode[]): FieldNode[] => {
