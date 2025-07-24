@@ -39,10 +39,20 @@ const getAdapterName = (type: string) => {
 };
 
 export const AdapterNode: React.FC<AdapterNodeProps> = ({ id, data }) => {
+  console.log('[AdapterNode] Rendering node:', { id, data });
+  
   const [configOpen, setConfigOpen] = useState(false);
   const Icon = getAdapterIcon(data.adapterType);
   const adapterName = getAdapterName(data.adapterType);
   const isConfigured = data.adapterConfig && Object.keys(data.adapterConfig).length > 0;
+  
+  console.log('[AdapterNode] Node state:', { 
+    id, 
+    adapterType: data.adapterType, 
+    adapterName, 
+    isConfigured,
+    configOpen 
+  });
 
   return (
     <>
@@ -64,11 +74,20 @@ export const AdapterNode: React.FC<AdapterNodeProps> = ({ id, data }) => {
             variant="outline"
             className="w-full"
             onClick={(e) => {
+              console.log('[AdapterNode] Configure button clicked:', { id, adapterType: data.adapterType });
               e.stopPropagation();
               e.preventDefault();
-              setConfigOpen(true);
+              try {
+                setConfigOpen(true);
+                console.log('[AdapterNode] Dialog opened successfully');
+              } catch (error) {
+                console.error('[AdapterNode] Error opening dialog:', error);
+              }
             }}
-            onMouseDown={(e) => e.stopPropagation()}
+            onMouseDown={(e) => {
+              console.log('[AdapterNode] Configure button mousedown');
+              e.stopPropagation();
+            }}
           >
             <Settings className="h-4 w-4 mr-2" />
             Configure
@@ -89,32 +108,62 @@ export const AdapterNode: React.FC<AdapterNodeProps> = ({ id, data }) => {
       </Card>
 
       {/* Configuration Dialog */}
-      <Dialog open={configOpen} onOpenChange={setConfigOpen}>
+      <Dialog 
+        open={configOpen} 
+        onOpenChange={(open) => {
+          console.log('[AdapterNode] Dialog state changing:', { open, id });
+          setConfigOpen(open);
+        }}
+      >
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Configure {adapterName}</DialogTitle>
           </DialogHeader>
           <div className="mt-4">
-            <AdapterConfigurationCard
-              adapters={[{
-                id: data.adapterType,
-                name: adapterName,
-                icon: Icon,
-                category: data.adapterType.split('-')[0].toUpperCase()
-              }]}
-              sourceBusinessComponent=""
-              targetBusinessComponent=""
-              sourceAdapter={data.adapterType}
-              targetAdapter=""
-              sourceAdapterActive={true}
-              targetAdapterActive={false}
-              onSourceBusinessComponentChange={() => {}}
-              onTargetBusinessComponentChange={() => {}}
-              onSourceAdapterChange={() => {}}
-              onTargetAdapterChange={() => {}}
-              onSourceAdapterActiveChange={() => {}}
-              onTargetAdapterActiveChange={() => {}}
-            />
+            {(() => {
+              console.log('[AdapterNode] Rendering AdapterConfigurationCard with props:', {
+                adapters: [{
+                  id: data.adapterType,
+                  name: adapterName,
+                  category: data.adapterType.split('-')[0].toUpperCase()
+                }],
+                sourceAdapter: data.adapterType
+              });
+              return (
+                <AdapterConfigurationCard
+                  adapters={[{
+                    id: data.adapterType,
+                    name: adapterName,
+                    icon: Icon,
+                    category: data.adapterType.split('-')[0].toUpperCase()
+                  }]}
+                  sourceBusinessComponent=""
+                  targetBusinessComponent=""
+                  sourceAdapter={data.adapterType}
+                  targetAdapter=""
+                  sourceAdapterActive={true}
+                  targetAdapterActive={false}
+                  onSourceBusinessComponentChange={(value) => {
+                    console.log('[AdapterNode] Source business component changed:', value);
+                  }}
+                  onTargetBusinessComponentChange={(value) => {
+                    console.log('[AdapterNode] Target business component changed:', value);
+                  }}
+                  onSourceAdapterChange={(value) => {
+                    console.log('[AdapterNode] Source adapter changed:', value);
+                  }}
+                  onTargetAdapterChange={(value) => {
+                    console.log('[AdapterNode] Target adapter changed:', value);
+                  }}
+                  onSourceAdapterActiveChange={(active) => {
+                    console.log('[AdapterNode] Source adapter active changed:', active);
+                  }}
+                  onTargetAdapterActiveChange={(active) => {
+                    console.log('[AdapterNode] Target adapter active changed:', active);
+                  }}
+                />
+              );
+            })()}
           </div>
         </DialogContent>
       </Dialog>

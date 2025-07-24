@@ -45,7 +45,22 @@ export const AdapterConfigurationCard = ({
   onSourceAdapterActiveChange,
   onTargetAdapterActiveChange,
 }: AdapterConfigurationCardProps) => {
+  console.log('[AdapterConfigurationCard] Component rendered with props:', {
+    adapters: adapters.length,
+    sourceBusinessComponent,
+    targetBusinessComponent,
+    sourceAdapter,
+    targetAdapter,
+    sourceAdapterActive,
+    targetAdapterActive
+  });
+
   const { businessComponents, loading, getAdaptersForBusinessComponent } = useBusinessComponentAdapters();
+  
+  console.log('[AdapterConfigurationCard] Hook data:', {
+    businessComponents: businessComponents.length,
+    loading
+  });
   
   const getAdapterById = (id: string) => adapters.find(adapter => adapter.id === id);
 
@@ -68,11 +83,18 @@ export const AdapterConfigurationCard = ({
   };
 
   const handleSourceBusinessComponentChange = async (businessComponentId: string) => {
-    onSourceBusinessComponentChange(businessComponentId);
-    // Reset source adapter if it's not available for the new business component
-    const adaptersForBusinessComponent = await getAdaptersForBusinessComponent(businessComponentId);
-    if (sourceAdapter && !adaptersForBusinessComponent.includes(sourceAdapter)) {
-      onSourceAdapterChange('');
+    console.log('[AdapterConfigurationCard] Source business component changing:', businessComponentId);
+    try {
+      onSourceBusinessComponentChange(businessComponentId);
+      // Reset source adapter if it's not available for the new business component
+      const adaptersForBusinessComponent = await getAdaptersForBusinessComponent(businessComponentId);
+      console.log('[AdapterConfigurationCard] Available adapters for business component:', adaptersForBusinessComponent);
+      if (sourceAdapter && !adaptersForBusinessComponent.includes(sourceAdapter)) {
+        console.log('[AdapterConfigurationCard] Resetting source adapter - not available for new business component');
+        onSourceAdapterChange('');
+      }
+    } catch (error) {
+      console.error('[AdapterConfigurationCard] Error handling source business component change:', error);
     }
   };
 

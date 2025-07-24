@@ -141,11 +141,14 @@ export function VisualOrchestrationEditor() {
   );
 
   const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
+    console.log('[VisualOrchestrationEditor] Node clicked:', { nodeId: node.id, nodeType: node.type, nodeData: node.data });
     setSelectedNode(node);
   }, []);
 
   // Function to add a new node based on type and category
   const addNode = useCallback((type: string, category: string) => {
+    console.log('[VisualOrchestrationEditor] Adding new node:', { type, category });
+    
     const nodeId = `${type}-${Date.now()}`;
     const newNode: Node = {
       id: nodeId,
@@ -160,13 +163,20 @@ export function VisualOrchestrationEditor() {
         routingType: type,
         configured: false,
         onConfigChange: (id: string, config: any) => {
+          console.log('[VisualOrchestrationEditor] Node config changed:', { id, config });
           setNodes((nds) =>
             nds.map((node) => (node.id === id ? { ...node, data: { ...node.data, ...config, configured: true } } : node))
           );
         }
       },
     };
-    setNodes((nds) => nds.concat(newNode));
+    
+    console.log('[VisualOrchestrationEditor] Created new node:', newNode);
+    setNodes((nds) => {
+      const updatedNodes = nds.concat(newNode);
+      console.log('[VisualOrchestrationEditor] Updated nodes list:', updatedNodes);
+      return updatedNodes;
+    });
   }, [setNodes]);
 
   // Calculate flow statistics
