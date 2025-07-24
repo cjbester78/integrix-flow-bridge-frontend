@@ -57,8 +57,8 @@ export function CreateFlowSelection() {
 
         <Card className="cursor-pointer transition-all hover:shadow-lg border-2 hover:border-primary/20">
           <CardHeader className="text-center pb-4">
-            <div className="mx-auto mb-4 p-3 rounded-full bg-secondary/10">
-              <ArrowRightLeft className="h-8 w-8 text-secondary" />
+            <div className="mx-auto mb-4 p-3 rounded-full bg-primary/10">
+              <ArrowRightLeft className="h-8 w-8 text-primary" />
             </div>
             <CardTitle className="text-xl">Create Direct Mapping Flow</CardTitle>
             <CardDescription className="text-sm">
@@ -68,19 +68,19 @@ export function CreateFlowSelection() {
           <CardContent className="pt-0">
             <div className="space-y-3 text-sm text-muted-foreground mb-6">
               <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-secondary"></div>
+                <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
                 <span>Point-to-point integration</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-secondary"></div>
+                <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
                 <span>Visual field mapping</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-secondary"></div>
+                <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
                 <span>Transformation functions</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-secondary"></div>
+                <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
                 <span>Quick setup & deployment</span>
               </div>
             </div>
