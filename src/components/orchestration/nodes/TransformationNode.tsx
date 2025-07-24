@@ -93,7 +93,7 @@ export const TransformationNode: React.FC<TransformationNodeProps> = ({ id, data
           <Button
             size="sm"
             variant="outline"
-            className="w-full text-[5px] h-2.5 px-1 bg-white text-black border-white hover:bg-gray-200"
+            className="w-1/2 text-[4px] h-2.5 px-0.5 bg-white text-black border-white hover:bg-gray-200"
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
@@ -107,8 +107,8 @@ export const TransformationNode: React.FC<TransformationNodeProps> = ({ id, data
             }}
             onMouseDown={(e) => e.stopPropagation()}
           >
-            <Settings className="h-1.5 w-1.5 mr-0.5" />
-            Configure
+            <Settings className="h-1 w-1 mr-0.5" />
+            Config
           </Button>
         </CardContent>
         
