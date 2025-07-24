@@ -85,7 +85,6 @@ export function CreateFlowSelection() {
               </div>
             </div>
             <Button 
-              variant="secondary" 
               className="w-full"
               onClick={() => navigate('/create-direct-mapping-flow')}
             >
