@@ -22,43 +22,94 @@ import { RoutingNode } from './nodes/RoutingNode';
 import { OrchestrationNodePalette } from './OrchestrationNodePalette';
 import { OrchestrationPropertiesPanel } from './OrchestrationPropertiesPanel';
 
-// Define comprehensive node types for all orchestration components
+// Define comprehensive node types for all BPMN 2.0 orchestration components
 const nodeTypes = {
-  // Base types
-  adapter: AdapterNode,
-  transformation: TransformationNode,
-  routing: RoutingNode,
+  // BPMN Events
+  'start-process': AdapterNode,
+  'end-process': AdapterNode,
+  'start-event': AdapterNode,
+  'end-event': AdapterNode,
+  'intermediate-event': AdapterNode,
+  'timer-event': AdapterNode,
+  'message-event': AdapterNode,
+  'error-event': AdapterNode,
   
-  // Endpoints
-  'http-receiver': AdapterNode,
-  'http-sender': AdapterNode,
+  // BPMN Activities
+  'task': TransformationNode,
+  'service-task': TransformationNode,
+  'user-task': TransformationNode,
+  'script-task': TransformationNode,
+  'manual-task': TransformationNode,
+  'business-rule-task': TransformationNode,
+  'receive-task': TransformationNode,
+  'send-task': TransformationNode,
+  
+  // BPMN Gateways
+  'exclusive-gateway': RoutingNode,
+  'parallel-gateway': RoutingNode,
+  'inclusive-gateway': RoutingNode,
+  'event-gateway': RoutingNode,
+  'complex-gateway': RoutingNode,
+  
+  // Mapping & Transformation
+  'field-mapping': TransformationNode,
+  'data-transformation': TransformationNode,
+  'format-conversion': TransformationNode,
+  'value-mapping': TransformationNode,
+  'structure-mapping': TransformationNode,
+  'conditional-mapping': TransformationNode,
+  'aggregation': TransformationNode,
+  'split-mapping': TransformationNode,
+  
+  // File Transformations
+  'csv-to-xml': TransformationNode,
+  'json-to-xml': TransformationNode,
+  'xml-to-json': TransformationNode,
+  'excel-to-csv': TransformationNode,
+  'pdf-extractor': TransformationNode,
+  'file-splitter': TransformationNode,
+  'file-merger': TransformationNode,
+  'file-validator': TransformationNode,
+  
+  // Scripts & Functions
+  'javascript-script': TransformationNode,
+  'groovy-script': TransformationNode,
+  'xslt-transformation': TransformationNode,
+  'custom-function': TransformationNode,
+  'lookup-function': TransformationNode,
+  'calculation-function': TransformationNode,
+  'validation-function': TransformationNode,
+  'enrichment-function': TransformationNode,
+  
+  // Flow Routing
+  'content-router': RoutingNode,
+  'recipient-list': RoutingNode,
+  'message-filter': RoutingNode,
+  'dynamic-router': RoutingNode,
+  'load-balancer': RoutingNode,
+  'failover-router': RoutingNode,
+  'multicast': RoutingNode,
+  'wire-tap': RoutingNode,
+  
+  // Security
+  'encryption': TransformationNode,
+  'decryption': TransformationNode,
+  'digital-signature': TransformationNode,
+  'authentication': TransformationNode,
+  'authorization': TransformationNode,
+  'certificate-validation': TransformationNode,
+  'secure-transport': TransformationNode,
+  'access-control': TransformationNode,
+  
+  // Adapters & Connectors
+  'http-adapter': AdapterNode,
   'ftp-adapter': AdapterNode,
   'database-adapter': AdapterNode,
   'mail-adapter': AdapterNode,
-  
-  // Routing & Logic
-  'content-router': RoutingNode,
-  'message-filter': TransformationNode,
-  'splitter': RoutingNode,
-  'aggregator': RoutingNode,
-  'conditional': RoutingNode,
-  
-  // Transformation
-  'data-mapper': TransformationNode,
-  'enricher': TransformationNode,
-  'translator': TransformationNode,
-  'validator': TransformationNode,
-  
-  // Control Flow
-  'delay': TransformationNode,
-  'retry': TransformationNode,
-  'stop': AdapterNode,
-  'start': AdapterNode,
-  
-  // Error Handling
-  'error-handler': TransformationNode,
-  'dead-letter': AdapterNode,
-  'circuit-breaker': TransformationNode,
+  'file-adapter': AdapterNode,
+  'jms-adapter': AdapterNode,
+  'soap-adapter': AdapterNode,
+  'rest-adapter': AdapterNode,
 };
 // Initial empty state for new orchestration flow
 const initialNodes: Node[] = [];
