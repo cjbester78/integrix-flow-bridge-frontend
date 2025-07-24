@@ -12,6 +12,7 @@ interface TransformationNodeProps {
   data: {
     transformationType: 'field-mapping' | 'custom-function' | 'filter' | 'enrichment';
     transformationConfig: any;
+    showDeleteButton?: boolean;
     onConfigChange: (config: any) => void;
   };
   selected?: boolean;
@@ -49,7 +50,6 @@ const getTransformationName = (type: string) => {
 
 export const TransformationNode: React.FC<TransformationNodeProps> = ({ id, data, selected }) => {
   const [configOpen, setConfigOpen] = useState(false);
-  const [showDelete, setShowDelete] = useState(false);
   const { setNodes, setEdges } = useReactFlow();
   const Icon = getTransformationIcon(data.transformationType);
   const transformationName = getTransformationName(data.transformationType);
@@ -58,26 +58,15 @@ export const TransformationNode: React.FC<TransformationNodeProps> = ({ id, data
   const handleDelete = () => {
     setNodes((nodes) => nodes.filter((node) => node.id !== id));
     setEdges((edges) => edges.filter((edge) => edge.source !== id && edge.target !== id));
-    setShowDelete(false);
-  };
-
-  const handleDoubleClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    console.log('[TransformationNode] Double click detected for node:', id);
-    setShowDelete(true);
-    // Hide delete button after 3 seconds
-    setTimeout(() => setShowDelete(false), 3000);
   };
 
   return (
     <>
       <Card 
-        className="min-w-[180px] shadow-lg border-2 hover:border-primary/20 transition-colors bg-purple-50 dark:bg-purple-950/20 relative group nodrag"
-        onDoubleClick={handleDoubleClick}
-        onMouseDown={(e) => e.stopPropagation()}
+        className="min-w-[180px] shadow-lg border-2 hover:border-primary/20 transition-colors bg-purple-50 dark:bg-purple-950/20 relative group"
       >
         {/* Delete button - only visible on double-click */}
-        {showDelete && (
+        {data.showDeleteButton && (
           <Button
             variant="ghost"
             size="sm"

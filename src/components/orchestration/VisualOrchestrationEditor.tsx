@@ -122,6 +122,7 @@ export function VisualOrchestrationEditor() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [nodeWithDeleteButton, setNodeWithDeleteButton] = useState<string | null>(null);
   
   // Track selected nodes for deletion
   const selectedNodes = useMemo(() => {
@@ -153,6 +154,13 @@ export function VisualOrchestrationEditor() {
     setSelectedNode(node);
   }, []);
 
+  const onNodeDoubleClick = useCallback((event: React.MouseEvent, node: Node) => {
+    console.log('[VisualOrchestrationEditor] Node double-clicked:', { nodeId: node.id, nodeType: node.type });
+    setNodeWithDeleteButton(node.id);
+    // Hide delete button after 3 seconds
+    setTimeout(() => setNodeWithDeleteButton(null), 3000);
+  }, []);
+
   // Function to add a new node based on type and category
   const addNode = useCallback((type: string, category: string) => {
     console.log('[VisualOrchestrationEditor] Adding new node:', { type, category });
@@ -170,6 +178,7 @@ export function VisualOrchestrationEditor() {
         transformationType: type,
         routingType: type,
         configured: false,
+        showDeleteButton: false,
         onConfigChange: (config: any) => {
           console.log('[VisualOrchestrationEditor] Node config changed:', { nodeId, config });
           setNodes((nds) =>
@@ -230,12 +239,19 @@ export function VisualOrchestrationEditor() {
       {/* Main Canvas Area */}
       <div className="flex-1 relative">
         <ReactFlow
-          nodes={nodes}
+          nodes={nodes.map(node => ({
+            ...node,
+            data: {
+              ...node.data,
+              showDeleteButton: nodeWithDeleteButton === node.id
+            }
+          }))}
           edges={edges}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           onNodeClick={onNodeClick}
+          onNodeDoubleClick={onNodeDoubleClick}
           nodeTypes={nodeTypes}
           fitView
           deleteKeyCode="Delete"
