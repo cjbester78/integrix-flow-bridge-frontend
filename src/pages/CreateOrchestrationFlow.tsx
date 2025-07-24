@@ -1,10 +1,28 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Info, Construction } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Info, Construction, Save, X } from 'lucide-react';
 import { VisualOrchestrationEditor } from '@/components/orchestration/VisualOrchestrationEditor';
+import { useToast } from '@/hooks/use-toast';
 
 export function CreateOrchestrationFlow() {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleSave = () => {
+    // TODO: Implement flow saving logic
+    toast({
+      title: "Flow Saved",
+      description: "Your orchestration flow has been saved successfully.",
+    });
+  };
+
+  const handleCancel = () => {
+    navigate(-1); // Go back to previous page
+  };
+
   return (
     <div className="h-screen bg-background overflow-hidden">
       {/* Compact header */}
@@ -16,13 +34,34 @@ export function CreateOrchestrationFlow() {
           </p>
         </div>
         
-        <Alert className="max-w-md">
-          <Construction className="h-4 w-4" />
-          <AlertDescription className="text-xs">
-            The Visual Orchestration Flow Editor is currently under development. This includes
-            drag-and-drop workflow design, message routing, and error handling capabilities.
-          </AlertDescription>
-        </Alert>
+        <div className="flex items-center gap-4">
+          {/* Action buttons */}
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={handleCancel}
+              className="flex items-center gap-2"
+            >
+              <X className="h-4 w-4" />
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSave}
+              className="flex items-center gap-2"
+            >
+              <Save className="h-4 w-4" />
+              Save Flow
+            </Button>
+          </div>
+
+          <Alert className="max-w-md">
+            <Construction className="h-4 w-4" />
+            <AlertDescription className="text-xs">
+              The Visual Orchestration Flow Editor is currently under development. This includes
+              drag-and-drop workflow design, message routing, and error handling capabilities.
+            </AlertDescription>
+          </Alert>
+        </div>
       </div>
 
       {/* Full height flow designer */}
