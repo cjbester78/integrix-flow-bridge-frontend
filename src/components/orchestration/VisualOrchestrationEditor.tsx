@@ -12,11 +12,10 @@ import {
   Node,
   MarkerType,
   BackgroundVariant,
-  useReactFlow,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Button } from '@/components/ui/button';
-import { Trash2, Copy, RotateCcw } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 
 // Import our custom node types and components
 import { AdapterNode } from './nodes/AdapterNode';
@@ -24,7 +23,6 @@ import { TransformationNode } from './nodes/TransformationNode';
 import { RoutingNode } from './nodes/RoutingNode';
 import { OrchestrationNodePalette } from './OrchestrationNodePalette';
 import { OrchestrationPropertiesPanel } from './OrchestrationPropertiesPanel';
-import { FlowControls } from './FlowControls';
 
 // Define comprehensive node types for all BPMN 2.0 orchestration components
 const nodeTypes = {
@@ -248,11 +246,20 @@ export function VisualOrchestrationEditor() {
           <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
         </ReactFlow>
         
-        {/* Custom Flow Controls */}
-        <FlowControls 
-          selectedNodes={selectedNodes}
-          onDeleteNodes={deleteSelectedNodes}
-        />
+        {/* Simple Delete Button */}
+        {selectedNodes.length > 0 && (
+          <div className="absolute top-4 left-4 z-10">
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={deleteSelectedNodes}
+              className="flex items-center gap-2"
+            >
+              <Trash2 className="h-4 w-4" />
+              Delete ({selectedNodes.length})
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Right Sidebar - Properties and Status */}
