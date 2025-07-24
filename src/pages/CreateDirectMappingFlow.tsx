@@ -313,7 +313,7 @@ export function CreateDirectMappingFlow() {
                       Field mapping allows you to connect source and target fields with custom logic.
                     </p>
                     <p className="text-sm text-orange-600">
-                      Please select both source and target business components above to enable mapping.
+                      Please select both source and target business components AND their corresponding adapters above to enable mapping.
                     </p>
                   </div>
                   <Button 
