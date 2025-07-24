@@ -38,19 +38,19 @@ export function CreateOrchestrationFlow() {
           {/* Action buttons */}
           <div className="flex gap-2">
             <Button
+              onClick={handleSave}
+              className="flex items-center gap-2"
+            >
+              <Save className="h-4 w-4" />
+              Save Flow
+            </Button>
+            <Button
               variant="outline"
               onClick={handleCancel}
               className="flex items-center gap-2"
             >
               <X className="h-4 w-4" />
               Cancel
-            </Button>
-            <Button
-              onClick={handleSave}
-              className="flex items-center gap-2"
-            >
-              <Save className="h-4 w-4" />
-              Save Flow
             </Button>
           </div>
 
