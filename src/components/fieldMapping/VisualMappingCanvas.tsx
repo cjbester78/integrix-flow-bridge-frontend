@@ -170,6 +170,7 @@ export const VisualMappingCanvas: React.FC<VisualMappingCanvasProps> = ({
           sourceFields={filteredSourceFields}
           targetField={visualFlowEditor.targetField}
           onApplyMapping={handleApplyFlowMapping}
+          initialMapping={mappings.find(m => m.targetField === visualFlowEditor.targetField?.name)}
         />
       )}
     </div>

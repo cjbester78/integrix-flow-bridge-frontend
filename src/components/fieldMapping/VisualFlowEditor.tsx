@@ -96,11 +96,29 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
             );
             
             if (sourceField) {
+              const sourceNodeId = `source-${sourceField.id}`;
               initialNodes.push({
-                id: `source-${sourceField.id}`,
+                id: sourceNodeId,
                 type: 'sourceField',
                 position: { x: 50, y: 50 + index * 100 },
                 data: { field: sourceField },
+              });
+
+              // Create edge connecting source to target
+              initialEdges.push({
+                id: `edge-${sourceNodeId}-target`,
+                source: sourceNodeId,
+                target: 'target',
+                type: 'deletable',
+                animated: false,
+                style: { 
+                  stroke: 'hsl(var(--primary))', 
+                  strokeWidth: 2 
+                },
+                markerEnd: {
+                  type: MarkerType.ArrowClosed,
+                  color: 'hsl(var(--primary))'
+                }
               });
             }
           });
@@ -113,11 +131,29 @@ export const VisualFlowEditor: React.FC<VisualFlowEditorProps> = ({
             );
             
             if (sourceField) {
+              const sourceNodeId = `source-${sourceField.id}`;
               initialNodes.push({
-                id: `source-${sourceField.id}`,
+                id: sourceNodeId,
                 type: 'sourceField',
                 position: { x: 50, y: 50 + index * 100 },
                 data: { field: sourceField },
+              });
+
+              // Create edge connecting source to target
+              initialEdges.push({
+                id: `edge-${sourceNodeId}-target`,
+                source: sourceNodeId,
+                target: 'target',
+                type: 'deletable',
+                animated: false,
+                style: { 
+                  stroke: 'hsl(var(--primary))', 
+                  strokeWidth: 2 
+                },
+                markerEnd: {
+                  type: MarkerType.ArrowClosed,
+                  color: 'hsl(var(--primary))'
+                }
               });
             }
           });
