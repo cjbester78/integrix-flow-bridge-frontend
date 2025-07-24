@@ -63,7 +63,7 @@ export const TransformationNode: React.FC<TransformationNodeProps> = ({ id, data
   return (
     <>
       <Card 
-        className="min-w-[180px] shadow-lg border-2 hover:border-primary/20 transition-colors bg-purple-50 dark:bg-purple-950/20 relative group"
+        className="min-w-[90px] shadow-lg border-2 hover:border-primary/20 transition-colors bg-black text-white relative group"
       >
         {/* Delete button - only visible on double-click */}
         {data.showDeleteButton && (
@@ -78,22 +78,22 @@ export const TransformationNode: React.FC<TransformationNodeProps> = ({ id, data
           </Button>
         )}
         
-        <CardHeader className="pb-2">
+        <CardHeader className="pb-1 p-2">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Icon className="h-5 w-5 text-purple-600" />
-              <CardTitle className="text-sm font-medium">{transformationName}</CardTitle>
+            <div className="flex items-center gap-1">
+              <Icon className="h-3 w-3 text-white" />
+              <CardTitle className="text-xs font-medium text-white">{transformationName}</CardTitle>
             </div>
-            <Badge variant={isConfigured ? "default" : "secondary"} className="text-xs">
+            <Badge variant={isConfigured ? "default" : "secondary"} className="text-xs bg-white text-black">
               {isConfigured ? "Configured" : "Setup Required"}
             </Badge>
           </div>
         </CardHeader>
-        <CardContent className="pt-0">
+        <CardContent className="pt-0 p-2">
           <Button
             size="sm"
             variant="outline"
-            className="w-full"
+            className="w-full text-xs h-6 bg-white text-black border-white hover:bg-gray-200"
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
@@ -107,7 +107,7 @@ export const TransformationNode: React.FC<TransformationNodeProps> = ({ id, data
             }}
             onMouseDown={(e) => e.stopPropagation()}
           >
-            <Settings className="h-4 w-4 mr-2" />
+            <Settings className="h-3 w-3 mr-1" />
             Configure
           </Button>
         </CardContent>
