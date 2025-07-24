@@ -123,7 +123,7 @@ export const RoutingNode: React.FC<RoutingNodeProps> = ({ id, data }) => {
       </Card>
 
       <Dialog open={configOpen} onOpenChange={setConfigOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl z-[9999]" style={{ zIndex: 9999 }}>
           <DialogHeader>
             <DialogTitle>Configure Routing Logic</DialogTitle>
           </DialogHeader>

@@ -115,7 +115,7 @@ export const AdapterNode: React.FC<AdapterNodeProps> = ({ id, data }) => {
           setConfigOpen(open);
         }}
       >
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto z-[9999]" style={{ zIndex: 9999 }}>
           <DialogHeader>
             <DialogTitle>Configure {adapterName}</DialogTitle>
           </DialogHeader>

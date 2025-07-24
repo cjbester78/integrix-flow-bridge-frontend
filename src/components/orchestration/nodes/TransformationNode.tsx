@@ -99,7 +99,7 @@ export const TransformationNode: React.FC<TransformationNodeProps> = ({ id, data
       {/* Configuration Dialog */}
       {data.transformationType === 'field-mapping' ? (
         <Dialog open={configOpen} onOpenChange={setConfigOpen}>
-          <DialogContent className="max-w-[95vw] max-h-[95vh] p-0">
+          <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 z-[9999]" style={{ zIndex: 9999 }}>
             <FieldMappingScreen
               onClose={() => setConfigOpen(false)}
               onSave={(mappings) => {
@@ -113,7 +113,7 @@ export const TransformationNode: React.FC<TransformationNodeProps> = ({ id, data
         </Dialog>
       ) : (
         <Dialog open={configOpen} onOpenChange={setConfigOpen}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl z-[9999]" style={{ zIndex: 9999 }}>
             <DialogHeader>
               <DialogTitle>Configure {transformationName}</DialogTitle>
             </DialogHeader>
