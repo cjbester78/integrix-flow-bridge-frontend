@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Handle, Position } from '@xyflow/react';
+import { Handle, Position, useReactFlow } from '@xyflow/react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Settings, ArrowRightLeft, Code, Filter, Plus } from 'lucide-react';
+import { Settings, ArrowRightLeft, Code, Filter, Plus, X } from 'lucide-react';
 import { FieldMappingScreen } from '@/components/FieldMappingScreen';
 
 interface TransformationNodeProps {
@@ -14,6 +14,7 @@ interface TransformationNodeProps {
     transformationConfig: any;
     onConfigChange: (config: any) => void;
   };
+  selected?: boolean;
 }
 
 const getTransformationIcon = (type: string) => {
@@ -46,15 +47,34 @@ const getTransformationName = (type: string) => {
   }
 };
 
-export const TransformationNode: React.FC<TransformationNodeProps> = ({ id, data }) => {
+export const TransformationNode: React.FC<TransformationNodeProps> = ({ id, data, selected }) => {
   const [configOpen, setConfigOpen] = useState(false);
+  const { setNodes, setEdges } = useReactFlow();
   const Icon = getTransformationIcon(data.transformationType);
   const transformationName = getTransformationName(data.transformationType);
   const isConfigured = data.transformationConfig && Object.keys(data.transformationConfig).length > 0;
 
+  const handleDelete = () => {
+    setNodes((nodes) => nodes.filter((node) => node.id !== id));
+    setEdges((edges) => edges.filter((edge) => edge.source !== id && edge.target !== id));
+  };
+
   return (
     <>
-      <Card className="min-w-[180px] shadow-lg border-2 hover:border-primary/20 transition-colors bg-purple-50 dark:bg-purple-950/20">
+      <Card className="min-w-[180px] shadow-lg border-2 hover:border-primary/20 transition-colors bg-purple-50 dark:bg-purple-950/20 relative group">
+        {/* Delete button - only visible when selected */}
+        {selected && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleDelete}
+            className="absolute -top-2 -right-2 h-6 w-6 p-0 bg-destructive text-destructive-foreground opacity-100 transition-opacity rounded-full shadow-md hover:bg-destructive/80"
+            title="Delete transformation"
+          >
+            <X className="h-3 w-3" />
+          </Button>
+        )}
+        
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">

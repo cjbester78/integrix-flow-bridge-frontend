@@ -15,9 +15,10 @@ interface RoutingNodeProps {
     conditions?: Array<{ field: string; operator: string; value: string; route: string }>;
     onConfigChange?: (id: string, config: any) => void;
   };
+  selected?: boolean;
 }
 
-export const RoutingNode: React.FC<RoutingNodeProps> = ({ id, data }) => {
+export const RoutingNode: React.FC<RoutingNodeProps> = ({ id, data, selected }) => {
   const [configOpen, setConfigOpen] = useState(false);
   const [routingType, setRoutingType] = useState(data.routingType || 'conditional');
   const [conditions, setConditions] = useState(data.conditions || []);
@@ -50,15 +51,18 @@ export const RoutingNode: React.FC<RoutingNodeProps> = ({ id, data }) => {
   return (
     <>
       <Card className="min-w-[200px] shadow-sm relative group">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleDelete}
-          className="absolute -top-2 -right-2 h-6 w-6 p-0 bg-destructive text-destructive-foreground opacity-0 group-hover:opacity-100 transition-opacity rounded-full shadow-md hover:bg-destructive/80"
-          title="Delete routing node"
-        >
-          <X className="h-3 w-3" />
-        </Button>
+        {/* Delete button - only visible when selected */}
+        {selected && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleDelete}
+            className="absolute -top-2 -right-2 h-6 w-6 p-0 bg-destructive text-destructive-foreground opacity-100 transition-opacity rounded-full shadow-md hover:bg-destructive/80"
+            title="Delete routing node"
+          >
+            <X className="h-3 w-3" />
+          </Button>
+        )}
 
         <CardHeader className="pb-2">
           <CardTitle className="text-sm flex items-center gap-2">

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Handle, Position } from '@xyflow/react';
+import { Handle, Position, useReactFlow } from '@xyflow/react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Settings, Globe, Inbox, Workflow, RefreshCw } from 'lucide-react';
+import { Settings, Globe, Inbox, Workflow, RefreshCw, X } from 'lucide-react';
 import { AdapterConfigurationCard } from '@/components/createFlow/AdapterConfigurationCard';
 
 interface AdapterNodeProps {
@@ -14,6 +14,7 @@ interface AdapterNodeProps {
     adapterConfig: any;
     onConfigChange: (config: any) => void;
   };
+  selected?: boolean;
 }
 
 const getAdapterIcon = (type: string) => {
@@ -38,10 +39,11 @@ const getAdapterName = (type: string) => {
   ).join(' ');
 };
 
-export const AdapterNode: React.FC<AdapterNodeProps> = ({ id, data }) => {
+export const AdapterNode: React.FC<AdapterNodeProps> = ({ id, data, selected }) => {
   console.log('[AdapterNode] Rendering node:', { id, data });
   
   const [configOpen, setConfigOpen] = useState(false);
+  const { setNodes, setEdges } = useReactFlow();
   const [sourceBusinessComponent, setSourceBusinessComponent] = useState(data.adapterConfig?.sourceBusinessComponent || '');
   const [targetBusinessComponent, setTargetBusinessComponent] = useState(data.adapterConfig?.targetBusinessComponent || '');
   const [sourceAdapter, setSourceAdapter] = useState(data.adapterType);
@@ -61,9 +63,27 @@ export const AdapterNode: React.FC<AdapterNodeProps> = ({ id, data }) => {
     configOpen 
   });
 
+  const handleDelete = () => {
+    setNodes((nodes) => nodes.filter((node) => node.id !== id));
+    setEdges((edges) => edges.filter((edge) => edge.source !== id && edge.target !== id));
+  };
+
   return (
     <>
-      <Card className="min-w-[200px] shadow-lg border-2 hover:border-primary/20 transition-colors">
+      <Card className="min-w-[200px] shadow-lg border-2 hover:border-primary/20 transition-colors relative group">
+        {/* Delete button - only visible when selected */}
+        {selected && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleDelete}
+            className="absolute -top-2 -right-2 h-6 w-6 p-0 bg-destructive text-destructive-foreground opacity-100 transition-opacity rounded-full shadow-md hover:bg-destructive/80"
+            title="Delete adapter"
+          >
+            <X className="h-3 w-3" />
+          </Button>
+        )}
+        
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
