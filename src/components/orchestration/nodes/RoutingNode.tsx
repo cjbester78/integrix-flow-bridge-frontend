@@ -78,7 +78,7 @@ export const RoutingNode: React.FC<RoutingNodeProps> = ({ id, data, selected }) 
           </div>
         </CardHeader>
         
-        <CardContent className="pt-0 p-3">
+        <CardContent className="pt-0 p-3 flex justify-center">
           <Button
             variant="outline"
             size="sm"

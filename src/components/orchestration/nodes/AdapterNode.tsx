@@ -99,7 +99,7 @@ export const AdapterNode: React.FC<AdapterNodeProps> = ({ id, data, selected }) 
             </Badge>
           </div>
         </CardHeader>
-        <CardContent className="pt-0 p-3">
+        <CardContent className="pt-0 p-3 flex justify-center">
           <Button
             size="sm"
             variant="outline"

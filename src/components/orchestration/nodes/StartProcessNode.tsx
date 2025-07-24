@@ -120,7 +120,7 @@ export const StartProcessNode: React.FC<StartProcessNodeProps> = ({ id, data, se
           </div>
         </CardHeader>
         
-        <CardContent className="pt-0 p-3">
+        <CardContent className="pt-0 p-3 flex justify-center">
           <Button
             size="sm"
             variant="outline"
