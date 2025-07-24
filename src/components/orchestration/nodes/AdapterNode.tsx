@@ -103,7 +103,7 @@ export const AdapterNode: React.FC<AdapterNodeProps> = ({ id, data, selected }) 
           <Button
             size="sm"
             variant="outline"
-            className="w-3/5 text-[7px] h-4 px-2 bg-gray-800 text-white border-gray-700 hover:bg-gray-700"
+            className="w-4/5 text-[8px] h-5 px-2 bg-gray-800 text-white border-gray-700 hover:bg-gray-700"
             onClick={(e) => {
               console.log('[AdapterNode] Configure button clicked:', { id, adapterType: data.adapterType });
               e.stopPropagation();
@@ -120,7 +120,7 @@ export const AdapterNode: React.FC<AdapterNodeProps> = ({ id, data, selected }) 
               e.stopPropagation();
             }}
           >
-            <Settings size={10} className="mr-0.5" />
+            <Settings size={8} className="mr-1" />
             Config
           </Button>
         </CardContent>
