@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Settings, Play, X } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { useBusinessComponentAdapters } from '@/hooks/useBusinessComponentAdapters';
@@ -14,6 +15,7 @@ interface StartProcessNodeProps {
   data: {
     senderComponent?: string;
     sourceAdapter?: string;
+    isAsync?: boolean;
     payload?: any;
     onConfigChange: (config: any) => void;
   };
@@ -29,6 +31,7 @@ export const StartProcessNode: React.FC<StartProcessNodeProps> = ({ id, data, se
   const { setNodes, setEdges } = useReactFlow();
   const [senderComponent, setSenderComponent] = useState(data.senderComponent || '');
   const [sourceAdapter, setSourceAdapter] = useState(data.sourceAdapter || '');
+  const [isAsync, setIsAsync] = useState(data.isAsync ?? true); // Default to async
   const [availableAdapters, setAvailableAdapters] = useState<string[]>([]);
   
   const { businessComponents, adapters, getAdaptersForBusinessComponent } = useBusinessComponentAdapters();
@@ -67,6 +70,7 @@ export const StartProcessNode: React.FC<StartProcessNodeProps> = ({ id, data, se
     data.onConfigChange({
       senderComponent: value,
       sourceAdapter: validAdapter,
+      isAsync,
       payload: data.payload
     });
   };
@@ -76,6 +80,17 @@ export const StartProcessNode: React.FC<StartProcessNodeProps> = ({ id, data, se
     data.onConfigChange({
       senderComponent,
       sourceAdapter: value,
+      isAsync,
+      payload: data.payload
+    });
+  };
+
+  const handleAsyncChange = (checked: boolean) => {
+    setIsAsync(checked);
+    data.onConfigChange({
+      senderComponent,
+      sourceAdapter,
+      isAsync: checked,
       payload: data.payload
     });
   };
@@ -183,6 +198,29 @@ export const StartProcessNode: React.FC<StartProcessNodeProps> = ({ id, data, se
                   })}
                 </SelectContent>
               </Select>
+            </div>
+
+            {/* Execution Mode Selection */}
+            <div className="space-y-2">
+              <Label htmlFor="execution-mode">Execution Mode</Label>
+              <div className="flex items-center justify-between p-3 border rounded-lg">
+                <div className="space-y-1">
+                  <div className="font-medium text-sm">
+                    {isAsync ? 'Asynchronous' : 'Synchronous'}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {isAsync 
+                      ? 'Process continues without waiting for response' 
+                      : 'Process waits for complete response before continuing'
+                    }
+                  </div>
+                </div>
+                <Switch
+                  checked={isAsync}
+                  onCheckedChange={handleAsyncChange}
+                  aria-label="Toggle execution mode"
+                />
+              </div>
             </div>
 
             {/* Payload Output Info */}
