@@ -45,7 +45,7 @@ export interface Channel {
   adapters: ChannelAdapter[];
   flowMetrics: FlowMetrics;
   lastActivity: string;
-  customerId: string;
+  businessComponentId: string;
   load?: number;
   throughput?: string;
   uptime?: string;
@@ -63,9 +63,9 @@ export interface ChannelLogsFilters {
 }
 
 class ChannelService {
-  async getChannels(customerId?: string): Promise<{ success: boolean; data?: Channel[]; error?: string }> {
+  async getChannels(businessComponentId?: string): Promise<{ success: boolean; data?: Channel[]; error?: string }> {
     try {
-      const endpoint = customerId ? `/channels?customerId=${customerId}` : '/channels';
+      const endpoint = businessComponentId ? `/channels?businessComponentId=${businessComponentId}` : '/channels';
       return await api.get<Channel[]>(endpoint);
     } catch (error) {
       return {

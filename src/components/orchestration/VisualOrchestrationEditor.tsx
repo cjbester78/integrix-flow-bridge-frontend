@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import {
   ReactFlow,
   addEdge,
@@ -114,13 +114,60 @@ const nodeTypes = {
   'soap-adapter': AdapterNode,
   'rest-adapter': AdapterNode,
 };
-// Initial empty state for new orchestration flow
-const initialNodes: Node[] = [];
-const initialEdges: Edge[] = [];
+// Initial nodes with start and end process connected
+const createInitialNodes = (): Node[] => [
+  {
+    id: 'start-process-1',
+    type: 'start-process',
+    position: { x: 100, y: 200 },
+    data: { 
+      senderComponent: '',
+      sourceAdapter: '',
+      isAsync: true,
+      configured: false,
+      showDeleteButton: false,
+      onConfigChange: () => {}
+    },
+  },
+  {
+    id: 'end-process-1',
+    type: 'end-process',
+    position: { x: 500, y: 200 },
+    data: { 
+      adapterType: 'end-process',
+      configured: false,
+      showDeleteButton: false,
+      onConfigChange: () => {}
+    },
+  }
+];
 
-export function VisualOrchestrationEditor() {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+const createInitialEdges = (): Edge[] => [
+  {
+    id: 'start-to-end',
+    source: 'start-process-1',
+    target: 'end-process-1',
+    type: 'smoothstep',
+    animated: true,
+    style: { 
+      stroke: 'hsl(var(--primary))', 
+      strokeWidth: 2 
+    },
+    markerEnd: {
+      type: MarkerType.ArrowClosed,
+      color: 'hsl(var(--primary))'
+    }
+  }
+];
+
+interface VisualOrchestrationEditorProps {
+  flowId?: string;
+  onFlowChange?: (flowData: { steps: any[] }) => void;
+}
+
+export function VisualOrchestrationEditor({ flowId, onFlowChange }: VisualOrchestrationEditorProps) {
+  const [nodes, setNodes, onNodesChange] = useNodesState(createInitialNodes());
+  const [edges, setEdges, onEdgesChange] = useEdgesState(createInitialEdges());
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [nodeWithDeleteButton, setNodeWithDeleteButton] = useState<string | null>(null);
   
@@ -128,6 +175,19 @@ export function VisualOrchestrationEditor() {
   const selectedNodes = useMemo(() => {
     return nodes.filter(node => node.selected).map(node => node.id);
   }, [nodes]);
+
+  // Notify parent component when flow changes
+  useEffect(() => {
+    if (onFlowChange) {
+      const steps = nodes.map(node => ({
+        id: node.id,
+        type: node.type,
+        position: node.position,
+        data: node.data
+      }));
+      onFlowChange({ steps });
+    }
+  }, [nodes, edges, onFlowChange]);
 
   const onConnect = useCallback(
     (params: Connection) => {

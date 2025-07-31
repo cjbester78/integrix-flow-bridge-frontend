@@ -17,7 +17,7 @@ export interface Message {
   status: MessageStatus;
   processingTime: string;
   size: string;
-  customerId: string;
+  businessComponentId: string;
   logs: MessageLog[];
 }
 
@@ -96,8 +96,8 @@ class MessageService {
     return api.post<Message>(`/messages/${id}/reprocess`);
   }
 
-  // Get messages for a specific customer
-  async getCustomerMessages(customerId: string, filters?: Omit<MessageFilters, 'customerId'>): Promise<ApiResponse<{ messages: Message[]; total: number }>> {
+  // Get messages for a specific businessComponent
+  async getBusinessComponentMessages(businessComponentId: string, filters?: Omit<MessageFilters, 'businessComponentId'>): Promise<ApiResponse<{ messages: Message[]; total: number }>> {
     const queryParams = new URLSearchParams();
     if (filters) {
       Object.entries(filters).forEach(([key, value]) => {
@@ -111,17 +111,19 @@ class MessageService {
       });
     }
     
-    const endpoint = `/customers/${customerId}/messages${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    const endpoint = `/business-components/${businessComponentId}/messages${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
     return api.get(endpoint);
   }
 
   // WebSocket Real-time Updates
-  connectWebSocket(customerId?: string): void {
+  connectWebSocket(businessComponentId?: string): void {
     if (this.websocket?.readyState === WebSocket.OPEN) {
       return; // Already connected
     }
 
-    const wsUrl = `${import.meta.env.VITE_WS_URL || 'ws://localhost:8080'}/ws/messages${customerId ? `?customerId=${customerId}` : ''}`;
+    const baseUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8080';
+    const queryParams = businessComponentId ? `?businessComponentId=${businessComponentId}` : '';
+    const wsUrl = `${baseUrl}/ws/messages${queryParams}`;
     
     try {
       this.websocket = new WebSocket(wsUrl);
@@ -147,7 +149,7 @@ class MessageService {
       
       this.websocket.onclose = () => {
         console.log('WebSocket connection closed');
-        this.attemptReconnect(customerId);
+        this.attemptReconnect(businessComponentId);
       };
       
       this.websocket.onerror = (error) => {
@@ -158,13 +160,13 @@ class MessageService {
     }
   }
 
-  private attemptReconnect(customerId?: string): void {
+  private attemptReconnect(businessComponentId?: string): void {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
       console.log(`Attempting to reconnect WebSocket (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
       
       setTimeout(() => {
-        this.connectWebSocket(customerId);
+        this.connectWebSocket(businessComponentId);
       }, this.reconnectInterval * this.reconnectAttempts);
     } else {
       console.error('Max reconnection attempts reached');

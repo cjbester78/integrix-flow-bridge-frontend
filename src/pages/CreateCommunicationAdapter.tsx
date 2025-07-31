@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Customer } from '@/types/customer';
+import { BusinessComponent } from '@/types/businessComponent';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PasswordConfirmation } from '@/components/ui/password-confirmation';
 import { JarSelector } from '@/components/JarSelector';
-import { CustomerSelectionAdapterCard } from '@/components/adapter/CustomerSelectionAdapterCard';
+import { BusinessComponentSelectionAdapterCard } from '@/components/adapter/BusinessComponentSelectionAdapterCard';
 import { FieldMappingScreen } from '@/components/FieldMappingScreen';
 import { FtpAdapterConfiguration } from '@/components/adapter/FtpAdapterConfiguration';
 import { SftpAdapterConfiguration } from '@/components/adapter/SftpAdapterConfiguration';
@@ -351,7 +351,7 @@ const communicationAdapters: CommunicationAdapter[] = [
 ];
 
 export const CreateCommunicationAdapter = () => {
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [selectedBusinessComponent, setSelectedBusinessComponent] = useState<BusinessComponent | null>(null);
   const [selectedAdapter, setSelectedAdapter] = useState('');
   const [adapterName, setAdapterName] = useState('');
   const [adapterMode, setAdapterMode] = useState('sender');
@@ -469,7 +469,7 @@ export const CreateCommunicationAdapter = () => {
   };
 
   const handleSaveAdapter = () => {
-    if (!selectedCustomer) {
+    if (!selectedBusinessComponent) {
       toast({
         title: "Validation Error",
         description: "Please select a customer for this adapter",
@@ -506,7 +506,7 @@ export const CreateCommunicationAdapter = () => {
     });
 
     // Reset form
-    setSelectedCustomer(null);
+    setSelectedBusinessComponent(null);
     setAdapterName('');
     setAdapterMode('');
     setDescription('');
@@ -535,9 +535,9 @@ export const CreateCommunicationAdapter = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Adapter Selection & Configuration */}
         <div className="lg:col-span-2 space-y-6">
-          <CustomerSelectionAdapterCard
-            selectedCustomer={selectedCustomer}
-            setSelectedCustomer={setSelectedCustomer}
+          <BusinessComponentSelectionAdapterCard
+            selectedBusinessComponent={selectedBusinessComponent}
+            setSelectedBusinessComponent={setSelectedBusinessComponent}
           />
           
           <Card className="animate-scale-in">

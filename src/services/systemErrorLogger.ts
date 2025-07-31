@@ -1,8 +1,8 @@
 import { SystemLogEntry } from '@/hooks/useSystemLogs';
 
 class SystemErrorLogger {
-  private logs: SystemLogEntry[] = [];
   private listeners: ((log: SystemLogEntry) => void)[] = [];
+  private readonly API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
 
   constructor() {
     // Listen for unhandled errors
@@ -23,73 +23,9 @@ class SystemErrorLogger {
         stack: event.reason?.stack,
       });
     });
-
-    // Add some sample logs for demo
-    this.initializeSampleLogs();
   }
 
-  private initializeSampleLogs() {
-    const sampleLogs: SystemLogEntry[] = [
-      {
-        id: 'sys-001',
-        timestamp: new Date(Date.now() - 30000).toISOString(),
-        level: 'error',
-        message: 'Failed to connect to WebSocket server',
-        details: { url: 'ws://localhost:8080', error: 'Connection refused' },
-        source: 'system',
-        sourceId: 'websocket',
-        sourceName: 'WebSocket Service',
-      },
-      {
-        id: 'sys-002',
-        timestamp: new Date(Date.now() - 60000).toISOString(),
-        level: 'warn',
-        message: 'API request timeout',
-        details: { endpoint: '/api/adapters', timeout: 5000 },
-        source: 'api',
-        sourceId: 'api-service',
-        sourceName: 'API Service',
-      },
-      {
-        id: 'adapter-001',
-        timestamp: new Date(Date.now() - 90000).toISOString(),
-        level: 'info',
-        message: 'Adapter successfully processed message',
-        details: { messageId: 'msg-123', processingTime: 450 },
-        source: 'adapter',
-        sourceId: 'adapter-001',
-        sourceName: 'SAP R/3 Adapter',
-      },
-      {
-        id: 'channel-001',
-        timestamp: new Date(Date.now() - 120000).toISOString(),
-        level: 'error',
-        message: 'Channel connection lost',
-        details: { channelId: 'ch-001', error: 'Network timeout' },
-        source: 'channel',
-        sourceId: 'ch-001',
-        sourceName: 'ERP Channel',
-      },
-      {
-        id: 'sys-003',
-        timestamp: new Date(Date.now() - 150000).toISOString(),
-        level: 'debug',
-        message: 'System health check completed',
-        details: { 
-          memory: { used: '245MB', total: '512MB' },
-          cpu: '12%',
-          uptime: '2h 30m'
-        },
-        source: 'system',
-        sourceId: 'health-monitor',
-        sourceName: 'Health Monitor',
-      },
-    ];
-
-    this.logs = sampleLogs;
-  }
-
-  logError(message: string, details?: any) {
+  async logError(message: string, details?: any) {
     const logEntry: SystemLogEntry = {
       id: `sys-${Date.now()}`,
       timestamp: new Date().toISOString(),
@@ -101,11 +37,11 @@ class SystemErrorLogger {
       sourceName: 'System Error Logger',
     };
 
-    this.logs.unshift(logEntry);
+    await this.sendLogToBackend(logEntry);
     this.notifyListeners(logEntry);
   }
 
-  logInfo(message: string, details?: any, source: SystemLogEntry['source'] = 'system', sourceId?: string, sourceName?: string) {
+  async logInfo(message: string, details?: any, source: SystemLogEntry['source'] = 'system', sourceId?: string, sourceName?: string) {
     const logEntry: SystemLogEntry = {
       id: `log-${Date.now()}`,
       timestamp: new Date().toISOString(),
@@ -117,11 +53,11 @@ class SystemErrorLogger {
       sourceName: sourceName || 'System',
     };
 
-    this.logs.unshift(logEntry);
+    await this.sendLogToBackend(logEntry);
     this.notifyListeners(logEntry);
   }
 
-  logWarning(message: string, details?: any, source: SystemLogEntry['source'] = 'system', sourceId?: string, sourceName?: string) {
+  async logWarning(message: string, details?: any, source: SystemLogEntry['source'] = 'system', sourceId?: string, sourceName?: string) {
     const logEntry: SystemLogEntry = {
       id: `warn-${Date.now()}`,
       timestamp: new Date().toISOString(),
@@ -133,44 +69,63 @@ class SystemErrorLogger {
       sourceName: sourceName || 'System',
     };
 
-    this.logs.unshift(logEntry);
+    await this.sendLogToBackend(logEntry);
     this.notifyListeners(logEntry);
   }
 
-  getAllLogs(): SystemLogEntry[] {
-    return [...this.logs];
+  private async sendLogToBackend(logEntry: SystemLogEntry): Promise<void> {
+    try {
+      await fetch(`${this.API_BASE_URL}/system/logs`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(logEntry),
+      });
+    } catch (error) {
+      console.error('Failed to send log to backend:', error);
+    }
   }
 
-  getFilteredLogs(filters: {
+  async getAllLogs(): Promise<SystemLogEntry[]> {
+    try {
+      const response = await fetch(`${this.API_BASE_URL}/system/logs`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Failed to fetch logs from backend:', error);
+      return [];
+    }
+  }
+
+  async getFilteredLogs(filters: {
     source?: SystemLogEntry['source'];
     sourceId?: string;
     level?: SystemLogEntry['level'];
     search?: string;
-  }): SystemLogEntry[] {
-    let filtered = [...this.logs];
-
-    if (filters.source) {
-      filtered = filtered.filter(log => log.source === filters.source);
+  }): Promise<SystemLogEntry[]> {
+    try {
+      const queryParams = new URLSearchParams();
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined) {
+          queryParams.append(key, value.toString());
+        }
+      });
+      
+      const endpoint = `${this.API_BASE_URL}/system/logs${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      const response = await fetch(endpoint);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Failed to fetch filtered logs from backend:', error);
+      return [];
     }
-
-    if (filters.sourceId) {
-      filtered = filtered.filter(log => log.sourceId === filters.sourceId);
-    }
-
-    if (filters.level) {
-      filtered = filtered.filter(log => log.level === filters.level);
-    }
-
-    if (filters.search) {
-      const searchLower = filters.search.toLowerCase();
-      filtered = filtered.filter(log =>
-        log.message.toLowerCase().includes(searchLower) ||
-        log.sourceName?.toLowerCase().includes(searchLower) ||
-        (log.details && JSON.stringify(log.details).toLowerCase().includes(searchLower))
-      );
-    }
-
-    return filtered;
   }
 
   onLogUpdate(callback: (log: SystemLogEntry) => void): () => void {

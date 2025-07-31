@@ -1,17 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { DataStructure, Field } from '@/types/dataStructures';
 import { parseJsonStructure, parseWsdlStructure, buildNestedStructure } from '@/utils/structureParsers';
+import { structureService, DataStructureCreate } from '@/services/structureService';
 
 const sampleStructures: DataStructure[] = [
   {
     id: '1',
-    name: 'Customer Order',
+    name: 'Business Component Order',
     type: 'json',
-    description: 'Standard customer order structure',
+    description: 'Standard businessComponent order structure',
     structure: {
       orderId: 'string',
-      customerId: 'string',
+      businessComponentId: 'string',
       items: 'array',
       totalAmount: 'decimal',
       orderDate: 'datetime'
@@ -35,11 +36,11 @@ const sampleStructures: DataStructure[] = [
   },
   {
     id: '3',
-    name: 'Customer Profile',
+    name: 'Business Component Profile',
     type: 'json',
-    description: 'Detailed customer profile with nested address information',
+    description: 'Detailed businessComponent profile with nested address information',
     structure: {
-      customer: {
+      businessComponent: {
         id: 'string',
         firstName: 'string',
         lastName: 'string',
@@ -128,8 +129,8 @@ const sampleStructures: DataStructure[] = [
           },
           taxId: 'string'
         },
-        customer: {
-          customerId: 'string',
+        businessComponent: {
+          businessComponentId: 'string',
           companyName: 'string',
           contactPerson: 'string',
           address: {
@@ -260,11 +261,38 @@ const sampleStructures: DataStructure[] = [
 ];
 
 export const useDataStructures = () => {
-  const [structures, setStructures] = useState<DataStructure[]>(sampleStructures);
+  const [structures, setStructures] = useState<DataStructure[]>([]);
   const [selectedStructure, setSelectedStructure] = useState<DataStructure | null>(null);
+  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const saveStructure = (
+  // Load structures from backend on component mount
+  useEffect(() => {
+    loadStructures();
+  }, []);
+
+  const loadStructures = async () => {
+    try {
+      setLoading(true);
+      console.log('Loading data structures from backend...');
+      const response = await structureService.getStructures();
+      
+      if (response.success && response.data) {
+        console.log('API structures loaded:', response.data.structures);
+        setStructures(response.data.structures);
+      } else {
+        console.log('API failed, using sample data as fallback');
+        setStructures(sampleStructures);
+      }
+    } catch (error) {
+      console.error('Error loading structures, using sample data:', error);
+      setStructures(sampleStructures);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const saveStructure = async (
     structureName: string,
     structureDescription: string,
     structureUsage: 'source' | 'target',
@@ -306,50 +334,115 @@ export const useDataStructures = () => {
       return false;
     }
 
-    const newStructure: DataStructure = {
-      id: Date.now().toString(),
+    const structureData: DataStructureCreate = {
       name: structureName,
-      type: jsonInput ? 'json' : wsdlInput ? 'wsdl' : xsdInput ? 'xsd' : edmxInput ? 'edmx' : 'custom',
+      type: jsonInput ? 'json' : wsdlInput ? 'wsdl' : xsdInput ? 'xsd' : 'custom',
       description: structureDescription,
+      usage: structureUsage as 'source' | 'target' | 'both',
       structure,
-      createdAt: new Date().toISOString().split('T')[0],
-      usage: structureUsage,
       namespace: (selectedStructureType === 'xsd' || selectedStructureType === 'wsdl' || selectedStructureType === 'edmx') && namespaceConfig.uri ? namespaceConfig : undefined
     };
 
-    setStructures([...structures, newStructure]);
-    
-    toast({
-      title: "Structure Saved",
-      description: `Data structure "${structureName}" has been created successfully`,
-    });
-
-    return true;
-  };
-
-  const deleteStructure = (id: string) => {
-    setStructures(structures.filter(s => s.id !== id));
-    if (selectedStructure?.id === id) {
-      setSelectedStructure(null);
+    try {
+      console.log('Saving structure to backend:', structureData);
+      const response = await structureService.createStructure(structureData);
+      
+      if (response.success && response.data) {
+        console.log('Structure saved successfully:', response.data);
+        // Reload structures to get the updated list
+        await loadStructures();
+        
+        toast({
+          title: "Structure Saved",
+          description: `Data structure "${structureName}" has been created successfully`,
+        });
+        return true;
+      } else {
+        console.error('Failed to save structure:', response.error);
+        toast({
+          title: "Save Failed",
+          description: "Failed to save data structure to the backend",
+          variant: "destructive",
+        });
+        return false;
+      }
+    } catch (error) {
+      console.error('Error saving structure:', error);
+      toast({
+        title: "Save Error",
+        description: "An error occurred while saving the data structure",
+        variant: "destructive",
+      });
+      return false;
     }
-    toast({
-      title: "Structure Deleted",
-      description: "Data structure has been removed",
-    });
   };
 
-  const duplicateStructure = (structure: DataStructure) => {
-    const duplicate = {
-      ...structure,
-      id: Date.now().toString(),
-      name: `${structure.name} (Copy)`,
-      createdAt: new Date().toISOString().split('T')[0]
-    };
-    setStructures([...structures, duplicate]);
-    toast({
-      title: "Structure Duplicated",
-      description: `Created copy of "${structure.name}"`,
-    });
+  const deleteStructure = async (id: string) => {
+    try {
+      console.log('Deleting structure:', id);
+      const response = await structureService.deleteStructure(id);
+      
+      if (response.success) {
+        console.log('Structure deleted successfully');
+        // Reload structures to get the updated list
+        await loadStructures();
+        
+        if (selectedStructure?.id === id) {
+          setSelectedStructure(null);
+        }
+        
+        toast({
+          title: "Structure Deleted",
+          description: "Data structure has been removed",
+        });
+      } else {
+        console.error('Failed to delete structure:', response.error);
+        toast({
+          title: "Delete Failed",
+          description: "Failed to delete data structure",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error deleting structure:', error);
+      toast({
+        title: "Delete Error",
+        description: "An error occurred while deleting the data structure",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const duplicateStructure = async (structure: DataStructure) => {
+    try {
+      console.log('Duplicating structure:', structure.name);
+      const response = await structureService.cloneStructure(structure.id, `${structure.name} (Copy)`);
+      
+      if (response.success && response.data) {
+        console.log('Structure duplicated successfully:', response.data);
+        // Reload structures to get the updated list
+        await loadStructures();
+        
+        toast({
+          title: "Structure Duplicated",
+          description: `Created copy of "${structure.name}"`,
+        });
+      } else {
+        console.error('Failed to duplicate structure:', response.error);
+        toast({
+          title: "Duplicate Failed",
+          description: "Failed to duplicate data structure",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error duplicating structure:', error);
+      toast({
+        title: "Duplicate Error",
+        description: "An error occurred while duplicating the data structure",
+        variant: "destructive",
+      });
+    }
   };
 
   return {
@@ -358,6 +451,8 @@ export const useDataStructures = () => {
     setSelectedStructure,
     saveStructure,
     deleteStructure,
-    duplicateStructure
+    duplicateStructure,
+    loading,
+    refreshStructures: loadStructures
   };
 };

@@ -17,11 +17,11 @@ export interface Channel {
   errorRate: number;
   totalMessages: number;
   avgResponseTime: string;
-  customerId?: string;
+  businessComponentId?: string;
 }
 
 export interface ChannelFilters {
-  customerId?: string;
+  businessComponentId?: string;
   status?: string;
   category?: string;
   healthStatus?: 'healthy' | 'warning' | 'error';
@@ -61,8 +61,8 @@ export class ChannelApi {
     return api.post<Channel>(`/channels/${action.channelId}/control`, action);
   }
 
-  // Get channels for a specific customer
-  async getCustomerChannels(customerId: string, filters?: Omit<ChannelFilters, 'customerId'>): Promise<ApiResponse<{ channels: Channel[]; total: number }>> {
+  // Get channels for a specific businessComponent
+  async getBusinessComponentChannels(businessComponentId: string, filters?: Omit<ChannelFilters, 'businessComponentId'>): Promise<ApiResponse<{ channels: Channel[]; total: number }>> {
     const queryParams = new URLSearchParams();
     if (filters) {
       Object.entries(filters).forEach(([key, value]) => {
@@ -72,7 +72,7 @@ export class ChannelApi {
       });
     }
     
-    const endpoint = `/customers/${customerId}/channels${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    const endpoint = `/business-components/${businessComponentId}/channels${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
     return api.get(endpoint);
   }
 }

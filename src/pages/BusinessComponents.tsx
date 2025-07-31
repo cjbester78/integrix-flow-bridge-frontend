@@ -37,7 +37,7 @@ export const BusinessComponents = () => {
     } else {
       toast({
         title: "Error",
-        description: response.error || "Failed to load business components",
+        description: response.error || "Failed to load businessComponents",
         variant: "destructive",
       });
     }
@@ -48,7 +48,7 @@ export const BusinessComponents = () => {
     if (!formData.name.trim()) {
       toast({
         title: "Validation Error",
-        description: "Business component name is required",
+        description: "BusinessComponent name is required",
         variant: "destructive",
       });
       return;
@@ -61,12 +61,12 @@ export const BusinessComponents = () => {
       setFormData({ name: '', description: '', contactEmail: '', contactPhone: '' });
       toast({
         title: "Success",
-        description: "Business component created successfully",
+        description: "BusinessComponent created successfully",
       });
     } else {
       toast({
         title: "Error",
-        description: response.error || "Failed to create business component",
+        description: response.error || "Failed to create businessComponent",
         variant: "destructive",
       });
     }
@@ -76,7 +76,7 @@ export const BusinessComponents = () => {
     if (!editingBusinessComponent || !formData.name.trim()) {
       toast({
         title: "Validation Error",
-        description: "Business component name is required",
+        description: "BusinessComponent name is required",
         variant: "destructive",
       });
       return;
@@ -94,12 +94,12 @@ export const BusinessComponents = () => {
       setFormData({ name: '', description: '', contactEmail: '', contactPhone: '' });
       toast({
         title: "Success",
-        description: "Business component updated successfully",
+        description: "BusinessComponent updated successfully",
       });
     } else {
       toast({
         title: "Error",
-        description: response.error || "Failed to update business component",
+        description: response.error || "Failed to update businessComponent",
         variant: "destructive",
       });
     }
@@ -111,12 +111,12 @@ export const BusinessComponents = () => {
       setBusinessComponents(businessComponents.filter(c => c.id !== businessComponent.id));
       toast({
         title: "Success",
-        description: "Business component deleted successfully",
+        description: "BusinessComponent deleted successfully",
       });
     } else {
       toast({
         title: "Error",
-        description: response.error || "Failed to delete business component",
+        description: response.error || "Failed to delete businessComponent",
         variant: "destructive",
       });
     }
@@ -159,31 +159,31 @@ export const BusinessComponents = () => {
         <div>
           <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
             <Building2 className="h-8 w-8" />
-            Business Component Management
+            BusinessComponent Management
           </h1>
-          <p className="text-muted-foreground">Manage your business components and organizations</p>
+          <p className="text-muted-foreground">Manage your businessComponents and organizations</p>
         </div>
         
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={() => resetForm()}>
               <Plus className="h-4 w-4 mr-2" />
-              Add Business Component
+              Add BusinessComponent
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Create New Business Component</DialogTitle>
-              <DialogDescription>Add a new business component to your system</DialogDescription>
+              <DialogTitle>Create New BusinessComponent</DialogTitle>
+              <DialogDescription>Add a new businessComponent to your system</DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <Label htmlFor="name">Business Component Name *</Label>
+                <Label htmlFor="name">BusinessComponent Name *</Label>
                 <Input
                   id="name"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Enter business component name"
+                  placeholder="Enter businessComponent name"
                 />
               </div>
               <div>
@@ -192,7 +192,7 @@ export const BusinessComponents = () => {
                   id="description"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Enter business component description"
+                  placeholder="Enter businessComponent description"
                   rows={3}
                 />
               </div>
@@ -220,7 +220,7 @@ export const BusinessComponents = () => {
                   Cancel
                 </Button>
                 <Button onClick={handleCreate}>
-                  Create Business Component
+                  Create BusinessComponent
                 </Button>
               </div>
             </div>
@@ -231,10 +231,10 @@ export const BusinessComponents = () => {
       {businessComponents.length === 0 ? (
         <EmptyState
           icon={<Building2 className="h-12 w-12" />}
-          title="No business components yet"
-          description="Get started by adding your first business component to organize your integrations."
+          title="No businessComponents yet"
+          description="Get started by adding your first businessComponent to organize your integrations by client."
           action={{
-            label: "Add Business Component",
+            label: "Add BusinessComponent",
             onClick: () => setIsCreateDialogOpen(true)
           }}
         />
@@ -261,7 +261,7 @@ export const BusinessComponents = () => {
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Business Component</AlertDialogTitle>
+                          <AlertDialogTitle>Delete BusinessComponent</AlertDialogTitle>
                           <AlertDialogDescription>
                             Are you sure you want to delete "{businessComponent.name}"? This action cannot be undone.
                           </AlertDialogDescription>
@@ -308,17 +308,17 @@ export const BusinessComponents = () => {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Business Component</DialogTitle>
-            <DialogDescription>Update business component information</DialogDescription>
+            <DialogTitle>Edit BusinessComponent</DialogTitle>
+            <DialogDescription>Update businessComponent information</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="edit-name">Business Component Name *</Label>
+              <Label htmlFor="edit-name">BusinessComponent Name *</Label>
               <Input
                 id="edit-name"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="Enter business component name"
+                placeholder="Enter businessComponent name"
               />
             </div>
             <div>
@@ -327,7 +327,7 @@ export const BusinessComponents = () => {
                 id="edit-description"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="Enter business component description"
+                placeholder="Enter businessComponent description"
                 rows={3}
               />
             </div>
@@ -355,7 +355,7 @@ export const BusinessComponents = () => {
                 Cancel
               </Button>
               <Button onClick={handleEdit}>
-                Update Business Component
+                Update BusinessComponent
               </Button>
             </div>
           </div>

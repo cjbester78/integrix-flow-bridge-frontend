@@ -1,17 +1,17 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { useCustomerAdapters } from '@/hooks/useCustomerAdapters';
-import { Customer } from '@/types/customer';
+import { useBusinessComponentAdapters } from '@/hooks/useBusinessComponentAdapters';
+import { BusinessComponent } from '@/types/businessComponent';
 import { Activity, RefreshCw } from 'lucide-react';
 import { Channel } from '@/services/channelService';
 import { ChannelStats } from '@/components/channels/ChannelStats';
-import { CustomerFilter } from '@/components/channels/CustomerFilter';
+import { BusinessComponentFilter } from '@/components/channels/BusinessComponentFilter';
 import { ChannelList } from '@/components/channels/ChannelList';
 
 export default function Channels() {
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [selectedBusinessComponent, setSelectedBusinessComponent] = useState<BusinessComponent | null>(null);
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
-  const { customers, loading } = useCustomerAdapters();
+  const { businessComponents, loading } = useBusinessComponentAdapters();
 
   // Mock channels data - replace with actual API call
   const channels: Channel[] = [
@@ -20,7 +20,7 @@ export default function Channels() {
       name: 'SAP-to-Salesforce Integration',
       description: 'Customer data synchronization between SAP ERP and Salesforce CRM',
       status: 'running',
-      customerId: selectedCustomer?.id || '1',
+      customerId: selectedBusinessComponent?.id || '1',
       load: 85,
       throughput: '245 msg/min',
       uptime: '99.8%',
@@ -61,7 +61,7 @@ export default function Channels() {
   ];
 
   const filteredChannels = channels.filter(channel => {
-    if (selectedCustomer && channel.customerId !== selectedCustomer.id) return false;
+    if (selectedBusinessComponent && channel.customerId !== selectedBusinessComponent.id) return false;
     if (statusFilter && channel.status !== statusFilter) return false;
     return true;
   });
@@ -96,15 +96,15 @@ export default function Channels() {
 
       <ChannelStats
         channels={filteredChannels}
-        isCustomerSelected={!!selectedCustomer}
+        isCustomerSelected={!!selectedBusinessComponent}
         statusFilter={statusFilter}
         onStatusFilter={setStatusFilter}
       />
 
-      <CustomerFilter
-        customers={customers}
-        selectedCustomer={selectedCustomer}
-        onCustomerChange={setSelectedCustomer}
+      <BusinessComponentFilter
+        businessComponents={businessComponents}
+        selectedBusinessComponent={selectedBusinessComponent}
+        onBusinessComponentChange={setSelectedBusinessComponent}
         loading={loading}
       />
 

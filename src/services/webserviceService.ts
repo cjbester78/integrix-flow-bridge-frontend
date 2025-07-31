@@ -15,13 +15,13 @@ export interface WebserviceFile {
   name: string;
   uploadDate: string;
   size: string;
-  customerId: string;
+  businessComponentId: string;
 }
 
 class WebserviceService {
-  async getWebserviceFiles(customerId?: string): Promise<{ success: boolean; data?: WebserviceFile[]; error?: string }> {
+  async getWebserviceFiles(businessComponentId?: string): Promise<{ success: boolean; data?: WebserviceFile[]; error?: string }> {
     try {
-      const endpoint = customerId ? `/webservices?customerId=${customerId}` : '/webservices';
+      const endpoint = businessComponentId ? `/webservices?businessComponentId=${businessComponentId}` : '/webservices';
       return await api.get<WebserviceFile[]>(endpoint);
     } catch (error) {
       return {
@@ -42,11 +42,11 @@ class WebserviceService {
     }
   }
 
-  async uploadWebservice(file: File, customerId: string): Promise<{ success: boolean; data?: WebserviceFile; error?: string }> {
+  async uploadWebservice(file: File, businessComponentId: string): Promise<{ success: boolean; data?: WebserviceFile; error?: string }> {
     try {
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('customerId', customerId);
+      formData.append('businessComponentId', businessComponentId);
 
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/webservices/upload`, {
         method: 'POST',

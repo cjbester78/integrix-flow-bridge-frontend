@@ -9,7 +9,7 @@ export interface IntegrationFlow {
   createdAt: string;
   updatedAt: string;
   createdBy: string;
-  customerId?: string;
+  businessComponentId?: string;
 }
 
 export interface FlowStep {

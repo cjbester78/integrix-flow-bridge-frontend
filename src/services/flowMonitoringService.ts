@@ -13,7 +13,7 @@ export interface FlowExecution {
   processedRecords: number;
   errorCount: number;
   warnings: string[];
-  customerId?: string;
+  businessComponentId?: string;
 }
 
 export interface FlowMonitoringStats {
@@ -28,7 +28,7 @@ export interface FlowMonitoringStats {
 }
 
 export interface FlowFilters {
-  customerId?: string;
+  businessComponentId?: string;
   status?: string;
   flowId?: string;
   startDate?: string;
@@ -93,12 +93,12 @@ class FlowMonitoringService {
   }
 
   // WebSocket Real-time Updates
-  connectWebSocket(customerId?: string): void {
+  connectWebSocket(businessComponentId?: string): void {
     if (this.websocket?.readyState === WebSocket.OPEN) {
       return;
     }
 
-    const wsUrl = `${import.meta.env.VITE_WS_URL || 'ws://localhost:8080'}/ws/flows${customerId ? `?customerId=${customerId}` : ''}`;
+    const wsUrl = `${import.meta.env.VITE_WS_URL || 'ws://localhost:8080'}/ws/flows${businessComponentId ? `?businessComponentId=${businessComponentId}` : ''}`;
     
     try {
       this.websocket = new WebSocket(wsUrl);
@@ -126,7 +126,7 @@ class FlowMonitoringService {
       
       this.websocket.onclose = () => {
         console.log('WebSocket connection closed');
-        this.attemptReconnect(customerId);
+        this.attemptReconnect(businessComponentId);
       };
       
       this.websocket.onerror = (error) => {
@@ -137,13 +137,13 @@ class FlowMonitoringService {
     }
   }
 
-  private attemptReconnect(customerId?: string): void {
+  private attemptReconnect(businessComponentId?: string): void {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
       console.log(`Attempting to reconnect WebSocket (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
       
       setTimeout(() => {
-        this.connectWebSocket(customerId);
+        this.connectWebSocket(businessComponentId);
       }, this.reconnectInterval * this.reconnectAttempts);
     }
   }

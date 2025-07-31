@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { messageService, Message, MessageStats, MessageFilters } from '@/services/messageService';
 import { useToast } from '@/hooks/use-toast';
 
-export const useMessageMonitoring = (customerId?: string) => {
+export const useMessageMonitoring = (businessComponentId?: string) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [stats, setStats] = useState<MessageStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -13,8 +13,8 @@ export const useMessageMonitoring = (customerId?: string) => {
   const loadMessages = useCallback(async (filters?: MessageFilters) => {
     setLoading(true);
     try {
-      const response = customerId 
-        ? await messageService.getCustomerMessages(customerId, filters)
+      const response = businessComponentId 
+        ? await messageService.getBusinessComponentMessages(businessComponentId, filters)
         : await messageService.getMessages(filters);
         
       if (response.success && response.data) {
@@ -29,7 +29,7 @@ export const useMessageMonitoring = (customerId?: string) => {
     } finally {
       setLoading(false);
     }
-  }, [customerId, toast]);
+  }, [businessComponentId, toast]);
 
   const loadStats = useCallback(async (filters?: Omit<MessageFilters, 'limit' | 'offset'>) => {
     try {
@@ -45,7 +45,7 @@ export const useMessageMonitoring = (customerId?: string) => {
   // Real-time updates
   useEffect(() => {
     // Connect WebSocket
-    messageService.connectWebSocket(customerId);
+    messageService.connectWebSocket(businessComponentId);
     setConnected(true);
 
     // Subscribe to message updates
@@ -89,7 +89,7 @@ export const useMessageMonitoring = (customerId?: string) => {
       messageService.disconnectWebSocket();
       setConnected(false);
     };
-  }, [customerId, loadMessages, loadStats, toast]);
+  }, [businessComponentId, loadMessages, loadStats, toast]);
 
   const reprocessMessage = useCallback(async (messageId: string) => {
     try {

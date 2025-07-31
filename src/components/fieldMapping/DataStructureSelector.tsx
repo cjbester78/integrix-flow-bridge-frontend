@@ -30,7 +30,7 @@ export function DataStructureSelector({
   // Filter structures by usage type and optionally by business component
   const filteredStructures = structures.filter(structure => {
     const usageMatch = structure.usage === usage;
-    const businessComponentMatch = !businessComponentId || structure.customerId === businessComponentId;
+    const businessComponentMatch = !businessComponentId || structure.businessComponentId === businessComponentId;
     return usageMatch && businessComponentMatch;
   });
   return (

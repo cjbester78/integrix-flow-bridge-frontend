@@ -4,7 +4,7 @@ import { businessComponentService } from '@/services/businessComponentService';
 import { channelService } from '@/services/channelService';
 import { structureService } from '@/services/structureService';
 
-// Mock business component data as fallback
+// Mock businessComponent data as fallback
 const mockBusinessComponents: BusinessComponent[] = [
   {
     id: '1',
@@ -46,73 +46,52 @@ export const useBusinessComponentAdapters = () => {
 
   const loadData = async () => {
     try {
-      console.log('[useBusinessComponentAdapters] Starting data load...');
-      setLoading(true);
-      
+      console.log('Loading businessComponent data...');
       const [businessComponentsResponse, adaptersResponse] = await Promise.all([
         businessComponentService.getAllBusinessComponents(),
         channelService.getAvailableAdapters()
       ]);
 
-      console.log('[useBusinessComponentAdapters] Business components response:', businessComponentsResponse);
-      console.log('[useBusinessComponentAdapters] Adapters response:', adaptersResponse);
-
       let hasBusinessComponentData = false;
       if (businessComponentsResponse.success && businessComponentsResponse.data) {
-        console.log('[useBusinessComponentAdapters] API business components loaded:', businessComponentsResponse.data);
+        console.log('API businessComponents loaded:', businessComponentsResponse.data);
         setBusinessComponents(businessComponentsResponse.data);
         hasBusinessComponentData = true;
-      } else {
-        console.warn('[useBusinessComponentAdapters] Business components API failed:', businessComponentsResponse);
       }
 
       if (adaptersResponse.success && adaptersResponse.data) {
-        console.log('[useBusinessComponentAdapters] API adapters loaded:', adaptersResponse.data);
+        console.log('API adapters loaded:', adaptersResponse.data);
         setAdapters(adaptersResponse.data);
-      } else {
-        console.warn('[useBusinessComponentAdapters] Adapters API failed:', adaptersResponse);
       }
 
       // Use mock data as fallback if API fails
       if (!hasBusinessComponentData) {
-        console.log('[useBusinessComponentAdapters] Using mock business component data as fallback');
+        console.log('Using mock businessComponent data as fallback');
         setBusinessComponents(mockBusinessComponents);
       }
     } catch (error) {
-      console.error('[useBusinessComponentAdapters] Error loading data, using mock data:', error);
+      console.error('Error loading data, using mock data:', error);
       setBusinessComponents(mockBusinessComponents);
     } finally {
-      console.log('[useBusinessComponentAdapters] Data loading complete');
       setLoading(false);
     }
   };
 
   const getAdaptersForBusinessComponent = async (businessComponentId: string) => {
-    console.log('[useBusinessComponentAdapters] Getting adapters for business component:', businessComponentId);
-    try {
-      const response = await channelService.getChannels(businessComponentId);
-      console.log('[useBusinessComponentAdapters] Channels response:', response);
-      
-      if (response.success && response.data) {
-        const adapterIds = response.data.flatMap(channel => 
-          channel.adapters.map(adapter => adapter.id)
-        );
-        const uniqueAdapterIds = [...new Set(adapterIds)]; // Remove duplicates
-        console.log('[useBusinessComponentAdapters] Found adapter IDs:', uniqueAdapterIds);
-        return uniqueAdapterIds;
-      }
-      console.warn('[useBusinessComponentAdapters] No adapters found for business component');
-      return [];
-    } catch (error) {
-      console.error('[useBusinessComponentAdapters] Error getting adapters for business component:', error);
-      return [];
+    const response = await channelService.getChannels(businessComponentId);
+    if (response.success && response.data) {
+      const adapterIds = response.data.flatMap(channel => 
+        channel.adapters.map(adapter => adapter.id)
+      );
+      return [...new Set(adapterIds)]; // Remove duplicates
     }
+    return [];
   };
 
   const getStructuresForBusinessComponent = async (businessComponentId: string) => {
     const response = await structureService.getStructures();
     if (response.success && response.data) {
-      return response.data.structures.filter(s => s.customerId === businessComponentId).map(structure => structure.id);
+      return response.data.structures.filter(s => s.businessComponentId === businessComponentId).map(structure => structure.id);
     }
     return [];
   };

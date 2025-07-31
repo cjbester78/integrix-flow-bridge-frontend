@@ -264,57 +264,134 @@ class FlowExecutionEngine {
 // Step Processors Implementation
 class AdapterStepProcessor implements StepProcessor {
   async process(step: any, context: ExecutionContext): Promise<any> {
-    // Simulate adapter execution
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    return { status: 'success', data: `Adapter ${step.name} executed` };
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/adapters/${step.adapterId}/execute`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        stepId: step.id,
+        executionId: context.executionId,
+        configuration: step.configuration,
+        input: context.stepResults[step.dependencies?.[0]] || {}
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Adapter execution failed: ${response.statusText}`);
+    }
+
+    return await response.json();
   }
 
   validateInput(step: any, input: any): boolean {
-    return true;
+    return step.adapterId && step.configuration;
   }
 }
 
 class TransformationStepProcessor implements StepProcessor {
   async process(step: any, context: ExecutionContext): Promise<any> {
-    // Simulate transformation execution
-    await new Promise(resolve => setTimeout(resolve, 800));
-    return { status: 'success', transformedData: `Transformed by ${step.name}` };
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/transformations/execute`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        stepId: step.id,
+        executionId: context.executionId,
+        transformationType: step.transformationType,
+        configuration: step.configuration,
+        input: context.stepResults[step.dependencies?.[0]] || {}
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Transformation execution failed: ${response.statusText}`);
+    }
+
+    return await response.json();
   }
 
   validateInput(step: any, input: any): boolean {
-    return true;
+    return step.transformationType && step.configuration;
   }
 }
 
 class ConditionStepProcessor implements StepProcessor {
   async process(step: any, context: ExecutionContext): Promise<any> {
-    // Simulate condition evaluation
-    await new Promise(resolve => setTimeout(resolve, 200));
-    return { status: 'success', conditionResult: true };
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/conditions/evaluate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        stepId: step.id,
+        executionId: context.executionId,
+        condition: step.condition,
+        variables: context.variables,
+        input: context.stepResults[step.dependencies?.[0]] || {}
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Condition evaluation failed: ${response.statusText}`);
+    }
+
+    return await response.json();
   }
 
   validateInput(step: any, input: any): boolean {
-    return true;
+    return step.condition;
   }
 }
 
 class LoopStepProcessor implements StepProcessor {
   async process(step: any, context: ExecutionContext): Promise<any> {
-    // Simulate loop execution
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    return { status: 'success', iterations: 3 };
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/loops/execute`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        stepId: step.id,
+        executionId: context.executionId,
+        loopConfiguration: step.loopConfiguration,
+        input: context.stepResults[step.dependencies?.[0]] || {}
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Loop execution failed: ${response.statusText}`);
+    }
+
+    return await response.json();
   }
 
   validateInput(step: any, input: any): boolean {
-    return true;
+    return step.loopConfiguration;
   }
 }
 
 class DelayStepProcessor implements StepProcessor {
   async process(step: any, context: ExecutionContext): Promise<any> {
     const delay = step.configuration?.delay || 1000;
-    await new Promise(resolve => setTimeout(resolve, delay));
-    return { status: 'success', delayedFor: delay };
+    
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/flows/executions/${context.executionId}/delay`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        stepId: step.id,
+        delay: delay
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Delay execution failed: ${response.statusText}`);
+    }
+
+    return await response.json();
   }
 
   validateInput(step: any, input: any): boolean {

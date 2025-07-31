@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,77 +6,30 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Settings as SettingsIcon } from 'lucide-react';
+import { ArrowLeft, Settings as SettingsIcon, Loader2 } from 'lucide-react';
 import { FlowActionsCard } from '@/components/createFlow/FlowActionsCard';
 import { FlowSummaryCard } from '@/components/createFlow/FlowSummaryCard';
 import { QuickTipsCard } from '@/components/createFlow/QuickTipsCard';
 import { FieldMappingScreen } from '@/components/FieldMappingScreen';
 import { Database, Server, Globe, Mail, FileText, Code } from 'lucide-react';
+import { businessComponentService } from '@/services/businessComponentService';
+import { api } from '@/services/api';
+import { useToast } from '@/hooks/use-toast';
 
-// Mock adapter data
-const mockAdapters = [
-  { id: 'jdbc-receiver', name: 'JDBC Receiver', icon: Database, category: 'Database' },
-  { id: 'jdbc-sender', name: 'JDBC Sender', icon: Database, category: 'Database' },
-  { id: 'http-receiver', name: 'HTTP Receiver', icon: Globe, category: 'Web Service' },
-  { id: 'http-sender', name: 'HTTP Sender', icon: Globe, category: 'Web Service' },
-  { id: 'rest-receiver', name: 'REST Receiver', icon: Server, category: 'Web Service' },
-  { id: 'rest-sender', name: 'REST Sender', icon: Server, category: 'Web Service' },
-  { id: 'soap-receiver', name: 'SOAP Receiver', icon: Code, category: 'Web Service' },
-  { id: 'soap-sender', name: 'SOAP Sender', icon: Code, category: 'Web Service' },
-  { id: 'mail-receiver', name: 'Mail Receiver', icon: Mail, category: 'Communication' },
-  { id: 'mail-sender', name: 'Mail Sender', icon: Mail, category: 'Communication' },
-  { id: 'file-adapter', name: 'File Adapter', icon: FileText, category: 'File' },
-  { id: 'ftp-adapter', name: 'FTP Adapter', icon: SettingsIcon, category: 'File' },
-  { id: 'sftp-adapter', name: 'SFTP Adapter', icon: SettingsIcon, category: 'File' },
-];
-
-// Mock business components
-const mockBusinessComponents = [
-  { id: 'customer-mgmt', name: 'Customer Management' },
-  { id: 'order-processing', name: 'Order Processing' },
-  { id: 'inventory-mgmt', name: 'Inventory Management' },
-  { id: 'financial-sys', name: 'Financial System' },
-  { id: 'hr-system', name: 'HR System' },
-];
-
-// Mock data structures
-const mockDataStructures = [
-  { 
-    id: 'customer-schema', 
-    name: 'Customer Schema',
-    type: 'xsd' as const,
-    structure: '',
-    createdAt: new Date().toISOString(),
-    usage: 'source' as const
-  },
-  { 
-    id: 'order-schema', 
-    name: 'Order Schema',
-    type: 'json' as const,
-    structure: '',
-    createdAt: new Date().toISOString(),
-    usage: 'target' as const
-  },
-  { 
-    id: 'product-schema', 
-    name: 'Product Schema',
-    type: 'xsd' as const,
-    structure: '',
-    createdAt: new Date().toISOString(),
-    usage: 'source' as const
-  },
-  { 
-    id: 'invoice-schema', 
-    name: 'Invoice Schema',
-    type: 'json' as const,
-    structure: '',
-    createdAt: new Date().toISOString(),
-    usage: 'target' as const
-  },
-];
+// Adapter icon mapping
+const getAdapterIcon = (type: string) => {
+  const typeUpper = type.toUpperCase();
+  if (typeUpper.includes('JDBC')) return Database;
+  if (typeUpper.includes('HTTP') || typeUpper.includes('REST')) return Globe;
+  if (typeUpper.includes('SOAP')) return Code;
+  if (typeUpper.includes('MAIL')) return Mail;
+  if (typeUpper.includes('FILE') || typeUpper.includes('FTP')) return FileText;
+  return Server;
+};
 
 export function CreateDirectMappingFlow() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [showFieldMapping, setShowFieldMapping] = useState(false);
   
   // Flow state
@@ -88,29 +41,170 @@ export function CreateDirectMappingFlow() {
   const [targetAdapter, setTargetAdapter] = useState('');
   const [sourceStructure, setSourceStructure] = useState('');
   const [targetStructure, setTargetStructure] = useState('');
+  
+  // Data state
+  const [businessComponents, setBusinessComponents] = useState<any[]>([]);
+  const [adapters, setAdapters] = useState<any[]>([]);
+  const [dataStructures, setDataStructures] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  
+  // Load data on component mount
+  useEffect(() => {
+    loadComponentData();
+  }, []);
+  
+  const loadComponentData = async () => {
+    try {
+      setLoading(true);
+      
+      // Load business components
+      const businessResult = await businessComponentService.getAllBusinessComponents();
+      if (businessResult.success && businessResult.data) {
+        setBusinessComponents(businessResult.data);
+      }
+      
+      // Load adapters
+      try {
+        const adaptersResponse = await api.get('/adapters');
+        if (adaptersResponse.data) {
+          setAdapters(adaptersResponse.data);
+        }
+      } catch (error) {
+        console.warn('Could not load adapters:', error);
+        setAdapters([]);
+      }
+      
+      // Load data structures
+      try {
+        const structuresResponse = await api.get('/structures');
+        if (structuresResponse.data) {
+          setDataStructures(structuresResponse.data);
+        }
+      } catch (error) {
+        console.warn('Could not load data structures:', error);
+        setDataStructures([]);
+      }
+      
+    } catch (error) {
+      console.error('Error loading component data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load component data. Some features may not work properly.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleClose = () => {
     navigate('/dashboard');
   };
 
-  const handleSave = (mappings?: any[], mappingName?: string) => {
-    console.log('Saving direct mapping flow:', { 
-      flowName, 
-      description, 
-      sourceBusinessComponent, 
-      targetBusinessComponent, 
-      sourceAdapter, 
-      targetAdapter,
-      sourceStructure,
-      targetStructure,
-      mappings, 
-      mappingName 
-    });
-    navigate('/dashboard');
+  const handleSave = async (mappings?: any[], mappingName?: string) => {
+    if (!flowName.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Flow name is required.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!sourceAdapter || !targetAdapter) {
+      toast({
+        title: "Validation Error", 
+        description: "Both source and target adapters are required.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setSaving(true);
+      
+      // Prepare the direct mapping flow request
+      const flowRequest = {
+        flowName: flowName.trim(),
+        description: description.trim(),
+        sourceBusinessComponentId: sourceBusinessComponent || null,
+        targetBusinessComponentId: targetBusinessComponent || null,
+        sourceAdapterId: sourceAdapter,
+        targetAdapterId: targetAdapter,
+        sourceStructureId: sourceStructure || null,
+        targetStructureId: targetStructure || null,
+        createdBy: 'current-user', // TODO: Get from auth context
+        fieldMappings: mappings || []
+      };
+
+      // Save the complete flow using the flow composition API
+      const response = await api.post('/flow-composition/direct-mapping', flowRequest);
+      
+      if (response.data) {
+        toast({
+          title: "Success",
+          description: `Integration flow "${flowName}" has been created successfully.`,
+        });
+        navigate('/dashboard');
+      }
+      
+    } catch (error: any) {
+      console.error('Error saving flow:', error);
+      toast({
+        title: "Save Failed",
+        description: error.response?.data?.message || "Failed to save the integration flow. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleTestFlow = () => {
-    console.log('Testing flow...');
+  const handleTestFlow = async () => {
+    if (!sourceAdapter || !targetAdapter) {
+      toast({
+        title: "Validation Error",
+        description: "Both source and target adapters are required for testing.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Validate the flow configuration before testing
+      const validationRequest = {
+        flowName: flowName.trim() || 'Test Flow',
+        sourceAdapterId: sourceAdapter,
+        targetAdapterId: targetAdapter,
+        sourceBusinessComponentId: sourceBusinessComponent || null,
+        targetBusinessComponentId: targetBusinessComponent || null
+      };
+
+      const response = await api.post('/flow-composition/validate/direct-mapping', validationRequest);
+      
+      if (response.data?.valid) {
+        toast({
+          title: "Validation Passed",
+          description: "Flow configuration is valid and ready for execution.",
+        });
+      } else {
+        const errors = response.data?.errors?.join(', ') || 'Unknown validation errors';
+        toast({
+          title: "Validation Failed",
+          description: errors,
+          variant: "destructive",
+        });
+      }
+      
+    } catch (error: any) {
+      console.error('Error testing flow:', error);
+      toast({
+        title: "Test Failed",
+        description: error.response?.data?.message || "Failed to test the flow configuration.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleCreateMapping = () => {
@@ -225,12 +319,12 @@ export function CreateDirectMappingFlow() {
                     <div className="space-y-3">
                       <div className="space-y-2">
                         <Label>Source Business Component *</Label>
-                        <Select value={sourceBusinessComponent} onValueChange={setSourceBusinessComponent}>
+                        <Select value={sourceBusinessComponent} onValueChange={setSourceBusinessComponent} disabled={loading}>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select source business component" />
+                            <SelectValue placeholder={loading ? "Loading..." : "Select source business component"} />
                           </SelectTrigger>
                           <SelectContent>
-                            {mockBusinessComponents.map((component) => (
+                            {businessComponents.map((component) => (
                               <SelectItem key={component.id} value={component.id}>
                                 {component.name}
                               </SelectItem>
@@ -240,16 +334,22 @@ export function CreateDirectMappingFlow() {
                       </div>
                       <div className="space-y-2">
                         <Label>Source Adapter *</Label>
-                        <Select value={sourceAdapter} onValueChange={setSourceAdapter}>
+                        <Select value={sourceAdapter} onValueChange={setSourceAdapter} disabled={loading}>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select source system" />
+                            <SelectValue placeholder={loading ? "Loading..." : "Select source system"} />
                           </SelectTrigger>
                           <SelectContent>
-                            {mockAdapters.map((adapter) => (
-                              <SelectItem key={adapter.id} value={adapter.id}>
-                                {adapter.name}
-                              </SelectItem>
-                            ))}
+                            {adapters.map((adapter) => {
+                              const Icon = getAdapterIcon(adapter.type || adapter.name);
+                              return (
+                                <SelectItem key={adapter.name} value={adapter.name}>
+                                  <div className="flex items-center gap-2">
+                                    <Icon className="h-4 w-4" />
+                                    {adapter.name}
+                                  </div>
+                                </SelectItem>
+                              );
+                            })}
                           </SelectContent>
                         </Select>
                       </div>
@@ -262,12 +362,12 @@ export function CreateDirectMappingFlow() {
                     <div className="space-y-3">
                       <div className="space-y-2">
                         <Label>Target Business Component *</Label>
-                        <Select value={targetBusinessComponent} onValueChange={setTargetBusinessComponent}>
+                        <Select value={targetBusinessComponent} onValueChange={setTargetBusinessComponent} disabled={loading}>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select target business component" />
+                            <SelectValue placeholder={loading ? "Loading..." : "Select target business component"} />
                           </SelectTrigger>
                           <SelectContent>
-                            {mockBusinessComponents.map((component) => (
+                            {businessComponents.map((component) => (
                               <SelectItem key={component.id} value={component.id}>
                                 {component.name}
                               </SelectItem>
@@ -277,16 +377,22 @@ export function CreateDirectMappingFlow() {
                       </div>
                       <div className="space-y-2">
                         <Label>Target Adapter *</Label>
-                        <Select value={targetAdapter} onValueChange={setTargetAdapter}>
+                        <Select value={targetAdapter} onValueChange={setTargetAdapter} disabled={loading}>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select target system" />
+                            <SelectValue placeholder={loading ? "Loading..." : "Select target system"} />
                           </SelectTrigger>
                           <SelectContent>
-                            {mockAdapters.map((adapter) => (
-                              <SelectItem key={adapter.id} value={adapter.id}>
-                                {adapter.name}
-                              </SelectItem>
-                            ))}
+                            {adapters.map((adapter) => {
+                              const Icon = getAdapterIcon(adapter.type || adapter.name);
+                              return (
+                                <SelectItem key={adapter.name} value={adapter.name}>
+                                  <div className="flex items-center gap-2">
+                                    <Icon className="h-4 w-4" />
+                                    {adapter.name}
+                                  </div>
+                                </SelectItem>
+                              );
+                            })}
                           </SelectContent>
                         </Select>
                       </div>
@@ -333,6 +439,8 @@ export function CreateDirectMappingFlow() {
             <FlowActionsCard
               onTestFlow={handleTestFlow}
               onSaveFlow={() => handleSave()}
+              isLoading={saving}
+              disabled={loading || !flowName.trim() || !sourceAdapter || !targetAdapter}
             />
             
             <FlowSummaryCard
@@ -341,11 +449,27 @@ export function CreateDirectMappingFlow() {
               sourceStructure={sourceStructure}
               targetStructure={targetStructure}
               selectedTransformations={[]}
-              adapters={mockAdapters}
-              sampleStructures={mockDataStructures}
+              adapters={adapters.map(adapter => ({
+                id: adapter.name,
+                name: adapter.name,
+                icon: getAdapterIcon(adapter.type || adapter.name),
+                category: adapter.type || 'General'
+              }))}
+              sampleStructures={dataStructures}
             />
             
             <QuickTipsCard />
+            
+            {loading && (
+              <Card>
+                <CardContent className="flex items-center justify-center py-6">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Loading component data...
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </div>

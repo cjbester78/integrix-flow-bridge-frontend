@@ -4,6 +4,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CertificateSelection } from '@/components/ui/certificate-selection';
 
@@ -402,6 +404,73 @@ export function SoapReceiverAdapterConfiguration({
           </TabsContent>
 
           <TabsContent value="processing" className="space-y-6">
+            {/* Processing Mode Section */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Processing Mode</h3>
+              
+              <div className="flex items-center justify-between space-x-4 p-4 border rounded-lg">
+                <div className="space-y-1">
+                  <Label htmlFor="processingMode" className="text-sm font-medium">
+                    Asynchronous Processing
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    {configuration.processingMode === 'ASYNCHRONOUS' 
+                      ? 'Fire-and-forget: don\'t wait for response from target system'
+                      : 'Wait for complete response from target system before continuing flow'
+                    }
+                  </p>
+                </div>
+                <Switch
+                  id="processingMode"
+                  checked={configuration.processingMode === 'ASYNCHRONOUS'}
+                  onCheckedChange={(checked) => 
+                    onConfigurationChange('processingMode', checked ? 'ASYNCHRONOUS' : 'SYNCHRONOUS')
+                  }
+                />
+              </div>
+
+              {configuration.processingMode === 'SYNCHRONOUS' && (
+                <div className="space-y-4 pl-4 border-l-2 border-muted">
+                  <div className="space-y-2">
+                    <Label htmlFor="responseTimeout">Response Timeout (ms)</Label>
+                    <Input
+                      id="responseTimeout"
+                      type="number"
+                      placeholder="30000"
+                      value={configuration.responseTimeout || ''}
+                      onChange={(e) => onConfigurationChange('responseTimeout', parseInt(e.target.value) || 30000)}
+                    />
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="waitForResponse"
+                      checked={configuration.waitForResponse !== false}
+                      onCheckedChange={(checked) => onConfigurationChange('waitForResponse', checked)}
+                    />
+                    <Label htmlFor="waitForResponse" className="text-sm">
+                      Wait for response in synchronous mode
+                    </Label>
+                  </div>
+                </div>
+              )}
+
+              {configuration.processingMode === 'ASYNCHRONOUS' && (
+                <div className="space-y-4 pl-4 border-l-2 border-muted">
+                  <div className="space-y-2">
+                    <Label htmlFor="asyncCorrelationId">Correlation ID (Optional)</Label>
+                    <Input
+                      id="asyncCorrelationId"
+                      type="text"
+                      placeholder="Unique identifier for async processing"
+                      value={configuration.asyncCorrelationId || ''}
+                      onChange={(e) => onConfigurationChange('asyncCorrelationId', e.target.value)}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Authentication & Security Section */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Authentication & Security</h3>

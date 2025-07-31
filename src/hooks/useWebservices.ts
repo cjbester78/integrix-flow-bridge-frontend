@@ -2,21 +2,21 @@ import { useState, useEffect } from 'react';
 import { webserviceService, WebserviceFile } from '@/services/webserviceService';
 import { FieldNode } from '@/components/fieldMapping/types';
 
-export const useWebservices = (customerId?: string) => {
+export const useWebservices = (businessComponentId?: string) => {
   const [webservices, setWebservices] = useState<WebserviceFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadWebservices();
-  }, [customerId]);
+  }, [businessComponentId]);
 
   const loadWebservices = async () => {
     setLoading(true);
     setError(null);
     
     try {
-      const response = await webserviceService.getWebserviceFiles(customerId);
+      const response = await webserviceService.getWebserviceFiles(businessComponentId);
       if (response.success && response.data) {
         setWebservices(response.data);
       } else {
@@ -44,9 +44,9 @@ export const useWebservices = (customerId?: string) => {
     }
   };
 
-  const uploadWebservice = async (file: File, customerId: string) => {
+  const uploadWebservice = async (file: File, businessComponentId: string) => {
     try {
-      const response = await webserviceService.uploadWebservice(file, customerId);
+      const response = await webserviceService.uploadWebservice(file, businessComponentId);
       if (response.success) {
         await loadWebservices(); // Refresh the list
       }

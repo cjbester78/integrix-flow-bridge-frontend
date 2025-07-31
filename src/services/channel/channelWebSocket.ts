@@ -8,12 +8,12 @@ export class ChannelWebSocket {
   private alertListeners: ((alert: any) => void)[] = [];
 
   // WebSocket Real-time Updates
-  connectWebSocket(customerId?: string): void {
+  connectWebSocket(businessComponentId?: string): void {
     if (this.websocket?.readyState === WebSocket.OPEN) {
       return;
     }
 
-    const wsUrl = `${import.meta.env.VITE_WS_URL || 'ws://localhost:8080'}/ws/channels${customerId ? `?customerId=${customerId}` : ''}`;
+    const wsUrl = `${import.meta.env.VITE_WS_URL || 'ws://localhost:8080'}/ws/channels${businessComponentId ? `?businessComponentId=${businessComponentId}` : ''}`;
     
     try {
       this.websocket = new WebSocket(wsUrl);
@@ -43,7 +43,7 @@ export class ChannelWebSocket {
       
       this.websocket.onclose = () => {
         console.log('WebSocket connection closed');
-        this.attemptReconnect(customerId);
+        this.attemptReconnect(businessComponentId);
       };
       
       this.websocket.onerror = (error) => {
@@ -54,13 +54,13 @@ export class ChannelWebSocket {
     }
   }
 
-  private attemptReconnect(customerId?: string): void {
+  private attemptReconnect(businessComponentId?: string): void {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
       console.log(`Attempting to reconnect WebSocket (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
       
       setTimeout(() => {
-        this.connectWebSocket(customerId);
+        this.connectWebSocket(businessComponentId);
       }, this.reconnectInterval * this.reconnectAttempts);
     }
   }

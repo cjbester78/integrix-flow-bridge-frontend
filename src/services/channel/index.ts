@@ -16,8 +16,8 @@ class ChannelService extends ChannelApi {
   }
 
   // WebSocket methods
-  connectWebSocket(customerId?: string): void {
-    return this.webSocket.connectWebSocket(customerId);
+  connectWebSocket(businessComponentId?: string): void {
+    return this.webSocket.connectWebSocket(businessComponentId);
   }
 
   disconnectWebSocket(): void {

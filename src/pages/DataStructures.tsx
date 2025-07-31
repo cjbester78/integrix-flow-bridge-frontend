@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { Field } from '@/types/dataStructures';
-import { Customer } from '@/types/customer';
+import { BusinessComponent } from '@/types/businessComponent';
 import { useDataStructures } from '@/hooks/useDataStructures';
+import { useToast } from '@/hooks/use-toast';
 import { StructureCreationForm } from '@/components/dataStructures/StructureCreationForm';
-import { CustomerSelectionCard } from '@/components/dataStructures/CustomerSelectionCard';
+import { BusinessComponentSelectionCard } from '@/components/dataStructures/BusinessComponentSelectionCard';
 import { StructureDefinitionTabs } from '@/components/dataStructures/StructureDefinitionTabs';
 import { StructureLibrary } from '@/components/dataStructures/StructureLibrary';
 import { StructurePreview } from '@/components/dataStructures/StructurePreview';
@@ -17,13 +18,15 @@ export const DataStructures = () => {
     setSelectedStructure,
     saveStructure,
     deleteStructure,
-    duplicateStructure
+    duplicateStructure,
+    loading
   } = useDataStructures();
+  const { toast } = useToast();
 
   // Form state
   const [structureName, setStructureName] = useState('');
   const [structureDescription, setStructureDescription] = useState('');
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [selectedBusinessComponent, setSelectedBusinessComponent] = useState<BusinessComponent | null>(null);
   const [customFields, setCustomFields] = useState<Field[]>([]);
   const [jsonInput, setJsonInput] = useState('');
   const [xsdInput, setXsdInput] = useState('');
@@ -78,13 +81,18 @@ export const DataStructures = () => {
     }
   };
 
-  const handleSave = () => {
-    if (!selectedCustomer) {
-      // Handle validation - customer is required
+  const handleSave = async () => {
+    if (!selectedBusinessComponent) {
+      // Handle validation - business component is required
+      toast({
+        title: "Validation Error",
+        description: "Please select a business component",
+        variant: "destructive",
+      });
       return;
     }
     
-    const success = saveStructure(
+    const success = await saveStructure(
       structureName,
       structureDescription,
       'source', // Default to source
@@ -101,7 +109,7 @@ export const DataStructures = () => {
       // Reset form
       setStructureName('');
       setStructureDescription('');
-      setSelectedCustomer(null);
+      setSelectedBusinessComponent(null);
       setJsonInput('');
       setXsdInput('');
       setEdmxInput('');
@@ -119,7 +127,7 @@ export const DataStructures = () => {
   const handleResetAllFields = () => {
     setStructureName('');
     setStructureDescription('');
-    setSelectedCustomer(null);
+    setSelectedBusinessComponent(null);
     setJsonInput('');
     setXsdInput('');
     setEdmxInput('');
@@ -147,9 +155,9 @@ export const DataStructures = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Structure Creation */}
         <div className="lg:col-span-2 space-y-6">
-          <CustomerSelectionCard
-            selectedCustomer={selectedCustomer}
-            setSelectedCustomer={setSelectedCustomer}
+          <BusinessComponentSelectionCard
+            selectedBusinessComponent={selectedBusinessComponent}
+            setSelectedBusinessComponent={setSelectedBusinessComponent}
           />
           
           <StructureCreationForm

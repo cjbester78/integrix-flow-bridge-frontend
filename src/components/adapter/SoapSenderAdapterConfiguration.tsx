@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
 import { PasswordConfirmation } from '@/components/ui/password-confirmation';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -382,6 +383,74 @@ export function SoapSenderAdapterConfiguration({
           </TabsContent>
 
           <TabsContent value="processing" className="space-y-6">
+            {/* Processing Mode Section */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Processing Mode</h3>
+              
+              <div className="flex items-center justify-between space-x-4 p-4 border rounded-lg">
+                <div className="space-y-1">
+                  <Label htmlFor="processingMode" className="text-sm font-medium">
+                    Asynchronous Processing
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    {configuration.processingMode === 'ASYNCHRONOUS' 
+                      ? 'Return immediate acknowledgment (HTTP 202), process in background'
+                      : 'Wait for complete processing before sending response back to caller'
+                    }
+                  </p>
+                </div>
+                <Switch
+                  id="processingMode"
+                  checked={configuration.processingMode === 'ASYNCHRONOUS'}
+                  onCheckedChange={(checked) => 
+                    onConfigurationChange('processingMode', checked ? 'ASYNCHRONOUS' : 'SYNCHRONOUS')
+                  }
+                />
+              </div>
+
+              {configuration.processingMode === 'ASYNCHRONOUS' && (
+                <div className="space-y-4 pl-4 border-l-2 border-muted">
+                  <div className="space-y-2">
+                    <Label htmlFor="asyncResponseTimeout">Async Response Timeout (ms)</Label>
+                    <Input
+                      id="asyncResponseTimeout"
+                      type="number"
+                      placeholder="30000"
+                      value={configuration.asyncResponseTimeout || ''}
+                      onChange={(e) => onConfigurationChange('asyncResponseTimeout', parseInt(e.target.value) || 30000)}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="asyncResponseFormat">Async Response Format</Label>
+                    <Select
+                      value={configuration.asyncResponseFormat || 'HTTP_202'}
+                      onValueChange={(value) => onConfigurationChange('asyncResponseFormat', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select response format" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="HTTP_202">HTTP 202 Accepted</SelectItem>
+                        <SelectItem value="CUSTOM_RESPONSE">Custom Response</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="asyncCallbackUrl">Callback URL (Optional)</Label>
+                    <Input
+                      id="asyncCallbackUrl"
+                      type="url"
+                      placeholder="https://callback-endpoint.example.com/webhook"
+                      value={configuration.asyncCallbackUrl || ''}
+                      onChange={(e) => onConfigurationChange('asyncCallbackUrl', e.target.value)}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Authentication & Security Section */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Authentication & Security</h3>

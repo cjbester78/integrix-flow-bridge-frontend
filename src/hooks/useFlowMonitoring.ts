@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { flowMonitoringService, FlowExecution, FlowMonitoringStats, FlowFilters } from '@/services/flowMonitoringService';
 import { useToast } from '@/hooks/use-toast';
 
-export const useFlowMonitoring = (customerId?: string) => {
+export const useFlowMonitoring = (businessComponentId?: string) => {
   const [executions, setExecutions] = useState<FlowExecution[]>([]);
   const [stats, setStats] = useState<FlowMonitoringStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -39,7 +39,7 @@ export const useFlowMonitoring = (customerId?: string) => {
   }, []);
 
   useEffect(() => {
-    flowMonitoringService.connectWebSocket(customerId);
+    flowMonitoringService.connectWebSocket(businessComponentId);
     setConnected(true);
 
     const unsubscribeExecutions = flowMonitoringService.onExecutionUpdate((execution) => {
@@ -76,7 +76,7 @@ export const useFlowMonitoring = (customerId?: string) => {
       flowMonitoringService.disconnectWebSocket();
       setConnected(false);
     };
-  }, [customerId, loadExecutions, loadStats, toast]);
+  }, [businessComponentId, loadExecutions, loadStats, toast]);
 
   const stopExecution = useCallback(async (executionId: string) => {
     try {

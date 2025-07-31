@@ -1,102 +1,109 @@
 import { BusinessComponent, CreateBusinessComponentRequest, UpdateBusinessComponentRequest } from '@/types/businessComponent';
 
-class BusinessComponentService {
-  private businessComponents: BusinessComponent[] = [
-    {
-      id: '1',
-      name: 'ACME Corporation',
-      description: 'Large enterprise client',
-      contactEmail: 'contact@acme.com',
-      contactPhone: '+1-555-0123',
-      createdAt: '2024-01-15T10:00:00Z',
-      updatedAt: '2024-01-15T10:00:00Z'
-    },
-    {
-      id: '2',
-      name: 'TechStart Inc',
-      description: 'Growing technology startup',
-      contactEmail: 'hello@techstart.com',
-      contactPhone: '+1-555-0456',
-      createdAt: '2024-01-16T14:30:00Z',
-      updatedAt: '2024-01-16T14:30:00Z'
-    }
-  ];
+const API_BASE_URL = 'http://localhost:8080/api/business-components';
 
+class BusinessComponentService {
   async getAllBusinessComponents(): Promise<{ success: boolean; data?: BusinessComponent[]; error?: string }> {
     try {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 300));
-      return { success: true, data: [...this.businessComponents] };
+      const response = await fetch(API_BASE_URL);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      return { success: true, data };
     } catch (error) {
+      console.error('Failed to fetch business components:', error);
       return { success: false, error: 'Failed to fetch business components' };
     }
   }
 
   async getBusinessComponentById(id: string): Promise<{ success: boolean; data?: BusinessComponent; error?: string }> {
     try {
-      await new Promise(resolve => setTimeout(resolve, 200));
-      const businessComponent = this.businessComponents.find(c => c.id === id);
-      if (!businessComponent) {
-        return { success: false, error: 'Business component not found' };
+      const response = await fetch(`${API_BASE_URL}/${id}`);
+      if (!response.ok) {
+        if (response.status === 404) {
+          return { success: false, error: 'Business component not found' };
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-      return { success: true, data: businessComponent };
+      const data = await response.json();
+      return { success: true, data };
     } catch (error) {
+      console.error('Failed to fetch business component:', error);
       return { success: false, error: 'Failed to fetch business component' };
     }
   }
 
   async createBusinessComponent(data: CreateBusinessComponentRequest): Promise<{ success: boolean; data?: BusinessComponent; error?: string }> {
     try {
-      await new Promise(resolve => setTimeout(resolve, 300));
+      console.log('Frontend: Creating business component with data:', data);
       
-      const newBusinessComponent: BusinessComponent = {
-        id: Date.now().toString(),
-        ...data,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
+      const response = await fetch(API_BASE_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
 
-      this.businessComponents.push(newBusinessComponent);
-      return { success: true, data: newBusinessComponent };
+      console.log('Frontend: Response status:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Frontend: Error response:', errorText);
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      }
+      
+      const result = await response.json();
+      console.log('Frontend: Created business component:', result);
+      return { success: true, data: result };
     } catch (error) {
+      console.error('Frontend: Failed to create business component:', error);
       return { success: false, error: 'Failed to create business component' };
     }
   }
 
   async updateBusinessComponent(data: UpdateBusinessComponentRequest): Promise<{ success: boolean; data?: BusinessComponent; error?: string }> {
     try {
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      const index = this.businessComponents.findIndex(c => c.id === data.id);
-      if (index === -1) {
-        return { success: false, error: 'Business component not found' };
+      const response = await fetch(`${API_BASE_URL}/${data.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          return { success: false, error: 'Business component not found' };
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-
-      const updatedBusinessComponent: BusinessComponent = {
-        ...this.businessComponents[index],
-        ...data,
-        updatedAt: new Date().toISOString()
-      };
-
-      this.businessComponents[index] = updatedBusinessComponent;
-      return { success: true, data: updatedBusinessComponent };
+      
+      const result = await response.json();
+      return { success: true, data: result };
     } catch (error) {
+      console.error('Failed to update business component:', error);
       return { success: false, error: 'Failed to update business component' };
     }
   }
 
   async deleteBusinessComponent(id: string): Promise<{ success: boolean; error?: string }> {
     try {
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      const index = this.businessComponents.findIndex(c => c.id === id);
-      if (index === -1) {
-        return { success: false, error: 'Business component not found' };
-      }
+      const response = await fetch(`${API_BASE_URL}/${id}`, {
+        method: 'DELETE',
+      });
 
-      this.businessComponents.splice(index, 1);
+      if (!response.ok) {
+        if (response.status === 404) {
+          return { success: false, error: 'Business component not found' };
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       return { success: true };
     } catch (error) {
+      console.error('Failed to delete business component:', error);
       return { success: false, error: 'Failed to delete business component' };
     }
   }

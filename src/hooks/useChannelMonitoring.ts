@@ -2,21 +2,21 @@ import { useState, useEffect, useCallback } from 'react';
 import { channelService, Channel } from '@/services/channelService';
 import { useToast } from '@/hooks/use-toast';
 
-export const useChannelMonitoring = (customerId?: string) => {
+export const useChannelMonitoring = (businessComponentId?: string) => {
   const [channels, setChannels] = useState<Channel[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadChannels();
-  }, [customerId]);
+  }, [businessComponentId]);
 
   const loadChannels = async () => {
     setLoading(true);
     setError(null);
     
     try {
-      const response = await channelService.getChannels(customerId);
+      const response = await channelService.getChannels(businessComponentId);
       if (response.success && response.data) {
         setChannels(response.data);
       } else {
