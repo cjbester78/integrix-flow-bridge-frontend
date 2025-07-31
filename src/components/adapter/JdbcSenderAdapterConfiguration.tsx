@@ -33,19 +33,19 @@ export const JdbcSenderAdapterConfiguration: React.FC<JdbcSenderAdapterConfigura
 
   return (
     <div className="space-y-6">
-      <Tabs defaultValue="target" className="w-full">
+      <Tabs defaultValue="source" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="target">Target</TabsTrigger>
+          <TabsTrigger value="source">Source</TabsTrigger>
           <TabsTrigger value="processing">Processing</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="target" className="space-y-6">
+        <TabsContent value="source" className="space-y-6">
           {/* Database Connection Section */}
           <Card>
             <CardHeader>
-              <CardTitle>Database Connection</CardTitle>
+              <CardTitle>Source Database Connection</CardTitle>
               <CardDescription>
-                Configure the JDBC database connection settings
+                Configure connection to the source database for polling and data retrieval
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -137,43 +137,76 @@ export const JdbcSenderAdapterConfiguration: React.FC<JdbcSenderAdapterConfigura
             </CardContent>
           </Card>
 
-          {/* Insert/Update Logic Section */}
+          {/* Data Retrieval and Polling Section */}
           <Card>
             <CardHeader>
-              <CardTitle>Insert/Update Logic</CardTitle>
+              <CardTitle>Data Retrieval and Polling</CardTitle>
               <CardDescription>
-                Configure how data is inserted or updated in the database
+                Configure how data is retrieved from the source database
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="insertUpdateQuery">Insert/Update Query</Label>
+                <Label htmlFor="selectQuery">Select Query</Label>
                 <Textarea
-                  id="insertUpdateQuery"
-                  placeholder="INSERT INTO sales (...) VALUES (...) or call stored proc"
-                  value={getProperty('insertUpdateQuery')}
-                  onChange={(e) => updateProperties('insertUpdateQuery', e.target.value)}
+                  id="selectQuery"
+                  placeholder="SELECT * FROM orders WHERE created_date > ? ORDER BY id"
+                  value={getProperty('selectQuery')}
+                  onChange={(e) => updateProperties('selectQuery', e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="countQuery">Count Query (Optional)</Label>
+                <Textarea
+                  id="countQuery"
+                  placeholder="SELECT COUNT(*) FROM orders WHERE created_date > ?"
+                  value={getProperty('countQuery')}
+                  onChange={(e) => updateProperties('countQuery', e.target.value)}
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="batchSize">Batch Size</Label>
+                  <Label htmlFor="pollingInterval">Polling Interval (ms)</Label>
                   <Input
-                    id="batchSize"
+                    id="pollingInterval"
                     type="number"
-                    placeholder="100"
-                    value={getProperty('batchSize')}
-                    onChange={(e) => updateProperties('batchSize', e.target.value)}
+                    placeholder="30000"
+                    value={getProperty('pollingInterval')}
+                    onChange={(e) => updateProperties('pollingInterval', e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="commitInterval">Commit Interval</Label>
+                  <Label htmlFor="fetchSize">Fetch Size</Label>
                   <Input
-                    id="commitInterval"
-                    placeholder="After every batch or N records"
-                    value={getProperty('commitInterval')}
-                    onChange={(e) => updateProperties('commitInterval', e.target.value)}
+                    id="fetchSize"
+                    type="number"
+                    placeholder="1000"
+                    value={getProperty('fetchSize')}
+                    onChange={(e) => updateProperties('fetchSize', e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="incrementalColumn">Incremental Column</Label>
+                  <Input
+                    id="incrementalColumn"
+                    placeholder="created_date, updated_timestamp, id"
+                    value={getProperty('incrementalColumn')}
+                    onChange={(e) => updateProperties('incrementalColumn', e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="maxResults">Max Results per Poll</Label>
+                  <Input
+                    id="maxResults"
+                    type="number"
+                    placeholder="1000"
+                    value={getProperty('maxResults')}
+                    onChange={(e) => updateProperties('maxResults', e.target.value)}
                   />
                 </div>
               </div>

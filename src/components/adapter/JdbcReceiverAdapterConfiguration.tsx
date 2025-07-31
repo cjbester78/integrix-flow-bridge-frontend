@@ -33,19 +33,19 @@ export const JdbcReceiverAdapterConfiguration: React.FC<JdbcReceiverAdapterConfi
 
   return (
     <div className="space-y-6">
-      <Tabs defaultValue="source" className="w-full">
+      <Tabs defaultValue="target" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="source">Source</TabsTrigger>
+          <TabsTrigger value="target">Target</TabsTrigger>
           <TabsTrigger value="processing">Processing</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="source" className="space-y-6">
+        <TabsContent value="target" className="space-y-6">
           {/* Database Connection Section */}
           <Card>
             <CardHeader>
-              <CardTitle>Database Connection</CardTitle>
+              <CardTitle>Target Database Connection</CardTitle>
               <CardDescription>
-                Configure the JDBC database connection settings
+                Configure connection to the target database for data insertion and updates
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -137,44 +137,64 @@ export const JdbcReceiverAdapterConfiguration: React.FC<JdbcReceiverAdapterConfi
             </CardContent>
           </Card>
 
-          {/* Query and Data Extraction Section */}
+          {/* Data Insertion and Update Operations */}
           <Card>
             <CardHeader>
-              <CardTitle>Query and Data Extraction</CardTitle>
+              <CardTitle>Data Operations</CardTitle>
               <CardDescription>
-                Configure how data is extracted from the database
+                Configure how data is inserted and updated in the target database
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="selectQuery">Select Query</Label>
+                <Label htmlFor="insertQuery">Insert Query</Label>
                 <Textarea
-                  id="selectQuery"
-                  placeholder="SELECT * FROM orders WHERE status='NEW'"
-                  value={getProperty('selectQuery')}
-                  onChange={(e) => updateProperties('selectQuery', e.target.value)}
+                  id="insertQuery"
+                  placeholder="INSERT INTO orders (id, customer_id, amount, status) VALUES (?, ?, ?, ?)"
+                  value={getProperty('insertQuery')}
+                  onChange={(e) => updateProperties('insertQuery', e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="updateQuery">Update Query (Optional)</Label>
+                <Textarea
+                  id="updateQuery"
+                  placeholder="UPDATE orders SET status = ?, updated_date = ? WHERE id = ?"
+                  value={getProperty('updateQuery')}
+                  onChange={(e) => updateProperties('updateQuery', e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="deleteQuery">Delete Query (Optional)</Label>
+                <Textarea
+                  id="deleteQuery"
+                  placeholder="DELETE FROM orders WHERE id = ? AND status = 'CANCELLED'"
+                  value={getProperty('deleteQuery')}
+                  onChange={(e) => updateProperties('deleteQuery', e.target.value)}
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="fetchSize">Fetch Size</Label>
+                  <Label htmlFor="batchSize">Batch Size</Label>
                   <Input
-                    id="fetchSize"
+                    id="batchSize"
                     type="number"
                     placeholder="100"
-                    value={getProperty('fetchSize')}
-                    onChange={(e) => updateProperties('fetchSize', e.target.value)}
+                    value={getProperty('batchSize')}
+                    onChange={(e) => updateProperties('batchSize', e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="pollingInterval">Polling Interval (ms)</Label>
+                  <Label htmlFor="commitInterval">Commit Interval</Label>
                   <Input
-                    id="pollingInterval"
+                    id="commitInterval"
                     type="number"
-                    placeholder="60000"
-                    value={getProperty('pollingInterval')}
-                    onChange={(e) => updateProperties('pollingInterval', e.target.value)}
+                    placeholder="1000"
+                    value={getProperty('commitInterval')}
+                    onChange={(e) => updateProperties('commitInterval', e.target.value)}
                   />
                 </div>
               </div>
