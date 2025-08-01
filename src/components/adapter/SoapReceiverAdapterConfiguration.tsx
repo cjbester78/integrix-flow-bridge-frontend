@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
@@ -20,6 +20,13 @@ export function SoapReceiverAdapterConfiguration({
   onConfigurationChange,
   businessComponentId
 }: SoapReceiverAdapterConfigurationProps) {
+  // Set default processing mode to asynchronous
+  useEffect(() => {
+    if (!configuration.processingMode) {
+      onConfigurationChange('processingMode', 'ASYNCHRONOUS');
+    }
+  }, []);
+
   const handleAuthTypeChange = (authType: string) => {
     onConfigurationChange('authentication.type', authType);
     // Reset auth-specific fields when type changes
@@ -422,14 +429,14 @@ export function SoapReceiverAdapterConfiguration({
                 </div>
                 <Switch
                   id="processingMode"
-                  checked={configuration.processingMode === 'ASYNCHRONOUS'}
+                  checked={(configuration.processingMode || 'ASYNCHRONOUS') === 'ASYNCHRONOUS'}
                   onCheckedChange={(checked) => 
                     onConfigurationChange('processingMode', checked ? 'ASYNCHRONOUS' : 'SYNCHRONOUS')
                   }
                 />
               </div>
 
-              {configuration.processingMode === 'SYNCHRONOUS' && (
+              {(configuration.processingMode || 'ASYNCHRONOUS') === 'SYNCHRONOUS' && (
                 <div className="space-y-4 pl-4 border-l-2 border-muted">
                   <div className="space-y-2">
                     <Label htmlFor="responseTimeout">Response Timeout (ms)</Label>
@@ -455,7 +462,7 @@ export function SoapReceiverAdapterConfiguration({
                 </div>
               )}
 
-              {configuration.processingMode === 'ASYNCHRONOUS' && (
+              {(configuration.processingMode || 'ASYNCHRONOUS') === 'ASYNCHRONOUS' && (
                 <div className="space-y-4 pl-4 border-l-2 border-muted">
                   <div className="space-y-2">
                     <Label htmlFor="asyncCorrelationId">Correlation ID (Optional)</Label>

@@ -278,15 +278,19 @@ export const useDataStructures = () => {
       const response = await structureService.getStructures();
       
       if (response.success && response.data) {
-        console.log('API structures loaded:', response.data.structures);
-        setStructures(response.data.structures);
+        console.log('API structures loaded:', response.data.structures || response.data);
+        const structures = response.data.structures || response.data || [];
+        
+        // Set structures from API, even if empty
+        console.log(`API returned ${structures.length} structures`);
+        setStructures(structures);
       } else {
-        console.log('API failed, using sample data as fallback');
-        setStructures(sampleStructures);
+        console.log('API failed, showing empty list');
+        setStructures([]);
       }
     } catch (error) {
-      console.error('Error loading structures, using sample data:', error);
-      setStructures(sampleStructures);
+      console.error('Error loading structures, showing empty list:', error);
+      setStructures([]);
     } finally {
       setLoading(false);
     }

@@ -12,16 +12,19 @@ import { parseJsonStructure, parseWsdlStructure, buildNestedStructure } from '@/
 import { Layers } from 'lucide-react';
 
 export const DataStructures = () => {
-  const {
-    structures,
-    selectedStructure,
-    setSelectedStructure,
-    saveStructure,
-    deleteStructure,
-    duplicateStructure,
-    loading
-  } = useDataStructures();
-  const { toast } = useToast();
+  try {
+    const {
+      structures,
+      selectedStructure,
+      setSelectedStructure,
+      saveStructure,
+      deleteStructure,
+      duplicateStructure,
+      loading
+    } = useDataStructures();
+    
+    console.log('DataStructures component rendering, structures:', structures?.length || 0, 'loading:', loading);
+    const { toast } = useToast();
 
   // Form state
   const [structureName, setStructureName] = useState('');
@@ -142,6 +145,28 @@ export const DataStructures = () => {
     setSelectedStructureType('json');
   };
 
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="p-6 space-y-6 animate-fade-in">
+        <div className="animate-slide-up">
+          <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+            <Layers className="h-8 w-8" />
+            Data Structures
+          </h1>
+          <p className="text-muted-foreground">Loading data structures...</p>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            <div className="animate-pulse">
+              <div className="h-32 bg-muted rounded-lg"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 space-y-6 animate-fade-in">
       <div className="animate-slide-up">
@@ -197,7 +222,7 @@ export const DataStructures = () => {
         {/* Structure Library */}
         <div className="space-y-6">
           <StructureLibrary
-            structures={structures}
+            structures={structures || []}
             selectedStructure={selectedStructure}
             onSelectStructure={setSelectedStructure}
             onDuplicateStructure={duplicateStructure}
@@ -211,4 +236,26 @@ export const DataStructures = () => {
       </div>
     </div>
   );
+  } catch (error) {
+    console.error('Error rendering DataStructures component:', error);
+    return (
+      <div className="p-6 space-y-6">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-foreground flex items-center justify-center gap-3">
+            <Layers className="h-8 w-8" />
+            Data Structures
+          </h1>
+          <p className="text-muted-foreground mt-4">
+            There was an error loading the data structures page. Please check the browser console for details.
+          </p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+          >
+            Reload Page
+          </button>
+        </div>
+      </div>
+    );
+  }
 };

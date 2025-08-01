@@ -11,7 +11,8 @@ import {
   ChevronRight,
   Layers,
   Building2,
-  ScrollText
+  ScrollText,
+  Package
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useState } from 'react';
@@ -48,6 +49,12 @@ const navigation = [
     name: 'Business Components', 
     href: '/business-components', 
     icon: Building2, 
+    roles: ['administrator', 'integrator'] 
+  },
+  { 
+    name: 'Interface Management', 
+    href: '/interfaces', 
+    icon: Package, 
     roles: ['administrator', 'integrator'] 
   },
   { 

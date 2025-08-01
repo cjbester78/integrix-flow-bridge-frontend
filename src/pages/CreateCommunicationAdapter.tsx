@@ -468,7 +468,7 @@ export const CreateCommunicationAdapter = () => {
     }
   };
 
-  const handleSaveAdapter = () => {
+  const handleSaveAdapter = async () => {
     if (!selectedBusinessComponent) {
       toast({
         title: "Validation Error",
@@ -487,7 +487,29 @@ export const CreateCommunicationAdapter = () => {
       return;
     }
 
-    const requiredFields = selectedAdapterConfig?.fields.filter(field => field.required) || [];
+    // Only validate fields that are relevant to the selected adapter mode
+    const requiredFields = selectedAdapterConfig?.fields.filter(field => {
+      if (!field.required) return false;
+      
+      // Skip fields that don't apply to the current adapter mode
+      if (field.conditionalField === 'receiver' && adapterMode === 'sender') {
+        return false;
+      }
+      if (field.conditionalField === 'sender' && adapterMode === 'receiver') {
+        return false;
+      }
+      
+      // Skip fields that depend on parent field values (for conditional auth fields)
+      if (field.parentField && field.parentValue) {
+        const parentFieldValue = configuration[field.parentField];
+        if (parentFieldValue !== field.parentValue) {
+          return false;
+        }
+      }
+      
+      return true;
+    }) || [];
+    
     const missingFields = requiredFields.filter(field => !configuration[field.name]);
 
     if (missingFields.length > 0) {
@@ -499,21 +521,59 @@ export const CreateCommunicationAdapter = () => {
       return;
     }
 
-    toast({
-      title: "Adapter Saved Successfully",
-      description: `Communication adapter "${adapterName}" has been created`,
-      variant: "default",
-    });
+    // Map frontend modes to backend modes (following reversed terminology from CLAUDE.md)
+    // Sender Adapter = Receives data FROM external systems (inbound)
+    // Receiver Adapter = Sends data TO external systems (outbound)
+    const backendMode = adapterMode === 'sender' ? 'SENDER' : 'RECEIVER';
+    const direction = adapterMode === 'sender' ? 'INBOUND' : 'OUTBOUND';
+    
+    // Prepare adapter data for backend matching AdapterConfigDTO format
+    const adapterData = {
+      name: adapterName,
+      type: selectedAdapter.toUpperCase(),
+      mode: backendMode,
+      direction: direction,
+      description: description,
+      active: isActive,
+      businessComponentId: selectedBusinessComponent.id,
+      configJson: JSON.stringify(configuration)
+    };
 
-    // Reset form
-    setSelectedBusinessComponent(null);
-    setAdapterName('');
-    setAdapterMode('');
-    setDescription('');
-    setIsActive(true);
-    setSelectedAdapter('');
-    setConfiguration({});
-    setConnectionStatus('idle');
+    try {
+      // Call backend service with mode-specific handling
+      const response = await adapterService.createAdapter(adapterData);
+      
+      if (response.success) {
+        toast({
+          title: "Adapter Saved Successfully",
+          description: `Communication adapter "${adapterName}" has been created`,
+          variant: "default",
+        });
+
+        // Reset form
+        setSelectedBusinessComponent(null);
+        setAdapterName('');
+        setAdapterMode('');
+        setDescription('');
+        setIsActive(true);
+        setSelectedAdapter('');
+        setConfiguration({});
+        setConnectionStatus('idle');
+      } else {
+        toast({
+          title: "Save Failed",
+          description: response.error || "Failed to save adapter configuration",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error saving adapter:', error);
+      toast({
+        title: "Save Error",
+        description: "An error occurred while saving the adapter",
+        variant: "destructive",
+      });
+    }
   };
 
 

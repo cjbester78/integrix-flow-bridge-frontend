@@ -17,6 +17,8 @@ import { DataStructures } from "@/pages/DataStructures";
 import { BusinessComponents } from "@/pages/BusinessComponents";
 import { Messages } from "@/pages/Messages";
 import Channels from "@/pages/Channels";
+import InterfaceManagement from "@/pages/InterfaceManagement";
+import InterfaceDetails from "@/pages/InterfaceDetails";
 
 import { Admin } from "@/pages/Admin";
 import { Settings } from "@/pages/Settings";
@@ -42,6 +44,8 @@ const App = () => (
               <Route path="create-communication-adapter" element={<CreateCommunicationAdapter />} />
               <Route path="data-structures" element={<DataStructures />} />
               <Route path="business-components" element={<BusinessComponents />} />
+              <Route path="interfaces" element={<InterfaceManagement />} />
+              <Route path="interfaces/:flowId/details" element={<InterfaceDetails />} />
               <Route path="messages" element={<Messages />} />
               <Route path="channels" element={<Channels />} />
               <Route path="admin" element={<Admin />} />

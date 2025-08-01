@@ -2,14 +2,19 @@ export interface IntegrationFlow {
   id: string;
   name: string;
   description: string;
-  status: 'active' | 'inactive' | 'error';
-  sourceAdapter: string;
-  targetAdapter: string;
+  status: 'DRAFT' | 'ACTIVE' | 'INACTIVE' | 'ERROR' | 'DEVELOPED_INACTIVE' | 'DEPLOYED_ACTIVE';
+  sourceAdapter: any;
+  targetAdapter: any;
   transformationConfig?: any;
   createdAt: string;
   updatedAt: string;
   createdBy: string;
   businessComponentId?: string;
+  mappingMode?: 'WITH_MAPPING' | 'PASS_THROUGH';
+  deployedAt?: string;
+  deployedBy?: string;
+  deploymentEndpoint?: string;
+  deploymentMetadata?: string;
 }
 
 export interface FlowStep {

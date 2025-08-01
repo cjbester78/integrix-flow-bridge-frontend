@@ -55,23 +55,33 @@ export const useBusinessComponentAdapters = () => {
       let hasBusinessComponentData = false;
       if (businessComponentsResponse.success && businessComponentsResponse.data) {
         console.log('API businessComponents loaded:', businessComponentsResponse.data);
-        setBusinessComponents(businessComponentsResponse.data);
+        const businessComponents = Array.isArray(businessComponentsResponse.data) 
+          ? businessComponentsResponse.data 
+          : [];
+        
+        // Set business components from API, even if empty
+        console.log(`API returned ${businessComponents.length} business components`);
+        setBusinessComponents(businessComponents);
         hasBusinessComponentData = true;
       }
 
       if (adaptersResponse.success && adaptersResponse.data) {
         console.log('API adapters loaded:', adaptersResponse.data);
-        setAdapters(adaptersResponse.data);
+        const adapters = Array.isArray(adaptersResponse.data) 
+          ? adaptersResponse.data 
+          : [];
+        setAdapters(adapters);
       }
 
-      // Use mock data as fallback if API fails
+      // If API fails, show empty list
       if (!hasBusinessComponentData) {
-        console.log('Using mock businessComponent data as fallback');
-        setBusinessComponents(mockBusinessComponents);
+        console.log('API failed, showing empty business components list');
+        setBusinessComponents([]);
       }
     } catch (error) {
-      console.error('Error loading data, using mock data:', error);
-      setBusinessComponents(mockBusinessComponents);
+      console.error('Error loading data, showing empty list:', error);
+      setBusinessComponents([]);
+      setAdapters([]);
     } finally {
       setLoading(false);
     }

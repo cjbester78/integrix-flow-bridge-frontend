@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
@@ -17,6 +17,13 @@ export function SoapSenderAdapterConfiguration({
   configuration,
   onConfigurationChange
 }: SoapSenderAdapterConfigurationProps) {
+  // Set default processing mode to asynchronous
+  useEffect(() => {
+    if (!configuration.processingMode) {
+      onConfigurationChange('processingMode', 'ASYNCHRONOUS');
+    }
+  }, []);
+
   const handleAuthTypeChange = (authType: string) => {
     onConfigurationChange('authentication.type', authType);
     // Reset auth-specific fields when type changes
@@ -390,10 +397,13 @@ export function SoapSenderAdapterConfiguration({
               <div className="flex items-center justify-between space-x-4 p-4 border rounded-lg">
                 <div className="space-y-1">
                   <Label htmlFor="processingMode" className="text-sm font-medium">
-                    Asynchronous Processing
+                    {(configuration.processingMode || 'ASYNCHRONOUS') === 'ASYNCHRONOUS' 
+                      ? 'Asynchronous Processing' 
+                      : 'Synchronous Processing'
+                    }
                   </Label>
                   <p className="text-sm text-muted-foreground">
-                    {configuration.processingMode === 'ASYNCHRONOUS' 
+                    {(configuration.processingMode || 'ASYNCHRONOUS') === 'ASYNCHRONOUS' 
                       ? 'Return immediate acknowledgment (HTTP 202), process in background'
                       : 'Wait for complete processing before sending response back to caller'
                     }
@@ -401,14 +411,14 @@ export function SoapSenderAdapterConfiguration({
                 </div>
                 <Switch
                   id="processingMode"
-                  checked={configuration.processingMode === 'ASYNCHRONOUS'}
+                  checked={(configuration.processingMode || 'ASYNCHRONOUS') === 'ASYNCHRONOUS'}
                   onCheckedChange={(checked) => 
                     onConfigurationChange('processingMode', checked ? 'ASYNCHRONOUS' : 'SYNCHRONOUS')
                   }
                 />
               </div>
 
-              {configuration.processingMode === 'ASYNCHRONOUS' && (
+              {(configuration.processingMode || 'ASYNCHRONOUS') === 'ASYNCHRONOUS' && (
                 <div className="space-y-4 pl-4 border-l-2 border-muted">
                   <div className="space-y-2">
                     <Label htmlFor="asyncResponseTimeout">Async Response Timeout (ms)</Label>

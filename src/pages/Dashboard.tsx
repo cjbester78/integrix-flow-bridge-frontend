@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { useBusinessComponentAdapters } from '@/hooks/useBusinessComponentAdapters';
 import { BusinessComponent } from '@/types/businessComponent';
+import { dashboardService, DashboardMetric, RecentMessage, ChannelStatus } from '@/services/dashboardService';
 import { 
   Activity, 
   MessageSquare, 
@@ -15,190 +16,205 @@ import {
   TrendingUp,
   Server,
   Zap,
-  Users
+  Users,
+  Loader2
 } from 'lucide-react';
 
-const stats = [
-  {
-    title: "Active Integrations",
-    value: "24",
-    change: "+12%",
-    icon: Activity,
-    color: "text-success"
-  },
-  {
-    title: "Messages Today",
-    value: "1,543",
-    change: "+8%",
-    icon: MessageSquare,
-    color: "text-info"
-  },
-  {
-    title: "Success Rate",
-    value: "99.2%",
-    change: "+0.3%",
-    icon: CheckCircle,
-    color: "text-success"
-  },
-  {
-    title: "Avg Response Time",
-    value: "127ms",
-    change: "-15ms",
-    icon: Zap,
-    color: "text-warning"
-  }
-];
-
-// Business Component-specific mock data
-const businessComponentData = {
-  '1': { // ACME Corporation
-    messages: [
-      { id: '1', source: 'SAP ERP', target: 'Salesforce', status: 'success', time: '2 min ago' },
-      { id: '2', source: 'REST API', target: 'MySQL DB', status: 'success', time: '5 min ago' },
-      { id: '3', source: 'SOAP Service', target: 'JSON API', status: 'processing', time: '15 min ago' },
-    ],
-    channels: [
-      { name: 'SAP-to-Salesforce', status: 'running', load: 85 },
-      { name: 'REST-to-Database', status: 'running', load: 45 },
-      { name: 'SOAP-Gateway', status: 'running', load: 92 },
-    ]
-  },
-  '2': { // TechStart Inc
-    messages: [
-      { id: '4', source: 'Salesforce API', target: 'Email Service', status: 'success', time: '1 min ago' },
-      { id: '5', source: 'REST API', target: 'SMS Gateway', status: 'failed', time: '8 min ago' },
-      { id: '6', source: 'File System', target: 'HTTP Endpoint', status: 'success', time: '12 min ago' },
-    ],
-    channels: [
-      { name: 'Salesforce-to-Email', status: 'running', load: 67 },
-      { name: 'API-to-SMS', status: 'idle', load: 12 },
-      { name: 'File-Processor', status: 'running', load: 78 },
-    ]
-  }
+// Icon mapping for dynamic icon rendering
+const iconMap: Record<string, any> = {
+  Activity,
+  MessageSquare,
+  CheckCircle,
+  XCircle,
+  Clock,
+  TrendingUp,
+  Server,
+  Zap,
+  Users
 };
 
 export const Dashboard = () => {
   console.log('Dashboard component loading...');
   const [selectedBusinessComponent, setSelectedBusinessComponent] = useState<BusinessComponent | null>(null);
-  const { businessComponents, loading } = useBusinessComponentAdapters();
+  const [metrics, setMetrics] = useState<DashboardMetric[]>([]);
+  const [recentMessages, setRecentMessages] = useState<RecentMessage[]>([]);
+  const [channelStatuses, setChannelStatuses] = useState<ChannelStatus[]>([]);
+  const [loadingMetrics, setLoadingMetrics] = useState(true);
+  const [loadingMessages, setLoadingMessages] = useState(true);
+  const [loadingChannels, setLoadingChannels] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
-  console.log('Dashboard - business components:', businessComponents, 'loading:', loading);
+  const { businessComponents, loading: loadingComponents } = useBusinessComponentAdapters();
+  
+  console.log('Dashboard - business components:', businessComponents, 'loading:', loadingComponents);
 
-  // Get business component-specific data or default empty arrays
-  const businessComponentMessages = selectedBusinessComponent 
-    ? businessComponentData[selectedBusinessComponent.id as keyof typeof businessComponentData]?.messages || []
-    : [];
-  
-  const businessComponentChannels = selectedBusinessComponent 
-    ? businessComponentData[selectedBusinessComponent.id as keyof typeof businessComponentData]?.channels || []
-    : [];
+  // Fetch dashboard data
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setError(null);
+        const businessComponentId = selectedBusinessComponent?.id;
+
+        // Fetch metrics
+        setLoadingMetrics(true);
+        const metricsResponse = await dashboardService.getDashboardMetrics(businessComponentId);
+        if (metricsResponse.success && metricsResponse.data) {
+          setMetrics(metricsResponse.data);
+        } else {
+          console.error('Failed to fetch metrics:', metricsResponse.error);
+        }
+        setLoadingMetrics(false);
+
+        // Fetch recent messages
+        setLoadingMessages(true);
+        const messagesResponse = await dashboardService.getRecentMessages(businessComponentId);
+        if (messagesResponse.success && messagesResponse.data) {
+          setRecentMessages(messagesResponse.data);
+        } else {
+          console.error('Failed to fetch messages:', messagesResponse.error);
+        }
+        setLoadingMessages(false);
+
+        // Fetch channel statuses
+        setLoadingChannels(true);
+        const channelsResponse = await dashboardService.getChannelStatuses(businessComponentId);
+        if (channelsResponse.success && channelsResponse.data) {
+          setChannelStatuses(channelsResponse.data);
+        } else {
+          console.error('Failed to fetch channels:', channelsResponse.error);
+        }
+        setLoadingChannels(false);
+
+      } catch (err) {
+        console.error('Dashboard data fetch error:', err);
+        setError('Failed to load dashboard data');
+        setLoadingMetrics(false);
+        setLoadingMessages(false);
+        setLoadingChannels(false);
+      }
+    };
+
+    fetchDashboardData();
+    
+    // Refresh data every 30 seconds
+    const interval = setInterval(fetchDashboardData, 30000);
+    return () => clearInterval(interval);
+  }, [selectedBusinessComponent]);
 
   console.log('Dashboard render - about to return JSX');
   
   return (
     <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground">Monitor your integration platform performance</p>
+        <h1 className="text-2xl font-bold">Integration Dashboard</h1>
+        <p className="text-muted-foreground">Monitor your integration flows and system health</p>
       </div>
 
-      {/* Business Component Selection */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5" />
-            Business Component Filter
-          </CardTitle>
-          <CardDescription>
-            Filter dashboard data by business component
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            <Label htmlFor="businessComponent">Business Component</Label>
-            <Select
-              value={selectedBusinessComponent?.id || ''}
-              onValueChange={(businessComponentId) => {
-                const businessComponent = businessComponents.find(c => c.id === businessComponentId) || null;
-                setSelectedBusinessComponent(businessComponent);
-              }}
-              disabled={loading}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select a business component to filter data" />
-              </SelectTrigger>
-              <SelectContent>
-                {businessComponents.map((businessComponent) => (
-                  <SelectItem key={businessComponent.id} value={businessComponent.id}>
-                    {businessComponent.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+      {/* Business Component Filter */}
+      <div className="flex items-center gap-4">
+        <Label htmlFor="business-component">Business Component:</Label>
+        <Select
+          value={selectedBusinessComponent?.id || 'all'}
+          onValueChange={(value) => {
+            if (value === 'all') {
+              setSelectedBusinessComponent(null);
+            } else {
+              const component = businessComponents.find(bc => bc.id === value);
+              setSelectedBusinessComponent(component || null);
+            }
+          }}
+        >
+          <SelectTrigger id="business-component" className="w-[280px]">
+            <SelectValue placeholder="Select a business component" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Components</SelectItem>
+            {businessComponents.map((bc) => (
+              <SelectItem key={bc.id} value={bc.id}>
+                {bc.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Error Display */}
+      {error && (
+        <div className="bg-destructive/10 text-destructive p-4 rounded-lg">
+          {error}
+        </div>
+      )}
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {loadingMetrics ? (
+          <div className="col-span-full flex justify-center p-8">
+            <Loader2 className="h-8 w-8 animate-spin" />
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
-          <Card 
-            key={stat.title} 
-            className="bg-gradient-secondary border-border/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-elegant group"
-            style={{ animationDelay: `${index * 0.1}s` }}
-          >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                {stat.title}
-              </CardTitle>
-              <stat.icon className={`h-4 w-4 ${stat.color} transition-all duration-300 group-hover:scale-110`} />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-foreground">{stat.value}</div>
-              <p className="text-xs text-muted-foreground">
-                <span className="text-success">{stat.change}</span> from last hour
-              </p>
-            </CardContent>
-          </Card>
-        ))}
+        ) : (
+          metrics.map((stat, index) => {
+            const Icon = iconMap[stat.icon] || Activity;
+            const isPositive = stat.change.startsWith('+') || stat.change.startsWith('-') && stat.change.includes('ms');
+            
+            return (
+              <Card key={index}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+                  <Icon className={`h-4 w-4 ${stat.color}`} />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{stat.value}</div>
+                  <p className={`text-xs ${isPositive ? 'text-success' : 'text-destructive'}`}>
+                    {stat.change} from last period
+                  </p>
+                </CardContent>
+              </Card>
+            );
+          })
+        )}
       </div>
 
+      {/* Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Messages */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MessageSquare className="h-5 w-5" />
-              Recent Messages
-            </CardTitle>
-            <CardDescription>Latest integration message flows</CardDescription>
+            <CardTitle>Recent Messages</CardTitle>
+            <CardDescription>Latest integration messages</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {selectedBusinessComponent && businessComponentMessages.length > 0 ? (
-              businessComponentMessages.map((message) => (
-                <div key={message.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 transition-all duration-300 hover:bg-muted/70 group">
-                  <div className="flex items-center space-x-3">
-                    <div className="flex items-center space-x-2">
-                      {message.status === 'success' && <CheckCircle className="h-4 w-4 text-success" />}
-                      {message.status === 'failed' && <XCircle className="h-4 w-4 text-destructive" />}
-                      {message.status === 'processing' && <Clock className="h-4 w-4 text-warning" />}
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium">{message.source} → {message.target}</div>
-                      <div className="text-xs text-muted-foreground">{message.time}</div>
-                    </div>
-                  </div>
-                  <Badge variant={
-                    message.status === 'success' ? 'default' : 
-                    message.status === 'failed' ? 'destructive' : 'secondary'
-                  }>
-                    {message.status}
-                  </Badge>
-                </div>
-              ))
+          <CardContent>
+            {loadingMessages ? (
+              <div className="flex justify-center p-8">
+                <Loader2 className="h-6 w-6 animate-spin" />
+              </div>
+            ) : recentMessages.length === 0 ? (
+              <p className="text-muted-foreground text-center py-8">No recent messages</p>
             ) : (
-              <div className="text-center text-muted-foreground py-8">
-                {selectedBusinessComponent ? 'No recent messages for this business component' : 'Select a business component to view messages'}
+              <div className="space-y-4">
+                {recentMessages.map((message) => (
+                  <div key={message.id} className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Badge
+                        variant={
+                          message.status === 'success' ? 'success' :
+                          message.status === 'failed' ? 'destructive' : 
+                          'secondary'
+                        }
+                      >
+                        {message.status}
+                      </Badge>
+                      <div>
+                        <p className="text-sm font-medium">
+                          {message.source} → {message.target}
+                        </p>
+                        <p className="text-xs text-muted-foreground">{message.time}</p>
+                      </div>
+                    </div>
+                    {message.status === 'success' && <CheckCircle className="h-4 w-4 text-success" />}
+                    {message.status === 'failed' && <XCircle className="h-4 w-4 text-destructive" />}
+                    {message.status === 'processing' && <Clock className="h-4 w-4 text-warning animate-pulse" />}
+                  </div>
+                ))}
               </div>
             )}
           </CardContent>
@@ -207,39 +223,39 @@ export const Dashboard = () => {
         {/* Channel Status */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Server className="h-5 w-5" />
-              Channel Status
-            </CardTitle>
-            <CardDescription>Integration channel performance</CardDescription>
+            <CardTitle>Channel Status</CardTitle>
+            <CardDescription>Active integration channels</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {selectedBusinessComponent && businessComponentChannels.length > 0 ? (
-              businessComponentChannels.map((channel) => (
-                <div key={channel.name} className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <div className={`h-2 w-2 rounded-full ${
-                        channel.status === 'running' ? 'bg-success' : 'bg-muted-foreground'
-                      }`} />
-                      <span className="text-sm font-medium">{channel.name}</span>
-                    </div>
-                    <Badge variant={channel.status === 'running' ? 'default' : 'secondary'}>
-                      {channel.status}
-                    </Badge>
-                  </div>
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>Load</span>
-                      <span>{channel.load}%</span>
+          <CardContent>
+            {loadingChannels ? (
+              <div className="flex justify-center p-8">
+                <Loader2 className="h-6 w-6 animate-spin" />
+              </div>
+            ) : channelStatuses.length === 0 ? (
+              <p className="text-muted-foreground text-center py-8">No active channels</p>
+            ) : (
+              <div className="space-y-4">
+                {channelStatuses.map((channel, index) => (
+                  <div key={index}>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <Server className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm font-medium">{channel.name}</span>
+                      </div>
+                      <Badge 
+                        variant={
+                          channel.status === 'running' ? 'success' : 
+                          channel.status === 'idle' ? 'secondary' : 
+                          'destructive'
+                        }
+                      >
+                        {channel.status}
+                      </Badge>
                     </div>
                     <Progress value={channel.load} className="h-2" />
+                    <p className="text-xs text-muted-foreground mt-1">Load: {channel.load}%</p>
                   </div>
-                </div>
-              ))
-            ) : (
-              <div className="text-center text-muted-foreground py-8">
-                {selectedBusinessComponent ? 'No channels for this business component' : 'Select a business component to view channels'}
+                ))}
               </div>
             )}
           </CardContent>

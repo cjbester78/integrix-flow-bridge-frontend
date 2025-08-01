@@ -24,6 +24,13 @@ export function RestReceiverAdapterConfiguration({
   const [selectedBusinessComponentId, setSelectedBusinessComponentId] = useState<string>('');
   const [sourceStructures, setSourceStructures] = useState<any[]>([]);
 
+  // Set default processing mode to asynchronous
+  useEffect(() => {
+    if (!configuration.processingMode) {
+      onConfigurationChange('processingMode', 'ASYNCHRONOUS');
+    }
+  }, []);
+
   // Filter structures based on selected business component
   useEffect(() => {
     if (selectedBusinessComponentId) {
@@ -204,10 +211,13 @@ export function RestReceiverAdapterConfiguration({
               <div className="flex items-center justify-between space-x-4 p-4 border rounded-lg">
                 <div className="space-y-1">
                   <Label htmlFor="processingMode" className="text-sm font-medium">
-                    Asynchronous Processing
+                    {(configuration.processingMode || 'ASYNCHRONOUS') === 'ASYNCHRONOUS' 
+                      ? 'Asynchronous Processing' 
+                      : 'Synchronous Processing'
+                    }
                   </Label>
                   <p className="text-sm text-muted-foreground">
-                    {configuration.processingMode === 'ASYNCHRONOUS' 
+                    {(configuration.processingMode || 'ASYNCHRONOUS') === 'ASYNCHRONOUS' 
                       ? 'Fire-and-forget: don\'t wait for response from target system'
                       : 'Wait for complete response from target system before continuing flow'
                     }
@@ -215,14 +225,14 @@ export function RestReceiverAdapterConfiguration({
                 </div>
                 <Switch
                   id="processingMode"
-                  checked={configuration.processingMode === 'ASYNCHRONOUS'}
+                  checked={(configuration.processingMode || 'ASYNCHRONOUS') === 'ASYNCHRONOUS'}
                   onCheckedChange={(checked) => 
                     onConfigurationChange('processingMode', checked ? 'ASYNCHRONOUS' : 'SYNCHRONOUS')
                   }
                 />
               </div>
 
-              {configuration.processingMode === 'SYNCHRONOUS' && (
+              {(configuration.processingMode || 'ASYNCHRONOUS') === 'SYNCHRONOUS' && (
                 <div className="space-y-4 pl-4 border-l-2 border-muted">
                   <div className="space-y-2">
                     <Label htmlFor="responseTimeout">Response Timeout (ms)</Label>
