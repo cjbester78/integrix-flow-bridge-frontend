@@ -1,16 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { useBusinessComponentAdapters } from '@/hooks/useBusinessComponentAdapters';
-
-interface Certificate {
-  id: string;
-  name: string;
-  type: string;
-  issuer: string;
-  status: string;
-  businessComponentId?: string;
-}
+import { certificateService } from '@/services/certificateService';
+import { Certificate } from '@/types/admin';
+import { toast } from 'sonner';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface CertificateSelectionProps {
   id: string;
@@ -31,41 +25,35 @@ export const CertificateSelection: React.FC<CertificateSelectionProps> = ({
   placeholder = "Select certificate",
   required = false
 }) => {
-  // Mock certificates for now - in real implementation this would come from an API
-  const mockCertificates: Certificate[] = [
-    {
-      id: 'cert-1',
-      name: 'Production SSL Certificate',
-      type: 'SSL',
-      issuer: 'DigiCert Inc',
-      status: 'active',
-      businessComponentId: 'bc-1'
-    },
-    {
-      id: 'cert-2', 
-      name: 'Client Authentication Certificate',
-      type: 'Client Auth',
-      issuer: 'Internal CA',
-      status: 'active',
-      businessComponentId: 'bc-1'
-    },
-    {
-      id: 'cert-3',
-      name: 'Development SSL Certificate',
-      type: 'SSL',
-      issuer: 'Let\'s Encrypt',
-      status: 'active',
-      businessComponentId: 'bc-2'
-    }
-  ];
+  const [certificates, setCertificates] = useState<Certificate[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Filter certificates by business component if provided
-  const filteredCertificates = businessComponentId 
-    ? mockCertificates.filter(cert => cert.businessComponentId === businessComponentId)
-    : mockCertificates;
+  useEffect(() => {
+    const fetchCertificates = async () => {
+      try {
+        setIsLoading(true);
+        const response = await certificateService.getAllCertificates(businessComponentId);
+        
+        if (response.success && response.data) {
+          setCertificates(response.data);
+        } else {
+          console.error('Failed to fetch certificates:', response.error);
+          setCertificates([]);
+        }
+      } catch (error) {
+        console.error('Error fetching certificates:', error);
+        setCertificates([]);
+        toast.error('Failed to load certificates');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCertificates();
+  }, [businessComponentId]);
 
   // Only show active certificates
-  const activeCertificates = filteredCertificates.filter(cert => cert.status === 'active');
+  const activeCertificates = certificates.filter(cert => cert.status === 'active');
 
   return (
     <div className="space-y-2">
@@ -73,16 +61,19 @@ export const CertificateSelection: React.FC<CertificateSelectionProps> = ({
         {label}
         {required && <span className="text-destructive">*</span>}
       </Label>
-      <Select value={value} onValueChange={onChange}>
-        <SelectTrigger id={id}>
-          <SelectValue placeholder={placeholder} />
-        </SelectTrigger>
-        <SelectContent>
-          {activeCertificates.length === 0 ? (
-            <SelectItem value="" disabled>
-              No certificates available for this business component
-            </SelectItem>
-          ) : (
+      {isLoading ? (
+        <Skeleton className="h-10 w-full" />
+      ) : (
+        <Select value={value} onValueChange={onChange}>
+          <SelectTrigger id={id}>
+            <SelectValue placeholder={placeholder} />
+          </SelectTrigger>
+          <SelectContent>
+            {activeCertificates.length === 0 ? (
+              <SelectItem value="" disabled>
+                No certificates available {businessComponentId ? 'for this business component' : ''}
+              </SelectItem>
+            ) : (
             activeCertificates.map((cert) => (
               <SelectItem key={cert.id} value={cert.id}>
                 <div className="flex flex-col">
@@ -93,9 +84,10 @@ export const CertificateSelection: React.FC<CertificateSelectionProps> = ({
                 </div>
               </SelectItem>
             ))
-          )}
-        </SelectContent>
-      </Select>
+            )}
+          </SelectContent>
+        </Select>
+      )}
     </div>
   );
 };

@@ -2,14 +2,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/ui/empty-state';
-import { Plus, Edit, Crown, Settings, UserCheck, Users, Shield } from 'lucide-react';
+import { Plus, Edit, Crown, Settings, UserCheck, Users, Shield, RefreshCw } from 'lucide-react';
 import { Role } from '@/types/admin';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface RoleManagementProps {
   roles: Role[];
+  isLoading?: boolean;
+  onRefresh?: () => void;
 }
 
-export const RoleManagement = ({ roles }: RoleManagementProps) => {
+export const RoleManagement = ({ roles, isLoading = false, onRefresh }: RoleManagementProps) => {
   const getRoleIcon = (role: string) => {
     switch (role) {
       case 'administrator':
@@ -31,15 +34,50 @@ export const RoleManagement = ({ roles }: RoleManagementProps) => {
             <CardTitle>Role Management</CardTitle>
             <CardDescription>Define and manage user roles and permissions</CardDescription>
           </div>
-          <Button className="bg-gradient-primary">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Role
-          </Button>
+          <div className="flex items-center gap-2">
+            {onRefresh && (
+              <Button variant="outline" size="sm" onClick={onRefresh} disabled={isLoading}>
+                <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+              </Button>
+            )}
+            <Button className="bg-gradient-primary">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Role
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
         <div className="grid gap-4">
-          {roles.length === 0 ? (
+          {isLoading ? (
+            // Loading skeletons
+            Array.from({ length: 3 }).map((_, index) => (
+              <Card key={index} className="bg-gradient-secondary border-border/50">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="h-4 w-4 rounded-full" />
+                      <div>
+                        <Skeleton className="h-5 w-32 mb-2" />
+                        <Skeleton className="h-4 w-48" />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-6 w-16" />
+                      <Skeleton className="h-8 w-8" />
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-2">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <Skeleton key={i} className="h-6 w-20" />
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          ) : roles.length === 0 ? (
             <EmptyState
               icon={<Shield className="h-12 w-12" />}
               title="No roles found"

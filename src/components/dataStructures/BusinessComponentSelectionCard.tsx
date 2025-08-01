@@ -43,11 +43,17 @@ export const BusinessComponentSelectionCard: React.FC<BusinessComponentSelection
               <SelectValue placeholder="Select a business component" />
             </SelectTrigger>
             <SelectContent>
-              {businessComponents.map((businessComponent) => (
-                <SelectItem key={businessComponent.id} value={businessComponent.id}>
-                  {businessComponent.name}
-                </SelectItem>
-              ))}
+              {businessComponents.length === 0 ? (
+                <div className="p-2 text-sm text-muted-foreground text-center">
+                  No business components available
+                </div>
+              ) : (
+                businessComponents.map((businessComponent) => (
+                  <SelectItem key={businessComponent.id} value={businessComponent.id}>
+                    {businessComponent.name}
+                  </SelectItem>
+                ))
+              )}
             </SelectContent>
           </Select>
         </div>

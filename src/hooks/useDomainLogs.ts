@@ -85,13 +85,15 @@ export const useDomainLogs = (params: UseDomainLogsParams) => {
       if (response.success && response.data) {
         setDomainErrors(response.data);
       } else {
-        // Generate mock data based on domain type
-        setDomainErrors(generateMockDomainErrors(params.domainType, params.referenceId));
+        // API returned empty data, set empty array
+        setDomainErrors([]);
+        console.log(`No domain errors found for ${params.domainType}`);
       }
     } catch (err) {
-      // Fallback to mock data
-      setDomainErrors(generateMockDomainErrors(params.domainType, params.referenceId));
-      console.warn(`Failed to fetch domain errors for ${params.domainType}:`, err);
+      // API error, set empty array instead of mock data
+      setDomainErrors([]);
+      setError(`Failed to fetch domain errors for ${params.domainType}`);
+      console.error(`Failed to fetch domain errors for ${params.domainType}:`, err);
     } finally {
       setLoading(false);
     }
@@ -134,21 +136,6 @@ const getDomainTableName = (domainType: DomainType): string => {
     MessageProcessing: 'message-errors',
   };
   return tableMap[domainType];
-};
-
-const generateMockDomainErrors = (domainType: DomainType, referenceId?: string): DomainErrorEntry[] => {
-  const baseErrors: DomainErrorEntry[] = [
-    {
-      id: '1',
-      action: 'TestAction',
-      description: `Mock ${domainType} error`,
-      payload: JSON.stringify({ mockData: true, referenceId }),
-      createdAt: new Date().toISOString(),
-      systemLogId: 'mock-log-1',
-    },
-  ];
-
-  return baseErrors;
 };
 
 // Specific domain hooks

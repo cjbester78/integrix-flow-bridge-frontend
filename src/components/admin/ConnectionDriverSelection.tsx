@@ -2,18 +2,21 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
-import { Database, MessageSquare, FileArchive } from 'lucide-react';
+import { Database, MessageSquare, FileArchive, RefreshCw } from 'lucide-react';
 import { JdbcDriverModal } from './JdbcDriverModal';
 import { JmsDriverModal } from './JmsDriverModal';
 import { JarFile } from '@/types/admin';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface ConnectionDriverSelectionProps {
   jarFiles: JarFile[];
+  isLoading?: boolean;
+  onRefresh?: () => void;
   onJarFileAdded: (jarFile: JarFile) => void;
   onJarFileDeleted: (id: string) => void;
 }
 
-export const ConnectionDriverSelection = ({ jarFiles, onJarFileAdded, onJarFileDeleted }: ConnectionDriverSelectionProps) => {
+export const ConnectionDriverSelection = ({ jarFiles, isLoading = false, onRefresh, onJarFileAdded, onJarFileDeleted }: ConnectionDriverSelectionProps) => {
   const [showJdbcModal, setShowJdbcModal] = useState(false);
   const [showJmsModal, setShowJmsModal] = useState(false);
 
@@ -66,12 +69,45 @@ export const ConnectionDriverSelection = ({ jarFiles, onJarFileAdded, onJarFileD
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">Uploaded Connection Drivers</h3>
-          <div className="text-sm text-muted-foreground">
-            {jarFiles.length} driver{jarFiles.length !== 1 ? 's' : ''} uploaded
+          <div className="flex items-center gap-2">
+            <div className="text-sm text-muted-foreground">
+              {jarFiles.length} driver{jarFiles.length !== 1 ? 's' : ''} uploaded
+            </div>
+            {onRefresh && (
+              <Button variant="outline" size="sm" onClick={onRefresh} disabled={isLoading}>
+                <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+              </Button>
+            )}
           </div>
         </div>
         
-        {jarFiles.length === 0 ? (
+        {isLoading ? (
+          // Loading skeletons
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <Card key={index}>
+                <CardHeader className="pb-2">
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="h-5 w-5 rounded" />
+                    <Skeleton className="h-5 w-32" />
+                  </div>
+                  <Skeleton className="h-4 w-48 mt-1" />
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="space-y-2">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <div key={i} className="flex justify-between">
+                        <Skeleton className="h-4 w-16" />
+                        <Skeleton className="h-4 w-20" />
+                      </div>
+                    ))}
+                  </div>
+                  <Skeleton className="h-8 w-full mt-3" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : jarFiles.length === 0 ? (
           <EmptyState
             icon={<FileArchive className="h-12 w-12" />}
             title="No connection drivers uploaded"

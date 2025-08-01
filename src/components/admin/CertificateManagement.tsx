@@ -3,14 +3,17 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { EmptyState } from '@/components/ui/empty-state';
-import { Plus, Edit, Trash2, Key } from 'lucide-react';
+import { Plus, Edit, Trash2, Key, RefreshCw } from 'lucide-react';
 import { Certificate } from '@/types/admin';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface CertificateManagementProps {
   certificates: Certificate[];
+  isLoading?: boolean;
+  onRefresh?: () => void;
 }
 
-export const CertificateManagement = ({ certificates }: CertificateManagementProps) => {
+export const CertificateManagement = ({ certificates, isLoading = false, onRefresh }: CertificateManagementProps) => {
   const getStatusVariant = (status: string) => {
     switch (status) {
       case 'active':
@@ -32,14 +35,56 @@ export const CertificateManagement = ({ certificates }: CertificateManagementPro
             <CardTitle>Certificate Management</CardTitle>
             <CardDescription>Manage SSL certificates and authentication keys</CardDescription>
           </div>
-          <Button className="bg-gradient-primary">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Certificate
-          </Button>
+          <div className="flex items-center gap-2">
+            {onRefresh && (
+              <Button variant="outline" size="sm" onClick={onRefresh} disabled={isLoading}>
+                <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+              </Button>
+            )}
+            <Button className="bg-gradient-primary">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Certificate
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
-        {certificates.length === 0 ? (
+        {isLoading ? (
+          // Loading skeleton
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Issuer</TableHead>
+                  <TableHead>Valid Period</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Usage</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <TableRow key={index}>
+                    <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-28" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-40" /></TableCell>
+                    <TableCell><Skeleton className="h-6 w-16" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-36" /></TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Skeleton className="h-8 w-8" />
+                        <Skeleton className="h-8 w-8" />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        ) : certificates.length === 0 ? (
           <EmptyState
             icon={<Key className="h-12 w-12" />}
             title="No certificates found"

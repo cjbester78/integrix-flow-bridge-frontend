@@ -11,172 +11,21 @@ import { AdapterTypesManagement } from '@/components/admin/AdapterTypesManagemen
 import { SystemSettings } from '@/components/admin/SystemSettings';
 import { User, Role, Certificate, JarFile } from '@/types/admin';
 import { userService } from '@/services/userService';
+import { roleService } from '@/services/roleService';
+import { certificateService } from '@/services/certificateService';
+import { jarFileService } from '@/services/jarFileService';
 import { toast } from 'sonner';
 
-const initialUsers: User[] = [
-  {
-    id: '1',
-    username: 'admin',
-    email: 'admin@integrixlab.com',
-    first_name: 'System',
-    last_name: 'Administrator',
-    role: 'administrator',
-    status: 'active',
-    permissions: {
-      flows: ['create', 'read', 'update', 'delete', 'execute'],
-      adapters: ['create', 'read', 'update', 'delete', 'test'],
-      structures: ['create', 'read', 'update', 'delete'],
-      users: ['create', 'read', 'update', 'delete'],
-      system: ['create', 'read', 'update', 'delete']
-    },
-    email_verified: true,
-    created_at: '2024-01-01 09:00:00',
-    updated_at: '2024-01-01 09:00:00',
-    last_login_at: '2024-01-15 14:30:25'
-  },
-  {
-    id: '2',
-    username: 'integrator1',
-    email: 'integrator1@company.com',
-    first_name: 'John',
-    last_name: 'Integrator',
-    role: 'integrator',
-    status: 'active',
-    permissions: {
-      flows: ['create', 'read', 'update', 'execute'],
-      adapters: ['create', 'read', 'update', 'test'],
-      structures: ['create', 'read', 'update']
-    },
-    email_verified: true,
-    created_at: '2024-01-05 10:30:00',
-    updated_at: '2024-01-05 10:30:00',
-    last_login_at: '2024-01-15 12:15:30'
-  },
-  {
-    id: '3',
-    username: 'viewer1',
-    email: 'viewer1@company.com',
-    first_name: 'Jane',
-    last_name: 'Viewer',
-    role: 'viewer',
-    status: 'inactive',
-    permissions: {
-      flows: ['read'],
-      adapters: ['read'],
-      structures: ['read']
-    },
-    email_verified: true,
-    created_at: '2024-01-08 14:20:00',
-    updated_at: '2024-01-08 14:20:00',
-    last_login_at: '2024-01-10 16:45:12'
-  }
-];
-
-const initialRoles: Role[] = [
-  {
-    id: '1',
-    name: 'administrator',
-    description: 'Full system access with user management capabilities',
-    permissions: ['read', 'write', 'admin', 'user_management'],
-    userCount: 1
-  },
-  {
-    id: '2',
-    name: 'integrator',
-    description: 'Can create and manage integration flows',
-    permissions: ['read', 'write', 'execute'],
-    userCount: 1
-  },
-  {
-    id: '3',
-    name: 'viewer',
-    description: 'Read-only access to monitoring and logs',
-    permissions: ['read'],
-    userCount: 1
-  }
-];
-
-const initialCertificates: Certificate[] = [
-  {
-    id: '1',
-    name: 'SAP Production SSL',
-    type: 'SSL Certificate',
-    issuer: 'DigiCert Inc',
-    validFrom: '2024-01-01',
-    validTo: '2025-01-01',
-    status: 'active',
-    usage: 'SAP ERP Connection'
-  },
-  {
-    id: '2',
-    name: 'Salesforce OAuth',
-    type: 'OAuth Certificate',
-    issuer: 'Salesforce.com',
-    validFrom: '2024-01-01',
-    validTo: '2024-12-31',
-    status: 'active',
-    usage: 'Salesforce API Authentication'
-  },
-  {
-    id: '3',
-    name: 'Legacy System Cert',
-    type: 'Client Certificate',
-    issuer: 'Internal CA',
-    validFrom: '2023-06-01',
-    validTo: '2024-02-01',
-    status: 'expiring',
-    usage: 'Legacy SOAP Service'
-  }
-];
-
-const initialJarFiles: JarFile[] = [
-  {
-    id: '1',
-    name: 'MySQL JDBC Driver',
-    version: '8.0.33',
-    description: 'MySQL Connector/J JDBC Driver for database connectivity',
-    file_name: 'mysql-connector-java-8.0.33.jar',
-    size_bytes: 2456789,
-    upload_date: '2024-01-15',
-    driver_type: 'Database',
-    is_active: true,
-    created_at: '2024-01-15 10:30:00',
-    updated_at: '2024-01-15 10:30:00'
-  },
-  {
-    id: '2',
-    name: 'PostgreSQL JDBC Driver',
-    version: '42.6.0',
-    description: 'PostgreSQL JDBC Driver for database operations',
-    file_name: 'postgresql-42.6.0.jar',
-    size_bytes: 1234567,
-    upload_date: '2024-01-10',
-    driver_type: 'Database',
-    is_active: true,
-    created_at: '2024-01-10 11:20:00',
-    updated_at: '2024-01-10 11:20:00'
-  },
-  {
-    id: '3',
-    name: 'ActiveMQ Client',
-    version: '5.18.3',
-    description: 'ActiveMQ JMS Client for message queue operations',
-    file_name: 'activemq-client-5.18.3.jar',
-    size_bytes: 987654,
-    upload_date: '2024-01-08',
-    driver_type: 'Message Queue',
-    is_active: true,
-    created_at: '2024-01-08 09:15:00',
-    updated_at: '2024-01-08 09:15:00'
-  }
-];
 
 export const Admin = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoadingUsers, setIsLoadingUsers] = useState(true);
-  const [roles] = useState<Role[]>(initialRoles);
-  const [certificates] = useState<Certificate[]>(initialCertificates);
-  const [jarFiles, setJarFiles] = useState<JarFile[]>(initialJarFiles);
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [isLoadingRoles, setIsLoadingRoles] = useState(true);
+  const [certificates, setCertificates] = useState<Certificate[]>([]);
+  const [isLoadingCertificates, setIsLoadingCertificates] = useState(true);
+  const [jarFiles, setJarFiles] = useState<JarFile[]>([]);
+  const [isLoadingJarFiles, setIsLoadingJarFiles] = useState(true);
   const [activeTab, setActiveTab] = useState('users');
 
   // Fetch users from backend
@@ -192,24 +41,97 @@ export const Admin = () => {
         setUsers(userData || []);
       } else {
         console.error('Failed to fetch users:', response.error);
-        // Use initial mock users as fallback when API fails
-        console.log('API not available, using fallback user data');
-        setUsers(initialUsers);
-        toast.error('API temporarily unavailable - showing offline data');
+        // Show empty list when API fails
+        console.log('API not available, showing empty user list');
+        setUsers([]);
+        toast.error('Failed to load users');
       }
     } catch (error) {
       console.error('Error fetching users:', error);
-      // Use initial mock users as fallback when API fails
-      console.log('API error, using fallback user data');
-      setUsers(initialUsers);
-      toast.error('API temporarily unavailable - showing offline data');
+      // Show empty list when API fails
+      console.log('API error, showing empty user list');
+      setUsers([]);
+      toast.error('Failed to load users');
     } finally {
       setIsLoadingUsers(false);
     }
   };
 
+  // Fetch roles from backend
+  const fetchRoles = async () => {
+    try {
+      setIsLoadingRoles(true);
+      const response = await roleService.getAllRoles();
+      console.log('Role fetch response:', response);
+      
+      if (response.success && response.data) {
+        const roleData = response.data.roles || [];
+        setRoles(roleData);
+      } else {
+        console.error('Failed to fetch roles:', response.error);
+        setRoles([]);
+        toast.error('Failed to load roles');
+      }
+    } catch (error) {
+      console.error('Error fetching roles:', error);
+      setRoles([]);
+      toast.error('Failed to load roles');
+    } finally {
+      setIsLoadingRoles(false);
+    }
+  };
+
+  // Fetch certificates from backend
+  const fetchCertificates = async () => {
+    try {
+      setIsLoadingCertificates(true);
+      const response = await certificateService.getAllCertificates();
+      console.log('Certificate fetch response:', response);
+      
+      if (response.success && response.data) {
+        setCertificates(response.data);
+      } else {
+        console.error('Failed to fetch certificates:', response.error);
+        setCertificates([]);
+        toast.error('Failed to load certificates');
+      }
+    } catch (error) {
+      console.error('Error fetching certificates:', error);
+      setCertificates([]);
+      toast.error('Failed to load certificates');
+    } finally {
+      setIsLoadingCertificates(false);
+    }
+  };
+
+  // Fetch JAR files from backend
+  const fetchJarFiles = async () => {
+    try {
+      setIsLoadingJarFiles(true);
+      const response = await jarFileService.getAllJarFiles();
+      console.log('JAR files fetch response:', response);
+      
+      if (response.success && response.data) {
+        setJarFiles(response.data);
+      } else {
+        console.error('Failed to fetch JAR files:', response.error);
+        setJarFiles([]);
+        toast.error('Failed to load JAR files');
+      }
+    } catch (error) {
+      console.error('Error fetching JAR files:', error);
+      setJarFiles([]);
+      toast.error('Failed to load JAR files');
+    } finally {
+      setIsLoadingJarFiles(false);
+    }
+  };
+
   useEffect(() => {
     fetchUsers();
+    fetchRoles();
+    fetchCertificates();
+    fetchJarFiles();
   }, []);
 
   const handleJarFileAdded = (jarFile: JarFile) => {
@@ -274,16 +196,18 @@ export const Admin = () => {
         </TabsContent>
 
         <TabsContent value="roles" className="space-y-4">
-          <RoleManagement roles={roles} />
+          <RoleManagement roles={roles} isLoading={isLoadingRoles} onRefresh={fetchRoles} />
         </TabsContent>
 
         <TabsContent value="certificates" className="space-y-4">
-          <CertificateManagement certificates={certificates} />
+          <CertificateManagement certificates={certificates} isLoading={isLoadingCertificates} onRefresh={fetchCertificates} />
         </TabsContent>
 
         <TabsContent value="jar-files" className="space-y-4">
           <JarFileManagement 
             jarFiles={jarFiles}
+            isLoading={isLoadingJarFiles}
+            onRefresh={fetchJarFiles}
             onJarFileAdded={handleJarFileAdded}
             onJarFileDeleted={handleJarFileDeleted}
           />
